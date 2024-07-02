@@ -1,0 +1,30 @@
+{
+    "Model ID": "openai-community/gpt2",
+    "Model Source": ["offline", "huggingface"],
+    "Tags": [
+        "transformers",
+        "pytorch",
+        "tf",
+        "jax",
+        "tflite",
+        "rust",
+        "onnx",
+        "safetensors",
+        "gpt2",
+        "text-generation",
+        "exbert",
+        "en",
+        "doi:10.57967/hf/0039",
+        "license:mit",
+        "autotrain_compatible",
+        "endpoints_compatible",
+        "text-generation-inference",
+        "region:us"
+    ],
+    "Pipeline Tag": "text-generation",
+    "Model Card URL": "https://huggingface.co/openai-community/gpt2",
+    "Required Classes": [
+        "AutoModelForCausalLM",
+        "AutoTokenizer"
+    ]
+}
