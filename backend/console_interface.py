@@ -1,6 +1,6 @@
 from core.config import MODEL_INDEX_PATH
 from core.logging import logger
-from data.json_handler import JSONHandler
+from data_utils.json_handler import JSONHandler
 from model_loader.control import ModelControl
 
 def main():
