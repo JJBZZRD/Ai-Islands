@@ -1,10 +1,9 @@
 from core.config import MODEL_INDEX_PATH
 from core.logging import logger
 from data_utils.json_handler import JSONHandler
-from model_loader.control import ModelControl
+
 
 def main():
-    model_control = ModelControl()
     json_handler = JSONHandler()
 
     try:
@@ -20,7 +19,6 @@ def main():
     model_id = input("Enter the Model ID to load: ")
     if model_id in [model['Model ID'] for model in model_index]:
         try:
-            model_control.start_model_process(model_id)
             logger.info(f"Started loading model {model_id} in a separate process.")
         except Exception as e:
             logger.error(f"Error starting model process: {e}")

@@ -1,7 +1,7 @@
 {
-    "Model ID": "openai-community/gpt2",
-    "Model Source": ["offline", "huggingface"],
-    "Tags": [
+    "model_id": "openai-community/gpt2",
+    "model_source": ["offline", "huggingface"],
+    "tags": [
         "transformers",
         "pytorch",
         "tf",
@@ -21,9 +21,9 @@
         "text-generation-inference",
         "region:us"
     ],
-    "Pipeline Tag": "text-generation",
-    "Model Card URL": "https://huggingface.co/openai-community/gpt2",
-    "Required Classes": [
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/openai-community/gpt2",
+    "required_classes": [
         "AutoModelForCausalLM",
         "AutoTokenizer"
     ]
