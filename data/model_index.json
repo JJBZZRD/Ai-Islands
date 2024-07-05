@@ -1,6 +1,7 @@
 {
     "model_id": "openai-community/gpt2",
-    "model_source": ["offline", "huggingface"],
+    "online": false,
+    "model_source": "transformers",
     "tags": [
         "transformers",
         "pytorch",
