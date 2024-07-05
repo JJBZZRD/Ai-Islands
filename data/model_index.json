@@ -1,7 +1,9 @@
 {
-    "model_id": "openai-community/gpt2",
-    "model_source": ["offline", "huggingface"],
-    "tags": [
+  "models": [
+    {
+      "model_id": "openai-community/gpt2",
+      "model_source": [ "offline", "huggingface" ],
+      "tags": [
         "transformers",
         "pytorch",
         "tf",
@@ -20,11 +22,106 @@
         "endpoints_compatible",
         "text-generation-inference",
         "region:us"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://huggingface.co/openai-community/gpt2",
-    "required_classes": [
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/openai-community/gpt2",
+      "required_classes": [
         "AutoModelForCausalLM",
         "AutoTokenizer"
-    ]
+      ]
+    },
+    {
+      "model_id": "ultralytics/yolov8n",
+      "model_source": [ "offline", "ultralytics" ],
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov8",
+        "yolov8n",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0",
+        "region:us"
+      ],
+      "model_card_url": "https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8n.pt",
+      "required_classes": [
+        "YOLO"
+      ]
+    },
+    {
+      "model_id": "ultralytics/yolov8s",
+      "model_source": [ "offline", "ultralytics" ],
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov8",
+        "yolov8s",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "model_card_url": "https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8s.pt",
+      "required_classes": [
+        "YOLO"
+      ]
+    },
+    {
+      "model_id": "ultralytics/yolov10n",
+      "model_source": [ "offline", "ultralytics" ],
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov10",
+        "yolov10n",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "model_card_url": "https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov10n.pt",
+      "required_classes": [
+        "YOLO"
+      ]
+    },
+    {
+      "model_id": "ultralytics/yolov10s",
+      "model_source": [ "offline", "ultralytics" ],
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov10",
+        "yolov10s",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "model_card_url": "https://github.com/ultralytics/yolov5/releases/download/v10.0/yolov10s.pt",
+      "required_classes": [
+        "YOLO"
+      ]
+    },
+    {
+      "model_id": "google/owlvit-base-patch32",
+      "model_source": [ "offline", "huggingface" ],
+      "tags": [
+        "transformers",
+        "pytorch",
+        "owlvit",
+        "object-detection",
+        "vision",
+        "en",
+        "license:apache-2.0",
+        "region:us"
+      ],
+      "pipeline_tag": "object-detection",
+      "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
+      "required_classes": [
+        "OwlViTForObjectDetection",
+        "OwlViTProcessor"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,9 @@
+# Ignore Visual Studio files
+.vs/
+
+# Ignore other common files
+*.log
+*.tmp
+*.cache
+*.pyc
+__pycache__/
