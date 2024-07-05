@@ -22,6 +22,10 @@ class ModelControl:
         if not model_info:
             return False
 
+        if model_info.get('is_online', False):
+            print(f"Model {model_id} is online and does not require downloading.")
+            return True
+
         def download_process(model_class, model_id):
             model = model_class()
             model.download(model_id)
