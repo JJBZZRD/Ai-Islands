@@ -1,6 +1,7 @@
 [
     {
         "playground_id": "playground1",
+        "description": "This is a playground for testing models",
         "models": [
             "model1",
             "model2",
