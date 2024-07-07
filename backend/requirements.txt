@@ -2,3 +2,4 @@ fastapi
 uvicorn
 transformers
 torch
+ultralytics==8.2.48
