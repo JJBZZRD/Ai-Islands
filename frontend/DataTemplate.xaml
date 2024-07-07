@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<DataTemplate xmlns="http://schemas.microsoft.com/dotnet/2021/maui">
+    <Grid Padding="10" BackgroundColor="White" Margin="5,10" RowSpacing="10" ColumnSpacing="10" HeightRequest="60">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Label Text="{Binding Name}" FontSize="18" VerticalOptions="Center" Grid.Column="0" TextColor="Black"/>
+        <Label Text="{Binding Type}" FontSize="18" VerticalOptions="Center" Grid.Column="1" TextColor="Black"/>
+        <Label Text="{Binding Status}" FontSize="18" VerticalOptions="Center" Grid.Column="2" TextColor="Black"/>
+        <Button Text="Add to library" Grid.Column="3" />
+    </Grid>
+</DataTemplate>

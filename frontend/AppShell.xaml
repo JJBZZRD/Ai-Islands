@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:frontend"
+       x:Class="frontend.AppShell"
+       FlyoutBehavior="Flyout">
+
+    <!-- AI Index Page -->
+    <FlyoutItem Title="AI Index" Icon="ai_index.png">
+        <ShellContent
+            Title="AI Index"
+            ContentTemplate="{DataTemplate local:AIIndexPage}"
+            Route="AIIndexPage"/>
+    </FlyoutItem>
+
+    <!-- Library Page -->
+    <FlyoutItem Title="Library" Icon="library.png">
+        <ShellContent
+            Title="Library"
+            ContentTemplate="{DataTemplate local:LibraryPage}"
+            Route="LibraryPage"/>
+    </FlyoutItem>
+
+    <!-- Playground Page -->
+    <FlyoutItem Title="Playground" Icon="playground.png">
+        <ShellContent
+            Title="Playground"
+            ContentTemplate="{DataTemplate local:PlaygroundPage}"
+            Route="PlaygroundPage"/>
+    </FlyoutItem>
+
+    <!-- Settings Page -->
+    <FlyoutItem Title="Settings" Icon="settings.png">
+        <ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate local:SettingsPage}"
+            Route="SettingsPage"/>
+    </FlyoutItem>
+</Shell>

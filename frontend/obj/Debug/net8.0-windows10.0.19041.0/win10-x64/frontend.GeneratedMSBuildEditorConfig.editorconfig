@@ -1,0 +1,73 @@
+is_global = true
+build_property.TargetFramework = net8.0-windows10.0.19041.0
+build_property.TargetPlatformMinVersion = 10.0.17763.0
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 9A19103F-16F7-4668-BE54-9A1E7A4F7556
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = frontend
+build_property.ProjectDir = C:\Users\Hp\OneDrive\Documents\dissertation-vision\frontend\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/AiIndexPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.AiIndexPage.xaml
+build_metadata.AdditionalFiles.TargetPath = AiIndexPage.xaml
+build_metadata.AdditionalFiles.RelativePath = AiIndexPage.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/DataTemplate.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.DataTemplate.xaml
+build_metadata.AdditionalFiles.TargetPath = DataTemplate.xaml
+build_metadata.AdditionalFiles.RelativePath = DataTemplate.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/LibraryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.LibraryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = LibraryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = LibraryPage.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/MainPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.MainPage.xaml
+build_metadata.AdditionalFiles.TargetPath = MainPage.xaml
+build_metadata.AdditionalFiles.RelativePath = MainPage.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/PlaygroundPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.PlaygroundPage.xaml
+build_metadata.AdditionalFiles.TargetPath = PlaygroundPage.xaml
+build_metadata.AdditionalFiles.RelativePath = PlaygroundPage.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[C:/Users/Hp/OneDrive/Documents/dissertation-vision/frontend/SettingsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = frontend.SettingsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = SettingsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = SettingsPage.xaml
