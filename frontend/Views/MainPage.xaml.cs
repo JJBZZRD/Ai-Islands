@@ -1,4 +1,4 @@
-﻿namespace frontend
+﻿namespace frontend.Views
 {
     public partial class MainPage : ContentPage
     {
