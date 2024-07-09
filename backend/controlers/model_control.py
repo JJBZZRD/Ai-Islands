@@ -88,6 +88,13 @@ class ModelControl:
         self.json_handler.write_json('data/library.json', library)
 
         return True
+    
+    # This method should allow for passing inputs to instantiated models, and return the outputs.
+    # The difficulty lies in the fact that different models can have different input types.
+    # For example, a vision model might take an image path, a text model might take a string, and a speech model might take audio data.
+    # The model_id will be used to determine which model to use, and the input type will be determined by the model_index.
+    # The input data will be passed as a dictionary to the model's predict method.
+
 
     def _get_model_info(self, model_id: str):
         model_index = self.json_handler.read_json('data/model_index.json')
