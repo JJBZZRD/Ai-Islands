@@ -1,0 +1,109 @@
+@startuml
+skinparam class {
+    BackgroundColor Snow
+    BorderColor Black
+    FontName Arial
+    FontColor Black
+    FontStyle Normal
+    ArrowThickness 1
+}
+skinparam linetype ortho
+!define RECTANGLE class
+
+
+RECTANGLE FastAPI {
+}
+
+RECTANGLE LibraryControl {
+    + 
+}
+
+RECTANGLE PlaygroundControl {
+
+    + create_playground(playground_id: str, playground_name: str, 
+    playground_description: str): Playground
+    + delete_playground(playground_id: str): None
+    + update_playground(playground_id: str, playground_name: str, playground_description: str, 
+    playground_models: List[str], playground_chain: List[str]): None
+    + list_playgrounds(): List[str]
+    + run_playground(playground_id: str): None
+    + stop_playground(playground_id: str): None
+    + add_model_to_playground(playground_id: str, model_id: str): None
+    + add_chain_to_playground(playground_id: str, chain_id: str): None
+}
+
+RECTANGLE ModelControl {
+    - models: List[Dict[str, Any]]
+    - json_handler: JSONHandler
+    __init__()
+    + download_model(model_id: str): bool
+    + load_model(model_id: str): bool
+    + unload_model(model_id: str): bool
+    + list_active_models(): List[str]
+    + delete_model(model_id: str): bool
+    - _get_model_info(model_id: str): Dict[str, Any]
+    - _get_model_class(model_source: str): Type
+}
+
+RECTANGLE JSONHandler {
+    + read_json(file_path: str): Dict[str, Any]
+    + write_json(file_path: str, data: Dict[str, Any]): None
+    + update_json(file_path: str, update_data: Dict[str, Any]): None
+    + append_to_json_list(file_path: str, new_item: Any): None
+}
+
+RECTANGLE TransformerModel {
+    - model: Any
+    - tokenizer: Any
+    - model_path: str
+    __init__()
+    + download(model_id: str): None
+    + load(model_id: str): None
+    + generate(prompt: str, max_length: int = 50): str
+}
+
+RECTANGLE UltralyticsModel {
+    - model: Any
+    - model_path: str
+    __init__()
+    + download(model_id: str): None
+    + load(model_id: str): None
+    + predict(image_path: str): Any
+    + train(data_path: str, epochs: int = 100): Any
+}
+
+RECTANGLE WatsonModel {
+    - model: Any
+    __init__()
+}
+
+RECTANGLE Playground {
+    - playground_id: str
+    - playground_name: str
+    - playground_description: str
+    - playground_models: List[str]
+    - playground_chain: List[str]
+    __init__()
+}
+
+RECTANGLE Library {
+   
+}
+
+ModelControl --> JSONHandler : uses
+ModelControl --> TransformerModel : uses
+ModelControl --> UltralyticsModel : uses
+ModelControl --> WatsonModel : uses
+
+PlaygroundControl --> Playground : uses
+PlaygroundControl --> ModelControl : uses
+PlaygroundControl --> JSONHandler : uses
+
+LibraryControl --> ModelControl : uses
+LibraryControl --> Library : uses
+LibraryControl --> JSONHandler : uses
+
+' FastAPI --> PlaygroundControl : uses
+' FastAPI --> LibraryControl : uses
+' FastAPI --> ModelControl : uses
+@enduml
