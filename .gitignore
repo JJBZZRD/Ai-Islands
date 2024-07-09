@@ -8,4 +8,5 @@
 *.pyc
 __pycache__/
 venv/
-
+uploaded_images/
+data/uploaded_images/

@@ -10,7 +10,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True) """
 
 import os
 
-# ROOT_DIR should point to the root directory containing both 'backend' and 'data' directories
+# ROOT_DIR point to the root directory containing both 'backend' and 'data' directories
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 BACKEND_DIR = os.path.join(ROOT_DIR, 'backend')
 
@@ -18,3 +18,8 @@ BACKEND_DIR = os.path.join(ROOT_DIR, 'backend')
 MODEL_INDEX_PATH = os.path.join(ROOT_DIR, 'data', 'model_index.json')
 DOWNLOADED_MODELS_PATH = os.path.join(ROOT_DIR, 'data', 'library.json')
 UPLOAD_DIR = os.path.join(ROOT_DIR, 'data', 'uploaded_images')
+
+# Ensure the upload directory exists
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
