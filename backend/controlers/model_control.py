@@ -17,7 +17,7 @@ class ModelControl:
         self.models = []
         self.json_handler = JSONHandler()
     
-    @staticmethod
+    """@staticmethod
     def download_process(model_class, model_id, model_dir):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
@@ -31,7 +31,15 @@ class ModelControl:
         model.save(model_path)
         end_time = time.time()
         logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
-        logger.info(f"Model saved at {model_path}")
+        logger.info(f"Model saved at {model_path}")"""
+    @staticmethod
+    def download_process(model_class, model_id, model_dir):
+        logger.info(f"Starting download for model {model_id}")
+        start_time = time.time()
+        model = model_class()
+        model.download(model_id)  
+        end_time = time.time()
+        logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
 
     @staticmethod
     def load_process(model_class, model_path, return_dict, model_id):
