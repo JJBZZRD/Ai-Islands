@@ -44,18 +44,24 @@ async def is_model_loaded():
         
 
 import logging
-from fastapi import UploadFile, APIRouter, File, HTTPException, Query 
+from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body
 from backend.controlers.model_control import ModelControl
-from backend.core.config import UPLOAD_DIR
+from backend.core.config import UPLOAD_DIR, DOWNLOADED_MODELS_PATH
 import os
 import shutil
 import uuid
+from typing import Dict, Any
+import json
+from pydantic import BaseModel
 
 router = APIRouter()
 
 model_control = ModelControl()
 
 logger = logging.getLogger(__name__)
+
+class PredictRequest(BaseModel):
+    image_path: str
 
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
@@ -68,7 +74,10 @@ async def upload_image(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        return {"image_id": image_id, "file_path": file_path}
+        # Return the relative path instead of absolute path
+        relative_file_path = os.path.relpath(file_path, UPLOAD_DIR)
+        
+        return {"image_id": image_id, "file_path": relative_file_path}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -78,36 +87,45 @@ async def list_active_models():
         active_models = model_control.list_active_models()
         return {"active_models": active_models}
     except Exception as e:
+        logger.error(f"Error listing active models: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/models/load/{model_id}")
 async def load_model(model_id: str):
     try:
-        model_control.load_model(model_id)
-        return {"message": f"Model {model_id} loaded successfully"}
+        if model_control.load_model(model_id):
+            return {"message": f"Model {model_id} loaded successfully"}
+        else:
+            raise HTTPException(status_code=400, detail=f"Model {model_id} could not be loaded")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/models/unload/{model_id}")
 async def unload_model(model_id: str):
     try:
-        model_control.unload_model(model_id)
-        return {"message": f"Model {model_id} unloaded successfully"}
+        if model_control.unload_model(model_id):
+            return {"message": f"Model {model_id} unloaded successfully"}
+        else:
+            raise HTTPException(status_code=400, detail=f"Model {model_id} could not be unloaded")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/download-model/{model_id}")
 async def download_model(model_id: str):
     try:
-        model_control.download_model(model_id)
-        return {"message": f"Model {model_id} downloaded successfully"}
+        success = model_control.download_model(model_id)
+        if success:
+            return {"message": f"Model {model_id} downloaded successfully"}
+        else:
+            HTTPException(status_code=400, detail=f"Model {model_id} could not be downloaded")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/is-model-loaded/{model_id}")
 async def is_model_loaded(model_id: str):
     try:
-        if model_control.is_model_loaded(model_id):
+        is_loaded = model_control.is_model_loaded(model_id)
+        if is_loaded:
             return {"message": f"Model {model_id} is loaded"}
         else:
             return {"message": f"Model {model_id} is not loaded"}
@@ -115,31 +133,22 @@ async def is_model_loaded(model_id: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/predict/")
-async def predict(model_id: str = Query(...), image_id: str = Query(...)):
+async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = Body(...)):
     try:
-        # Find the image file path
-        image_files = [f for f in os.listdir(UPLOAD_DIR) if f.startswith(image_id)]
-        if not image_files:
-            raise HTTPException(status_code=404, detail=f"Image with ID {image_id} not found")
-        
-        file_path = os.path.join(UPLOAD_DIR, image_files[0])
-        
-        # Find the specified model
-        model_entry = next((m for m in model_control.models if m['model_id'] == model_id), None)
-        if not model_entry:
-            # Load the model if not already loaded
-            if not model_control.load_model(model_id):
-                raise HTTPException(status_code=400, detail=f"Model {model_id} could not be loaded")
+        active_model = model_control.get_active_model(model_id)
+        if not active_model:
+            raise HTTPException(status_code=404, detail=f"Model {model_id} not found or not loaded")
 
-            model_entry = next((m for m in model_control.models if m['model_id'] == model_id), None)
-            if not model_entry:
-                raise HTTPException(status_code=500, detail=f"Model {model_id} could not be found after loading")
+        conn = active_model['conn']
+        
+        # Adjust the image path to be absolute path before sending to the model process
+        if "image_path" in request_payload:
+            request_payload["image_path"] = os.path.join(UPLOAD_DIR, request_payload["image_path"])
 
-        prediction = model_entry['model'].predict(file_path)
-        
-        # Ensure prediction is serializable
-        prediction_serializable = prediction.tolist() if hasattr(prediction, 'tolist') else prediction
-        
-        return {"filename": image_files[0], "prediction": prediction_serializable}
+        conn.send(f"predict:{json.dumps(request_payload)}")
+        prediction = conn.recv()
+
+        return {"model_id": model_id, "prediction": prediction}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

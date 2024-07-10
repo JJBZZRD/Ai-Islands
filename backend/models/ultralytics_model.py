@@ -1,15 +1,20 @@
 import os
 from ultralytics import YOLO
+from backend.core.config import ROOT_DIR
+from .base_model import BaseModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UltralyticsModel:
     def __init__(self):
         self.model = None
     
-    def download(self, model_id: str):
+    def download(self, model_id: str, save_dir: str):
         try:
             self.model = YOLO(model_id) 
             model_file_name = f'{model_id}.pt' if not model_id.endswith('.pt') else model_id
-            self.model_path = os.path.abspath(os.path.join('venv', 'models', 'ultralytics', model_file_name))
+            self.model_path = os.path.abspath(os.path.join(save_dir, model_file_name))
             
             # Ensure the directory exists
             os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
@@ -18,6 +23,12 @@ class UltralyticsModel:
             # Save the model to the specified path
             self.model.save(self.model_path)
             print(f"Model {model_id} downloaded and saved to {self.model_path}")
+            
+            # Checking whether the model file exists in the root directory and this will delete it so no copies
+            root_model_path = os.path.join(ROOT_DIR, model_file_name)
+            if os.path.exists(root_model_path):
+                os.remove(root_model_path)
+                print(f"Deleted model file from root directory: {root_model_path}")
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
     
@@ -26,11 +37,17 @@ class UltralyticsModel:
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
             
-            self.model = YOLO(model_path)
-            print(f"Model loaded from {model_path}")
+            self.model = YOLO(model_path)  # Load the YOLO model from the specified path
+            logger.info(f"Model loaded from {model_path}")
         except Exception as e:
-            print(f"Error loading model from {model_path}: {str(e)}")
-            
+            logger.error(f"Error loading model from {model_path}: {str(e)}")
+    
+    def process_request(self, request_payload: dict):
+        if "image_path" in request_payload:
+            return self.predict(request_payload["image_path"])
+        else:
+            return {"error": "Invalid request payload"}
+
     def predict(self, image_path: str):
         try:
             if self.model is None:
@@ -54,14 +71,15 @@ class UltralyticsModel:
             return predictions
         except Exception as e:
             print(f"Error predicting image {image_path}: {str(e)}")
-            return None
-            
+            return {"error": str(e)}
+    
     def train(self, data_path: str, epochs: int = 20):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
             
             self.model.train(data=data_path, epochs=epochs)
-            print(f"Model trained on {data_path} for {epochs} epochs")
+            logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
-            print(f"Error training model on data {data_path}: {str(e)}")
+            logger.error(f"Error training model on data {data_path}: {str(e)}")
+           
