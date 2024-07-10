@@ -54,3 +54,4 @@ class UltralyticsModel:
         except Exception as e:
             print(f"Error during training: {str(e)}")
             return None
+
