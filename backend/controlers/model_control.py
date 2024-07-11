@@ -19,28 +19,36 @@ class ModelControl:
         self.json_handler = JSONHandler()
     
     @staticmethod
-    def download_process(model_class, model_id, model_dir):
+    def download_process(model_class, model_id, model_dir, required_classes):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
         model = model_class()
-        model.download(model_id, model_dir)  
+        model.download(model_id, model_dir, required_classes)  
         end_time = time.time()
         logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
             
     @staticmethod
-    def load_process(model_class, model_path, conn, model_id):
-        model = model_class()
-        model.load(model_path)
-        conn.send("Model loaded")
-        while True:
-            msg = conn.recv()
-            if msg == "terminate":
-                conn.send("Terminating")
-                break
-            elif msg.startswith("predict:"):
-                payload = json.loads(msg.split(":", 1)[1])
-                prediction = model.process_request(payload)
-                conn.send(prediction)
+    def load_process(model_class, model_path, conn, model_id, required_classes):
+        try:
+            model = model_class()
+            model.required_classes = required_classes
+            logger.info(f"Attempting to load model {model_id} from {model_path}")
+            model.load(model_path)
+            logger.info(f"Model {model_id} loaded successfully")
+            conn.send("Model loaded")
+            while True:
+                msg = conn.recv()
+                if msg == "terminate":
+                    conn.send("Terminating")
+                    break
+                elif msg.startswith("predict:"):
+                    payload = json.loads(msg.split(":", 1)[1])
+                    prediction = model.process_request(payload)
+                    conn.send(prediction)
+        except Exception as e:
+            error_msg = f"Error loading model {model_id}: {str(e)}"
+            logger.error(error_msg)
+            conn.send(error_msg)
 
 
     def download_model(self, model_id: str):
@@ -54,11 +62,12 @@ class ModelControl:
             return True
         
         model_class = self._get_model_class_download(model_info['model_source'])
+        required_classes = model_info.get('required_classes', [])
         
         if model_info['model_source'] == 'ultralytics':
             model_dir = os.path.join('data', 'downloads', 'ultralytics')
         elif model_info['model_source'] == 'transformers':
-            model_dir = os.path.join('data', 'downloads', 'transformers')
+            model_dir = os.path.join('data', 'downloads', 'transformers', model_id)
         else:
             model_dir = os.path.join('data', 'downloads', 'others')
         
@@ -67,7 +76,7 @@ class ModelControl:
             os.makedirs(model_dir, exist_ok=True)
             logger.info(f"Created directory: {model_dir}")
         
-        process = multiprocessing.Process(target=self.download_process, args=(model_class, model_id, model_dir))
+        process = multiprocessing.Process(target=self.download_process, args=(model_class, model_id, model_dir, required_classes))
         logger.info(f"Starting download process for model {model_id}")
         process.start()
         process.join()
@@ -116,22 +125,28 @@ class ModelControl:
             return False
 
         model_class = self._get_model_class_load(model_info['required_classes'][0])
-        model_path = os.path.join(model_info['dir'], f"{model_id}.pt")
+        model_path = model_info['dir']  # Use the directory path directly
+        required_classes = model_info['required_classes']
         
         if not os.path.exists(model_path):
-            logger.error(f"Model file not found: {model_path}")
+            logger.error(f"Model directory not found: {model_path}")
             return False
 
         parent_conn, child_conn = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=self.load_process, args=(model_class, model_path, child_conn, model_id))
+        process = multiprocessing.Process(target=self.load_process, args=(model_class, model_path, child_conn, model_id, required_classes))
         process.start()
 
-        if parent_conn.recv() == "Model loaded":
-            self.models.append({'model_id': model_id, 'process': process, 'conn': parent_conn, 'model': model_class})
-            logger.info(f"Model {model_id} loaded and process started.")
-            return True
-        else:
-            logger.error(f"Failed to load model {model_id}.")
+        try:
+            response = parent_conn.recv()
+            if response == "Model loaded":
+                self.models.append({'model_id': model_id, 'process': process, 'conn': parent_conn, 'model': model_class})
+                logger.info(f"Model {model_id} loaded and process started.")
+                return True
+            else:
+                logger.error(f"Failed to load model {model_id}. Error: {response}")
+                return False
+        except Exception as e:
+            logger.error(f"Exception occurred while loading model {model_id}: {str(e)}")
             return False
 
     def is_model_loaded(self, model_id: str):
@@ -247,8 +262,10 @@ class ModelControl:
     def _get_model_class_load(self, required_class: str):
         if required_class == 'YOLO':
             return UltralyticsModel
-        else:
+        elif required_class in ['AutoModelForCausalLM', 'AutoTokenizer']:
             return TransformerModel
+        else:
+            raise ValueError(f"Unknown required class: {required_class}")
         
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)
@@ -256,5 +273,5 @@ class ModelControl:
             raise ValueError(f"Model {model_id} is not loaded")
 
         conn = active_model['conn']
-        conn.send(json.dumps(request_payload))
+        conn.send(f"predict:{json.dumps(request_payload)}")
         return conn.recv()
