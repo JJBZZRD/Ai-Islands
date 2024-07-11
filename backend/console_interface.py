@@ -4,10 +4,9 @@ from data_utils.json_handler import JSONHandler
 
 
 def main():
-    json_handler = JSONHandler()
 
     try:
-        model_index = json_handler.read_json(MODEL_INDEX_PATH)
+        model_index = JSONHandler.read_json(MODEL_INDEX_PATH)
     except Exception as e:
         logger.error(f"Error loading model index: {e}")
         return

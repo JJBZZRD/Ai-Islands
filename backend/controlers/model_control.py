@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 class ModelControl:
     def __init__(self):
-        self.models = []
-        self.json_handler = JSONHandler()
+        self.models = {}
     
     @staticmethod
     def download_process(model_class, model_id, model_dir):
@@ -79,7 +78,7 @@ class ModelControl:
     def _update_library(self, model_id: str, model_info: dict, model_dir: str):
         model_class = self._get_model_class_download(model_info['model_source'])
         logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
-        library = self.json_handler.read_json(DOWNLOADED_MODELS_PATH)
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         
         # Ensure library is a dictionary
         if not isinstance(library, dict):
@@ -107,7 +106,7 @@ class ModelControl:
         library[model_id] = new_entry
         
         logger.debug(f"New library entry: {new_entry}")
-        self.json_handler.write_json(DOWNLOADED_MODELS_PATH, library)
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
         logger.info(f"Library updated with new entry: {new_entry}")
 
     def load_model(self, model_id: str):
@@ -128,7 +127,7 @@ class ModelControl:
         process.start()
 
         if parent_conn.recv() == "Model loaded":
-            self.models.append({'model_id': model_id, 'process': process, 'conn': parent_conn, 'model': model_class})
+            self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
             logger.info(f"Model {model_id} loaded and process started.")
             return True
         else:
@@ -136,23 +135,18 @@ class ModelControl:
             return False
 
     def is_model_loaded(self, model_id: str):
-        for model in self.models:
-            if model['model_id'] == model_id:
-                return True
-        return False
+        return model_id in self.models
 
     def unload_model(self, model_id: str):
         try:
-            for i, model in enumerate(self.models):
-                if model['model_id'] == model_id:
-                    conn = model['conn']
-                    process = model['process']
-                    conn.send("terminate")
-                    process.join()
-                    del self.models[i]
-                    gc.collect()
-                    logger.info(f"Model {model_id} unloaded and memory freed.")
-                    return True
+            if model_id in self.models:
+                conn = self.models[model_id]['conn']
+                conn.send("terminate")
+                self.models[model_id]['process'].join()
+                del self.models[model_id]
+                gc.collect()
+                logger.info(f"Model {model_id} unloaded and memory freed.")
+                return True
             logger.error(f"Model {model_id} not found in active models.")
             return False
         except Exception as e:
@@ -160,14 +154,13 @@ class ModelControl:
             return False
         
     def list_active_models(self):
-        active_models_info = [{"model_id": model['model_id'], "process_alive": model['process'].is_alive()} for model in self.models]
+        active_models_info = [{"model_id": model, "process_alive": self.models[model]['process'].is_alive()} for model in self.models]
         logger.debug(f"Active models: {active_models_info}")
         return active_models_info
     
     def get_active_model(self, model_id: str):
-        for model in self.models:
-            if model['model_id'] == model_id:
-                return model
+        if model_id in self.models:
+            return self.models[model_id]
         logger.error(f"Model {model_id} not found in active models.")
         return None
 
@@ -178,9 +171,9 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
-        library = self.json_handler.read_json(DOWNLOADED_MODELS_PATH)
-        library = [model for model in library if model['model_id'] != model_id]
-        self.json_handler.write_json(DOWNLOADED_MODELS_PATH, library)
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        library = library.pop(model_id, None)
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
         logger.info(f"Model {model_id} deleted from library.")
         return True
     
@@ -192,7 +185,7 @@ class ModelControl:
             return None
 
         try:
-            model_index = self.json_handler.read_json(MODEL_INDEX_PATH)
+            model_index = JSONHandler.read_json(MODEL_INDEX_PATH)
             logger.debug(f"Successfully read model index file")
 
             model_info = model_index.get(model_id)
@@ -218,7 +211,7 @@ class ModelControl:
             return None
 
         try:
-            model_library = self.json_handler.read_json(DOWNLOADED_MODELS_PATH)
+            model_library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
             logger.debug(f"Successfully read file content: {model_library}")
 
             model_info = model_library.get(model_id)
