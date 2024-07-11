@@ -62,6 +62,7 @@ class ModelControl:
         else:
             model_dir = os.path.join('data', 'downloads', 'others')
         
+        print(f"\nDownloading model ======{model_dir}")
         # Ensure directory exist and create if not
         if not os.path.exists(model_dir):
             os.makedirs(model_dir, exist_ok=True)

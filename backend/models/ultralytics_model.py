@@ -17,6 +17,7 @@ class UltralyticsModel:
             self.model_path = os.path.abspath(os.path.join(save_dir, model_file_name))
             
             # Ensure the directory exists
+            print("\n model path ", self.model_path)
             os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
             print(f"Saving model to: {self.model_path}")
 
