@@ -17,9 +17,13 @@ BACKEND_DIR = os.path.join(ROOT_DIR, 'backend')
 # Paths for the model index and downloaded models
 MODEL_INDEX_PATH = os.path.join(ROOT_DIR, 'data', 'model_index.json')
 DOWNLOADED_MODELS_PATH = os.path.join(ROOT_DIR, 'data', 'library.json')
-UPLOAD_DIR = os.path.join(ROOT_DIR, 'data', 'uploaded_images')
+UPLOAD_IMAGE_DIR = os.path.join(ROOT_DIR, 'data', 'uploaded_images')
+UPLOAD_VID_DIR= os.path.join(ROOT_DIR, 'data', 'uploaded_videos')
 
 # Ensure the upload directory exists
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR)
+if not os.path.exists(UPLOAD_IMAGE_DIR):
+    os.makedirs(UPLOAD_IMAGE_DIR)
+    
+if not os.path.exists(UPLOAD_VID_DIR):
+    os.makedirs(UPLOAD_VID_DIR)
 
