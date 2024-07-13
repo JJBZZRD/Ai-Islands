@@ -90,8 +90,8 @@ async def list_active_models():
         logger.error(f"Error listing active models: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/models/load/{model_id}")
-async def load_model(model_id: str):
+@router.post("/models/load")
+async def load_model(model_id: str = Query(...)):
     try:
         if model_control.load_model(model_id):
             return {"message": f"Model {model_id} loaded successfully"}
@@ -100,8 +100,8 @@ async def load_model(model_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/models/unload/{model_id}")
-async def unload_model(model_id: str):
+@router.post("/models/unload")
+async def unload_model(model_id: str = Query(...)):
     try:
         if model_control.unload_model(model_id):
             return {"message": f"Model {model_id} unloaded successfully"}
@@ -110,19 +110,19 @@ async def unload_model(model_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/download-model/{model_id}")
-async def download_model(model_id: str):
+@router.post("/download-model")
+async def download_model(model_id: str = Query(...)):
     try:
         success = model_control.download_model(model_id)
         if success:
             return {"message": f"Model {model_id} downloaded successfully"}
         else:
-            HTTPException(status_code=400, detail=f"Model {model_id} could not be downloaded")
+            raise HTTPException(status_code=400, detail=f"Model {model_id} could not be downloaded")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/is-model-loaded/{model_id}")
-async def is_model_loaded(model_id: str):
+@router.get("/is-model-loaded")
+async def is_model_loaded(model_id: str = Query(...)):
     try:
         is_loaded = model_control.is_model_loaded(model_id)
         if is_loaded:
@@ -151,4 +151,3 @@ async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = 
         return {"model_id": model_id, "prediction": prediction}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
