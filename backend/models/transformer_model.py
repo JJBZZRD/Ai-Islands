@@ -1,68 +1,59 @@
 import os
-import importlib
+import transformers
 import logging
 from huggingface_hub import snapshot_download
 
 logger = logging.getLogger(__name__)
 
 class TransformerModel:
-    def __init__(self):
+    def __init__(self, model_id: str):
+        self.model_id = model_id
         self.model = None
         self.tokenizer = None
         self.processor = None
-        self.model_path = None
-        self.required_classes = []
 
-    def download(self, model_id: str, save_dir: str, required_classes: list):
+    @staticmethod
+    def download(model_id: str, save_dir: str):
         try:
-            self.required_classes = required_classes
-            self.model_path = snapshot_download(repo_id=model_id, cache_dir=save_dir)
-            
-            for class_name in required_classes:
-                module_name, class_name = class_name.rsplit('.', 1)
-                module = importlib.import_module(f"transformers.{module_name}")
-                class_ = getattr(module, class_name)
-                
-                if 'Model' in class_name:
-                    self.model = class_.from_pretrained(self.model_path)
-                elif 'Tokenizer' in class_name:
-                    self.tokenizer = class_.from_pretrained(self.model_path)
-                elif 'Processor' in class_name:
-                    self.processor = class_.from_pretrained(self.model_path)
-            
-            logger.info(f"Model {model_id} downloaded and saved to {self.model_path}")
+            # download the entire model repository to the specified directory
+            snapshot_download(repo_id=model_id, cache_dir=save_dir)
         except Exception as e:
             logger.error(f"Error downloading model {model_id}: {str(e)}")
 
-    def load(self, model_path: str):
+    def load(self, model_dir: str, required_classes: list):
         try:
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Model directory not found: {model_path}")
+            if not os.path.exists(model_dir):
+                raise FileNotFoundError(f"Model directory not found: {model_dir}")
             
-            logger.info(f"Loading model from {model_path}")
-            logger.info(f"Required classes: {self.required_classes}")
+            logger.info(f"Loading model from {model_dir}")
+            logger.info(f"Required classes: {required_classes}")
             
-            for class_name in self.required_classes:
-                module_name, class_name = class_name.rsplit('.', 1)
-                logger.info(f"Importing {module_name}.{class_name}")
-                module = importlib.import_module(f"transformers.{module_name}")
-                class_ = getattr(module, class_name)
+            for class_name in required_classes:
+                # Dynamically load the class from the transformers library
+                class_ = getattr(transformers, class_name)
                 
                 if 'Model' in class_name:
                     logger.info(f"Loading model with {class_name}")
-                    self.model = class_.from_pretrained(model_path)
+                    self.model = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
                 elif 'Tokenizer' in class_name:
                     logger.info(f"Loading tokenizer with {class_name}")
-                    self.tokenizer = class_.from_pretrained(model_path)
+                    self.tokenizer = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
                 elif 'Processor' in class_name:
                     logger.info(f"Loading processor with {class_name}")
-                    self.processor = class_.from_pretrained(model_path)
-            
-            self.model_path = model_path
-            logger.info(f"Model loaded successfully from {model_path}")
+                    self.processor = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
+                # Add additional elif statements for other classes as needed
+                
+            logger.info(f"Model loaded successfully from {model_dir}")
         except Exception as e:
-            logger.error(f"Error loading model from {model_path}: {str(e)}")
+            logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
+    
+    # This is a method to test model predict
+    # This method needs further modification to work with different types of models
+    def predict(self, sentence: str):
+        classifier = transformers.pipeline(task="sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
+        output = classifier(sentence)
+        return output
 
     def process_request(self, request_payload: dict):
         if "prompt" in request_payload:
@@ -99,3 +90,4 @@ class TransformerModel:
 
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
+        
