@@ -7,22 +7,25 @@ import logging
 logger = logging.getLogger(__name__)
 
 class UltralyticsModel:
-    def __init__(self):
+    def __init__(self, model_id: str):
+        self.model_id = model_id
         self.model = None
     
-    def download(self, model_id: str, save_dir: str):
+    @staticmethod
+    def download(model_id: str, save_dir: str):
         try:
-            self.model = YOLO(model_id) 
+            model = YOLO(model_id) 
             model_file_name = f'{model_id}.pt' if not model_id.endswith('.pt') else model_id
-            self.model_path = os.path.abspath(os.path.join(save_dir, model_file_name))
+            # get the absolute path of the model file
+            model_path = os.path.abspath(os.path.join(save_dir, model_file_name))
             
             # Ensure the directory exists
-            os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
-            print(f"Saving model to: {self.model_path}")
+            os.makedirs(os.path.dirname(model_path), exist_ok=True)
+            print(f"Saving model to: {model_path}")
 
             # Save the model to the specified path
-            self.model.save(self.model_path)
-            print(f"Model {model_id} downloaded and saved to {self.model_path}")
+            model.save(model_path)
+            print(f"Model {model_id} downloaded and saved to {model_path}")
             
             # Checking whether the model file exists in the root directory and this will delete it so no copies
             root_model_path = os.path.join(ROOT_DIR, model_file_name)
@@ -34,6 +37,8 @@ class UltralyticsModel:
     
     def load(self, model_path: str):
         try:
+            # get the path of the model file
+            model_path = os.path.join(model_path, f"{self.model_id}.pt")
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
             
@@ -82,4 +87,3 @@ class UltralyticsModel:
             logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
-           

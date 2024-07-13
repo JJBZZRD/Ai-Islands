@@ -29,6 +29,19 @@
       "AutoTokenizer"
     ]
   },
+  "cardiffnlp/twitter-roberta-base-sentiment-latest": {
+    "is_online": false,
+    "model_source": "transformers",
+    "tags": [
+      "transformers"
+    ],
+    "pipeline_tag": "sentiment-analysis",
+    "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "required_classes": [
+      "AutoModelForSequenceClassification",
+      "AutoTokenizer"
+    ]
+  },
   "yolov8n": {
     "is_online": false,
     "model_source": "ultralytics",
@@ -44,10 +57,7 @@
       "region:us"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
-    "required_classes": [
-      "YOLO"
-    ]
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
   },
   "yolov8s": {
     "is_online": false,
@@ -63,10 +73,7 @@
       "license:agpl-3.0"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
-    "required_classes": [
-      "YOLO"
-    ]
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
   },
   "yolov10n": {
     "is_online": false,
@@ -81,10 +88,7 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
-    "required_classes": [
-      "YOLO"
-    ]
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
   },
   "yolov10s": {
     "is_online": false,
@@ -99,10 +103,7 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
-    "required_classes": [
-      "YOLO"
-    ]
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
   },
   "google/owlvit-base-patch32" : {
     "is_online": false,

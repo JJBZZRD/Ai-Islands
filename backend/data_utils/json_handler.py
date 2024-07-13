@@ -42,7 +42,9 @@ from typing import Any, Dict
 from backend.core.exceptions import FileReadError, FileWriteError
 
 class JSONHandler:
-    def read_json(self, file_path):
+    
+    @staticmethod
+    def read_json(file_path):
         try:
             print(f"Attempting to read JSON file at: {file_path}")
             with open(file_path, 'r') as f:
@@ -59,7 +61,8 @@ class JSONHandler:
             print(f"Unexpected error: {e}")
             raise FileReadError(f"Unexpected error reading JSON file {file_path}: {e}")
 
-    def write_json(self, file_path, data):
+    @staticmethod
+    def write_json(file_path, data):
         try:
             print(f"Attempting to write JSON file at: {file_path}")
             with open(file_path, 'w') as f:
@@ -69,22 +72,24 @@ class JSONHandler:
             print(f"Error writing JSON file: {e}")
             raise FileWriteError(f"Error writing JSON file {file_path}: {e}")
 
-    def update_json(self, file_path: str, update_data: Dict[str, Any]) -> None:
+    @staticmethod
+    def update_json(file_path: str, update_data: Dict[str, Any]) -> None:
         try:
-            current_data = self.read_json(file_path)
+            current_data = JSONHandler.read_json(file_path)
             current_data.update(update_data)
-            self.write_json(file_path, current_data)
+            JSONHandler.write_json(file_path, current_data)
         except (FileReadError, FileWriteError) as e:
             print(f"Error updating JSON file: {e}")
             raise e
 
-    def append_to_json_list(self, file_path: str, new_item: Any) -> None:
+    @staticmethod
+    def append_to_json_list(file_path: str, new_item: Any) -> None:
         try:
-            current_data = self.read_json(file_path)
+            current_data = JSONHandler.read_json(file_path)
             if not isinstance(current_data, list):
                 raise ValueError("JSON file does not contain a list")
             current_data.append(new_item)
-            self.write_json(file_path, current_data)
+            JSONHandler.write_json(file_path, current_data)
         except (FileReadError, FileWriteError, ValueError) as e:
             print(f"Error appending to JSON list: {e}")
             raise e
