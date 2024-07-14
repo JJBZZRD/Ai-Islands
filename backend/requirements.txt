@@ -6,3 +6,4 @@ ultralytics==8.2.48
 huggingface_hub
 httpx
 pytest
+opencv-python
