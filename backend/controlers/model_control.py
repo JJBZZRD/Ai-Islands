@@ -5,7 +5,6 @@ import multiprocessing
 import json
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
-from backend.models.base_model import BaseModel
 import logging
 import os
 import time
@@ -38,7 +37,7 @@ class ModelControl:
         model = model_class(model_id=model_id)
         if required_classes:
             # if extra classes are needed to load the model (transformers)
-            model.load(model_path, device, required_classes)
+            model.load(model_path, required_classes, device)
         else:
             # if no extra classes are needed to load the model (ultralytics)
             model.load(model_path, device)
@@ -53,7 +52,7 @@ class ModelControl:
                 prediction = model.process_request(payload)
                 conn.send(prediction)
             elif msg.startswith("sentimentPredict"):
-                prediction = model.predict(msg.split(":", 1)[1])
+                prediction = model.inference(msg.split(":", 1)[1])
                 conn.send(prediction)
 
     def _update_library(self, model_id: str, model_info: dict, model_dir: str):

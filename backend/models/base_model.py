@@ -1,6 +1,15 @@
-class BaseModel:
-    def load(self, model_path: str):
-        raise NotImplementedError("Load method not implemented")
+from abc import ABC, abstractmethod
 
-    def process_request(self, request_payload: dict):
-        raise NotImplementedError("process_request method not implemented")
+class BaseModel(ABC):
+    
+    @abstractmethod
+    def download(self, *args):
+        pass
+    
+    @abstractmethod
+    def load(self, *args):
+        pass
+    
+    @abstractmethod
+    def inference(self, *args):
+        pass

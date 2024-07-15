@@ -1,11 +1,13 @@
 import os
+import torch
 import transformers
+from .base_model import BaseModel
 import logging
 from huggingface_hub import snapshot_download
 
 logger = logging.getLogger(__name__)
 
-class TransformerModel:
+class TransformerModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.model = None
@@ -20,7 +22,7 @@ class TransformerModel:
         except Exception as e:
             logger.error(f"Error downloading model {model_id}: {str(e)}")
 
-    def load(self, model_dir: str, required_classes: list):
+    def load(self, model_dir: str, required_classes: list, device: torch.device):
         try:
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
@@ -50,7 +52,7 @@ class TransformerModel:
     
     # This is a method to test model predict
     # This method needs further modification to work with different types of models
-    def predict(self, sentence: str):
+    def inference(self, sentence: str):
         classifier = transformers.pipeline(task="sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
         output = classifier(sentence)
         return output
