@@ -16,6 +16,6 @@ client = TestClient(app)
 
 def test_download_model():
     model_id = "yolov8s"
-    response = client.post(f"/download-model/{model_id}")
+    response = client.post(f"/download-model?model_id={model_id}")
     assert response.status_code == 200
     assert response.json() == {"message": f"Model {model_id} downloaded successfully"}

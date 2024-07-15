@@ -5,7 +5,6 @@ import multiprocessing
 import json
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
-from backend.models.base_model import BaseModel
 import logging
 import os
 import time
@@ -58,7 +57,7 @@ class ModelControl:
                 prediction = model.process_request(payload)
                 conn.send(prediction)
             elif msg.startswith("sentimentPredict"):
-                prediction = model.predict(msg.split(":", 1)[1])
+                prediction = model.inference(msg.split(":", 1)[1])
                 conn.send(prediction)
 
     def _get_model_info_library(self, model_id: str):

@@ -12,7 +12,7 @@ from backend.settings.settings import get_hardware_preference
 
 logger = logging.getLogger(__name__)
 
-class UltralyticsModel:
+class UltralyticsModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.model = None
@@ -143,3 +143,6 @@ class UltralyticsModel:
             logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
+
+    def inference(self, *args):
+        pass
