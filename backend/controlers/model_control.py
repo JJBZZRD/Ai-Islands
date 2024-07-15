@@ -11,8 +11,10 @@ import os
 import time
 import gc
 from backend.settings.settings import get_hardware_preference, set_hardware_preference
+from backend.controlers.library_control import LibraryControl
 import torch
 import transformers
+import importlib
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +28,12 @@ class ModelControl:
         self.hardware_preference = device
     
     @staticmethod
-    def _download_process(model_class, model_id, model_dir, model_info):
+    def _download_process(model_class, model_id, model_info, library_control):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
-        model_class.download(model_id, model_dir, model_info)
+        new_entry = model_class.download(model_id, model_info)
+        if new_entry:
+            library_control.update_library(model_id, new_entry)
         end_time = time.time()
         logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
             
@@ -82,15 +86,22 @@ class ModelControl:
             logger.error(f"Unexpected error: {e}")
         return None
 
-    def _get_model_class(self, model_source: str):
-        if model_source == 'transformers':
-            return TransformerModel
-        elif model_source == 'ultralytics':
-            return UltralyticsModel
-        elif model_source == 'watson':
-            return WatsonModel
-        else:
-            raise ValueError(f"Unknown model source: {model_source}")
+    def _get_model_class(self, model_id: str):
+        model_info = self._get_model_info_index(model_id)
+        if not model_info:
+            raise ValueError(f"Model info not found for {model_id}")
+        
+        model_class_name = model_info.get('model_class')
+        if not model_class_name:
+            raise ValueError(f"Model class not specified for {model_id}")
+        
+        try:
+            # Dynamically import the module and get the class
+            module = importlib.import_module('backend.models')
+            model_class = getattr(module, model_class_name)
+            return model_class
+        except (ImportError, AttributeError) as e:
+            raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
         
     def _get_model_info_index(self, model_id: str):
         logger.debug(f"Reading model index from: {MODEL_INDEX_PATH}")
@@ -119,14 +130,11 @@ class ModelControl:
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
-    
-        if model_info.get('is_online', False):
-            logger.info(f"Model {model_id} is online and does not require downloading.")
-            return True
-    
-        model_class = self._get_model_class(model_info['model_source'])
-    
-        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info))
+
+        model_class = self._get_model_class(model_id)
+        library_control = LibraryControl()
+
+        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, library_control))
         process.start()
         process.join()
         return True
@@ -137,7 +145,7 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
-        model_class = self._get_model_class(model_info['model_source'])
+        model_class = self._get_model_class(model_id)
         model_dir = model_info['dir']
         # if required classes are not provided, set it to None
         required_classes = model_info.get('required_classes', None)
