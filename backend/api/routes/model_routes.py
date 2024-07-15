@@ -11,6 +11,8 @@ import json
 from pydantic import BaseModel
 from typing import Annotated
 import numpy as np
+import asyncio
+import torch
 
 router = APIRouter()
 
@@ -135,15 +137,15 @@ async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = 
     
 # Creating a web socket connection for real-time video and live webcam processing
 # It will receives video frames as bytes, process it using the model and sends results back to user
-@router.websocket("/ws/predict-live/{model_id}")
+"""@router.websocket("/ws/predict-live/{model_id}")
 async def websocket_video(websocket: WebSocket, model_id: str):
-    await websocket.accept()  # Waiting until receive input
+    await websocket.accept()
     try:
         if not model_control.is_model_loaded(model_id):
             await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
             await websocket.close()
             return
-        
+
         active_model = model_control.get_active_model(model_id)
 
         if not active_model:
@@ -154,28 +156,99 @@ async def websocket_video(websocket: WebSocket, model_id: str):
         conn = active_model['conn']
 
         while True:
-            data = await websocket.receive_bytes()
-            nparr = np.frombuffer(data, np.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            
-            print("Frame received and decoded")  # Debug statement
+            try:
+                data = await websocket.receive_bytes()
+                nparr = np.frombuffer(data, np.uint8)
+                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                
+                print("Frame received and decoded")
 
-            # Perform prediction on the frame
-            request_payload = {"video_frame": frame.tolist()}
-            conn.send(f"predict:{json.dumps(request_payload)}")
-            print("Frame sent for prediction")  # Debug statement
+                # Perform prediction on the frame
+                request_payload = {"video_frame": frame.tolist()}
+                conn.send(f"predict:{json.dumps(request_payload)}")
+                print("Frame sent for prediction")
 
-            prediction = conn.recv()
-            print("Prediction received")  # Debug statement
+                prediction = conn.recv()
+                print("Prediction received")
 
-            # Send prediction results back to the client
-            await websocket.send_json(prediction)
-            print("Prediction sent to client")  # Debug statement
+                # Send prediction results back to the client
+                await websocket.send_json(prediction)
+                print("Prediction sent to client")
+            except Exception as e:
+                logger.error(f"Error processing frame: {str(e)}")
+                await websocket.send_json({"error": f"Error processing frame: {str(e)}"})
+                break
     except WebSocketDisconnect:
         logger.info("User disconnected")
     except Exception as e:
         logger.error(f"Error during websocket communication: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        await websocket.send_json({"error": f"Error during websocket communication: {str(e)}"})
+    finally:
+        await websocket.close()"""
+@router.websocket("/ws/predict-live/{model_id}")
+async def websocket_video(websocket: WebSocket, model_id: str):
+    await websocket.accept()
+    try:
+        if not model_control.is_model_loaded(model_id):
+            await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
+            await websocket.close()
+            return
+
+        active_model = model_control.get_active_model(model_id)
+        if not active_model:
+            await websocket.send_json({"error": f"Model {model_id} is not found or model is not loaded"})
+            await websocket.close()
+            return
+
+        conn = active_model['conn']
+
+        while True:
+            try:
+                data = await websocket.receive_bytes()
+                nparr = np.frombuffer(data, np.uint8)
+                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                
+                print("Frame received and decoded")
+
+                # Process frame asynchronously
+                prediction = await asyncio.get_event_loop().run_in_executor(None, process_frame, conn, frame)
+
+                # Send prediction results back to the client
+                await websocket.send_json(prediction)
+                print("Prediction sent to client")
+            except WebSocketDisconnect:
+                logger.info("User disconnected")
+                break
+            except Exception as e:
+                logger.error(f"Error processing frame: {str(e)}")
+                await websocket.send_json({"error": f"Error processing frame: {str(e)}"})
+                break
+    except Exception as e:
+        logger.error(f"Error during websocket communication: {str(e)}")
+        await websocket.send_json({"error": f"Error during websocket communication: {str(e)}"})
+    finally:
+        try:
+            await websocket.close()
+        except Exception as close_exception:
+            logger.error(f"Error closing websocket: {str(close_exception)}")
+        logger.info("Connection closed")
+
+def process_frame(conn, frame):
+    # Use GPU if available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type == 'cuda':
+        logger.info("Using GPU for inference")
+    else:
+        logger.info("Using CPU for inference")
+
+    # Assume frame processing and model inference happens here
+    request_payload = {"video_frame": frame.tolist()}
+    conn.send(f"predict:{json.dumps(request_payload)}")
+    prediction = conn.recv()
+    return prediction
+
+
+
 
 """
     This route is used to predict the sentiment of a given sentence using the sentiment model

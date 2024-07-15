@@ -6,6 +6,8 @@ from .base_model import BaseModel
 import logging
 import cv2
 import numpy as np
+import torch
+from backend.settings.settings import get_hardware_preference
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class UltralyticsModel:
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
     
-    def load(self, model_path: str):
+    def load(self, model_path: str, device: torch.device):
         try:
             # get the path of the model file
             model_path = os.path.join(model_path, f"{self.model_id}.pt")
@@ -47,6 +49,11 @@ class UltralyticsModel:
             
             self.model = YOLO(model_path)  # Load the YOLO model from the specified path
             logger.info(f"Model loaded from {model_path}")
+            
+            # Set device based on user preference
+            #device = get_hardware_preference()
+            self.model.to(device)
+                
         except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
     

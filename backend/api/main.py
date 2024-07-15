@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI
-from backend.api.routes import model_routes
+from backend.api.routes import model_routes, hardware
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
@@ -17,6 +17,7 @@ async def log_requests(request, call_next):
     return response
 
 app.include_router(model_routes.router)
+app.include_router(hardware.router, prefix="/hardware", tags=["hardware"])
 
 if __name__ == "__main__":
     import uvicorn

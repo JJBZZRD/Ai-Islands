@@ -19,6 +19,7 @@ MODEL_INDEX_PATH = os.path.join(ROOT_DIR, 'data', 'model_index.json')
 DOWNLOADED_MODELS_PATH = os.path.join(ROOT_DIR, 'data', 'library.json')
 UPLOAD_IMAGE_DIR = os.path.join(ROOT_DIR, 'data', 'uploaded_images')
 UPLOAD_VID_DIR= os.path.join(ROOT_DIR, 'data', 'uploaded_videos')
+CONFIG_PATH = os.path.join(ROOT_DIR, 'data', 'settings.json')
 
 # Ensure the upload directory exists
 if not os.path.exists(UPLOAD_IMAGE_DIR):
