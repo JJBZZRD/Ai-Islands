@@ -1,10 +1,5 @@
-from backend.models.transformer_model import TransformerModel
-from backend.models.ultralytics_model import UltralyticsModel
-from backend.models.watson_model import WatsonModel
 import multiprocessing
 import json
-from backend.data_utils.json_handler import JSONHandler
-from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
 import logging
 import os
 import time
@@ -12,7 +7,6 @@ import gc
 from backend.settings.settings import get_hardware_preference, set_hardware_preference
 from backend.controlers.library_control import LibraryControl
 import torch
-import transformers
 import importlib
 
 logger = logging.getLogger(__name__)
@@ -20,7 +14,8 @@ logger = logging.getLogger(__name__)
 class ModelControl:
     def __init__(self):
         self.models = {}
-        self.hardware_preference = get_hardware_preference()  # Default wil be CPU
+        self.hardware_preference = get_hardware_preference()  # Default will be CPU
+        self.library_control = LibraryControl()
         
     def set_hardware_preference(self, device: str):
         set_hardware_preference(device)
@@ -60,93 +55,27 @@ class ModelControl:
                 prediction = model.inference(msg.split(":", 1)[1])
                 conn.send(prediction)
 
-    def _get_model_info_library(self, model_id: str):
-        logger.debug(f"Reading model library from: {DOWNLOADED_MODELS_PATH}")
-
-        if not os.path.exists(DOWNLOADED_MODELS_PATH):
-            logger.error(f"File not found: {DOWNLOADED_MODELS_PATH}")
-            return None
-
-        try:
-            model_library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-            logger.debug(f"Successfully read file content: {model_library}")
-
-            model_info = model_library.get(model_id)
-            if model_info:
-                return model_info
-            else:
-                logger.error(f"Model info not found for {model_id}")
-                return None
-        except FileNotFoundError as e:
-            logger.error(f"FileNotFoundError: {e}")
-        except json.JSONDecodeError as e:
-            logger.error(f"JSONDecodeError: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-        return None
-
-    def _get_model_class(self, model_id: str):
-        model_info = self._get_model_info_index(model_id)
-        if not model_info:
-            raise ValueError(f"Model info not found for {model_id}")
-        
-        model_class_name = model_info.get('model_class')
-        if not model_class_name:
-            raise ValueError(f"Model class not specified for {model_id}")
-        
-        try:
-            # Dynamically import the module and get the class
-            module = importlib.import_module('backend.models')
-            model_class = getattr(module, model_class_name)
-            return model_class
-        except (ImportError, AttributeError) as e:
-            raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
-        
-    def _get_model_info_index(self, model_id: str):
-        logger.debug(f"Reading model index from: {MODEL_INDEX_PATH}")
-
-        if not os.path.exists(MODEL_INDEX_PATH):
-            logger.error(f"File not found: {MODEL_INDEX_PATH}")
-            return None
-
-        try:
-            model_index = JSONHandler.read_json(MODEL_INDEX_PATH)
-            logger.debug(f"Successfully read model index file")
-
-            model_info = model_index[model_id]
-            return model_info
-        except FileNotFoundError as e:
-            logger.error(f"FileNotFoundError: {e}")
-        except json.JSONDecodeError as e:
-            logger.error(f"JSONDecodeError: {e}")
-        except KeyError as e:
-            logger.error(f"Model info not found for {model_id}")
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-    
     def download_model(self, model_id: str):
-        model_info = self._get_model_info_index(model_id)
+        model_info = self.library_control.get_model_info_index(model_id)
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
 
         model_class = self._get_model_class(model_id)
-        library_control = LibraryControl()
 
-        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, library_control))
+        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
         process.start()
         process.join()
         return True
 
     def load_model(self, model_id: str):
-        model_info = self._get_model_info_library(model_id)
+        model_info = self.library_control.get_model_info_library(model_id)
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
 
         model_class = self._get_model_class(model_id)
         model_dir = model_info['dir']
-        # if required classes are not provided, set it to None
         required_classes = model_info.get('required_classes', None)
         pipeline_tag = model_info.get('pipeline_tag', None)
         
@@ -154,7 +83,6 @@ class ModelControl:
             logger.error(f"Model file not found: {model_dir}")
             return False
         
-        # Use the user-defined hardware preference
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
 
         parent_conn, child_conn = multiprocessing.Pipe()
@@ -200,18 +128,8 @@ class ModelControl:
         return None
     
     def delete_model(self, model_id: str):
-        model_info = self._get_model_info_library(model_id)
-        if not model_info:
-            logger.error(f"Model info not found for {model_id}")
-            return False
-
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-        library = library.pop(model_id, None)
-        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
-        logger.info(f"Model {model_id} deleted from library.")
-        return True
+        return self.library_control.delete_model(model_id)
     
-    # Ben: I guess this method requires further modification in order to work with all kinds of models
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)
         if not active_model:
@@ -220,4 +138,19 @@ class ModelControl:
         conn = active_model['conn']
         conn.send(json.dumps(request_payload))
         return conn.recv()
-    
+
+    def _get_model_class(self, model_id: str):
+        model_info = self.library_control.get_model_info_index(model_id)
+        if not model_info:
+            raise ValueError(f"Model info not found for {model_id}")
+        
+        model_class_name = model_info.get('model_class')
+        if not model_class_name:
+            raise ValueError(f"Model class not specified for {model_id}")
+        
+        try:
+            module = importlib.import_module('backend.models')
+            model_class = getattr(module, model_class_name)
+            return model_class
+        except (ImportError, AttributeError) as e:
+            raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
