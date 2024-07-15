@@ -2,6 +2,7 @@
   "openai-community/gpt2": {
     "is_online": false,
     "model_source": "transformers",
+    "model_class": "TransformerModel",
     "tags": [
       "transformers",
       "pytorch",
@@ -32,6 +33,7 @@
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
     "is_online": false,
     "model_source": "transformers",
+    "model_class": "TransformerModel",
     "tags": [
       "transformers"
     ],
@@ -45,6 +47,7 @@
   "yolov8n": {
     "is_online": false,
     "model_source": "ultralytics",
+    "model_class": "UltralyticsModel",
     "tags": [
       "yolo",
       "object-detection",
@@ -62,6 +65,7 @@
   "yolov8s": {
     "is_online": false,
     "model_source": "ultralytics",
+    "model_class": "UltralyticsModel",
     "tags": [
       "yolo",
       "object-detection",
@@ -78,6 +82,7 @@
   "yolov10n": {
     "is_online": false,
     "model_source": "ultralytics",
+    "model_class": "UltralyticsModel",
     "tags": [
       "yolo",
       "object-detection",
@@ -93,6 +98,7 @@
   "yolov10s": {
     "is_online": false,
     "model_source": "ultralytics",
+    "model_class": "UltralyticsModel",
     "tags": [
       "yolo",
       "object-detection",
@@ -108,6 +114,7 @@
   "google/owlvit-base-patch32" : {
     "is_online": false,
     "model_source": "transformers",
+    "model_class": "TransformerModel",
     "tags": [
       "transformers",
       "pytorch",
@@ -128,6 +135,7 @@
   "meta-llama/Meta-Llama-3-8B": {
     "is_online": false,
     "model_source": "transformers",
+    "model_class": "TransformerModel",
     "tags": [
       "transformers",
       "pytorch",
@@ -153,6 +161,7 @@
   "nomic-ai/gpt4all-j": {
     "is_online": false,
     "model_source": "transformers",
+    "model_class": "TransformerModel",
     "tags": [
       "transformers",
       "pytorch",
