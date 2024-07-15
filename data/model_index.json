@@ -124,5 +124,51 @@
       "OwlViTForObjectDetection",
       "OwlViTProcessor"
     ]
+  },
+  "meta-llama/Meta-Llama-3-8B": {
+    "is_online": false,
+    "model_source": "transformers",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "llama",
+      "meta",
+      "llama-3",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:llama3",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
+    "required_classes": [
+      "AutoModelForCausalLM",
+      "AutoTokenizer"
+    ],
+    "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
+    "model_detail": "https://llama.meta.com/get-started/"
+  },
+  "nomic-ai/gpt4all-j": {
+    "is_online": false,
+    "model_source": "transformers",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "gptj",
+      "text-generation",
+      "en",
+      "license:apache-2.0"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/nomic-ai/gpt4all-j",
+    "required_classes": [
+      "AutoModelForCausalLM",
+      "AutoTokenizer"
+    ],
+    "model_desc": "GPT4All-J is an Apache-2 licensed chatbot trained over a massive curated corpus of assistant interactions, including word problems, multi-turn dialogue, code, poems, songs, and stories. It's a finetuned version of GPT-J optimized for assistant-style interactions.",
+    "model_detail": "https://github.com/nomic-ai/gpt4all"
   }
 }
