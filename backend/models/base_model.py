@@ -9,7 +9,3 @@ class BaseModel(ABC):
     @abstractmethod
     def load(self, *args):
         pass
-    
-    @abstractmethod
-    def inference(self, *args):
-        pass
