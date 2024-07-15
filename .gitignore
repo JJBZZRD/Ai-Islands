@@ -11,6 +11,9 @@ venv/
 .venv/
 uploaded_images/
 data/uploaded_images
+uploaded_videos/
+data/uploaded_videos
+data/uploaded_datasets
 library.json
 data/library.json
 data/downloads

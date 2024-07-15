@@ -10,12 +10,19 @@ import logging
 import os
 import time
 import gc
+from backend.settings.settings import get_hardware_preference, set_hardware_preference
+import torch
 
 logger = logging.getLogger(__name__)
 
 class ModelControl:
     def __init__(self):
         self.models = {}
+        self.hardware_preference = get_hardware_preference()  # Default wil be CPU
+        
+    def set_hardware_preference(self, device: str):
+        set_hardware_preference(device)
+        self.hardware_preference = device
     
     @staticmethod
     def _download_process(model_class, model_id, model_dir):
@@ -26,15 +33,15 @@ class ModelControl:
         logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
             
     @staticmethod
-    def _load_process(model_class, model_path, conn, model_id, required_classes=None):
+    def _load_process(model_class, model_path, conn, model_id, device, required_classes=None):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
         if required_classes:
             # if extra classes are needed to load the model (transformers)
-            model.load(model_path, required_classes)
+            model.load(model_path, device, required_classes)
         else:
             # if no extra classes are needed to load the model (ultralytics)
-            model.load(model_path)
+            model.load(model_path, device)
         conn.send("Model loaded")
         while True:
             msg = conn.recv()
@@ -184,9 +191,12 @@ class ModelControl:
         if not os.path.exists(model_dir):
             logger.error(f"Model file not found: {model_dir}")
             return False
+        
+        # Use the user-defined hardware preference
+        device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
 
         parent_conn, child_conn = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=self._load_process, args=(model_class, model_dir, child_conn, model_id, required_classes))
+        process = multiprocessing.Process(target=self._load_process, args=(model_class, model_dir, child_conn, model_id, device, required_classes))
         process.start()
 
         if parent_conn.recv() == "Model loaded":

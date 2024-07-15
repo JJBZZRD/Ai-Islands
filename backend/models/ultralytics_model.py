@@ -1,8 +1,13 @@
 import os
+from tempfile import TemporaryDirectory
 from ultralytics import YOLO
 from backend.core.config import ROOT_DIR
 from .base_model import BaseModel
 import logging
+import cv2
+import numpy as np
+import torch
+from backend.settings.settings import get_hardware_preference
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +40,7 @@ class UltralyticsModel:
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
     
-    def load(self, model_path: str):
+    def load(self, model_path: str, device: torch.device):
         try:
             # get the path of the model file
             model_path = os.path.join(model_path, f"{self.model_id}.pt")
@@ -44,16 +49,23 @@ class UltralyticsModel:
             
             self.model = YOLO(model_path)  # Load the YOLO model from the specified path
             logger.info(f"Model loaded from {model_path}")
+            
+            # Set device based on user preference
+            #device = get_hardware_preference()
+            self.model.to(device)
+                
         except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
     
     def process_request(self, request_payload: dict):
         if "image_path" in request_payload:
-            return self.predict(request_payload["image_path"])
+            return self.predict_image(request_payload["image_path"])
+        elif "video_frame" in request_payload:
+            return self.predict_video(request_payload["video_frame"])
         else:
             return {"error": "Invalid request payload"}
 
-    def predict(self, image_path: str):
+    def predict_image(self, image_path: str):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
@@ -77,7 +89,38 @@ class UltralyticsModel:
         except Exception as e:
             print(f"Error predicting image {image_path}: {str(e)}")
             return {"error": str(e)}
-    
+        
+    def predict_video(self, frame: list):
+        try:
+            if self.model is None:
+                raise ValueError("Model is not loaded")
+        
+            print("Starting prediction on video frame")  
+        
+            frame = np.array(frame, dtype=np.uint8)
+            results = self.model.predict(frame)
+            predictions = []
+            class_names = self.model.names
+        
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    conf = box.conf[0].item()
+                    coords = box.xyxy[0].tolist()
+                    predictions.append({
+                        "class": class_names[cls],
+                        "confidence": conf,
+                        "coordinates": coords
+                    })
+
+            print("Prediction on frame completed")  
+            return predictions
+        except Exception as e:
+            print(f"Error predicting video frame: {str(e)}")
+            return {"error": str(e)}
+
+
     def train(self, data_path: str, epochs: int = 20):
         try:
             if self.model is None:
