@@ -137,54 +137,6 @@ async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = 
     
 # Creating a web socket connection for real-time video and live webcam processing
 # It will receives video frames as bytes, process it using the model and sends results back to user
-"""@router.websocket("/ws/predict-live/{model_id}")
-async def websocket_video(websocket: WebSocket, model_id: str):
-    await websocket.accept()
-    try:
-        if not model_control.is_model_loaded(model_id):
-            await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
-            await websocket.close()
-            return
-
-        active_model = model_control.get_active_model(model_id)
-
-        if not active_model:
-            await websocket.send_json({"error": f"Model {model_id} is not found or model is not loaded"})
-            await websocket.close()
-            return
-
-        conn = active_model['conn']
-
-        while True:
-            try:
-                data = await websocket.receive_bytes()
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                
-                print("Frame received and decoded")
-
-                # Perform prediction on the frame
-                request_payload = {"video_frame": frame.tolist()}
-                conn.send(f"predict:{json.dumps(request_payload)}")
-                print("Frame sent for prediction")
-
-                prediction = conn.recv()
-                print("Prediction received")
-
-                # Send prediction results back to the client
-                await websocket.send_json(prediction)
-                print("Prediction sent to client")
-            except Exception as e:
-                logger.error(f"Error processing frame: {str(e)}")
-                await websocket.send_json({"error": f"Error processing frame: {str(e)}"})
-                break
-    except WebSocketDisconnect:
-        logger.info("User disconnected")
-    except Exception as e:
-        logger.error(f"Error during websocket communication: {str(e)}")
-        await websocket.send_json({"error": f"Error during websocket communication: {str(e)}"})
-    finally:
-        await websocket.close()"""
 @router.websocket("/ws/predict-live/{model_id}")
 async def websocket_video(websocket: WebSocket, model_id: str):
     await websocket.accept()
@@ -241,13 +193,10 @@ def process_frame(conn, frame):
     else:
         logger.info("Using CPU for inference")
 
-    # Assume frame processing and model inference happens here
     request_payload = {"video_frame": frame.tolist()}
     conn.send(f"predict:{json.dumps(request_payload)}")
     prediction = conn.recv()
     return prediction
-
-
 
 
 """

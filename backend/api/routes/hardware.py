@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from backend.settings.settings import set_hardware_preference, get_hardware_preference
+import torch
 
 router = APIRouter()
 
