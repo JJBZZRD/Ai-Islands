@@ -2,6 +2,8 @@ import os
 import transformers
 import logging
 from huggingface_hub import snapshot_download
+from backend.data_utils.json_handler import JSONHandler
+from backend.core.config import DOWNLOADED_MODELS_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -11,16 +13,47 @@ class TransformerModel:
         self.model = None
         self.tokenizer = None
         self.processor = None
+        self.pipeline = None
 
     @staticmethod
-    def download(model_id: str, save_dir: str):
+    def download(model_id: str, model_info: dict):
         try:
+            model_dir = os.path.join('data', 'downloads', 'transformers')
+            if not os.path.exists(model_dir):
+                os.makedirs(model_dir, exist_ok=True)
+            
             # download the entire model repository to the specified directory
-            snapshot_download(repo_id=model_id, cache_dir=save_dir)
+            snapshot_download(repo_id=model_id, cache_dir=model_dir)
+            TransformerModel._update_library(model_id, model_info, model_dir)
         except Exception as e:
             logger.error(f"Error downloading model {model_id}: {str(e)}")
 
-    def load(self, model_dir: str, required_classes: list):
+    @staticmethod
+    def _update_library(model_id: str, model_info: dict, model_dir: str):
+        logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        
+        if not isinstance(library, dict):
+            library = {}
+        
+        new_entry = {
+            "base_model": model_id,
+            "dir": model_dir,
+            "is_customised": False,
+            "is_online": model_info["is_online"],
+            "model_source": model_info["model_source"],
+            "tags": model_info["tags"],
+            "pipeline_tag": model_info.get("pipeline_tag"),
+            "required_classes": model_info.get("required_classes")
+        }
+        
+        library[model_id] = new_entry
+        
+        logger.debug(f"New library entry: {new_entry}")
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+        logger.info(f"Library updated with new entry: {new_entry}")
+
+    def load(self, model_dir: str, device: torch.device, required_classes: list, pipeline_tag: str = None):
         try:
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
@@ -43,6 +76,15 @@ class TransformerModel:
                     self.processor = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
                 # Add additional elif statements for other classes as needed
                 
+            if pipeline_tag:
+                logger.info(f"Creating pipeline with tag: {pipeline_tag}")
+                self.pipeline = transformers.pipeline(
+                    task=pipeline_tag,
+                    model=self.model,
+                    tokenizer=self.tokenizer,
+                    device=device
+                )
+            
             logger.info(f"Model loaded successfully from {model_dir}")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
@@ -56,12 +98,19 @@ class TransformerModel:
         return output
 
     def process_request(self, request_payload: dict):
-        if "prompt" in request_payload:
-            return self.generate(request_payload["prompt"])
-        elif "image" in request_payload:
-            return self.process_image(request_payload["image"])
+        if self.pipeline:
+            if "text" in request_payload:
+                return self.pipeline(request_payload["text"])
+            elif "image" in request_payload:
+                return self.pipeline(request_payload["image"])
         else:
-            return {"error": "Invalid request payload"}
+            # Fallback to existing methods if pipeline is not available
+            if "prompt" in request_payload:
+                return self.generate(request_payload["prompt"])
+            elif "image" in request_payload:
+                return self.process_image(request_payload["image"])
+        
+        return {"error": "Invalid request payload or unsupported operation"}
 
     def generate(self, prompt: str, max_length: int = 50):
         try:

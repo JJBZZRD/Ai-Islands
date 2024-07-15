@@ -1,7 +1,8 @@
 import os
 from tempfile import TemporaryDirectory
 from ultralytics import YOLO
-from backend.core.config import ROOT_DIR
+from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH
+from backend.data_utils.json_handler import JSONHandler
 from .base_model import BaseModel
 import logging
 import cv2
@@ -17,29 +18,54 @@ class UltralyticsModel:
         self.model = None
     
     @staticmethod
-    def download(model_id: str, save_dir: str):
+    def download(model_id: str, model_info: dict):
         try:
+            model_dir = os.path.join('data', 'downloads', 'ultralytics')
+            if not os.path.exists(model_dir):
+                os.makedirs(model_dir, exist_ok=True)
+            
             model = YOLO(model_id) 
             model_file_name = f'{model_id}.pt' if not model_id.endswith('.pt') else model_id
-            # get the absolute path of the model file
-            model_path = os.path.abspath(os.path.join(save_dir, model_file_name))
+            model_path = os.path.abspath(os.path.join(model_dir, model_file_name))
             
-            # Ensure the directory exists
-            os.makedirs(os.path.dirname(model_path), exist_ok=True)
             print(f"Saving model to: {model_path}")
-
-            # Save the model to the specified path
             model.save(model_path)
             print(f"Model {model_id} downloaded and saved to {model_path}")
             
-            # Checking whether the model file exists in the root directory and this will delete it so no copies
             root_model_path = os.path.join(ROOT_DIR, model_file_name)
             if os.path.exists(root_model_path):
                 os.remove(root_model_path)
                 print(f"Deleted model file from root directory: {root_model_path}")
+
+            UltralyticsModel._update_library(model_id, model_info, model_dir)
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
     
+    @staticmethod
+    def _update_library(model_id: str, model_info: dict, model_dir: str):
+        logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        
+        if not isinstance(library, dict):
+            library = {}
+        
+        new_entry = {
+            "base_model": model_id,
+            "dir": model_dir,
+            "is_customised": False,
+            "is_online": model_info["is_online"],
+            "model_source": model_info["model_source"],
+            "tags": model_info["tags"],
+            "model_desc": model_info.get("model_desc", ""),
+            "model_detail": model_info.get("model_detail", "")
+        }
+        
+        library[model_id] = new_entry
+        
+        logger.debug(f"New library entry: {new_entry}")
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+        logger.info(f"Library updated with new entry: {new_entry}")
+
     def load(self, model_path: str, device: torch.device):
         try:
             # get the path of the model file
