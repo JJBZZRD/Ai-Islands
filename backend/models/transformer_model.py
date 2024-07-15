@@ -4,8 +4,6 @@ import transformers
 from .base_model import BaseModel
 import logging
 from huggingface_hub import snapshot_download
-from backend.data_utils.json_handler import JSONHandler
-from backend.core.config import DOWNLOADED_MODELS_PATH
 
 logger = logging.getLogger(__name__)
 

@@ -1,14 +1,10 @@
 import os
-from tempfile import TemporaryDirectory
 from ultralytics import YOLO
-from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH
-from backend.data_utils.json_handler import JSONHandler
+from backend.core.config import ROOT_DIR
 from .base_model import BaseModel
 import logging
-import cv2
 import numpy as np
 import torch
-from backend.settings.settings import get_hardware_preference
 
 logger = logging.getLogger(__name__)
 
