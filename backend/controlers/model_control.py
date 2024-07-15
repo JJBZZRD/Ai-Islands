@@ -5,13 +5,15 @@ import multiprocessing
 import json
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
-from backend.models.base_model import BaseModel
 import logging
 import os
 import time
 import gc
 from backend.settings.settings import get_hardware_preference, set_hardware_preference
+from backend.controlers.library_control import LibraryControl
 import torch
+import transformers
+import importlib
 
 logger = logging.getLogger(__name__)
 
@@ -25,20 +27,22 @@ class ModelControl:
         self.hardware_preference = device
     
     @staticmethod
-    def _download_process(model_class, model_id, model_dir):
+    def _download_process(model_class, model_id, model_info, library_control):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
-        model_class.download(model_id, model_dir)
+        new_entry = model_class.download(model_id, model_info)
+        if new_entry:
+            library_control.update_library(model_id, new_entry)
         end_time = time.time()
         logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
             
     @staticmethod
-    def _load_process(model_class, model_path, conn, model_id, device, required_classes=None):
+    def _load_process(model_class, model_path, conn, model_id, device, required_classes=None, pipeline_tag=None):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
         if required_classes:
             # if extra classes are needed to load the model (transformers)
-            model.load(model_path, device, required_classes)
+            model.load(model_path, device, required_classes, pipeline_tag)
         else:
             # if no extra classes are needed to load the model (ultralytics)
             model.load(model_path, device)
@@ -53,43 +57,9 @@ class ModelControl:
                 prediction = model.process_request(payload)
                 conn.send(prediction)
             elif msg.startswith("sentimentPredict"):
-                prediction = model.predict(msg.split(":", 1)[1])
+                prediction = model.inference(msg.split(":", 1)[1])
                 conn.send(prediction)
 
-    def _update_library(self, model_id: str, model_info: dict, model_dir: str):
-        model_class = self._get_model_class(model_info['model_source'])
-        logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-        
-        # Ensure library is a dictionary
-        if not isinstance(library, dict):
-            library = {}
-        
-        new_entry = {
-        "base_model": model_id,
-        "dir": model_dir,
-        "is_customised": False,
-        "is_online": model_info["is_online"],
-        "model_source": model_info["model_source"],
-        "tags": model_info["tags"]
-        }
-        
-        if model_info.get("required_classes"):
-            new_entry["required_classes"] = model_info["required_classes"]
-        
-        if model_class == UltralyticsModel:
-            new_entry.update({
-            "model_desc": model_info.get("model_desc", ""),
-            "model_detail": model_info.get("model_detail", "")
-        })
-        
-        # Add or update entryin the library
-        library[model_id] = new_entry
-        
-        logger.debug(f"New library entry: {new_entry}")
-        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
-        logger.info(f"Library updated with new entry: {new_entry}")
-    
     def _get_model_info_library(self, model_id: str):
         logger.debug(f"Reading model library from: {DOWNLOADED_MODELS_PATH}")
 
@@ -115,15 +85,22 @@ class ModelControl:
             logger.error(f"Unexpected error: {e}")
         return None
 
-    def _get_model_class(self, model_source: str):
-        if model_source == 'transformers':
-            return TransformerModel
-        elif model_source == 'ultralytics':
-            return UltralyticsModel
-        elif model_source == 'watson':
-            return WatsonModel
-        else:
-            raise ValueError(f"Unknown model source: {model_source}")
+    def _get_model_class(self, model_id: str):
+        model_info = self._get_model_info_index(model_id)
+        if not model_info:
+            raise ValueError(f"Model info not found for {model_id}")
+        
+        model_class_name = model_info.get('model_class')
+        if not model_class_name:
+            raise ValueError(f"Model class not specified for {model_id}")
+        
+        try:
+            # Dynamically import the module and get the class
+            module = importlib.import_module('backend.models')
+            model_class = getattr(module, model_class_name)
+            return model_class
+        except (ImportError, AttributeError) as e:
+            raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
         
     def _get_model_info_index(self, model_id: str):
         logger.debug(f"Reading model index from: {MODEL_INDEX_PATH}")
@@ -152,29 +129,13 @@ class ModelControl:
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
-        
-        if model_info.get('is_online', False):
-            logger.info(f"Model {model_id} is online and does not require downloading.")
-            return True
-        
-        model_class = self._get_model_class(model_info['model_source'])
-        
-        if model_info['model_source'] == 'ultralytics':
-            model_dir = os.path.join('data', 'downloads', 'ultralytics')
-        elif model_info['model_source'] == 'transformers':
-            model_dir = os.path.join('data', 'downloads', 'transformers')
-        else:
-            model_dir = os.path.join('data', 'downloads', 'others')
-        print(model_dir)
-        # Ensure directory exist and create if not
-        if not os.path.exists(model_dir):
-            os.makedirs(model_dir, exist_ok=True)
-            logger.info(f"Created directory: {model_dir}")
-        
-        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_dir))
+
+        model_class = self._get_model_class(model_id)
+        library_control = LibraryControl()
+
+        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, library_control))
         process.start()
         process.join()
-        self._update_library(model_id, model_info, model_dir)
         return True
 
     def load_model(self, model_id: str):
@@ -183,10 +144,11 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
-        model_class = self._get_model_class(model_info['model_source'])
+        model_class = self._get_model_class(model_id)
         model_dir = model_info['dir']
         # if required classes are not provided, set it to None
         required_classes = model_info.get('required_classes', None)
+        pipeline_tag = model_info.get('pipeline_tag', None)
         
         if not os.path.exists(model_dir):
             logger.error(f"Model file not found: {model_dir}")
@@ -196,7 +158,7 @@ class ModelControl:
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
 
         parent_conn, child_conn = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=self._load_process, args=(model_class, model_dir, child_conn, model_id, device, required_classes))
+        process = multiprocessing.Process(target=self._load_process, args=(model_class, model_dir, child_conn, model_id, device, required_classes, pipeline_tag))
         process.start()
 
         if parent_conn.recv() == "Model loaded":
