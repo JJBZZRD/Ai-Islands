@@ -51,8 +51,9 @@ class ModelControl:
                 payload = json.loads(msg.split(":", 1)[1])
                 prediction = model.process_request(payload)
                 conn.send(prediction)
-            elif msg.startswith("sentimentPredict"):
-                prediction = model.inference(msg.split(":", 1)[1])
+            elif msg.startswith("inference:"):
+                payload = json.loads(msg.split(":", 1)[1])
+                prediction = model.inference(payload)
                 conn.send(prediction)
 
     def download_model(self, model_id: str):
@@ -154,3 +155,12 @@ class ModelControl:
             return model_class
         except (ImportError, AttributeError) as e:
             raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
+        
+    def inference(self, model_id: str, request_payload: dict):
+        active_model = self.get_active_model(model_id)
+        if not active_model:
+            raise ValueError(f"Model {model_id} is not loaded")
+
+        conn = active_model['conn']
+        conn.send(f"inference:{json.dumps(request_payload)}")
+        return conn.recv()

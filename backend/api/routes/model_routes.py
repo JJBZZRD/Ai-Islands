@@ -220,3 +220,12 @@ async def predict(model_id: Annotated[str, "ID of the sentiment model"], sentenc
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@router.post("/inference/{model_id}")
+async def inference(model_id: str, request_payload: Dict[str, Any] = Body(...)):
+    try:
+        prediction = model_control.inference(model_id, request_payload)
+        return {"model_id": model_id, "prediction": prediction}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
