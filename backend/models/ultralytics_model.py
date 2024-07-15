@@ -37,34 +37,21 @@ class UltralyticsModel:
                 os.remove(root_model_path)
                 print(f"Deleted model file from root directory: {root_model_path}")
 
-            UltralyticsModel._update_library(model_id, model_info, model_dir)
+            new_entry = {
+                "base_model": model_id,
+                "dir": model_dir,
+                "is_customised": False,
+                "is_online": model_info["is_online"],
+                "model_source": model_info["model_source"],
+                "model_class": model_info["model_class"],
+                "tags": model_info["tags"],
+                "model_desc": model_info.get("model_desc", ""),
+                "model_detail": model_info.get("model_detail", "")
+            }
+            return new_entry
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
-    
-    @staticmethod
-    def _update_library(model_id: str, model_info: dict, model_dir: str):
-        logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-        
-        if not isinstance(library, dict):
-            library = {}
-        
-        new_entry = {
-            "base_model": model_id,
-            "dir": model_dir,
-            "is_customised": False,
-            "is_online": model_info["is_online"],
-            "model_source": model_info["model_source"],
-            "tags": model_info["tags"],
-            "model_desc": model_info.get("model_desc", ""),
-            "model_detail": model_info.get("model_detail", "")
-        }
-        
-        library[model_id] = new_entry
-        
-        logger.debug(f"New library entry: {new_entry}")
-        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
-        logger.info(f"Library updated with new entry: {new_entry}")
+            return None
 
     def load(self, model_path: str, device: torch.device):
         try:

@@ -24,36 +24,24 @@ class TransformerModel:
             
             # download the entire model repository to the specified directory
             snapshot_download(repo_id=model_id, cache_dir=model_dir)
-            TransformerModel._update_library(model_id, model_info, model_dir)
+            
+            new_entry = {
+                "base_model": model_id,
+                "dir": model_dir,
+                "is_customised": False,
+                "is_online": model_info["is_online"],
+                "model_source": model_info["model_source"],
+                "model_class": model_info["model_class"],
+                "tags": model_info["tags"],
+                "pipeline_tag": model_info.get("pipeline_tag"),
+                "required_classes": model_info.get("required_classes")
+            }
+            return new_entry
         except Exception as e:
             logger.error(f"Error downloading model {model_id}: {str(e)}")
+            return None
 
-    @staticmethod
-    def _update_library(model_id: str, model_info: dict, model_dir: str):
-        logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-        
-        if not isinstance(library, dict):
-            library = {}
-        
-        new_entry = {
-            "base_model": model_id,
-            "dir": model_dir,
-            "is_customised": False,
-            "is_online": model_info["is_online"],
-            "model_source": model_info["model_source"],
-            "tags": model_info["tags"],
-            "pipeline_tag": model_info.get("pipeline_tag"),
-            "required_classes": model_info.get("required_classes")
-        }
-        
-        library[model_id] = new_entry
-        
-        logger.debug(f"New library entry: {new_entry}")
-        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
-        logger.info(f"Library updated with new entry: {new_entry}")
-
-    def load(self, model_dir: str, device: torch.device, required_classes: list, pipeline_tag: str = None):
+    def load(self, model_dir: str, device, required_classes: list, pipeline_tag: str = None):
         try:
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
