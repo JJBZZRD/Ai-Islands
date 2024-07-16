@@ -24,6 +24,12 @@ def check_system_info():
     print(f"CPU Count: {psutil.cpu_count(logical=True)}")
     print(f"Total RAM: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
     
+    # Add current memory usage
+    current_memory = psutil.virtual_memory()
+    print(f"Current Memory Usage: {current_memory.percent}%")
+    print(f"Used Memory: {current_memory.used / (1024 ** 3):.2f} GB")
+    print(f"Available Memory: {current_memory.available / (1024 ** 3):.2f} GB")
+    
     gpus = GPUtil.getGPUs()
     if gpus:
         for gpu in gpus:
