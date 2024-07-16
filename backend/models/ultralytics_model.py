@@ -70,7 +70,7 @@ class UltralyticsModel(BaseModel):
         except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
     
-    def process_request(self, request_payload: dict):
+    def inference(self, request_payload: dict):
         if "image_path" in request_payload:
             return self.predict_image(request_payload["image_path"])
         elif "video_frame" in request_payload:

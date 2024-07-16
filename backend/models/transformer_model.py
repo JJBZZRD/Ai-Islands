@@ -82,10 +82,17 @@ class TransformerModel(BaseModel):
     
     # This is a method to test model predict
     # This method needs further modification to work with different types of models
-    def inference(self, sentence: str):
-        classifier = transformers.pipeline(task="sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
-        output = classifier(sentence)
-        return output
+    def inference(self, data: dict):
+        try:
+            print(data["payload"])
+            print(self.pipeline)
+            output = self.pipeline(data["payload"])
+            print("output")
+            print(output)
+            return output
+        except Exception as e:
+            logger.error(f"Error during inference: {str(e)}")
+            return {"error": str(e)}
 
     def process_request(self, request_payload: dict):
         if self.pipeline:

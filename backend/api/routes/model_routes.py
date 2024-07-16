@@ -8,11 +8,13 @@ import shutil
 import uuid
 from typing import Dict, Any
 import json
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Annotated
 import numpy as np
 import asyncio
 import torch
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
@@ -22,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 class PredictRequest(BaseModel):
     image_path: str
+
+class InferenceRequest(BaseModel):
+    model_id: str
+    data: Annotated[dict | None, Field()]
 
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
@@ -109,6 +115,13 @@ async def is_model_loaded(model_id: str = Query(...)):
             return {"message": f"Model {model_id} is loaded"}
         else:
             return {"message": f"Model {model_id} is not loaded"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/inference")
+async def inference(inferenceRequest: InferenceRequest):
+    try:
+        return model_control.inference(jsonable_encoder(inferenceRequest))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -43,16 +43,14 @@ class ModelControl:
             model.load(model_path, device)
         conn.send("Model loaded")
         while True:
-            msg = conn.recv()
-            if msg == "terminate":
+            req = conn.recv()
+            if req == "terminate":
                 conn.send("Terminating")
                 break
-            elif msg.startswith("predict:"):
-                payload = json.loads(msg.split(":", 1)[1])
-                prediction = model.process_request(payload)
-                conn.send(prediction)
-            elif msg.startswith("sentimentPredict"):
-                prediction = model.inference(msg.split(":", 1)[1])
+            elif req["task"] == "inference":
+                prediction = model.inference(req["data"])
+                print("prediction")
+                print(prediction)
                 conn.send(prediction)
 
     def download_model(self, model_id: str):
@@ -125,11 +123,26 @@ class ModelControl:
         if model_id in self.models:
             return self.models[model_id]
         logger.error(f"Model {model_id} not found in active models.")
-        return None
+        raise KeyError(f"Model {model_id} not found in active models.")
     
     def delete_model(self, model_id: str):
         return self.library_control.delete_model(model_id)
     
+    def inference(self, inference_request):
+        try:
+            print(inference_request)
+            inference_request = inference_request
+            active_model = self.get_active_model(inference_request['model_id'])
+            print("runned this")
+            conn = active_model['conn']
+            req = inference_request
+            req['task'] = "inference"
+            conn.send(req)
+            return conn.recv()
+        except KeyError:
+            return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+            
+    # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)
         if not active_model:
