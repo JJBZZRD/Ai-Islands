@@ -66,12 +66,23 @@ class UltralyticsModel(BaseModel):
             # Set device based on user preference
             #device = get_hardware_preference()
             self.model.to(device)
-                
         except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
     
     def inference(self, request_payload: dict):
+        print("runned yolo inference function")
         if "image_path" in request_payload:
+            print("runned yolo inference")
+            return self.predict_image(request_payload["image_path"])
+        elif "video_frame" in request_payload:
+            return self.predict_video(request_payload["video_frame"])
+        else:
+            return {"error": "Invalid request payload"}
+        
+    def process_request(self, request_payload: dict):
+        print("runned yolo inference function")
+        if "image_path" in request_payload:
+            print("runned yolo inference")
             return self.predict_image(request_payload["image_path"])
         elif "video_frame" in request_payload:
             return self.predict_video(request_payload["video_frame"])
@@ -98,6 +109,7 @@ class UltralyticsModel(BaseModel):
                         "confidence": conf,
                         "coordinates": coords
                     })
+            print("runned yolo predict image")
             return predictions
         except Exception as e:
             print(f"Error predicting image {image_path}: {str(e)}")
