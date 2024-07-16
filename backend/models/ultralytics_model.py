@@ -155,6 +155,3 @@ class UltralyticsModel(BaseModel):
             logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
-
-    def inference(self, *args):
-        pass
