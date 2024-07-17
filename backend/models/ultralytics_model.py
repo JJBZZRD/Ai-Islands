@@ -37,18 +37,13 @@ class UltralyticsModel(BaseModel):
                 os.remove(root_model_path)
                 print(f"Deleted model file from root directory: {root_model_path}")
 
-            new_entry = {
+            model_info.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "is_online": model_info["is_online"],
-                "model_source": model_info["model_source"],
-                "model_class": model_info["model_class"],
-                "tags": model_info["tags"],
-                "model_desc": model_info.get("model_desc", ""),
-                "model_detail": model_info.get("model_detail", "")
-            }
-            return new_entry
+                "config":{}
+            })
+            return model_info
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
