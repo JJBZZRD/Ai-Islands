@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 LIBRARY_PATH = "data/library.json"
 
+
+
 class WatsonModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
@@ -25,9 +27,18 @@ class WatsonModel(BaseModel):
     @staticmethod
     def download(model_id: str, model_info: dict):
         try:
+            logger.info(f"Attempting to download model: {model_id}")
+            logger.info(f"Original model info: {json.dumps(model_info, indent=2)}")
+
             # Check if required services are available in the account
             account_info = AccountInfo()
             resources = account_info.get_resource_list()
+            
+            # Output resource list to JSON file
+            resource_list_path = os.path.join('data', 'resource_list.json')
+            with open(resource_list_path, 'w') as f:
+                json.dump(resources, f, indent=4)
+            logger.info(f"Resource list saved to {resource_list_path}")
             
             required_services = {
                 'cloud_object_storage': False,
@@ -35,35 +46,40 @@ class WatsonModel(BaseModel):
                 'watson_machine_learning': False
             }
             
+            # ... in the download method:
             for resource in resources:
-                if 'cloud-object-storage' in resource['name'].lower():
+                resource_name = resource['name']
+                if check_service(resource_name, 'cloud object storage'):
                     required_services['cloud_object_storage'] = True
-                elif 'watson studio' in resource['name'].lower():
+                elif check_service(resource_name, 'watson studio'):
                     required_services['watson_studio'] = True
-                elif 'watson machine learning' in resource['name'].lower():
+                elif check_service(resource_name, 'watson machine learning'):
                     required_services['watson_machine_learning'] = True
+            logger.info(f"Detected services: {required_services}")
             
             missing_services = [service for service, available in required_services.items() if not available]
-            
             if missing_services:
                 logger.error(f"The following required services are missing: {', '.join(missing_services)}")
+                logger.error(f"Available services: {[resource['name'] for resource in resources]}")
                 return None
             
-            model_dir = os.path.join('data', 'downloads', 'watson')
-            if not os.path.exists(model_dir):
-                os.makedirs(model_dir, exist_ok=True)
+            # Create directory for the model
+            model_dir = os.path.join('data', 'downloads', 'watson', model_id)
+            os.makedirs(model_dir, exist_ok=True)
 
-            # Create the entry in library with an empty project ID.
+            # Save original model info to model_info.json in the model directory
+            with open(os.path.join(model_dir, 'model_info.json'), 'w') as f:
+                json.dump(model_info, f, indent=4)
+
+            # Create the new entry for library.json
             logger.info(f"Creating library entry for Watson model {model_id}")
+
             system_prompt = """You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response."""
-            new_entry = {
+            new_entry = model_info.copy()
+            new_entry.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "is_online": model_info["is_online"],
-                "model_source": model_info["model_source"],
-                "model_class": model_info["model_class"],
-                "tags": model_info["tags"],
                 "config": {
                     "project_id": "",  # This will be set later when the user selects a project
                     "prompt": {
@@ -85,11 +101,41 @@ class WatsonModel(BaseModel):
                         "dataset_name": None
                     }
                 }
-            }
+            })
+
+            logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
             return new_entry
         except Exception as e:
             logger.error(f"Error adding model {model_id}: {str(e)}")
+            logger.exception("Full traceback:")
             return None
+
+    def select_project(self):
+        projects = get_projects()
+        if not projects:
+            logger.error("No projects available. Please create a project in IBM Watson Studio.")
+            return False
+
+        logger.info("Available projects:")
+        for i, project in enumerate(projects):
+            logger.info(f"{i+1}. ID: {project['id']}, Name: {project['name']}")
+
+        # In a real application, you would prompt the user to select a project here
+        # For now, we'll just use the first project
+        selected_project = projects[0]
+        self.project_id = selected_project["id"]
+        logger.info(f"Selected project: {selected_project['name']} (ID: {self.project_id})")
+
+        # Update the library with the selected project_id
+        with open(LIBRARY_PATH, "r") as file:
+            library = json.load(file)
+        model_info = library.get(self.model_id, {})
+        model_info['config']['project_id'] = self.project_id
+        library[self.model_id] = model_info
+        with open(LIBRARY_PATH, "w") as file:
+            json.dump(library, file, indent=4)
+
+        return True
 
     def load(self, model_path: str, device: str, required_classes=None, pipeline_tag: str = None):
         try:
@@ -111,26 +157,8 @@ class WatsonModel(BaseModel):
                 self.project_id = model_info.get("config", {}).get("project_id")
 
             if not self.project_id:
-                # Fetch available projects
-                projects = get_projects()
-                if not projects:
-                    logger.error("No projects available. Please create a project in IBM Watson Studio.")
+                if not self.select_project():
                     return False
-                
-                # Here, we need to implement a way to let the user select a project
-                # For now, we'll just log the available projects and use the first one
-                logger.info("Available projects:")
-                for project in projects:
-                    logger.info(f"ID: {project['id']}, Name: {project['name']}")
-                
-                self.project_id = projects[0]["id"]
-                logger.info(f"Automatically selected project: {projects[0]['name']} (ID: {self.project_id})")
-                
-                # Update the library with the selected project_id
-                model_info['config']['project_id'] = self.project_id
-                library[self.model_id] = model_info
-                with open(LIBRARY_PATH, "w") as file:
-                    json.dump(library, file, indent=4)
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
 
@@ -155,6 +183,7 @@ class WatsonModel(BaseModel):
                 library = json.load(file)
                 model_info = library.get(self.model_id, {})
                 config = model_info.get("config", {})
+                
                 prompt_info = config.get("prompt", {})
                 parameters = config.get("parameters", {})
                 rag_settings = config.get("rag_settings", {})
@@ -214,3 +243,10 @@ class WatsonModel(BaseModel):
         # ... sentiment prediction logic ...
         sentiment = {"sentiment": "positive"}  # Placeholder for the actual sentiment result
         return sentiment
+
+
+
+# ------------- LOCAL METHODS -------------
+
+def check_service(resource_name, service_keyword):
+    return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
