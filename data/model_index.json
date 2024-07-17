@@ -431,5 +431,55 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
     "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below."
-    }
+    },
+  "ibm/natural-language-understanding": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "text-analysis",
+      "sentiment-analysis",
+      "emotion-detection",
+      "entity-extraction",
+      "keyword-extraction",
+      "category-classification",
+      "concept-tagging",
+      "relation-extraction",
+      "semantic-role-labeling"
+    ],
+    "pipeline_tag": "text-analysis",
+    "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
+    "model_desc": "IBM Watson Natural Language Understanding is a cloud-native product that uses deep learning to extract metadata from text such as entities, keywords, categories, sentiment, emotion, relations, and syntax.",
+    "model_detail": "This service can analyze text to extract metadata from content such as concepts, entities, keywords, categories, sentiment, emotion, relations, and semantic roles using natural language processing."
+  },
+  "ibm/text-to-speech": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "text-to-speech",
+      "audio-synthesis",
+      "voice-generation",
+      "speech-synthesis"
+    ],
+    "pipeline_tag": "text-to-speech",
+    "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
+    "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
+    "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis."
+  },
+  "ibm/speech-to-text": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "speech-to-text",
+      "audio-transcription",
+      "voice-recognition",
+      "speech-recognition"
+    ],
+    "pipeline_tag": "speech-to-text",
+    "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
+    "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
+    "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription."
+  }
 }
