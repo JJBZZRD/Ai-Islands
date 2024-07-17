@@ -156,7 +156,8 @@
       "tokenizer": "AutoTokenizer"
     },
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
-    "model_detail": "https://llama.meta.com/get-started/"
+    "model_detail": "https://llama.meta.com/get-started/",
+    "requires_auth": true
   },
   "nomic-ai/gpt4all-j": {
     "is_online": false,
@@ -202,5 +203,33 @@
     },
     "model_desc": "Llama-2-13B-chat-GGML is a quantized version of the Llama 2 13B chat model, optimized for efficient inference on CPU using the GGML format. It's designed for natural language processing tasks, particularly suited for chat-based applications.",
     "model_detail": "https://github.com/ggerganov/llama.cpp"
+  },
+  "meta-llama/Llama-2-70b-chat-hf": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "llama",
+      "meta",
+      "llama-2",
+      "text-generation",
+      "text-generation-inference",
+      "chat",
+      "en",
+      "license:llama2",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/meta-llama/Llama-2-70b-chat-hf",
+    "required_classes": {
+      "model": "AutoModelForCausalLM",
+      "tokenizer": "AutoTokenizer"
+    },
+    "model_desc": "Llama 2 70B Chat is the largest model in the Llama 2 family, fine-tuned for chat and dialogue applications. It offers state-of-the-art performance among open-source language models and is suitable for a wide range of natural language processing tasks.",
+    "model_detail": "https://ai.meta.com/llama/",
+    "requires_auth": true
   }
 }

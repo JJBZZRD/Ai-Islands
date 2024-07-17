@@ -19,7 +19,7 @@ class TransformerModel(BaseModel):
         self.pipeline = None
 
     @staticmethod
-    def download(model_id: str, model_info: dict):
+    def download(model_id: str, model_info: dict, auth_token: str = None):
         try:
             model_dir = os.path.join('data', 'downloads', 'transformers', model_id)
             if not os.path.exists(model_dir):
@@ -29,21 +29,24 @@ class TransformerModel(BaseModel):
             
             for class_type, class_name in required_classes.items():
                 if class_type == "model":
-                    # Dynamically import the correct model class
                     module = importlib.import_module('transformers')
                     ModelClass = getattr(module, class_name)
-                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token)
                 elif class_type == "tokenizer":
-                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token)
                 elif class_type == "processor":
                     ProcessorClass = getattr(transformers, class_name)
-                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token)
             
+            config = {}
+            if auth_token:
+                config['auth_token'] = auth_token
+
             model_info.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "config":{}
+                "config": config
             })
             return model_info
         except Exception as e:
