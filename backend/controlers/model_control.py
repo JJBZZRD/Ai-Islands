@@ -47,6 +47,10 @@ class ModelControl:
             if req == "terminate":
                 conn.send("Terminating")
                 break
+            if type(req) == str and req.startswith("predict:"):
+                payload = json.loads(req.split(":", 1)[1])
+                prediction = model.process_request(payload)
+                conn.send(prediction)
             elif req["task"] == "inference":
                 print("running control inference")
                 print("req data ", req["data"])

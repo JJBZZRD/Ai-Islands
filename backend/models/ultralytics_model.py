@@ -78,7 +78,8 @@ class UltralyticsModel(BaseModel):
             return self.predict_video(request_payload["video_frame"])
         else:
             return {"error": "Invalid request payload"}
-        
+    
+    # process request should be merged into inference
     def process_request(self, request_payload: dict):
         print("runned yolo inference function")
         if "image_path" in request_payload:
