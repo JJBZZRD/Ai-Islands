@@ -175,9 +175,15 @@ class WatsonModel(BaseModel):
             logger.error(f"Error loading model {self.model_id}: {str(e)}")
             return False
 
-    def inference(self, text: str):
+    def inference(self, data: dict):
         try:
-            #dataset_management = DatasetManagement()
+            logger.info(f"Starting inference with data: {data}")
+            payload = data.get("payload", "")
+            if not payload:
+                logger.error("No payload found in the input data")
+                return {"error": "No payload found in the input data"}
+            
+            logger.info(f"Extracted payload: {payload}")
 
             with open(LIBRARY_PATH, "r") as file:
                 library = json.load(file)
@@ -204,7 +210,7 @@ class WatsonModel(BaseModel):
                 #         full_prompt += f"- {entry}\n"
                 #     full_prompt += "\n"
             
-            full_prompt += f"Human: {text}\n\nAI:"
+            full_prompt += f"Human: {payload}\n\nAI:"
             
             params = {
                 GenParams.DECODING_METHOD: DecodingMethods.SAMPLE,
@@ -218,17 +224,22 @@ class WatsonModel(BaseModel):
                 GenParams.STOP_SEQUENCES: parameters.get("stop_sequences")
             }
             
+            logger.info(f"Sending prompt to model: {full_prompt}")
+            logger.info(f"Using parameters: {params}")
+            
             result = self.model_inference.generate_text(prompt=full_prompt, params=params)
             
             for stop_seq in parameters.get("stop_sequences", []):
                 if stop_seq in result:
                     result = result.split(stop_seq)[0]
             
-            return {"result": result.strip()}
+            final_result = {"result": result.strip()}
+            logger.info(f"Final result: {final_result}")
+            return final_result
 
         except Exception as e:
-            logger.error(f"Error: {e}")
-            return {"result": str(e)}
+            logger.error(f"Error during inference: {e}", exc_info=True)
+            return {"error": str(e)}
 
     def process_request(self, payload: dict):
         # Implement the logic to process a prediction request
