@@ -25,12 +25,19 @@ class ModelControl:
     def _download_process(model_class, model_id, model_info, library_control):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
-        new_entry = model_class.download(model_id, model_info)
-        if new_entry:
-            library_control.update_library(model_id, new_entry)
-        end_time = time.time()
-        logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
-            
+        try:
+            new_entry = model_class.download(model_id, model_info)
+            if new_entry:
+                library_control.update_library(model_id, new_entry)
+                end_time = time.time()
+                logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
+            else:
+                logger.error(f"Failed to download model {model_id}: new_entry is None")
+        except Exception as e:
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
+            return False
+        return True
+
     @staticmethod
     def _load_process(model_class, model_path, conn, model_id, device, required_classes=None, pipeline_tag=None):
         # instantiate the model class with model_id
@@ -66,7 +73,9 @@ class ModelControl:
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
         process.start()
         process.join()
-        return True
+        
+        # Check if the download was successful
+        return self.library_control.get_model_info_library(model_id) is not None
 
     def load_model(self, model_id: str):
         model_info = self.library_control.get_model_info_library(model_id)
