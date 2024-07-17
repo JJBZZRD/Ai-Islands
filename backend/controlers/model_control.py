@@ -25,12 +25,19 @@ class ModelControl:
     def _download_process(model_class, model_id, model_info, library_control):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
-        new_entry = model_class.download(model_id, model_info)
-        if new_entry:
-            library_control.update_library(model_id, new_entry)
-        end_time = time.time()
-        logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
-            
+        try:
+            new_entry = model_class.download(model_id, model_info)
+            if new_entry:
+                library_control.update_library(model_id, new_entry)
+                end_time = time.time()
+                logger.info(f"Completed download for model {model_id} in {end_time - start_time:.2f} seconds")
+            else:
+                logger.error(f"Failed to download model {model_id}: new_entry is None")
+        except Exception as e:
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
+            return False
+        return True
+
     @staticmethod
     def _load_process(model_class, model_path, conn, model_id, device, required_classes=None, pipeline_tag=None):
         # instantiate the model class with model_id
@@ -43,16 +50,20 @@ class ModelControl:
             model.load(model_path, device)
         conn.send("Model loaded")
         while True:
-            msg = conn.recv()
-            if msg == "terminate":
+            req = conn.recv()
+            if req == "terminate":
                 conn.send("Terminating")
                 break
-            elif msg.startswith("predict:"):
-                payload = json.loads(msg.split(":", 1)[1])
+            if type(req) == str and req.startswith("predict:"):
+                payload = json.loads(req.split(":", 1)[1])
                 prediction = model.process_request(payload)
                 conn.send(prediction)
-            elif msg.startswith("sentimentPredict"):
-                prediction = model.inference(msg.split(":", 1)[1])
+            elif req["task"] == "inference":
+                print("running control inference")
+                print("req data ", req["data"])
+                prediction = model.inference(req["data"])
+                print("prediction done")
+                print(prediction)
                 conn.send(prediction)
 
     def download_model(self, model_id: str):
@@ -66,7 +77,9 @@ class ModelControl:
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
         process.start()
         process.join()
-        return True
+        
+        # Check if the download was successful
+        return self.library_control.get_model_info_library(model_id) is not None
 
     def load_model(self, model_id: str):
         model_info = self.library_control.get_model_info_library(model_id)
@@ -125,11 +138,25 @@ class ModelControl:
         if model_id in self.models:
             return self.models[model_id]
         logger.error(f"Model {model_id} not found in active models.")
-        return None
+        raise KeyError(f"Model {model_id} not found in active models.")
     
     def delete_model(self, model_id: str):
         return self.library_control.delete_model(model_id)
     
+    def inference(self, inference_request):
+        try:
+            print(inference_request)
+            inference_request = inference_request
+            active_model = self.get_active_model(inference_request['model_id'])
+            conn = active_model['conn']
+            req = inference_request
+            req['task'] = "inference"
+            conn.send(req)
+            return conn.recv()
+        except KeyError:
+            return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+            
+    # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)
         if not active_model:

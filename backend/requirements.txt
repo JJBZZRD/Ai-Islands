@@ -7,3 +7,10 @@ httpx
 pytest
 opencv-python
 websockets
+setuptools
+gputil
+# Requires CUDA 12.1 installation for cuda access
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+torchaudio

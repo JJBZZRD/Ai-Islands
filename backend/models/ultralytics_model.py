@@ -37,18 +37,13 @@ class UltralyticsModel(BaseModel):
                 os.remove(root_model_path)
                 print(f"Deleted model file from root directory: {root_model_path}")
 
-            new_entry = {
+            model_info.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "is_online": model_info["is_online"],
-                "model_source": model_info["model_source"],
-                "model_class": model_info["model_class"],
-                "tags": model_info["tags"],
-                "model_desc": model_info.get("model_desc", ""),
-                "model_detail": model_info.get("model_detail", "")
-            }
-            return new_entry
+                "config":{}
+            })
+            return model_info
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
@@ -66,12 +61,24 @@ class UltralyticsModel(BaseModel):
             # Set device based on user preference
             #device = get_hardware_preference()
             self.model.to(device)
-                
         except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
     
-    def process_request(self, request_payload: dict):
+    def inference(self, request_payload: dict):
+        print("runned yolo inference function")
         if "image_path" in request_payload:
+            print("runned yolo inference")
+            return self.predict_image(request_payload["image_path"])
+        elif "video_frame" in request_payload:
+            return self.predict_video(request_payload["video_frame"])
+        else:
+            return {"error": "Invalid request payload"}
+    
+    # process request should be merged into inference
+    def process_request(self, request_payload: dict):
+        print("runned yolo inference function")
+        if "image_path" in request_payload:
+            print("runned yolo inference")
             return self.predict_image(request_payload["image_path"])
         elif "video_frame" in request_payload:
             return self.predict_video(request_payload["video_frame"])
@@ -98,6 +105,7 @@ class UltralyticsModel(BaseModel):
                         "confidence": conf,
                         "coordinates": coords
                     })
+            print("runned yolo predict image")
             return predictions
         except Exception as e:
             print(f"Error predicting image {image_path}: {str(e)}")
@@ -143,6 +151,3 @@ class UltralyticsModel(BaseModel):
             logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
-
-    def inference(self, *args):
-        pass
