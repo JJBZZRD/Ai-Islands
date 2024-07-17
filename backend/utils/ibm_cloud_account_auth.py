@@ -8,6 +8,7 @@ from ibm_watsonx_ai import APIClient, Credentials
 load_dotenv()
 
 IAM_TOKEN_URL = "https://iam.cloud.ibm.com/identity/token"
+RESOURCE_SERVICE_URL = "https://resource-controller.cloud.ibm.com/v2/resource_instances"
 
 class Authentication:
     def __init__(self):
@@ -47,6 +48,17 @@ class Authentication:
             raise RuntimeError(error_message)
 
 class ResourceService:
+    def get_resource_list(self, iam_token):
+        headers = {
+            'Authorization': f'Bearer {iam_token}',
+            'Accept': 'application/json',
+        }
+        response = requests.get(RESOURCE_SERVICE_URL, headers=headers)
+        if response.status_code == 200:
+            return response.json()['resources']
+        else:
+            raise Exception(f"Failed to get resource list: {response.text}")
+
     def get_service_credentials(self, iam_token, service_name):
         resource_service_url = "https://resource-controller.cloud.ibm.com/v2/resource_instances"
         headers = {
@@ -98,6 +110,10 @@ class AccountInfo:
 
     def get_iam_token(self):
         return self.auth.get_iam_token()
+
+    def get_resource_list(self):
+        iam_token = self.get_iam_token()
+        return self.resource_service.get_resource_list(iam_token)
 
     def get_service_credentials(self, iam_token, service_name):
         return self.resource_service.get_service_credentials(iam_token, service_name)

@@ -11,7 +11,7 @@ class or module, ensuring comprehensive testing coverage and robust model manage
 
 
 def test_model_load_model(model_control):
-    model_id = "yolov8s"
+    model_id = "ibm/granite-13b-chat-v2"
     assert model_control.load_model(model_id) is True
     assert model_id in model_control.models
     conn = model_control.models[model_id]['conn']
