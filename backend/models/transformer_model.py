@@ -94,46 +94,46 @@ class TransformerModel(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             return {"error": str(e)}
 
-    def process_request(self, request_payload: dict):
-        if self.pipeline:
-            if "text" in request_payload:
-                return self.pipeline(request_payload["text"])
-            elif "image" in request_payload:
-                return self.pipeline(request_payload["image"])
-        else:
-            # Fallback to existing methods if pipeline is not available
-            if "prompt" in request_payload:
-                return self.generate(request_payload["prompt"])
-            elif "image" in request_payload:
-                return self.process_image(request_payload["image"])
-        
-        return {"error": "Invalid request payload or unsupported operation"}
-
-    def generate(self, prompt: str, max_length: int = 50):
-        try:
-            if self.model is None or self.tokenizer is None:
-                raise ValueError("Model or tokenizer not loaded. Please load a model first.")
-            
-            inputs = self.tokenizer(prompt, return_tensors="pt")
-            outputs = self.model.generate(**inputs, max_length=max_length)
-            generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            return {"generated_text": generated_text}
-        except Exception as e:
-            logger.error(f"Error during text generation: {str(e)}")
-            return {"error": str(e)}
-
-    def process_image(self, image_path: str):
-        try:
-            if self.model is None or self.processor is None:
-                raise ValueError("Model or processor not loaded. Please load a model first.")
-            
-            # Implement image processing logic here
-            # This is a placeholder and should be adapted based on the specific model's requirements
-            return {"message": "Image processing not implemented for this model"}
-        except Exception as e:
-            logger.error(f"Error during image processing: {str(e)}")
-            return {"error": str(e)}
-
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
+        
+    # def process_request(self, request_payload: dict):
+    #     if self.pipeline:
+    #         if "text" in request_payload:
+    #             return self.pipeline(request_payload["text"])
+    #         elif "image" in request_payload:
+    #             return self.pipeline(request_payload["image"])
+    #     else:
+    #         # Fallback to existing methods if pipeline is not available
+    #         if "prompt" in request_payload:
+    #             return self.generate(request_payload["prompt"])
+    #         elif "image" in request_payload:
+    #             return self.process_image(request_payload["image"])
+        
+    #     return {"error": "Invalid request payload or unsupported operation"}
+
+    # def generate(self, prompt: str, max_length: int = 50):
+    #     try:
+    #         if self.model is None or self.tokenizer is None:
+    #             raise ValueError("Model or tokenizer not loaded. Please load a model first.")
+            
+    #         inputs = self.tokenizer(prompt, return_tensors="pt")
+    #         outputs = self.model.generate(**inputs, max_length=max_length)
+    #         generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    #         return {"generated_text": generated_text}
+    #     except Exception as e:
+    #         logger.error(f"Error during text generation: {str(e)}")
+    #         return {"error": str(e)}
+
+    # def process_image(self, image_path: str):
+    #     try:
+    #         if self.model is None or self.processor is None:
+    #             raise ValueError("Model or processor not loaded. Please load a model first.")
+            
+    #         # Implement image processing logic here
+    #         # This is a placeholder and should be adapted based on the specific model's requirements
+    #         return {"message": "Image processing not implemented for this model"}
+    #     except Exception as e:
+    #         logger.error(f"Error during image processing: {str(e)}")
+    #         return {"error": str(e)}
         

@@ -27,7 +27,11 @@ class PredictRequest(BaseModel):
 
 class InferenceRequest(BaseModel):
     model_id: str
-    data: Annotated[dict | None, Field()]
+    data: Annotated[dict | None, 
+                    Field(
+                        title="Data to be used for inference", 
+                        description="Example: For sentiment analysis, it will be a sentence. For image classification, it will be an image path"
+                    )]
 
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):

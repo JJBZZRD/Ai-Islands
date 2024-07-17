@@ -48,8 +48,10 @@ class ModelControl:
                 conn.send("Terminating")
                 break
             elif req["task"] == "inference":
+                print("running control inference")
+                print("req data ", req["data"])
                 prediction = model.inference(req["data"])
-                print("prediction")
+                print("prediction done")
                 print(prediction)
                 conn.send(prediction)
 
@@ -133,7 +135,6 @@ class ModelControl:
             print(inference_request)
             inference_request = inference_request
             active_model = self.get_active_model(inference_request['model_id'])
-            print("runned this")
             conn = active_model['conn']
             req = inference_request
             req['task'] = "inference"
