@@ -151,7 +151,17 @@ class ModelControl:
             return conn.recv()
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
-            
+    
+    def train_model(self, model_id: str, training_params: dict):
+        active_model = self.get_active_model(model_id)
+        if not active_model:
+            raise ValueError(f"Model {model_id} is not loaded")
+        
+        conn = active_model['conn']
+        conn.send({"task": "train", "data": training_params})
+        result = conn.recv()
+        return result
+
     # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)

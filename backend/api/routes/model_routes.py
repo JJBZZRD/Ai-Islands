@@ -4,7 +4,7 @@ from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body, Web
 from backend.controlers.model_control import ModelControl
 from backend.core.config import DOWNLOADED_MODELS_PATH, UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
 from backend.data_utils.dataset_validation import validate_dataset
-from backend.data_utils.yaml_generator import generate_yaml_file
+from backend.data_utils.yaml_generator import generate_yolo_yaml
 from backend.controlers.library_control import LibraryControl
 import os
 import shutil
@@ -78,53 +78,56 @@ async def upload_video(file: UploadFile = File(...)):
 @router.post("/upload-dataset/")
 async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
     try:
-        # Fetch the model info
         model_info = model_control.library_control.get_model_info_index(model_id)
         if not model_info:
             raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
-        # Check if the model requires a specific dataset format
         dataset_format = model_info.get('dataset_format')
         if not dataset_format:
             raise HTTPException(status_code=400, detail="Model does not specify a dataset format")
 
-        # Generate a unique identifier for the dataset
         dataset_id = str(uuid.uuid4())
-        file_extension = file.filename.split('.')[-1]
         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
-
-        # Save and extract the uploaded file
         os.makedirs(dataset_dir, exist_ok=True)
-        file_path = os.path.join(dataset_dir, f"{dataset_id}.{file_extension}")
 
+        file_path = os.path.join(dataset_dir, file.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Unzip the dataset if it's a zip file
-        if file_extension == 'zip':
+        if file.filename.endswith('.zip'):
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(dataset_dir)
+                for zip_info in zip_ref.infolist():
+                    if zip_info.filename[-1] == '/':
+                        continue
+                    zip_info.filename = os.path.basename(zip_info.filename)
+                    zip_ref.extract(zip_info, dataset_dir)
             os.remove(file_path)
 
-            # Move files from subdirectory if present
-            extracted_files = os.listdir(dataset_dir)
-            if len(extracted_files) == 1 and os.path.isdir(os.path.join(dataset_dir, extracted_files[0])):
-                sub_dir = os.path.join(dataset_dir, extracted_files[0])
-                for file in os.listdir(sub_dir):
-                    shutil.move(os.path.join(sub_dir, file), dataset_dir)
-                os.rmdir(sub_dir)
-
-        # Validate the dataset format
-        if validate_dataset(dataset_dir) != dataset_format:
+        # Check if 'images' and 'labels' folders exist directly under dataset_dir
+        if not (os.path.exists(os.path.join(dataset_dir, 'images')) and 
+                os.path.exists(os.path.join(dataset_dir, 'labels'))):
             shutil.rmtree(dataset_dir)
-            raise HTTPException(status_code=400, detail=f"Dataset format must be {dataset_format}")
+            raise HTTPException(status_code=400, detail="Invalid dataset structure. 'images' and 'labels' folders should be directly under the root.")
 
-        # Generate the YAML configuration file
-        yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
-        generate_yaml_file(dataset_dir, yaml_path)
+        detected_format = validate_dataset(dataset_dir)
+        if detected_format != dataset_format:
+            shutil.rmtree(dataset_dir)
+            raise HTTPException(status_code=400, detail=f"Dataset format must be {dataset_format}, detected {detected_format}")
 
-        return {"dataset_id": dataset_id, "dataset_path": dataset_dir, "format": dataset_format, "yaml_path": yaml_path}
+        if dataset_format == "YOLO":
+            yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
+            generate_yolo_yaml(dataset_dir, yaml_path)
+        else:
+            pass 
+
+        return {
+            "dataset_id": dataset_id,
+            "dataset_path": dataset_dir,
+            "format": dataset_format,
+            "yaml_path": yaml_path
+        }
     except Exception as e:
+        logger.error(f"Error uploading dataset: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/models/active")
@@ -207,37 +210,10 @@ async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = 
         return {"model_id": model_id, "prediction": prediction}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))"""
-    
-@router.post("/train")
-async def train_model(model_id: str = Query(...), epochs: int = Body(...), batch_size: int = Body(...), learning_rate: float = Body(...), dataset_id: str = Body(...)):
-    try:
-        dataset_path = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
-
-        # Validate the dataset path exists
-        if not os.path.exists(dataset_path):
-            raise HTTPException(status_code=400, detail="Dataset not found")
-
-        # Path to the existing YAML configuration file
-        yaml_path = os.path.join(dataset_path, f"{dataset_id}.yaml")
-        
-        # Ensure the YAML file exists
-        if not os.path.exists(yaml_path):
-            raise HTTPException(status_code=400, detail="YAML configuration file not found")
-
-        request_payload = {
-            "data_path": yaml_path,
-            "epochs": epochs,
-            "batch_size": batch_size,
-            "learning_rate": learning_rate
-        }
-        result = model_control.train_model(model_id, request_payload)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 # Creating a web socket connection for real-time video and live webcam processing
 # It will receives video frames as bytes, process it using the model and sends results back to user
-@router.websocket("/ws/predict-live/{model_id}")
+"""@router.websocket("/ws/predict-live/{model_id}")
 async def websocket_video(websocket: WebSocket, model_id: str):
     await websocket.accept()
     try:
@@ -283,21 +259,70 @@ async def websocket_video(websocket: WebSocket, model_id: str):
             await websocket.close()
         except Exception as close_exception:
             logger.error(f"Error closing websocket: {str(close_exception)}")
-        logger.info("Connection closed")
+        logger.info("Connection closed")"""
 
-def process_frame(conn, frame):
-    # Use GPU if available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if device.type == 'cuda':
-        logger.info("Using GPU for inference")
-    else:
-        logger.info("Using CPU for inference")
+@router.post("/train")
+async def train_model(model_id: str = Query(...), epochs: int = Body(...), batch_size: int = Body(...), learning_rate: float = Body(...), dataset_id: str = Body(...)):
+    try:
+        if epochs <= 0 or batch_size <= 0 or learning_rate <= 0:
+            raise HTTPException(status_code=400, detail="Invalid training parameters")
 
-    request_payload = {"video_frame": frame.tolist()}
-    conn.send(f"predict:{json.dumps(request_payload)}")
-    prediction = conn.recv()
-    return prediction
+        dataset_path = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
+        if not os.path.exists(dataset_path):
+            raise HTTPException(status_code=400, detail="Dataset not found")
 
+        yaml_path = os.path.join(dataset_path, f"{dataset_id}.yaml")
+        if not os.path.exists(yaml_path):
+            raise HTTPException(status_code=400, detail="YAML configuration file not found")
+
+        training_params = {
+            "data_path": yaml_path,
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate
+        }
+        result = model_control.train_model(model_id, training_params)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
+@router.websocket("/ws/predict-live/{model_id}")
+async def predict_live(websocket: WebSocket, model_id: str):
+    await websocket.accept()
+    try:
+        if not model_control.is_model_loaded(model_id):
+            await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
+            await websocket.close()
+            return
+
+        active_model = model_control.get_active_model(model_id)
+        if not active_model:
+            await websocket.send_json({"error": f"Model {model_id} is not found or not loaded"})
+            await websocket.close()
+            return
+
+        conn = active_model['conn']
+        
+        while True:
+            frame_data = await websocket.receive_bytes()
+            nparr = np.frombuffer(frame_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if frame is None:
+                await websocket.send_json({"error": "Invalid frame data"})
+                continue
+            
+            conn.send({"task": "inference", "data": {"video_frame": frame.tolist()}})
+            prediction = conn.recv()
+            
+            await websocket.send_json(prediction)
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")
+    except Exception as e:
+        logger.error(f"Error in predict_live: {str(e)}")
+        await websocket.send_json({"error": str(e)})
+    finally:
+        await websocket.close()
 
 """
     This route is used to predict the sentiment of a given sentence using the sentiment model

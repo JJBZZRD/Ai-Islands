@@ -108,47 +108,73 @@ class UltralyticsModel(BaseModel):
         else:
             return {"error": "Invalid request payload"}"""
 
-    def _predict_image(self, image_path: str):
+    def predict_image(self, image_path: str):
         try:
+            if self.model is None:
+                raise ValueError("Model is not loaded")
+            
             results = self.model.predict(image_path)
-            return self._process_results(results)
+            predictions = []
+            class_names = self.model.names
+            
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    conf = box.conf[0].item()
+                    coords = box.xyxy[0].tolist()
+                    predictions.append({
+                        "class": class_names[cls],
+                        "confidence": conf,
+                        "coordinates": coords
+                    })
+            return predictions
         except Exception as e:
             print(f"Error predicting image {image_path}: {str(e)}")
             return {"error": str(e)}
-
-    def _predict_video(self, frame: list):
+        
+    def predict_video(self, frame: list):
         try:
+            if self.model is None:
+                raise ValueError("Model is not loaded")
+        
+            print("Starting prediction on video frame")  
+        
             frame = np.array(frame, dtype=np.uint8)
             results = self.model.predict(frame)
-            return self._process_results(results)
+            predictions = []
+            class_names = self.model.names
+        
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    cls = int(box.cls[0])
+                    conf = box.conf[0].item()
+                    coords = box.xyxy[0].tolist()
+                    predictions.append({
+                        "class": class_names[cls],
+                        "confidence": conf,
+                        "coordinates": coords
+                    })
+
+            print("Prediction on frame completed")  
+            return predictions
         except Exception as e:
             print(f"Error predicting video frame: {str(e)}")
             return {"error": str(e)}
 
-    def _process_results(self, results):
-        predictions = []
-        for result in results:
-            boxes = result.boxes
-            for box in boxes:
-                cls = int(box.cls[0])
-                conf = box.conf[0].item()
-                coords = box.xyxy[0].tolist()
-                predictions.append({
-                    "class": self.model.names[cls],
-                    "confidence": conf,
-                    "coordinates": coords
-                })
-        return predictions
-
-    def train(self, data_path: str, epochs: int = 10, batch_size: int = 16, learning_rate: float = 0.001):
+    def train(self, training_params: dict):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
 
-            # Training the model
+            data_path = training_params['data_path']
+            epochs = training_params.get('epochs', 10)
+            batch_size = training_params.get('batch_size', 16)
+            learning_rate = training_params.get('learning_rate', 0.001)
+
             self.model.train(data=data_path, epochs=epochs, imgsz=640, lr0=learning_rate, batch=batch_size)
 
-            # Save the trained model with a different name
             i = 1
             while os.path.exists(os.path.join('data', 'downloads', 'ultralytics', f"{self.model_id}_{i}.pt")):
                 i += 1
@@ -159,12 +185,10 @@ class UltralyticsModel(BaseModel):
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size} and learning rate {learning_rate}. Model saved to {trained_model_path}")
         
-           # Adding new entry to the library.json
             new_entry = {
                 "dir": os.path.dirname(trained_model_path),
                 "model_desc": f"Fine-tuned {self.model_id} model",
             }
-             # Save updated entry to the library (using a method from library control)
             new_model_id = self.library_control.add_fine_tuned_model(self.model_id, new_entry)
 
             return {"message": "Training completed successfully", "trained_model_path": trained_model_path, "new_model_id": new_model_id}
