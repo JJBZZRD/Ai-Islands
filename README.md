@@ -1,6 +1,6 @@
 # Ai-Islands
 
-## Found Issues
+## Known Issues
 
 ### Transformer model - Reranker Model
 Reranker model "jinaai/jina-reranker-v2-base-multilingual" requires `trust_remote_code=True` in order to work. 
