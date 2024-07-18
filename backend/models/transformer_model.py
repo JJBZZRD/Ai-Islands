@@ -30,6 +30,10 @@ class TransformerModel(BaseModel):
             requires_auth = requirements.get('requires_auth', False)
             trust_remote_code = requirements.get('trust_remote_code', False)
             
+            if requires_auth and not auth_token:
+                logger.error(f"Auth token required for model {model_id} but not provided")
+                return None
+
             for class_type, class_name in required_classes.items():
                 if class_type == "model":
                     module = importlib.import_module('transformers')

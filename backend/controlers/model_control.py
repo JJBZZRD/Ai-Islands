@@ -68,12 +68,6 @@ class ModelControl:
             return False
 
         model_class = self._get_model_class(model_id, "index")
-        requirements = model_info.get('requirements', {})###
-        requires_auth = requirements.get('requires_auth', False)###
-
-        if requires_auth and not auth_token:
-            logger.error(f"Auth token required for model {model_id} but not provided")
-            return False
 
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control, auth_token))
         process.start()
