@@ -137,7 +137,7 @@ class WatsonModel(BaseModel):
 
         return True
 
-    def load(self, model_info: dict):
+    def load(self, device: str, model_info: dict):
         try:
             # Validate API key
             api_key = os.getenv("IBM_CLOUD_API_KEY")
