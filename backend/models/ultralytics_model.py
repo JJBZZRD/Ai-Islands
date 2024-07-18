@@ -188,25 +188,25 @@ class UltralyticsModel(BaseModel):
             self.model.train(data=data_path, epochs=epochs, imgsz=640, lr0=learning_rate, batch=batch_size)
 
             # Save the trained model with a different name
-            trained_model_name = f"{self.model_id}_ft.pt"
+            i = 1
+            while os.path.exists(os.path.join('data', 'downloads', 'ultralytics', f"{self.model_id}_{i}.pt")):
+                i += 1
+            
+            trained_model_name = f"{self.model_id}_{i}.pt"
             trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
             self.model.save(trained_model_path)
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size} and learning rate {learning_rate}. Model saved to {trained_model_path}")
         
-           # Update the library with the updated model entry
-            updated_entry = {
-                "is_customised": True,
+           # Adding new entry to the library.json
+            new_entry = {
                 "dir": os.path.dirname(trained_model_path),
                 "model_desc": f"Fine-tuned {self.model_id} model",
             }
              # Save updated entry to the library (using a method from library control)
-            self.library_control.update_library(self.model_id, updated_entry)
+            new_model_id = self.library_control.add_fine_tuned_model(self.model_id, new_entry)
 
-            return {"message": "Training completed successfully", "trained_model_path": trained_model_path}
+            return {"message": "Training completed successfully", "trained_model_path": trained_model_path, "new_model_id": new_model_id}
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
             return {"error": str(e)}
-
-    def inference(self, *args):
-        pass

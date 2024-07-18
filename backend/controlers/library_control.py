@@ -1,3 +1,4 @@
+from hmac import new
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
 import logging
@@ -86,3 +87,26 @@ class LibraryControl:
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
         logger.info(f"Model {model_id} deleted from library.")
         return True
+
+    def add_fine_tuned_model(self, base_model_id:str, new_entry:dict):
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        base_model_info = library.get(base_model_id, {})
+    
+        i = 1
+        while f"{base_model_id}_{i}" in library:
+            i += 1
+        new_model_id = f"{base_model_id}_{i}"
+    
+        # Creating new entry 
+        new_model_entry = base_model_info.copy()
+        new_model_entry.update(new_entry)
+        new_model_entry["base_model"] = base_model_id
+        new_model_entry["is_customised"] = True
+    
+        # Adding new entries to the library
+        library[new_model_id] = new_model_entry
+    
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH)
+        logger.info(f"New fine-tuned model added to library")
+        return new_model_id
+    

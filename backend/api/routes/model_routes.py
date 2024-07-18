@@ -16,12 +16,9 @@ from typing import Annotated
 import numpy as np
 import asyncio
 import torch
-<<<<<<< HEAD
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-=======
 import zipfile
->>>>>>> fineTuneVis
 
 router = APIRouter()
 
@@ -188,7 +185,7 @@ async def inference(inferenceRequest: InferenceRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Conduct prediction
+"""# Conduct prediction
 @router.post("/predict/")
 async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = Body(...)):
     try:
@@ -209,7 +206,7 @@ async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = 
 
         return {"model_id": model_id, "prediction": prediction}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))"""
     
 @router.post("/train")
 async def train_model(model_id: str = Query(...), epochs: int = Body(...), batch_size: int = Body(...), learning_rate: float = Body(...), dataset_id: str = Body(...)):
