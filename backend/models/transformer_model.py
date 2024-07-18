@@ -25,38 +25,55 @@ class TransformerModel(BaseModel):
             if not os.path.exists(model_dir):
                 os.makedirs(model_dir, exist_ok=True)
             
-            required_classes = model_info.get('required_classes', {})
+            requirements = model_info.get('requirements', {})
+            required_classes = requirements.get('required_classes', {})
+            requires_auth = requirements.get('requires_auth', False)
+            trust_remote_code = requirements.get('trust_remote_code', False)
+            auth_token = model_info.get('auth_token', None)
             
+            if requires_auth and not auth_token:
+                logger.error(f"Auth token required for model {model_id} but not provided")
+                return None
+
             for class_type, class_name in required_classes.items():
                 if class_type == "model":
-                    # Dynamically import the correct model class
                     module = importlib.import_module('transformers')
                     ModelClass = getattr(module, class_name)
-                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
                 elif class_type == "tokenizer":
-                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
                 elif class_type == "processor":
                     ProcessorClass = getattr(transformers, class_name)
-                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True)
+                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
             
+            config = {}
+            if requires_auth:
+                config['auth_token'] = auth_token
+
             model_info.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "config":{}
+                "config": config
             })
             return model_info
         except Exception as e:
             logger.error(f"Error downloading model {model_id}: {str(e)}")
             return None
 
-    def load(self, model_dir: str, device: torch.device, required_classes: dict, pipeline_tag: str = None):
+    def load(self, device: torch.device, model_info: dict):
         try:
+            model_dir = model_info['dir']
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
             
             logger.info(f"Loading model from {model_dir}")
-            logger.info(f"Required classes: {required_classes}")
+            logger.info(f"Model info: {model_info}")
+            
+            requirements = model_info.get('requirements', {})
+            required_classes = requirements.get('required_classes', {})
+            trust_remote_code = requirements.get('trust_remote_code', False)
+            pipeline_tag = model_info.get('pipeline_tag')
             
             for class_type, class_name in required_classes.items():
                 # Dynamically load the class from the transformers library
@@ -64,14 +81,13 @@ class TransformerModel(BaseModel):
                 
                 if class_type == "model":
                     logger.info(f"Loading model with {class_name}")
-                    self.model = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
+                    self.model = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
                 elif class_type == "tokenizer":
                     logger.info(f"Loading tokenizer with {class_name}")
-                    self.tokenizer = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
+                    self.tokenizer = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
                 elif class_type == "processor":
                     logger.info(f"Loading processor with {class_name}")
-                    self.processor = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True)
-                # Add additional elif statements for other class types as needed
+                    self.processor = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
             
             if pipeline_tag:
                 logger.info(f"Creating pipeline with tag: {pipeline_tag}")
@@ -79,7 +95,8 @@ class TransformerModel(BaseModel):
                     task=pipeline_tag,
                     model=self.model,
                     tokenizer=self.tokenizer,
-                    device=device
+                    device=device,
+                    trust_remote_code=trust_remote_code
                 )
             
             logger.info(f"Model loaded successfully from {model_dir}")
