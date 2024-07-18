@@ -137,7 +137,7 @@ class WatsonModel(BaseModel):
 
         return True
 
-    def load(self, model_path: str, device: str, required_classes=None, pipeline_tag: str = None):
+    def load(self, model_info: dict):
         try:
             # Validate API key
             api_key = os.getenv("IBM_CLOUD_API_KEY")
@@ -150,11 +150,13 @@ class WatsonModel(BaseModel):
                 logger.error("Invalid IBM Cloud API key")
                 return False
 
-            # Load model info from library
-            with open(LIBRARY_PATH, "r") as file:
-                library = json.load(file)
-                model_info = library.get(self.model_id, {})
-                self.project_id = model_info.get("config", {}).get("project_id")
+            self.project_id = model_info.get("config", {}).get("project_id")
+            
+            # # Load model info from library
+            # with open(LIBRARY_PATH, "r") as file:
+            #     library = json.load(file)
+            #     model_info = library.get(self.model_id, {})
+            #     self.project_id = model_info.get("config", {}).get("project_id")
 
             if not self.project_id:
                 if not self.select_project():
