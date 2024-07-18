@@ -18,7 +18,10 @@ class LibraryControl:
         if not isinstance(library, dict):
             library = {}
         
-        library[model_id] = new_entry
+        if model_id in library:
+            library[model_id].update(new_entry)
+        else:
+            library[model_id] = new_entry
         
         logger.debug(f"New library entry: {new_entry}")
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
