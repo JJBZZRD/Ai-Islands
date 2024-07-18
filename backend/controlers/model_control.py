@@ -72,7 +72,7 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
-        model_class = self._get_model_class(model_id)
+        model_class = self._get_model_class(model_id, "index")
 
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control, auth_token))
         process.start()
@@ -87,7 +87,7 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
-        model_class = self._get_model_class(model_id)
+        model_class = self._get_model_class(model_id, "library")
         model_dir = model_info['dir']
         required_classes = model_info.get('required_classes', None)
         pipeline_tag = model_info.get('pipeline_tag', None)
@@ -166,8 +166,14 @@ class ModelControl:
         conn.send(json.dumps(request_payload))
         return conn.recv()
 
-    def _get_model_class(self, model_id: str):
-        model_info = self.library_control.get_model_info_index(model_id)
+    def _get_model_class(self, model_id: str, source: str):
+        if source == "library":
+            model_info = self.library_control.get_model_info_library(model_id)
+        elif source == "index":
+            model_info = self.library_control.get_model_info_index(model_id)
+        else:
+            raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
+
         if not model_info:
             raise ValueError(f"Model info not found for {model_id}")
         
