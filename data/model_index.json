@@ -25,9 +25,11 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/openai-community/gpt2",
-    "required_classes": {
-      "model": "AutoModelForCausalLM",
-      "tokenizer": "AutoTokenizer"
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      }
     }
   },
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
@@ -39,9 +41,11 @@
     ],
     "pipeline_tag": "sentiment-analysis",
     "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
-    "required_classes": {
-      "model": "AutoModelForSequenceClassification",
-      "tokenizer": "AutoTokenizer"
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
     }
   },
   "yolov8n": {
@@ -127,9 +131,11 @@
     ],
     "pipeline_tag": "object-detection",
     "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
-    "required_classes": {
-      "model": "OwlViTForObjectDetection",
-      "processor": "OwlViTProcessor"
+    "requirements":{
+      "required_classes":{
+        "model": "OwlViTForObjectDetection",
+        "processor": "OwlViTProcessor"
+      }
     }
   },
   "meta-llama/Meta-Llama-3-8B": {
@@ -151,13 +157,15 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
-    "required_classes": {
-      "model": "AutoModelForCausalLM",
-      "tokenizer": "AutoTokenizer"
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": true
     },
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
-    "model_detail": "https://llama.meta.com/get-started/",
-    "requires_auth": true
+    "model_detail": "https://llama.meta.com/get-started/"
   },
   "nomic-ai/gpt4all-j": {
     "is_online": false,
@@ -174,9 +182,11 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/nomic-ai/gpt4all-j",
-    "required_classes": {
-      "model": "AutoModelForCausalLM",
-      "tokenizer": "AutoTokenizer"
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      }
     },
     "model_desc": "GPT4All-J is an Apache-2 licensed chatbot trained over a massive curated corpus of assistant interactions, including word problems, multi-turn dialogue, code, poems, songs, and stories. It's a finetuned version of GPT-J optimized for assistant-style interactions.",
     "model_detail": "https://github.com/nomic-ai/gpt4all"
@@ -200,12 +210,14 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct",
-    "required_classes": {
-      "model": "AutoModelForCausalLM",
-      "tokenizer": "AutoTokenizer"
-    },
     "model_desc": "Meta-Llama-3-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
-    "requires_auth": true
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": true
+    }
   }
 }
