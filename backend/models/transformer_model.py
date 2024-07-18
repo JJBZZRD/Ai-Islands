@@ -19,7 +19,7 @@ class TransformerModel(BaseModel):
         self.pipeline = None
 
     @staticmethod
-    def download(model_id: str, model_info: dict, auth_token: str = None):
+    def download(model_id: str, model_info: dict):
         try:
             model_dir = os.path.join('data', 'downloads', 'transformers', model_id)
             if not os.path.exists(model_dir):
@@ -29,6 +29,7 @@ class TransformerModel(BaseModel):
             required_classes = requirements.get('required_classes', {})
             requires_auth = requirements.get('requires_auth', False)
             trust_remote_code = requirements.get('trust_remote_code', False)
+            auth_token = model_info.get('auth_token', None)
             
             if requires_auth and not auth_token:
                 logger.error(f"Auth token required for model {model_id} but not provided")

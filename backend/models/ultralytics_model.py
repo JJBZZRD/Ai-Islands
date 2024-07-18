@@ -18,7 +18,7 @@ class UltralyticsModel(BaseModel):
         self.model = None
     
     @staticmethod
-    def download(model_id: str, model_info: dict):
+    def download(model_id: str, model_info: dict,):
         try:
             model_dir = os.path.join('data', 'downloads', 'ultralytics')
             if not os.path.exists(model_dir):

@@ -22,11 +22,11 @@ class ModelControl:
         self.hardware_preference = device
     
     @staticmethod
-    def _download_process(model_class, model_id, model_info, library_control, auth_token=None):
+    def _download_process(model_class, model_id, model_info, library_control):
         logger.info(f"Starting download for model {model_id}")
         start_time = time.time()
         try:
-            new_entry = model_class.download(model_id, model_info, auth_token)
+            new_entry = model_class.download(model_id, model_info)
             if new_entry:
                 library_control.update_library(model_id, new_entry)
                 end_time = time.time()
@@ -67,9 +67,11 @@ class ModelControl:
             logger.error(f"Model info not found for {model_id}")
             return False
 
+        model_info.update({"auth_token": auth_token})
+
         model_class = self._get_model_class(model_id, "index")
 
-        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control, auth_token))
+        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
         process.start()
         process.join()
         
