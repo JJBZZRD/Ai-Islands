@@ -39,15 +39,10 @@ class ModelControl:
         return True
 
     @staticmethod
-    def _load_process(model_class, model_path, conn, model_id, device, required_classes=None, pipeline_tag=None):
+    def _load_process(model_class, conn, model_id, device, model_info):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
-        if required_classes:
-            # if extra classes are needed to load the model (transformers)
-            model.load(model_path, device, required_classes, pipeline_tag)
-        else:
-            # if no extra classes are needed to load the model (ultralytics)
-            model.load(model_path, device)
+        model.load(device, model_info)
         conn.send("Model loaded")
         while True:
             req = conn.recv()
@@ -73,6 +68,12 @@ class ModelControl:
             return False
 
         model_class = self._get_model_class(model_id, "index")
+        requirements = model_info.get('requirements', {})###
+        requires_auth = requirements.get('requires_auth', False)###
+
+        if requires_auth and not auth_token:
+            logger.error(f"Auth token required for model {model_id} but not provided")
+            return False
 
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control, auth_token))
         process.start()
@@ -89,17 +90,15 @@ class ModelControl:
 
         model_class = self._get_model_class(model_id, "library")
         model_dir = model_info['dir']
-        required_classes = model_info.get('required_classes', None)
-        pipeline_tag = model_info.get('pipeline_tag', None)
         
         if not os.path.exists(model_dir):
-            logger.error(f"Model file not found: {model_dir}")
+            logger.error(f"Model directory not found: {model_dir}")
             return False
         
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
 
         parent_conn, child_conn = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=self._load_process, args=(model_class, model_dir, child_conn, model_id, device, required_classes, pipeline_tag))
+        process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info))
         process.start()
 
         if parent_conn.recv() == "Model loaded":

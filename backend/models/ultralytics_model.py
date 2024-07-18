@@ -48,10 +48,10 @@ class UltralyticsModel(BaseModel):
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
 
-    def load(self, model_path: str, device: torch.device):
+    def load(self, device: torch.device, model_info: dict):
         try:
-            # get the path of the model file
-            model_path = os.path.join(model_path, f"{self.model_id}.pt")
+            model_dir = model_info['dir']
+            model_path = os.path.join(model_dir, f"{self.model_id}.pt")
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
             
@@ -59,10 +59,11 @@ class UltralyticsModel(BaseModel):
             logger.info(f"Model loaded from {model_path}")
             
             # Set device based on user preference
-            #device = get_hardware_preference()
             self.model.to(device)
+            
+            logger.info(f"Model info: {model_info}")
         except Exception as e:
-            logger.error(f"Error loading model from {model_path}: {str(e)}")
+            logger.error(f"Error loading model: {str(e)}")
     
     def inference(self, request_payload: dict):
         print("runned yolo inference function")
