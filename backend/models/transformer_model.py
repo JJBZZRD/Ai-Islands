@@ -118,6 +118,10 @@ class TransformerModel(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             return {"error": str(e)}
 
+    def configure(self, data: dict):
+        pass
+
+
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
         

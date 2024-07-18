@@ -150,6 +150,10 @@ class ModelControl:
             return conn.recv()
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+        
+    def configure_model(self, model_id: str, config: dict):
+        active_model = self.get_active_model(model_id)
+        active_model['model'].configure(config)
             
     # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
