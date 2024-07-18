@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import torch
 from backend.settings.settings import get_hardware_preference
+from backend.controlers.library_control import LibraryControl
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ class UltralyticsModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.model = None
+        self.library_control = LibraryControl()
     
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -53,7 +55,7 @@ class UltralyticsModel(BaseModel):
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
 
-    def load(self, model_path: str, device: torch.device):
+    """def load(self, model_path: str, device: torch.device):
         try:
             # get the path of the model file
             model_path = os.path.join(model_path, f"{self.model_id}.pt")
@@ -68,7 +70,32 @@ class UltralyticsModel(BaseModel):
             self.model.to(device)
                 
         except Exception as e:
+            logger.error(f"Error loading model from {model_path}: {str(e)}")"""
+            
+    def load(self, model_path: str, device: torch.device):
+        try:
+            # Retrieve model info from the library
+            model_info = self.library_control.get_model_info_library(self.model_id)
+        
+            if not model_info:
+                raise FileNotFoundError(f"Model info not found for {self.model_id}")
+        
+            # Get the path of the model file
+            model_file_name = f"{self.model_id}.pt"
+            model_path = os.path.join(model_info['dir'], model_file_name)
+        
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file not found: {model_path}")
+        
+            self.model = YOLO(model_path)  # Load the YOLO model from the specified path
+            logger.info(f"Model loaded from {model_path}")
+        
+            # Set device based on user preference
+            self.model.to(device)
+            
+        except Exception as e:
             logger.error(f"Error loading model from {model_path}: {str(e)}")
+
     
     def process_request(self, request_payload: dict):
         if "image_path" in request_payload:
@@ -134,7 +161,7 @@ class UltralyticsModel(BaseModel):
             return {"error": str(e)}
 
 
-    def train(self, data_path: str, epochs: int = 20):
+    """def train(self, data_path: str, epochs: int = 20):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
@@ -142,7 +169,35 @@ class UltralyticsModel(BaseModel):
             self.model.train(data=data_path, epochs=epochs)
             logger.info(f"Model trained on {data_path} for {epochs} epochs")
         except Exception as e:
+            logger.error(f"Error training model on data {data_path}: {str(e)}")"""
+    def train(self, data_path: str, epochs: int = 10, batch_size: int = 16, learning_rate: float = 0.001):
+        try:
+            if self.model is None:
+                raise ValueError("Model is not loaded")
+
+            # Training the model
+            self.model.train(data=data_path, epochs=epochs, imgsz=640, lr0=learning_rate, batch=batch_size)
+
+            # Save the trained model with a different name
+            trained_model_name = f"{self.model_id}_ft.pt"
+            trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
+            self.model.save(trained_model_path)
+
+            logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size} and learning rate {learning_rate}. Model saved to {trained_model_path}")
+        
+           # Update the library with the updated model entry
+            updated_entry = {
+                "is_customised": True,
+                "dir": os.path.dirname(trained_model_path),
+                "model_desc": f"Fine-tuned {self.model_id} model",
+            }
+             # Save updated entry to the library (using a method from library control)
+            self.library_control.update_library(self.model_id, updated_entry)
+
+            return {"message": "Training completed successfully", "trained_model_path": trained_model_path}
+        except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
+            return {"error": str(e)}
 
     def inference(self, *args):
         pass

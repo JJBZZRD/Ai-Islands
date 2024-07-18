@@ -54,6 +54,10 @@ class ModelControl:
             elif msg.startswith("sentimentPredict"):
                 prediction = model.inference(msg.split(":", 1)[1])
                 conn.send(prediction)
+            elif msg.startswith("train:"):
+                payload = json.loads(msg.split(":", 1)[1])
+                model.train(**payload)
+                conn.send("Training completed")
 
     def download_model(self, model_id: str):
         model_info = self.library_control.get_model_info_index(model_id)
@@ -138,9 +142,18 @@ class ModelControl:
         conn = active_model['conn']
         conn.send(json.dumps(request_payload))
         return conn.recv()
+    
+    def train_model(self, model_id: str, request_payload: dict):
+        active_model = self.get_active_model(model_id)
+        if not active_model:
+            raise ValueError(f"Model {model_id} is not loaded")
+
+        conn = active_model['conn']
+        conn.send(f"train:{json.dumps(request_payload)}")
+        return conn.recv()
 
     def _get_model_class(self, model_id: str):
-        model_info = self.library_control.get_model_info_index(model_id)
+        model_info = self.library_control.get_model_info_library(model_id)
         if not model_info:
             raise ValueError(f"Model info not found for {model_id}")
         
