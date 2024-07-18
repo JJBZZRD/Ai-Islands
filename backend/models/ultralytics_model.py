@@ -20,7 +20,7 @@ class UltralyticsModel(BaseModel):
         self.library_control = LibraryControl()
     
     @staticmethod
-    def download(model_id: str, model_info: dict):
+    def download(model_id: str, model_info: dict,):
         try:
             model_dir = os.path.join('data', 'downloads', 'ultralytics')
             if not os.path.exists(model_dir):
@@ -49,22 +49,6 @@ class UltralyticsModel(BaseModel):
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
-
-    """def load(self, model_path: str, device: torch.device):
-        try:
-            # get the path of the model file
-            model_path = os.path.join(model_path, f"{self.model_id}.pt")
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Model file not found: {model_path}")
-            
-            self.model = YOLO(model_path)  # Load the YOLO model from the specified path
-            logger.info(f"Model loaded from {model_path}")
-            
-            # Set device based on user preference
-            #device = get_hardware_preference()
-            self.model.to(device)
-        except Exception as e:
-            logger.error(f"Error loading model from {model_path}: {str(e)}")"""
             
     def load(self, model_path: str, device: torch.device):
         try:
@@ -88,8 +72,7 @@ class UltralyticsModel(BaseModel):
             self.model.to(device)
             
         except Exception as e:
-            logger.error(f"Error loading model from {model_path}: {str(e)}")
-
+            logger.error(f"Error loading model: {str(e)}")
     
     def inference(self, request_payload: dict):
         print("runned yolo inference function")

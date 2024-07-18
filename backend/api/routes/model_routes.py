@@ -157,9 +157,9 @@ async def unload_model(model_id: str = Query(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/download-model")
-async def download_model(model_id: str = Query(...)):
+async def download_model(model_id: str = Query(...), auth_token: str = Query(None)):
     try:
-        success = model_control.download_model(model_id)
+        success = model_control.download_model(model_id, auth_token)
         if success:
             return {"message": f"Model {model_id} downloaded successfully"}
         else:
