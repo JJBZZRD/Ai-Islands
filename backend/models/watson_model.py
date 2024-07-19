@@ -35,7 +35,7 @@ class WatsonModel(BaseModel):
             resources = account_info.get_resource_list()
             
             # Output resource list to JSON file
-            resource_list_path = os.path.join('data', 'resource_list.json')
+            resource_list_path = os.path.join('data', 'downloads', 'watson', 'resource_list.json')
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")

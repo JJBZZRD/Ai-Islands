@@ -30,7 +30,7 @@ class WatsonService(BaseModel):
             resources = account_info.get_resource_list()
 
             # Output resource list to JSON file
-            resource_list_path = os.path.join('data', 'resource_list.json')
+            resource_list_path = os.path.join('data', 'downloads', 'watson', 'resource_list.json')
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")
@@ -42,6 +42,41 @@ class WatsonService(BaseModel):
                 resource_name = resource['name']
                 if check_service(resource_name, service_name):
                     service_available = True
+                    logger.info(f"Matched service: {resource_name}")
+                    
+                    # Create service-specific configuration
+                    if "natural-language-understanding" in service_name.lower():
+                        config = {
+                            "service_name": service_name,
+                            "features": {
+                                "sentiment": True,
+                                "emotion": True,
+                                "entities": True,
+                                "keywords": True,
+                                "categories": True,
+                                "concepts": True,
+                                "relations": True,
+                                "semantic_roles": True
+                            }
+                        }
+                    elif "text-to-speech" in service_name.lower():
+                        config = {
+                            "service_name": service_name,
+                            "voice": "en-US_AllisonV3Voice",
+                            "pitch": 0,
+                            "speed": 0
+                        }
+                    elif "speech-to-text" in service_name.lower():
+                        config = {
+                            "service_name": service_name,
+                            "model": "en-US_BroadbandModel",
+                            "content_type": "audio/wav"
+                        }
+                    else:
+                        config = {
+                            "service_name": service_name
+                        }
+                    
                     break
 
             if not service_available:
@@ -62,11 +97,10 @@ class WatsonService(BaseModel):
 
             new_entry = model_info.copy()
             new_entry.update({
+                "base_model": model_id,
                 "dir": service_dir,
                 "is_customised": False,
-                "config": {
-                    "service_name": service_name,
-                }
+                "config": config
             })
 
             logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
@@ -76,26 +110,40 @@ class WatsonService(BaseModel):
             logger.exception("Full traceback:")
             return None
 
-    def load(self, model_path: str, device: str, required_classes=None, pipeline_tag: str = None):
+    def load(self, device: str, model_info: dict):
         try:
-            # Load the model info from the library
-            with open(LIBRARY_PATH, "r") as file:
-                library = json.load(file)
-                model_info = library.get(self.model_id, {})
-                service_name = model_info.get("config", {}).get("service_name")
+            # Validate API key
+            api_key = os.getenv("IBM_CLOUD_API_KEY")
+            if not api_key:
+                logger.error("IBM_CLOUD_API_KEY not found in environment variables")
+                return False
+
+            valid = self.account_info.auth._validate_api_key(api_key)
+            if not valid:
+                logger.error("Invalid IBM Cloud API key")
+                return False
+
+            config = model_info.get("config", {})
+            service_name = config.get("service_name")
 
             if not service_name:
                 logger.error(f"Service name not found for model ID: {self.model_id}")
                 return False
 
-            if service_name == "natural-language-understanding":
+            if "natural-language-understanding" in service_name.lower():
                 self.nlu = self._init_nlu_service()
+                if self.nlu:
+                    self.nlu_config = config.get("features", {})
                 return self.nlu is not None
-            elif service_name == "text-to-speech":
+            elif "text-to-speech" in service_name.lower():
                 self.text_to_speech = self._init_text_to_speech_service()
+                if self.text_to_speech:
+                    self.tts_config = config
                 return self.text_to_speech is not None
-            elif service_name == "speech-to-text":
+            elif "speech-to-text" in service_name.lower():
                 self.speech_to_text = self._init_speech_to_text_service()
+                if self.speech_to_text:
+                    self.stt_config = config
                 return self.speech_to_text is not None
             else:
                 logger.error(f"Unknown service name: {service_name}")
@@ -149,18 +197,55 @@ class WatsonService(BaseModel):
         except Exception as e:
             logger.error(f"Error initializing Speech to Text service: {str(e)}")
             return None
+    
+    def inference(self, data: dict):
+        try:
+            if self.nlu:
+                text = data.get('payload')
+                analysis_type = data.get('analysis_type', 'all')
+                if not text:
+                    raise ValueError("Text is required for NLU analysis")
+                return self.analyze_text(text, analysis_type)
+            elif self.text_to_speech:
+                text = data.get('payload')
+                voice = data.get('voice', self.tts_config.get('voice'))
+                accept = data.get('accept', 'audio/wav')
+                pitch = str(data.get('pitch', self.tts_config.get('pitch', 0)))
+                speed = str(data.get('speed', self.tts_config.get('speed', 0)))
+                if not text:
+                    raise ValueError("Text is required for text-to-speech synthesis")
+                return self.synthesize_text(text, voice, accept, pitch, speed)
+            elif self.speech_to_text:
+                file_path = data.get('file_path')
+                if not file_path:
+                    raise ValueError("File path is required for speech-to-text transcription")
+                return self.transcribe_audio(file_path)
+            else:
+                raise ValueError("No Watson service has been initialized")
+        except Exception as e:
+            logger.error(f"Error during inference: {str(e)}")
+            return {"error": str(e)}
 
     def analyze_text(self, text, analysis_type):
         if self.nlu is None:
             logger.error("NLU service is not initialized.")
             return None
 
-        features = {analysis_type: {}}
+        features = {}
         if analysis_type == 'all':
-            features = {
-                'sentiment': {}, 'emotion': {}, 'entities': {}, 'keywords': {},
-                'categories': {}, 'concepts': {}, 'relations': {}, 'semantic_roles': {}
-            }
+            for feature, enabled in self.nlu_config.items():
+                if enabled:
+                    features[feature] = {}
+        elif analysis_type in self.nlu_config and self.nlu_config[analysis_type]:
+            features[analysis_type] = {}
+        else:
+            logger.error(f"Invalid analysis type: {analysis_type}")
+            return None
+
+        if not features:
+            logger.error("No features enabled for analysis.")
+            return None
+
         try:
             response = self.nlu.analyze(text=text, features=features).get_result()
             return response
@@ -228,20 +313,13 @@ class WatsonService(BaseModel):
             logger.error(f"Error listing voices: {str(e)}")
             return []
 
-    def inference(self, data: dict):
-        # This method should be implemented based on the specific use case
-        pass
+    
 
-    def process_request(self, payload: dict):
-        # This method should be implemented based on the specific use case
-        pass
-
-    def predict(self, text: str):
-        # This method should be implemented based on the specific use case
-        pass
 
 
 # ------------- LOCAL METHODS -------------
 
 def check_service(resource_name, service_keyword):
-    return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
+    resource_name_normalized = resource_name.lower().replace(' ', '').replace('-', '')
+    service_keyword_normalized = service_keyword.lower().replace(' ', '').replace('-', '')
+    return service_keyword_normalized in resource_name_normalized
