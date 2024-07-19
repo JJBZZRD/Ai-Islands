@@ -122,19 +122,19 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
             shutil.rmtree(dataset_dir)
             raise HTTPException(status_code=400, detail=f"Dataset format must be {dataset_format}, detected {detected_format}")
 
-        if dataset_format == "YOLO":
+        if dataset_format.lower() == "yolo":
             yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
             with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
                 class_names = [line.strip() for line in f]
             generate_yolo_yaml(dataset_dir, yaml_path, class_names)
         else:
-            pass  # Handle other formats if needed
+            yaml_path=None  # Handle other formats if needed
 
         return {
             "dataset_id": dataset_id,
             "dataset_path": dataset_dir,
             "format": dataset_format,
-            "yaml_path": yaml_path if dataset_format == "YOLO" else None
+            "yaml_path": yaml_path
         }
     except Exception as e:
         logger.error(f"Error uploading dataset: {str(e)}")
@@ -274,7 +274,14 @@ async def websocket_video(websocket: WebSocket, model_id: str):
         logger.info("Connection closed")"""
 
 @router.post("/train")
-async def train_model(model_id: str = Query(...), epochs: int = Body(...), batch_size: int = Body(...), learning_rate: float = Body(...), dataset_id: str = Body(...)):
+async def train_model(
+    model_id: str = Query(...), 
+    epochs: int = Body(...), 
+    batch_size: int = Body(...), 
+    learning_rate: float = Body(...), 
+    dataset_id: str = Body(...),
+    imgsz: int = Body(640)
+):
     try:
         if epochs <= 0 or batch_size <= 0 or learning_rate <= 0:
             raise HTTPException(status_code=400, detail="Invalid training parameters")
@@ -288,10 +295,11 @@ async def train_model(model_id: str = Query(...), epochs: int = Body(...), batch
             raise HTTPException(status_code=400, detail="YAML configuration file not found")
 
         training_params = {
-            "data_path": yaml_path,
+            "data": yaml_path,
             "epochs": epochs,
             "batch_size": batch_size,
-            "learning_rate": learning_rate
+            "learning_rate": learning_rate,
+            "imgsz": imgsz
         }
         result = model_control.train_model(model_id, training_params)
         return result

@@ -168,13 +168,17 @@ class UltralyticsModel(BaseModel):
             if self.model is None:
                 raise ValueError("Model is not loaded")
 
-            data_path = training_params['data_path']
+            data_path = training_params['data']
             epochs = training_params.get('epochs', 10)
             batch_size = training_params.get('batch_size', 16)
             learning_rate = training_params.get('learning_rate', 0.001)
+            imgsz = training_params.get('imgsz', 640)  
 
-            self.model.train(data=data_path, epochs=epochs, imgsz=640, lr0=learning_rate, batch=batch_size)
-
+            logger.info(f"Starting training with parameters: epochs={epochs}, batch_size={batch_size}, learning_rate={learning_rate}, imgsz={imgsz}")
+            self.model.train(data=data_path, epochs=epochs, imgsz=imgsz, lr0=learning_rate, batch=batch_size)
+            logger.info(f"Actual image size used for training: {self.model.args.imgsz}")
+            logger.info("Training completed")
+            
             i = 1
             while os.path.exists(os.path.join('data', 'downloads', 'ultralytics', f"{self.model_id}_{i}.pt")):
                 i += 1
@@ -183,7 +187,7 @@ class UltralyticsModel(BaseModel):
             trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
             self.model.save(trained_model_path)
 
-            logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size} and learning rate {learning_rate}. Model saved to {trained_model_path}")
+            logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
         
             new_entry = {
                 "dir": os.path.dirname(trained_model_path),

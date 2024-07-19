@@ -1,21 +1,15 @@
 import os
 import yaml
 
-def generate_yolo_yaml(dataset_dir: str, yaml_path: str):
+def generate_yolo_yaml(dataset_dir: str, yaml_path: str, class_names: list):
     try:
-        # Read class names from obj.names file
-        obj_names_path = os.path.join(dataset_dir, 'obj.names')
-        with open(obj_names_path, 'r') as f:
-            class_names = [line.strip() for line in f.readlines()]
-
         # Create YAML content
         yaml_content = {
             'path': dataset_dir,
-            'train': 'images/train',
-            'val': 'images/val',
-            'test': 'images/test',
+            'train': os.path.join(dataset_dir, 'train.txt'),
+            'val': os.path.join(dataset_dir, 'val.txt'),
             'nc': len(class_names),
-            'names': {i: name for i, name in enumerate(class_names)}
+            'names': class_names
         }
 
         # Write YAML file
