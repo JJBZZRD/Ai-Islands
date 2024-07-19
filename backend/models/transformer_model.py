@@ -17,6 +17,7 @@ class TransformerModel(BaseModel):
         self.tokenizer = None
         self.processor = None
         self.pipeline = None
+        self.config = None
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -75,19 +76,38 @@ class TransformerModel(BaseModel):
             trust_remote_code = requirements.get('trust_remote_code', False)
             pipeline_tag = model_info.get('pipeline_tag')
             
+            self.config = model_info.get('config', {})
+            device_settings = self.config.get('device_settings', {})
+            model_parameters = self.config.get('model_parameters', {})
+            
+            device = torch.device(device_settings.get('device', str(device)))
+            dtype = torch.float16 if device_settings.get('torch_dtype') == 'float16' else torch.float32
+            
             for class_type, class_name in required_classes.items():
-                # Dynamically load the class from the transformers library
                 class_ = getattr(transformers, class_name)
                 
                 if class_type == "model":
                     logger.info(f"Loading model with {class_name}")
-                    self.model = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
+                    self.model = class_.from_pretrained(
+                        self.model_id,
+                        cache_dir=model_dir,
+                        local_files_only=True,
+                        trust_remote_code=trust_remote_code,
+                        torch_dtype=dtype,
+                        device_map='auto'
+                    )
+                    if self.model is None:
+                        raise ValueError(f"Failed to load model: {self.model_id}")
                 elif class_type == "tokenizer":
                     logger.info(f"Loading tokenizer with {class_name}")
-                    self.tokenizer = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
-                elif class_type == "processor":
-                    logger.info(f"Loading processor with {class_name}")
-                    self.processor = class_.from_pretrained(self.model_id, cache_dir=model_dir, local_files_only=True, trust_remote_code=trust_remote_code)
+                    self.tokenizer = class_.from_pretrained(
+                        self.model_id,
+                        cache_dir=model_dir,
+                        local_files_only=True,
+                        trust_remote_code=trust_remote_code
+                    )
+                    if self.tokenizer is None:
+                        raise ValueError(f"Failed to load tokenizer: {self.model_id}")
             
             if pipeline_tag:
                 logger.info(f"Creating pipeline with tag: {pipeline_tag}")
@@ -96,10 +116,18 @@ class TransformerModel(BaseModel):
                     model=self.model,
                     tokenizer=self.tokenizer,
                     device=device,
-                    trust_remote_code=trust_remote_code
+                    trust_remote_code=trust_remote_code,
+                    **model_parameters
                 )
+                if self.pipeline is None:
+                    raise ValueError(f"Failed to create pipeline for model: {self.model_id}")
             
             logger.info(f"Model loaded successfully from {model_dir}")
+            if self.model is not None:
+                logger.info(f"Model device: {self.model.device}")
+                logger.info(f"Model dtype: {self.model.dtype}")
+            else:
+                logger.warning("Model is None, unable to log device and dtype information")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
