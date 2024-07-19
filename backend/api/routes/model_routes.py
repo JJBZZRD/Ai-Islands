@@ -88,7 +88,9 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
 
         dataset_id = str(uuid.uuid4())
         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
-        os.makedirs(dataset_dir, exist_ok=True)
+
+        # Create the dataset directory only when uploading
+        os.makedirs(dataset_dir)
 
         file_path = os.path.join(dataset_dir, file.filename)
         with open(file_path, "wb") as buffer:
@@ -96,18 +98,24 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
 
         if file.filename.endswith('.zip'):
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                for zip_info in zip_ref.infolist():
-                    if zip_info.filename[-1] == '/':
-                        continue
-                    zip_info.filename = os.path.basename(zip_info.filename)
-                    zip_ref.extract(zip_info, dataset_dir)
+                zip_ref.extractall(dataset_dir)
             os.remove(file_path)
 
-        # Check if 'images' and 'labels' folders exist directly under dataset_dir
-        if not (os.path.exists(os.path.join(dataset_dir, 'images')) and 
-                os.path.exists(os.path.join(dataset_dir, 'labels'))):
+            # Check if the required items are in a subdirectory
+            subdirs = [d for d in os.listdir(dataset_dir) if os.path.isdir(os.path.join(dataset_dir, d))]
+            if len(subdirs) == 1 and all(os.path.exists(os.path.join(dataset_dir, subdirs[0], item)) for item in ['images', 'labels', 'obj.data', 'obj.names', 'train.txt', 'val.txt']):
+                # Move contents of subdirectory to dataset_dir
+                subdir_path = os.path.join(dataset_dir, subdirs[0])
+                for item in os.listdir(subdir_path):
+                    shutil.move(os.path.join(subdir_path, item), dataset_dir)
+                os.rmdir(subdir_path)
+
+        # Check if required files and folders exist
+        required_items = ['images', 'labels', 'obj.data', 'obj.names', 'train.txt', 'val.txt']
+        missing_items = [item for item in required_items if not os.path.exists(os.path.join(dataset_dir, item))]
+        if missing_items:
             shutil.rmtree(dataset_dir)
-            raise HTTPException(status_code=400, detail="Invalid dataset structure. 'images' and 'labels' folders should be directly under the root.")
+            raise HTTPException(status_code=400, detail=f"Invalid dataset structure. Missing: {', '.join(missing_items)}")
 
         detected_format = validate_dataset(dataset_dir)
         if detected_format != dataset_format:
@@ -116,18 +124,22 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
 
         if dataset_format == "YOLO":
             yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
-            generate_yolo_yaml(dataset_dir, yaml_path)
+            with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
+                class_names = [line.strip() for line in f]
+            generate_yolo_yaml(dataset_dir, yaml_path, class_names)
         else:
-            pass 
+            pass  # Handle other formats if needed
 
         return {
             "dataset_id": dataset_id,
             "dataset_path": dataset_dir,
             "format": dataset_format,
-            "yaml_path": yaml_path
+            "yaml_path": yaml_path if dataset_format == "YOLO" else None
         }
     except Exception as e:
         logger.error(f"Error uploading dataset: {str(e)}")
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/models/active")
