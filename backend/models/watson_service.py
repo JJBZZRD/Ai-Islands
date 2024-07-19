@@ -226,6 +226,7 @@ class WatsonService(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             return {"error": str(e)}
 
+    # NLU service method
     def analyze_text(self, text, analysis_type):
         if self.nlu is None:
             logger.error("NLU service is not initialized.")
@@ -253,12 +254,17 @@ class WatsonService(BaseModel):
             logger.error(f"Error analyzing text: {str(e)}")
             return None
 
-    def synthesize_text(self, text, voice='en-US_AllisonV3Voice', accept='audio/wav', pitch='0', speed='0'):
+    # Text to Speech service method
+    def synthesize_text(self, text, voice=None, accept='audio/wav', pitch=None, speed=None):
         if self.text_to_speech is None:
             logger.error("Text to Speech service is not initialized.")
-            return None
+            return {"error": "Text to Speech service is not initialized."}
 
         try:
+            voice = voice or self.tts_config.get('voice', 'en-US_AllisonV3Voice')
+            pitch = pitch or self.tts_config.get('pitch', '0')
+            speed = speed or self.tts_config.get('speed', '0')
+
             ssml_text = f"<prosody pitch='{pitch}%' rate='{speed}%'>{text}</prosody>"
             response = self.text_to_speech.synthesize(
                 ssml_text,
@@ -266,41 +272,25 @@ class WatsonService(BaseModel):
                 accept=accept
             ).get_result().content
 
-            audio_path = "temp/output.wav"
+            model_dir = os.path.join('data', 'downloads', 'watson', self.model_id)
+            audio_path = os.path.join(model_dir, "output.wav")
+
+            os.makedirs(os.path.dirname(audio_path), exist_ok=True)
             with open(audio_path, "wb") as audio_file:
                 audio_file.write(response)
 
-            return audio_path
+            return {
+                "status": "success",
+                "audio_path": audio_path,
+                "voice": voice,
+                "pitch": pitch,
+                "speed": speed
+            }
         except Exception as e:
             logger.error(f"Error synthesizing text: {str(e)}")
-            return None
-
-    def transcribe_audio(self, file_path):
-        if self.speech_to_text is None:
-            logger.error("Speech to Text service is not initialized.")
-            return None
-
-        try:
-            if not file_path.endswith('.wav'):
-                audio = AudioSegment.from_file(file_path)
-                wav_path = file_path.rsplit('.', 1)[0] + '.wav'
-                audio.export(wav_path, format='wav')
-                file_path = wav_path
-
-            with open(file_path, 'rb') as audio_file:
-                response = self.speech_to_text.recognize(
-                    audio=audio_file,
-                    content_type='audio/wav'
-                ).get_result()
-
-            transcriptions = response['results']
-            transcription_text = " ".join([result['alternatives'][0]['transcript'] for result in transcriptions])
-
-            return transcription_text
-        except Exception as e:
-            logger.error(f"Error transcribing audio: {str(e)}")
-            return None
-
+            return {"error": f"Error synthesizing text: {str(e)}"}
+    
+    # Text to Speech service method
     def list_voices(self):
         if self.text_to_speech is None:
             logger.error("Text to Speech service is not initialized.")
@@ -312,6 +302,57 @@ class WatsonService(BaseModel):
         except Exception as e:
             logger.error(f"Error listing voices: {str(e)}")
             return []
+        
+    # Audio to Text service method
+    def transcribe_audio(self, file_path):
+        if self.speech_to_text is None:
+            logger.error("Speech to Text service is not initialized.")
+            return {"error": "Speech to Text service is not initialized."}
+
+        try:
+            # Use the model from the config, or default to 'en-US_BroadbandModel'
+            model = self.stt_config.get('model', 'en-US_BroadbandModel')
+            content_type = self.stt_config.get('content_type', 'audio/wav')
+
+            # Convert audio to WAV if it's not already
+            if not file_path.endswith('.wav'):
+                audio = AudioSegment.from_file(file_path)
+                wav_path = file_path.rsplit('.', 1)[0] + '.wav'
+                audio.export(wav_path, format='wav')
+                file_path = wav_path
+
+            with open(file_path, 'rb') as audio_file:
+                response = self.speech_to_text.recognize(
+                    audio=audio_file,
+                    content_type=content_type,
+                    model=model
+                ).get_result()
+
+            transcriptions = response['results']
+            transcription_text = " ".join([result['alternatives'][0]['transcript'] for result in transcriptions])
+
+            return {
+                "status": "success",
+                "transcription": transcription_text,
+                "model": model
+            }
+        except Exception as e:
+            logger.error(f"Error transcribing audio: {str(e)}")
+            return {"error": f"Error transcribing audio: {str(e)}"}
+    
+    # Speech to Text service method
+    def list_stt_models(self):
+        if self.speech_to_text is None:
+            logger.error("Speech to Text service is not initialized.")
+            return []
+        try:
+            models = self.speech_to_text.list_models().get_result()
+            return [model['name'] for model in models['models']]
+        except Exception as e:
+            logger.error(f"Error listing STT models: {str(e)}")
+            return []
+    
+    
 
     
 
