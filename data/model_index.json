@@ -219,5 +219,53 @@
       },
       "requires_auth": true
     }
+  },
+  "jinaai/jina-reranker-v2-base-multilingual": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+        "Text Classification",
+        "Transformers",
+        "PyTorch",
+        "ONNX",
+        "Transformers.js",
+        "multilingual",
+        "reranker",
+        "cross-encoder",
+        "custom_code",
+        "cc-by-nc-4.0",
+        "EU Region: EU"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      },
+      "trust_remote_code": true,
+      "required_packages": ["einops"]
+    },
+    "model_desc": ""
+  },
+  "lxyuan/distilbert-base-multilingual-cased-sentiments-student": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+        "Text Classification",
+        "Transformers",
+        "PyTorch"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_card_url": "https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "model_desc": ""
   }
 }
