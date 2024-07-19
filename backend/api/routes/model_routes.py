@@ -222,7 +222,7 @@ def process_frame(conn, frame):
     This route is a sample route for Annotated parameters
 """
 @router.post("/predict/sentiment/")
-async def predict(model_id: Annotated[str, "ID of the sentiment model"], sentence: Annotated[str, Body(embed=True)]):
+async def predict_sentiment(model_id: Annotated[str, "ID of the sentiment model"], sentence: Annotated[str, Body(embed=True)]):
     try:
         active_model = model_control.get_active_model(model_id)
         if not active_model:
