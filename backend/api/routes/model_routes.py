@@ -79,42 +79,78 @@ async def upload_video(file: UploadFile = File(...)):
     
 @router.post("/upload-dataset/")
 async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
+    dataset_dir = ""
     try:
-        logger.debug("Starting dataset upload")
+        # Fetch the model info
         model_info = model_control.library_control.get_model_info_index(model_id)
         if not model_info:
             raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
+        # Check if the model requires a specific dataset format
         dataset_format = model_info.get('dataset_format')
         if not dataset_format:
             raise HTTPException(status_code=400, detail="Model does not specify a dataset format")
 
+        # Generate a unique identifier for the dataset
         dataset_id = str(uuid.uuid4())
+        file_extension = file.filename.split('.')[-1]
         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
 
-        # Create the dataset directory only when uploading
-        os.makedirs(dataset_dir)
-        logger.debug(f"Created dataset directory: {dataset_dir}")
+        # Save and extract the uploaded file
+        os.makedirs(dataset_dir, exist_ok=True)
+        file_path = os.path.join(dataset_dir, f"{dataset_id}.{file_extension}")
 
-        file_path = os.path.join(dataset_dir, file.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        logger.debug(f"Saved uploaded file to: {file_path}")
 
-        if file.filename.endswith('.zip'):
+        # Unzip the dataset if it's a zip file
+        if file_extension == 'zip':
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 zip_ref.extractall(dataset_dir)
             os.remove(file_path)
             logger.debug("Extracted zip file")
 
-            # Check if the required items are in a subdirectory
-            subdirs = [d for d in os.listdir(dataset_dir) if os.path.isdir(os.path.join(dataset_dir, d))]
-            if len(subdirs) == 1:
-                subdir_path = os.path.join(dataset_dir, subdirs[0])
-                for item in os.listdir(subdir_path):
-                    shutil.move(os.path.join(subdir_path, item), dataset_dir)
-                os.rmdir(subdir_path)
-                logger.debug("Moved contents from subdirectory")
+            # Log the directory structure after extraction
+            for root, dirs, files in os.walk(dataset_dir):
+                logger.debug(f"After extraction - Directory structure: {root}, Directories: {dirs}, Files: {files}")
+
+            # Find and move 'images', 'labels', and 'obj.names' to the root level
+            for root, dirs, files in os.walk(dataset_dir):
+                if 'images' in dirs and not os.path.exists(os.path.join(dataset_dir, 'images')):
+                    shutil.move(os.path.join(root, 'images'), dataset_dir)
+                    logger.debug(f"Moved 'images' folder to {dataset_dir}")
+                if 'labels' in dirs and not os.path.exists(os.path.join(dataset_dir, 'labels')):
+                    shutil.move(os.path.join(root, 'labels'), dataset_dir)
+                    logger.debug(f"Moved 'labels' folder to {dataset_dir}")
+                if 'obj.names' in files and not os.path.exists(os.path.join(dataset_dir, 'obj.names')):
+                    shutil.move(os.path.join(root, 'obj.names'), dataset_dir)
+                    logger.debug(f"Moved 'obj.names' file to {dataset_dir}")
+
+            # Check for the existence of the 'images' directory after the move operation
+            if not os.path.exists(os.path.join(dataset_dir, 'images')):
+                logger.error("The 'images' directory is missing after the move operation.")
+                raise HTTPException(status_code=500, detail="The 'images' directory is missing after the move operation.")
+            else:
+                logger.debug("The 'images' directory exists after the move operation.")
+
+            # Check if there are files inside the 'images' directory
+            if not os.listdir(os.path.join(dataset_dir, 'images')):
+                logger.error("The 'images' directory is empty after the move operation.")
+                raise HTTPException(status_code=500, detail="The 'images' directory is empty after the move operation.")
+            else:
+                logger.debug("The 'images' directory contains files after the move operation.")
+
+            # Remove any empty subdirectories
+            for root, dirs, files in os.walk(dataset_dir, topdown=False):
+                for dir in dirs:
+                    dir_path = os.path.join(root, dir)
+                    if not os.listdir(dir_path):
+                        os.rmdir(dir_path)
+                        logger.debug(f"Removed empty directory: {dir_path}")
+
+        # Log the final directory structure
+        for root, dirs, files in os.walk(dataset_dir):
+            logger.debug(f"Final directory structure: {root}, Directories: {dirs}, Files: {files}")
 
         # Check if required files and folders exist
         required_items = ['images', 'labels', 'obj.names']
@@ -124,11 +160,7 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
             raise HTTPException(status_code=400, detail=f"Invalid dataset structure. Missing: {', '.join(missing_items)}")
         logger.debug("Required files and folders exist")
 
-        # Log the current directory structure
-        for root, dirs, files in os.walk(dataset_dir):
-            logger.debug(f"Current directory structure: {root}, Directories: {dirs}, Files: {files}")
-
-        # Validate the dataset
+        # Validate the dataset format
         detected_format = validate_dataset(dataset_dir)
         if detected_format != dataset_format:
             shutil.rmtree(dataset_dir)
@@ -139,10 +171,6 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
         create_txt_files(dataset_dir)
         logger.debug("Generated train.txt and val.txt files")
 
-        # Log the current directory structure again
-        for root, dirs, files in os.walk(dataset_dir):
-            logger.debug(f"Directory structure after generating txt files: {root}, Directories: {dirs}, Files: {files}")
-
         # Generate obj.data file
         with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
             class_names = [line.strip() for line in f]
@@ -150,27 +178,15 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
         create_obj_data(dataset_dir, num_classes)
         logger.debug("Generated obj.data file")
 
-        # Log the current directory structure again
-        for root, dirs, files in os.walk(dataset_dir):
-            logger.debug(f"Directory structure after generating obj.data: {root}, Directories: {dirs}, Files: {files}")
-
-        if dataset_format.lower() == "yolo":
-            yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
-            generate_yolo_yaml(dataset_dir, yaml_path, class_names)
-            logger.debug("Generated YOLO YAML file")
-        else:
-            yaml_path = None  # Handle other formats if needed
+        # Generate the YAML configuration file
+        yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
+        generate_yolo_yaml(dataset_dir, yaml_path, class_names)
 
         # Log the final directory structure
         for root, dirs, files in os.walk(dataset_dir):
             logger.debug(f"Final directory structure: {root}, Directories: {dirs}, Files: {files}")
 
-        return {
-            "dataset_id": dataset_id,
-            "dataset_path": dataset_dir,
-            "format": dataset_format,
-            "yaml_path": yaml_path
-        }
+        return {"dataset_id": dataset_id, "dataset_path": dataset_dir, "format": dataset_format, "yaml_path": yaml_path}
     except Exception as e:
         logger.error(f"Error uploading dataset: {str(e)}")
         if os.path.exists(dataset_dir):
