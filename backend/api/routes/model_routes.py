@@ -8,6 +8,9 @@ from backend.data_utils.yaml_generator import generate_yolo_yaml
 from backend.data_utils.obj_generator import create_obj_data
 from backend.data_utils.txt_generator import create_txt_files
 from backend.controlers.library_control import LibraryControl
+from backend.data_utils.zip_utils import extract_zip, move_files_from_subdirectory_if_present
+from backend.data_utils.yaml_generator import generate_yolo_yaml
+from backend.data_utils.obj_generator import create_obj_data
 import os
 import shutil
 import uuid
@@ -76,117 +79,61 @@ async def upload_video(file: UploadFile = File(...)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail= str(e))
-    
+
+def log_directory_structure(directory: str, message: str):
+    for root, dirs, files in os.walk(directory):
+        logger.debug(f"{message} - Directory structure: {root}, Directories: {dirs}, Files: {files}")
+
+
 @router.post("/upload-dataset/")
 async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
     dataset_dir = ""
     try:
-        # Fetch the model info
-        model_info = model_control.library_control.get_model_info_index(model_id)
-        if not model_info:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
-
-        # Check if the model requires a specific dataset format
-        dataset_format = model_info.get('dataset_format')
-        if not dataset_format:
-            raise HTTPException(status_code=400, detail="Model does not specify a dataset format")
-
         # Generate a unique identifier for the dataset
         dataset_id = str(uuid.uuid4())
         file_extension = file.filename.split('.')[-1]
         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
 
-        # Save and extract the uploaded file
+        # Save the uploaded file
         os.makedirs(dataset_dir, exist_ok=True)
         file_path = os.path.join(dataset_dir, f"{dataset_id}.{file_extension}")
 
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Unzip the dataset if it's a zip file
+        # Extract the dataset if it's a zip file
         if file_extension == 'zip':
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(dataset_dir)
-            os.remove(file_path)
-            logger.debug("Extracted zip file")
+            extract_zip(file_path, dataset_dir)
+            move_files_from_subdirectory_if_present(dataset_dir)
 
-            # Log the directory structure after extraction
-            for root, dirs, files in os.walk(dataset_dir):
-                logger.debug(f"After extraction - Directory structure: {root}, Directories: {dirs}, Files: {files}")
-
-            # Find and move 'images', 'labels', and 'obj.names' to the root level
-            for root, dirs, files in os.walk(dataset_dir):
-                if 'images' in dirs and not os.path.exists(os.path.join(dataset_dir, 'images')):
-                    shutil.move(os.path.join(root, 'images'), dataset_dir)
-                    logger.debug(f"Moved 'images' folder to {dataset_dir}")
-                if 'labels' in dirs and not os.path.exists(os.path.join(dataset_dir, 'labels')):
-                    shutil.move(os.path.join(root, 'labels'), dataset_dir)
-                    logger.debug(f"Moved 'labels' folder to {dataset_dir}")
-                if 'obj.names' in files and not os.path.exists(os.path.join(dataset_dir, 'obj.names')):
-                    shutil.move(os.path.join(root, 'obj.names'), dataset_dir)
-                    logger.debug(f"Moved 'obj.names' file to {dataset_dir}")
-
-            # Check for the existence of the 'images' directory after the move operation
-            if not os.path.exists(os.path.join(dataset_dir, 'images')):
-                logger.error("The 'images' directory is missing after the move operation.")
-                raise HTTPException(status_code=500, detail="The 'images' directory is missing after the move operation.")
-            else:
-                logger.debug("The 'images' directory exists after the move operation.")
-
-            # Check if there are files inside the 'images' directory
-            if not os.listdir(os.path.join(dataset_dir, 'images')):
-                logger.error("The 'images' directory is empty after the move operation.")
-                raise HTTPException(status_code=500, detail="The 'images' directory is empty after the move operation.")
-            else:
-                logger.debug("The 'images' directory contains files after the move operation.")
-
-            # Remove any empty subdirectories
-            for root, dirs, files in os.walk(dataset_dir, topdown=False):
-                for dir in dirs:
-                    dir_path = os.path.join(root, dir)
-                    if not os.listdir(dir_path):
-                        os.rmdir(dir_path)
-                        logger.debug(f"Removed empty directory: {dir_path}")
-
-        # Log the final directory structure
-        for root, dirs, files in os.walk(dataset_dir):
-            logger.debug(f"Final directory structure: {root}, Directories: {dirs}, Files: {files}")
-
-        # Check if required files and folders exist
-        required_items = ['images', 'labels', 'obj.names']
-        missing_items = [item for item in required_items if not os.path.exists(os.path.join(dataset_dir, item))]
-        if missing_items:
-            shutil.rmtree(dataset_dir)
-            raise HTTPException(status_code=400, detail=f"Invalid dataset structure. Missing: {', '.join(missing_items)}")
-        logger.debug("Required files and folders exist")
-
-        # Validate the dataset format
-        detected_format = validate_dataset(dataset_dir)
-        if detected_format != dataset_format:
-            shutil.rmtree(dataset_dir)
-            raise HTTPException(status_code=400, detail=f"Dataset format must be {dataset_format}, detected {detected_format}")
-        logger.debug(f"Dataset format validated: {detected_format}")
+        # Log the directory structure after extraction
+        log_directory_structure(dataset_dir, "After extraction")
 
         # Generate train.txt and val.txt files
         create_txt_files(dataset_dir)
         logger.debug("Generated train.txt and val.txt files")
 
+        # Read class names from obj.names file
+        obj_names_path = os.path.join(dataset_dir, 'obj.names')
+        if os.path.exists(obj_names_path):
+            with open(obj_names_path, 'r') as f:
+                class_names = [line.strip() for line in f.readlines()]
+        else:
+            raise HTTPException(status_code=400, detail="obj.names file not found")
+        
         # Generate obj.data file
-        with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
-            class_names = [line.strip() for line in f]
-        num_classes = len(class_names)
-        create_obj_data(dataset_dir, num_classes)
+        create_obj_data(dataset_dir, len(class_names))
         logger.debug("Generated obj.data file")
 
-        # Generate the YAML configuration file
+        # Generate YAML file
         yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
         generate_yolo_yaml(dataset_dir, yaml_path, class_names)
+        logger.debug("Generated YAML file")
 
-        # Log the final directory structure
-        for root, dirs, files in os.walk(dataset_dir):
-            logger.debug(f"Final directory structure: {root}, Directories: {dirs}, Files: {files}")
+        # Log the directory structure after generating all files
+        log_directory_structure(dataset_dir, "After generating all files")
 
-        return {"dataset_id": dataset_id, "dataset_path": dataset_dir, "format": dataset_format, "yaml_path": yaml_path}
+        return {"dataset_id": dataset_id, "dataset_path": dataset_dir}
     except Exception as e:
         logger.error(f"Error uploading dataset: {str(e)}")
         if os.path.exists(dataset_dir):
@@ -251,78 +198,6 @@ async def inference(inferenceRequest: InferenceRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-"""# Conduct prediction
-@router.post("/predict/")
-async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = Body(...)):
-    try:
-        active_model = model_control.get_active_model(model_id)
-        if not active_model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found or not loaded")
-
-        conn = active_model['conn']
-        
-        # Adjust the image path to be absolute path before sending to the model process
-        if "image_path" in request_payload:
-            request_payload["image_path"] = os.path.join(UPLOAD_IMAGE_DIR, request_payload["image_path"])
-        else:
-            raise HTTPException(status_code = 500, detail = "Invalid request payload")
-
-        conn.send(f"predict:{json.dumps(request_payload)}")
-        prediction = conn.recv()
-
-        return {"model_id": model_id, "prediction": prediction}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))"""
-
-# Creating a web socket connection for real-time video and live webcam processing
-# It will receives video frames as bytes, process it using the model and sends results back to user
-"""@router.websocket("/ws/predict-live/{model_id}")
-async def websocket_video(websocket: WebSocket, model_id: str):
-    await websocket.accept()
-    try:
-        if not model_control.is_model_loaded(model_id):
-            await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
-            await websocket.close()
-            return
-
-        active_model = model_control.get_active_model(model_id)
-        if not active_model:
-            await websocket.send_json({"error": f"Model {model_id} is not found or model is not loaded"})
-            await websocket.close()
-            return
-
-        conn = active_model['conn']
-
-        while True:
-            try:
-                data = await websocket.receive_bytes()
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                
-                print("Frame received and decoded")
-
-                # Process frame asynchronously
-                prediction = await asyncio.get_event_loop().run_in_executor(None, process_frame, conn, frame)
-
-                # Send prediction results back to the client
-                await websocket.send_json(prediction)
-                print("Prediction sent to client")
-            except WebSocketDisconnect:
-                logger.info("User disconnected")
-                break
-            except Exception as e:
-                logger.error(f"Error processing frame: {str(e)}")
-                await websocket.send_json({"error": f"Error processing frame: {str(e)}"})
-                break
-    except Exception as e:
-        logger.error(f"Error during websocket communication: {str(e)}")
-        await websocket.send_json({"error": f"Error during websocket communication: {str(e)}"})
-    finally:
-        try:
-            await websocket.close()
-        except Exception as close_exception:
-            logger.error(f"Error closing websocket: {str(close_exception)}")
-        logger.info("Connection closed")"""
 
 @router.post("/train")
 async def train_model(
@@ -345,6 +220,53 @@ async def train_model(
         if not os.path.exists(yaml_path):
             raise HTTPException(status_code=400, detail="YAML configuration file not found")
 
+        train_txt_path = os.path.abspath(os.path.join(dataset_path, 'train.txt'))
+        val_txt_path = os.path.abspath(os.path.join(dataset_path, 'val.txt'))
+
+        # Log paths and YAML contents
+        logger.debug(f"YAML Path: {yaml_path}")
+        with open(yaml_path, 'r') as f:
+            yaml_contents = f.read()
+        logger.debug(f"YAML Contents: {yaml_contents}")
+        
+        # Log existence of train.txt and val.txt using absolute paths
+        logger.debug(f"Checking paths: train.txt -> {train_txt_path}, val.txt -> {val_txt_path}")
+        
+        # Check for hidden characters or unexpected whitespace
+        def check_hidden_chars(file_path):
+            with open(file_path, 'rb') as f:
+                content = f.read()
+            if b'\0' in content:
+                logger.error(f"Hidden characters found in {file_path}")
+                return True
+            return False
+        
+        # Verify file existence and content
+        def verify_file(file_path):
+            if not os.path.exists(file_path):
+                logger.error(f"{file_path} does not exist")
+                return False
+            if check_hidden_chars(file_path):
+                raise HTTPException(status_code=400, detail=f"{file_path} contains hidden characters")
+            with open(file_path, 'r') as f:
+                content = f.read()
+            if not content.strip():
+                logger.error(f"{file_path} is empty")
+                return False
+            logger.debug(f"Contents of {file_path}: {content[:1000]}...")  # Print first 1000 chars
+            return True
+        
+        if not verify_file(train_txt_path) or not verify_file(val_txt_path):
+            raise HTTPException(status_code=400, detail="train.txt or val.txt validation failed")
+
+        # Log the current working directory
+        current_working_dir = os.getcwd()
+        logger.debug(f"Current working directory: {current_working_dir}")
+
+        # Print directory listing
+        dir_listing = os.listdir(dataset_path)
+        logger.debug(f"Directory listing for {dataset_path}: {dir_listing}")
+
         training_params = {
             "data": yaml_path,
             "epochs": epochs,
@@ -355,8 +277,11 @@ async def train_model(
         result = model_control.train_model(model_id, training_params)
         return result
     except Exception as e:
+        logger.error(f"Error during training: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-        
+
+# Creating a web socket connection for real-time video and live webcam processing
+# It will receives video frames as bytes, process it using the model and sends results back to user
 @router.websocket("/ws/predict-live/{model_id}")
 async def predict_live(websocket: WebSocket, model_id: str):
     await websocket.accept()

@@ -85,20 +85,22 @@ class ModelControl:
         
         # Check if the download was successful
         return self.library_control.get_model_info_library(model_id) is not None
-
+            
     def load_model(self, model_id: str):
         model_info = self.library_control.get_model_info_library(model_id)
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
+    
+        logger.debug(f"Fetched model info: {model_info}")
 
-        model_class = self._get_model_class(model_id, "library")
+        model_class = self._get_model_class(model_id, source="library")
         model_dir = model_info['dir']
-        
+    
         if not os.path.exists(model_dir):
             logger.error(f"Model directory not found: {model_dir}")
             return False
-        
+    
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
 
         parent_conn, child_conn = multiprocessing.Pipe()
@@ -112,6 +114,7 @@ class ModelControl:
         else:
             logger.error(f"Failed to load model {model_id}.")
             return False
+
 
     def is_model_loaded(self, model_id: str):
         return model_id in self.models
@@ -188,12 +191,12 @@ class ModelControl:
             raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
 
         if not model_info:
-            raise ValueError(f"Model info not found for {model_id}")
-        
+            raise ValueError(f"Model info not found for {model_id} in {source}")
+    
         model_class_name = model_info.get('model_class')
         if not model_class_name:
             raise ValueError(f"Model class not specified for {model_id}")
-        
+
         try:
             module = importlib.import_module('backend.models')
             model_class = getattr(module, model_class_name)

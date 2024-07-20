@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from backend.settings.settings import get_hardware_preference
 from backend.controlers.library_control import LibraryControl
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,6 @@ class UltralyticsModel(BaseModel):
         self.model_id = model_id
         self.model = None
         self.library_control = LibraryControl()
-        self.model_info = self.library_control.get_model_info_index(model_id)
-        self.model_type = self.model_info['requirements']['required_classes']['model']
     
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -173,39 +172,48 @@ class UltralyticsModel(BaseModel):
             imgsz = training_params.get('imgsz', 640)  
 
             logger.info(f"Starting training with parameters: epochs={epochs}, batch_size={batch_size}, learning_rate={learning_rate}, imgsz={imgsz}")
-            
-            # Ensure the dataset is in YOLO format
+        
             if not os.path.exists(data_path):
                 raise FileNotFoundError(f"Dataset path not found: {data_path}")
-            
-            train_txt = os.path.join(data_path, 'train.txt')
-            val_txt = os.path.join(data_path, 'val.txt')
-            
-            if not os.path.exists(train_txt) or not os.path.exists(val_txt):
-                raise FileNotFoundError("train.txt or val.txt not found in the dataset path")
-            
-            # Generate obj.data file
-            num_classes = 26  # Replace with the actual number of classes
-            create_obj_data(data_path, num_classes)
-            
-            # Train the model
+        
             self.model.train(data=data_path, epochs=epochs, imgsz=imgsz, lr0=learning_rate, batch=batch_size)
-            logger.info(f"Actual image size used for training: {self.model.args.imgsz}")
-            logger.info("Training completed")
-            
+            logger.info(f"Training completed")
+
+            # Finding the best.pt file in the runs/detect/train folder
+            runs_folder = os.path.join('runs', 'detect', 'train')
+            best_pt_path = None
+            for root, dirs, files in os.walk(runs_folder):
+                if 'best.pt' in files:
+                    best_pt_path = os.path.join(root, 'best.pt')
+                    break
+
+            if not best_pt_path:
+                raise FileNotFoundError("best.pt file not found after training")
+
             i = 1
             while os.path.exists(os.path.join('data', 'downloads', 'ultralytics', f"{self.model_id}_{i}.pt")):
                 i += 1
-            
+
             trained_model_name = f"{self.model_id}_{i}.pt"
             trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
-            self.model.save(trained_model_path)
+            
+            # Copy and rename the best.pt file 
+            shutil.copy(best_pt_path, trained_model_path)
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
-        
+    
             new_entry = {
+                "model_id": f"{self.model_id}_{i}",
+                "base_model": f"{self.model_id}_{i}",
                 "dir": os.path.dirname(trained_model_path),
                 "model_desc": f"Fine-tuned {self.model_id} model",
+                "is_customised": True,
+                "config": {
+                    "epochs": epochs,
+                    "batch_size": batch_size,
+                    "learning_rate": learning_rate,
+                    "imgsz": imgsz
+                }
             }
             new_model_id = self.library_control.add_fine_tuned_model(self.model_id, new_entry)
 

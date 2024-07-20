@@ -56,4 +56,3 @@ if __name__ == "__main__":
 
 # For testing
 """python websocket_client.py "path to vid file" ws://localhost:8000/ws/predict-live/modelname"""
-#C:/Users/Hp/OneDrive/Desktop/Uni/Term 2/Dissertation_AiIsland2/data/uploaded_videos/0383325d-edb6-40ca-88b4-a8e6ba1150a7.MOV
