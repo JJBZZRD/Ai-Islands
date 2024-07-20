@@ -5,6 +5,8 @@ from backend.controlers.model_control import ModelControl
 from backend.core.config import DOWNLOADED_MODELS_PATH, UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
 from backend.data_utils.dataset_validation import validate_dataset
 from backend.data_utils.yaml_generator import generate_yolo_yaml
+from backend.data_utils.obj_generator import create_obj_data
+from backend.data_utils.txt_generator import create_txt_files
 from backend.controlers.library_control import LibraryControl
 import os
 import shutil
@@ -78,6 +80,7 @@ async def upload_video(file: UploadFile = File(...)):
 @router.post("/upload-dataset/")
 async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
     try:
+        logger.debug("Starting dataset upload")
         model_info = model_control.library_control.get_model_info_index(model_id)
         if not model_info:
             raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
@@ -91,44 +94,76 @@ async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...
 
         # Create the dataset directory only when uploading
         os.makedirs(dataset_dir)
+        logger.debug(f"Created dataset directory: {dataset_dir}")
 
         file_path = os.path.join(dataset_dir, file.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        logger.debug(f"Saved uploaded file to: {file_path}")
 
         if file.filename.endswith('.zip'):
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 zip_ref.extractall(dataset_dir)
             os.remove(file_path)
+            logger.debug("Extracted zip file")
 
             # Check if the required items are in a subdirectory
             subdirs = [d for d in os.listdir(dataset_dir) if os.path.isdir(os.path.join(dataset_dir, d))]
-            if len(subdirs) == 1 and all(os.path.exists(os.path.join(dataset_dir, subdirs[0], item)) for item in ['images', 'labels', 'obj.data', 'obj.names', 'train.txt', 'val.txt']):
-                # Move contents of subdirectory to dataset_dir
+            if len(subdirs) == 1:
                 subdir_path = os.path.join(dataset_dir, subdirs[0])
                 for item in os.listdir(subdir_path):
                     shutil.move(os.path.join(subdir_path, item), dataset_dir)
                 os.rmdir(subdir_path)
+                logger.debug("Moved contents from subdirectory")
 
         # Check if required files and folders exist
-        required_items = ['images', 'labels', 'obj.data', 'obj.names', 'train.txt', 'val.txt']
+        required_items = ['images', 'labels', 'obj.names']
         missing_items = [item for item in required_items if not os.path.exists(os.path.join(dataset_dir, item))]
         if missing_items:
             shutil.rmtree(dataset_dir)
             raise HTTPException(status_code=400, detail=f"Invalid dataset structure. Missing: {', '.join(missing_items)}")
+        logger.debug("Required files and folders exist")
 
+        # Log the current directory structure
+        for root, dirs, files in os.walk(dataset_dir):
+            logger.debug(f"Current directory structure: {root}, Directories: {dirs}, Files: {files}")
+
+        # Validate the dataset
         detected_format = validate_dataset(dataset_dir)
         if detected_format != dataset_format:
             shutil.rmtree(dataset_dir)
             raise HTTPException(status_code=400, detail=f"Dataset format must be {dataset_format}, detected {detected_format}")
+        logger.debug(f"Dataset format validated: {detected_format}")
+
+        # Generate train.txt and val.txt files
+        create_txt_files(dataset_dir)
+        logger.debug("Generated train.txt and val.txt files")
+
+        # Log the current directory structure again
+        for root, dirs, files in os.walk(dataset_dir):
+            logger.debug(f"Directory structure after generating txt files: {root}, Directories: {dirs}, Files: {files}")
+
+        # Generate obj.data file
+        with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
+            class_names = [line.strip() for line in f]
+        num_classes = len(class_names)
+        create_obj_data(dataset_dir, num_classes)
+        logger.debug("Generated obj.data file")
+
+        # Log the current directory structure again
+        for root, dirs, files in os.walk(dataset_dir):
+            logger.debug(f"Directory structure after generating obj.data: {root}, Directories: {dirs}, Files: {files}")
 
         if dataset_format.lower() == "yolo":
             yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
-            with open(os.path.join(dataset_dir, 'obj.names'), 'r') as f:
-                class_names = [line.strip() for line in f]
             generate_yolo_yaml(dataset_dir, yaml_path, class_names)
+            logger.debug("Generated YOLO YAML file")
         else:
-            yaml_path=None  # Handle other formats if needed
+            yaml_path = None  # Handle other formats if needed
+
+        # Log the final directory structure
+        for root, dirs, files in os.walk(dataset_dir):
+            logger.debug(f"Final directory structure: {root}, Directories: {dirs}, Files: {files}")
 
         return {
             "dataset_id": dataset_id,

@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 from ultralytics import YOLO
 from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH
 from backend.data_utils.json_handler import JSONHandler
+from backend.data_utils.obj_generator import create_obj_data
 from .base_model import BaseModel
 import logging
 import cv2
@@ -69,11 +70,8 @@ class UltralyticsModel(BaseModel):
 
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
-
-            if self.model_type == "YOLO":
-                self.model = YOLO(model_path)  # Load the YOLO model from the specified path
-            else:
-                raise ValueError(f"Unsupported model type: {self.model_type}")
+            
+            self.model = YOLO(model_path)  # Load the YOLO model from the specified path
         
             logger.info(f"Model loaded from {model_path}")
 
@@ -175,6 +173,22 @@ class UltralyticsModel(BaseModel):
             imgsz = training_params.get('imgsz', 640)  
 
             logger.info(f"Starting training with parameters: epochs={epochs}, batch_size={batch_size}, learning_rate={learning_rate}, imgsz={imgsz}")
+            
+            # Ensure the dataset is in YOLO format
+            if not os.path.exists(data_path):
+                raise FileNotFoundError(f"Dataset path not found: {data_path}")
+            
+            train_txt = os.path.join(data_path, 'train.txt')
+            val_txt = os.path.join(data_path, 'val.txt')
+            
+            if not os.path.exists(train_txt) or not os.path.exists(val_txt):
+                raise FileNotFoundError("train.txt or val.txt not found in the dataset path")
+            
+            # Generate obj.data file
+            num_classes = 26  # Replace with the actual number of classes
+            create_obj_data(data_path, num_classes)
+            
+            # Train the model
             self.model.train(data=data_path, epochs=epochs, imgsz=imgsz, lr0=learning_rate, batch=batch_size)
             logger.info(f"Actual image size used for training: {self.model.args.imgsz}")
             logger.info("Training completed")

@@ -60,6 +60,13 @@ class ModelControl:
                 print("prediction done")
                 print(prediction)
                 conn.send(prediction)
+            elif req["task"] == "train":
+                print("running control train")
+                print("req data ", req["data"])
+                prediction = model.train(req["data"])
+                print("prediction done")
+                print(prediction)
+                conn.send(prediction)
 
     def download_model(self, model_id: str, auth_token: str = None):
         model_info = self.library_control.get_model_info_index(model_id)
