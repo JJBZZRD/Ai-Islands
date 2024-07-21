@@ -100,15 +100,10 @@ class ModelControl:
 
         model_class = self._get_model_class(model_id, source="library")
         model_dir = model_info['dir']
-<<<<<<< HEAD
-    
-        if not os.path.exists(model_dir):
-=======
         is_online = model_info.get('is_online', False)
 
 
         if not os.path.exists(model_dir) and not is_online:
->>>>>>> main
             logger.error(f"Model directory not found: {model_dir}")
             return False
     
