@@ -95,10 +95,10 @@ class ModelControl:
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
-    
+
         logger.debug(f"Fetched model info: {model_info}")
 
-        model_class = self._get_model_class(model_id, source="library")
+        model_class = self._get_model_class(model_id, "library")
         model_dir = model_info['dir']
         is_online = model_info.get('is_online', False)
 
@@ -106,21 +106,24 @@ class ModelControl:
         if not os.path.exists(model_dir) and not is_online:
             logger.error(f"Model directory not found: {model_dir}")
             return False
-    
+
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
+        logger.debug(f"Using device: {device}")
 
         parent_conn, child_conn = multiprocessing.Pipe()
         process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info))
         process.start()
 
-        if parent_conn.recv() == "Model loaded":
+        response = parent_conn.recv()
+        logger.debug(f"Received response from load process: {response}")
+
+        if response == "Model loaded":
             self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
             logger.info(f"Model {model_id} loaded and process started.")
             return True
         else:
-            logger.error(f"Failed to load model {model_id}.")
+            logger.error(f"Failed to load model {model_id}. Response: {response}")
             return False
-
 
     def is_model_loaded(self, model_id: str):
         return model_id in self.models
