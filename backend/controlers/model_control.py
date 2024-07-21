@@ -42,7 +42,7 @@ class ModelControl:
     def _load_process(model_class, conn, model_id, device, model_info):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
-        model.load(device, model_info)
+        model.load(device=device, model_info=model_info)
         conn.send("Model loaded")
         while True:
             req = conn.recv()

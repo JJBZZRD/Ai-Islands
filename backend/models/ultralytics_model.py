@@ -55,13 +55,13 @@ class UltralyticsModel(BaseModel):
             print(f"Error downloading model {model_id}: {str(e)}")
             return None
             
-    def load(self, model_path: str, device: torch.device):
+    def load(self, device: torch.device, model_info: dict):
         try:
             # Retrieve model info from the library
-            model_info = self.library_control.get_model_info_library(self.model_id)
+            #model_info = self.library_control.get_model_info_library(self.model_id)
 
-            if not model_info:
-                raise FileNotFoundError(f"Model info not found for {self.model_id}")
+            #if not model_info:
+                #raise FileNotFoundError(f"Model info not found for {self.model_id}")
 
             # Get the path of the model file
             model_file_name = f"{self.model_id}.pt"
@@ -190,21 +190,20 @@ class UltralyticsModel(BaseModel):
             if not best_pt_path:
                 raise FileNotFoundError("best.pt file not found after training")
 
-            i = 1
-            while os.path.exists(os.path.join('data', 'downloads', 'ultralytics', f"{self.model_id}_{i}.pt")):
-                i += 1
-
-            trained_model_name = f"{self.model_id}_{i}.pt"
+            # Copy and rename the best.pt file
+            suffix = self.get_next_suffix(self.model_id)
+            trained_model_name = f"{self.model_id}_{suffix}.pt"
             trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
-            
-            # Copy and rename the best.pt file 
+            # Copy the best.pt file to the downloads folder
             shutil.copy(best_pt_path, trained_model_path)
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
     
+            original_model_info = self.library_control.get_model_info_library(self.model_id)
+            
             new_entry = {
-                "model_id": f"{self.model_id}_{i}",
-                "base_model": f"{self.model_id}_{i}",
+                "model_id": f"{self.model_id}_{suffix}",
+                "base_model": f"{self.model_id}_{suffix}",
                 "dir": os.path.dirname(trained_model_path),
                 "model_desc": f"Fine-tuned {self.model_id} model",
                 "is_customised": True,
@@ -213,11 +212,38 @@ class UltralyticsModel(BaseModel):
                     "batch_size": batch_size,
                     "learning_rate": learning_rate,
                     "imgsz": imgsz
-                }
+                },
+            # Retain additional fields from the original model
+            "is_online": original_model_info.get("is_online"),
+            "model_source": original_model_info.get("model_source"),
+            "model_class": original_model_info.get("model_class"),
+            "tags": original_model_info.get("tags"),
+            "dataset_format": original_model_info.get("dataset_format"),
+            "requirements": original_model_info.get("requirements"),
+            "auth_token": original_model_info.get("auth_token"),
             }
-            new_model_id = self.library_control.add_fine_tuned_model(self.model_id, new_entry)
+            new_model_id = self.library_control.add_fine_tuned_model(new_entry)
 
+            # Remove the extra pretrained model file
+            pretrained_model_path = os.path.join(ROOT_DIR, f"{self.model_id}.pt")
+            if os.path.exists(pretrained_model_path):
+                os.remove(pretrained_model_path)
+                logger.info(f"Deleted pretrained model file from root directory: {pretrained_model_path}")
+                
+            # Remove the runs folder
+            runs_folder = os.path.join(ROOT_DIR, 'runs')
+            if os.path.exists(runs_folder) and os.path.isdir(runs_folder):
+                shutil.rmtree(runs_folder)
+                logger.info(f"Deleted runs folder: {runs_folder}")
+    
             return {"message": "Training completed successfully", "trained_model_path": trained_model_path, "new_model_id": new_model_id}
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
             return {"error": str(e)}
+        
+    def get_next_suffix(self, base_model_id):
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        i = 1
+        while f"{base_model_id}_{i}" in library:
+            i += 1
+        return i

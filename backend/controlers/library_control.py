@@ -91,18 +91,11 @@ class LibraryControl:
     def add_fine_tuned_model(self, new_entry: dict):
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         base_model_id = new_entry['base_model']
-        
-        i = 1
-        while f"{base_model_id}_{i}" in library:
-            i += 1
-        new_model_id = f"{base_model_id}_{i}"
-
-        # Creating new entry 
-        new_model_entry = new_entry.copy()
-        new_model_entry["model_id"] = new_model_id
-
+    
+        new_model_id = new_entry['model_id']
+    
         # Adding new entry to the library
-        library[new_model_id] = new_model_entry
+        library[new_model_id] = new_entry
 
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
         logger.info(f"New fine-tuned model {new_model_id} added to library")
