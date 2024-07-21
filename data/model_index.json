@@ -32,22 +32,6 @@
       }
     }
   },
-  "cardiffnlp/twitter-roberta-base-sentiment-latest": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "tags": [
-      "transformers"
-    ],
-    "pipeline_tag": "sentiment-analysis",
-    "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
-    "requirements":{
-      "required_classes":{
-        "model": "AutoModelForSequenceClassification",
-        "tokenizer": "AutoTokenizer"
-      }
-    }
-  },
   "yolov8n": {
     "is_online": false,
     "model_source": "ultralytics",
@@ -220,22 +204,145 @@
       "requires_auth": true
     }
   },
+  "cardiffnlp/twitter-roberta-base-sentiment-latest": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text Classification",
+      "Sentiment Analysis"
+    ],
+    "languages": [
+      "English"
+    ],
+    "labels" : [
+      "positive",
+      "neutral",
+      "negative"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_desc": "This is a RoBERTa-base model trained on ~124M tweets from January 2018 to December 2021, and finetuned for sentiment analysis with the TweetEval benchmark. This model is suitable for English. ",
+    "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    }
+  },
+  "distilbert/distilbert-base-uncased-finetuned-sst-2-english": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text Classification",
+      "Sentiment Analysis"
+    ],
+    "languages": [
+      "English"
+    ],
+    "labels" : [
+      "negative",
+      "positive"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_desc": " This model is a fine-tune checkpoint of DistilBERT-base-uncased, fine-tuned on SST-2. This model reaches an accuracy of 91.3 on the dev set (for comparison, Bert bert-base-uncased version reaches an accuracy of 92.7).",
+    "model_card_url": "https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+    "requirements":{
+      "required_classes":{
+        "model": "DistilBertForSequenceClassification",
+        "tokenizer": "DistilBertTokenizer"
+      }
+    }
+  },
+  "nlptown/bert-base-multilingual-uncased-sentiment": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text Classification",
+      "Product Reviews"
+    ],
+    "languages": [
+      "English",
+      "Dutch",
+      "German",
+      "French",
+      "Italian",
+      "Spanish"
+    ],
+    "labels" : [
+      "5 stars",
+      "4 stars",
+      "3 stars",
+      "2 stars",
+      "1 star"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_desc": "This is a bert-base-multilingual-uncased model finetuned for sentiment analysis on product reviews in six languages: English, Dutch, German, French, Spanish, and Italian. It predicts the sentiment of the review as a number of stars (between 1 and 5). This model is intended for direct use as a sentiment analysis model for product reviews in any of the six languages above or for further finetuning on related sentiment analysis tasks.",
+    "model_card_url": "https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment",
+    "requirements":{
+      "required_classes":{
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    }
+  },
   "jinaai/jina-reranker-v2-base-multilingual": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "tags": [
         "Text Classification",
-        "Transformers",
-        "PyTorch",
-        "ONNX",
-        "Transformers.js",
-        "multilingual",
-        "reranker",
-        "cross-encoder",
-        "custom_code",
-        "cc-by-nc-4.0",
-        "EU Region: EU"
+        "Text Reranker",
+        "multilingual"
+    ],
+    "languages": [
+      "Arabic",
+      "Bengali",
+      "Bulgarian",
+      "Chinese (Simplified)",
+      "Chinese (Traditional)",
+      "Croatian",
+      "Czech",
+      "Danish",
+      "Dutch",
+      "English",
+      "Estonian",
+      "Finnish",
+      "French",
+      "German",
+      "Greek",
+      "Gujarati",
+      "Hebrew",
+      "Hindi",
+      "Hungarian",
+      "Indonesian",
+      "Italian",
+      "Japanese",
+      "Kannada",
+      "Korean",
+      "Latvian",
+      "Lithuanian",
+      "Malayalam",
+      "Marathi",
+      "Norwegian",
+      "Polish",
+      "Portuguese",
+      "Punjabi",
+      "Romanian",
+      "Russian",
+      "Slovak",
+      "Slovenian",
+      "Spanish",
+      "Swedish",
+      "Tamil",
+      "Telugu",
+      "Thai",
+      "Turkish",
+      "Ukrainian",
+      "Urdu",
+      "Vietnamese"
     ],
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
@@ -247,26 +354,7 @@
       "trust_remote_code": true,
       "required_packages": ["einops"]
     },
-    "model_desc": ""
-  },
-  "lxyuan/distilbert-base-multilingual-cased-sentiments-student": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "tags": [
-        "Text Classification",
-        "Transformers",
-        "PyTorch"
-    ],
-    "pipeline_tag": "text-classification",
-    "model_card_url": "https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student",
-    "requirements":{
-      "required_classes":{
-        "model": "AutoModelForSequenceClassification",
-        "tokenizer": "AutoTokenizer"
-      }
-    },
-    "model_desc": ""
+    "model_desc": "The Jina Reranker v2 (jina-reranker-v2-base-multilingual) is a transformer-based model that has been fine-tuned for text reranking task, which is a crucial component in many information retrieval systems. It is a cross-encoder model that takes a query and a document pair as input and outputs a score indicating the relevance of the document to the query. The model is trained on a large dataset of query-document pairs and is capable of reranking documents in multiple languages with high accuracy. The jina-reranker-v2-base-multilingual model is capable of handling long texts with a context length of up to 1024 tokens, enabling the processing of extensive inputs. To enable the model to handle long texts that exceed 1024 tokens, the model uses a sliding window approach to chunk the input text into smaller pieces and rerank each chunk separately."
   },
   "codellama/codellama-34b-instruct-hf": {
     "is_online": true,
