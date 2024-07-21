@@ -6,6 +6,7 @@ import time
 import gc
 from backend.settings.settings import get_hardware_preference, set_hardware_preference
 from backend.controlers.library_control import LibraryControl
+from backend.utils.helpers import install_packages
 import torch
 import importlib
 
@@ -77,6 +78,9 @@ class ModelControl:
 
         model_info.update({"auth_token": auth_token})
 
+        # Install required packages
+        install_packages(model_info.get('requirements', {}).get('required_packages', []))
+        
         model_class = self._get_model_class(model_id, "index")
 
         process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
@@ -96,8 +100,15 @@ class ModelControl:
 
         model_class = self._get_model_class(model_id, source="library")
         model_dir = model_info['dir']
+<<<<<<< HEAD
     
         if not os.path.exists(model_dir):
+=======
+        is_online = model_info.get('is_online', False)
+
+
+        if not os.path.exists(model_dir) and not is_online:
+>>>>>>> main
             logger.error(f"Model directory not found: {model_dir}")
             return False
     
