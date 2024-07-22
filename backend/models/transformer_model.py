@@ -36,18 +36,43 @@ class TransformerModel(BaseModel):
                 logger.error(f"Auth token required for model {model_id} but not provided")
                 return None
 
+            config = model_info.get('config', {})
+            model_config = config.get('model_config', {})
+            tokenizer_config = config.get('tokenizer_config', {})
+            processor_config = config.get('processor_config', {})
+
             for class_type, class_name in required_classes.items():
                 if class_type == "model":
                     module = importlib.import_module('transformers')
                     ModelClass = getattr(module, class_name)
-                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
+                    ModelClass.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None, 
+                        trust_remote_code=trust_remote_code,
+                        **model_config
+                    )
                 elif class_type == "tokenizer":
-                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
+                    transformers.AutoTokenizer.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None, 
+                        trust_remote_code=trust_remote_code,
+                        **tokenizer_config
+                    )
                 elif class_type == "processor":
                     ProcessorClass = getattr(transformers, class_name)
-                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
+                    ProcessorClass.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None, 
+                        trust_remote_code=trust_remote_code,
+                        **processor_config
+                    )
             
-            config = {}
             if requires_auth:
                 config['auth_token'] = auth_token
 
@@ -77,11 +102,10 @@ class TransformerModel(BaseModel):
             pipeline_tag = model_info.get('pipeline_tag')
             
             self.config = model_info.get('config', {})
-            device_settings = self.config.get('device_settings', {})
-            model_parameters = self.config.get('model_parameters', {})
-            
-            device = torch.device(device_settings.get('device', str(device)))
-            dtype = torch.float16 if device_settings.get('torch_dtype') == 'float16' else torch.float32
+            model_config = self.config.get('model_config', {})
+            tokenizer_config = self.config.get('tokenizer_config', {})
+            processor_config = self.config.get('processor_config', {})
+            pipeline_config = self.config.get('pipeline_config', {})
             
             for class_type, class_name in required_classes.items():
                 class_ = getattr(transformers, class_name)
@@ -93,8 +117,8 @@ class TransformerModel(BaseModel):
                         cache_dir=model_dir,
                         local_files_only=True,
                         trust_remote_code=trust_remote_code,
-                        torch_dtype=dtype,
-                        device_map='auto'
+                        device_map='auto',
+                        **model_config
                     )
                     if self.model is None:
                         raise ValueError(f"Failed to load model: {self.model_id}")
@@ -104,21 +128,35 @@ class TransformerModel(BaseModel):
                         self.model_id,
                         cache_dir=model_dir,
                         local_files_only=True,
-                        trust_remote_code=trust_remote_code
+                        trust_remote_code=trust_remote_code,
+                        **tokenizer_config
                     )
                     if self.tokenizer is None:
                         raise ValueError(f"Failed to load tokenizer: {self.model_id}")
+                elif class_type == "processor":
+                    logger.info(f"Loading processor with {class_name}")
+                    self.processor = class_.from_pretrained(
+                        self.model_id,
+                        cache_dir=model_dir,
+                        local_files_only=True,
+                        trust_remote_code=trust_remote_code,
+                        **processor_config
+                    )
+                    if self.processor is None:
+                        raise ValueError(f"Failed to load processor: {self.model_id}")
             
             if pipeline_tag:
                 logger.info(f"Creating pipeline with tag: {pipeline_tag}")
-                self.pipeline = transformers.pipeline(
-                    task=pipeline_tag,
-                    model=self.model,
-                    tokenizer=self.tokenizer,
-                    device=device,
-                    trust_remote_code=trust_remote_code,
-                    **model_parameters
-                )
+                pipeline_args = {
+                    "task": pipeline_tag,
+                    "model": self.model,
+                    "tokenizer": self.tokenizer,
+                    "trust_remote_code": trust_remote_code
+                }
+                if self.processor:
+                    pipeline_args["processor"] = self.processor
+                
+                self.pipeline = transformers.pipeline(**pipeline_args, **pipeline_config)
                 if self.pipeline is None:
                     raise ValueError(f"Failed to create pipeline for model: {self.model_id}")
             

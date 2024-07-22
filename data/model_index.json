@@ -25,10 +25,30 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/openai-community/gpt2",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {
+      "model_config": {
+        "use_cache": true
+      },
+      "tokenizer_config": {
+        "do_lower_case": false,
+        "eos_token": "<|endoftext|>",
+        "unk_token": "<|endoftext|>"
+      },
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 50,
+        "num_return_sequences": 1,
+        "top_k": 50,
+        "top_p": 0.95,
+        "temperature": 1.0,
+        "repetition_penalty": 1.0,
+        "no_repeat_ngram_size": 0
       }
     }
   },
@@ -41,11 +61,17 @@
     ],
     "pipeline_tag": "sentiment-analysis",
     "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForSequenceClassification",
         "tokenizer": "AutoTokenizer"
       }
+    },
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
     }
   },
   "yolov8n": {
@@ -64,7 +90,8 @@
       "region:us"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+    "config": {}
   },
   "yolov8s": {
     "is_online": false,
@@ -81,7 +108,8 @@
       "license:agpl-3.0"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+    "config": {}
   },
   "yolov10n": {
     "is_online": false,
@@ -97,7 +125,8 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+    "config": {}
   },
   "yolov10s": {
     "is_online": false,
@@ -113,7 +142,8 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+    "config": {}
   },
   "google/owlvit-base-patch32" : {
     "is_online": false,
@@ -131,11 +161,17 @@
     ],
     "pipeline_tag": "object-detection",
     "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "OwlViTForObjectDetection",
         "processor": "OwlViTProcessor"
       }
+    },
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
     }
   },
   "meta-llama/Meta-Llama-3-8B": {
@@ -157,15 +193,21 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       },
       "requires_auth": true
     },
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
-    "model_detail": "https://llama.meta.com/get-started/"
+    "model_detail": "https://llama.meta.com/get-started/",
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
+    }
   },
   "nomic-ai/gpt4all-j": {
     "is_online": false,
@@ -182,14 +224,20 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/nomic-ai/gpt4all-j",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       }
     },
     "model_desc": "GPT4All-J is an Apache-2 licensed chatbot trained over a massive curated corpus of assistant interactions, including word problems, multi-turn dialogue, code, poems, songs, and stories. It's a finetuned version of GPT-J optimized for assistant-style interactions.",
-    "model_detail": "https://github.com/nomic-ai/gpt4all"
+    "model_detail": "https://github.com/nomic-ai/gpt4all",
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
+    }
   },
   "meta-llama/Meta-Llama-3-8B-Instruct": {
     "is_online": false,
@@ -212,12 +260,18 @@
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct",
     "model_desc": "Meta-Llama-3-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       },
       "requires_auth": true
+    },
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
     }
   },
   "jinaai/jina-reranker-v2-base-multilingual": {
@@ -239,15 +293,21 @@
     ],
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForSequenceClassification",
         "tokenizer": "AutoTokenizer"
       },
       "trust_remote_code": true,
       "required_packages": ["einops"]
     },
-    "model_desc": ""
+    "model_desc": "",
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
+    }
   },
   "lxyuan/distilbert-base-multilingual-cased-sentiments-student": {
     "is_online": false,
@@ -260,12 +320,18 @@
     ],
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForSequenceClassification",
         "tokenizer": "AutoTokenizer"
       }
     },
-    "model_desc": ""
+    "model_desc": "",
+    "config": {
+      "model_config": {},
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {}
+    }
   }
 }
