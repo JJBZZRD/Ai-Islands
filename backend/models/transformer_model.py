@@ -27,28 +27,36 @@ class TransformerModel(BaseModel):
             
             requirements = model_info.get('requirements', {})
             required_classes = requirements.get('required_classes', {})
-            requires_auth = requirements.get('requires_auth', False)
-            trust_remote_code = requirements.get('trust_remote_code', False)
-            auth_token = model_info.get('auth_token', None)
             
-            if requires_auth and not auth_token:
-                logger.error(f"Auth token required for model {model_id} but not provided")
-                return None
+            pretrained_args = {
+                'cache_dir': model_dir,
+                'force_download': True,
+            }
+            
+            if requirements.get('requires_auth', False):
+                pretrained_args['use_auth_token'] = model_info.get('auth_token')
+            
+            if requirements.get('trust_remote_code', False):
+                pretrained_args['trust_remote_code'] = True
 
             for class_type, class_name in required_classes.items():
-                if class_type == "model":
-                    module = importlib.import_module('transformers')
-                    ModelClass = getattr(module, class_name)
-                    ModelClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
-                elif class_type == "tokenizer":
-                    transformers.AutoTokenizer.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
-                elif class_type == "processor":
-                    ProcessorClass = getattr(transformers, class_name)
-                    ProcessorClass.from_pretrained(model_id, cache_dir=model_dir, force_download=True, use_auth_token=auth_token if requires_auth else None, trust_remote_code=trust_remote_code)
+                try:
+                    if class_type == "model":
+                        module = importlib.import_module('transformers')
+                        ModelClass = getattr(module, class_name)
+                        ModelClass.from_pretrained(model_id, **pretrained_args)
+                    elif class_type == "tokenizer":
+                        transformers.AutoTokenizer.from_pretrained(model_id, **pretrained_args)
+                    elif class_type == "processor":
+                        ProcessorClass = getattr(transformers, class_name)
+                        ProcessorClass.from_pretrained(model_id, **pretrained_args)
+                except Exception as e:
+                    logger.error(f"Error downloading {class_type} for model {model_id}: {str(e)}")
+                    return None
             
             config = {}
-            if requires_auth:
-                config['auth_token'] = auth_token
+            if pretrained_args.get('use_auth_token'):
+                config['auth_token'] = pretrained_args['use_auth_token']
 
             model_info.update({
                 "base_model": model_id,
