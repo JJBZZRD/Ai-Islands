@@ -250,8 +250,8 @@
     "model_card_url": "https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
     "requirements":{
       "required_classes":{
-        "model": "DistilBertForSequenceClassification",
-        "tokenizer": "DistilBertTokenizer"
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
       }
     }
   },
