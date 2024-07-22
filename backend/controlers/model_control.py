@@ -179,6 +179,26 @@ class ModelControl:
         conn = active_model['conn']
         conn.send({"task": "train", "data": training_params})
         result = conn.recv()
+
+        if "error" not in result:
+            new_model_info = result["new_model_info"]
+            new_model_id = new_model_info["model_id"]
+            
+            # Get the original model info
+            original_model_info = self.library_control.get_model_info_library(model_id)
+            
+            # Create a new entry by copying the original model info and updating with new info
+            updated_model_info = original_model_info.copy()
+            updated_model_info.update(new_model_info)
+            
+            # Ensure that these fields are correctly set for the new model
+            updated_model_info["is_customised"] = True
+            updated_model_info["base_model"] = new_model_id  
+            
+            # Add the new model to the library
+            self.library_control.add_fine_tuned_model(updated_model_info)
+            logger.info(f"New fine-tuned model {new_model_id} added to library")
+    
         return result
 
     # this will be deprecated

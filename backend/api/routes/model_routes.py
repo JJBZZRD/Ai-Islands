@@ -1,29 +1,21 @@
 import logging
 import cv2
-from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body, WebSocket, WebSocketDisconnect
-from backend.controlers.model_control import ModelControl
-from backend.core.config import DOWNLOADED_MODELS_PATH, UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
-from backend.data_utils.dataset_validation import validate_dataset
-from backend.data_utils.yaml_generator import generate_yolo_yaml
-from backend.data_utils.obj_generator import create_obj_data
-from backend.data_utils.txt_generator import create_txt_files
-from backend.controlers.library_control import LibraryControl
-from backend.data_utils.zip_utils import extract_zip, move_files_from_subdirectory_if_present
-from backend.data_utils.yaml_generator import generate_yolo_yaml
-from backend.data_utils.obj_generator import create_obj_data
 import os
 import shutil
 import uuid
-from typing import Dict, Any
 import json
-from pydantic import BaseModel, Field
-from typing import Annotated
-import numpy as np
 import asyncio
 import torch
 from fastapi.responses import JSONResponse
+from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
-import zipfile
+from pydantic import BaseModel, Field
+from typing import Annotated, Dict, Any
+import numpy as np
+from backend.controlers.model_control import ModelControl
+from backend.core.config import UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
+from backend.data_utils.dataset_processor import process_dataset
+from backend.data_utils.training_handler import handle_training_request
 
 router = APIRouter()
 
@@ -80,60 +72,25 @@ async def upload_video(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail= str(e))
 
-def log_directory_structure(directory: str, message: str):
-    for root, dirs, files in os.walk(directory):
-        logger.debug(f"{message} - Directory structure: {root}, Directories: {dirs}, Files: {files}")
-
-
 @router.post("/upload-dataset/")
 async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
     dataset_dir = ""
     try:
         # Generate a unique identifier for the dataset
         dataset_id = str(uuid.uuid4())
-        file_extension = file.filename.split('.')[-1]
         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
 
         # Save the uploaded file
         os.makedirs(dataset_dir, exist_ok=True)
-        file_path = os.path.join(dataset_dir, f"{dataset_id}.{file_extension}")
+        file_path = os.path.join(dataset_dir, file.filename)
 
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Extract the dataset if it's a zip file
-        if file_extension == 'zip':
-            extract_zip(file_path, dataset_dir)
-            move_files_from_subdirectory_if_present(dataset_dir)
+        # Process the dataset
+        result = process_dataset(file_path, dataset_dir, dataset_id)
 
-        # Log the directory structure after extraction
-        log_directory_structure(dataset_dir, "After extraction")
-
-        # Generate train.txt and val.txt files
-        create_txt_files(dataset_dir)
-        logger.debug("Generated train.txt and val.txt files")
-
-        # Read class names from obj.names file
-        obj_names_path = os.path.join(dataset_dir, 'obj.names')
-        if os.path.exists(obj_names_path):
-            with open(obj_names_path, 'r') as f:
-                class_names = [line.strip() for line in f.readlines()]
-        else:
-            raise HTTPException(status_code=400, detail="obj.names file not found")
-        
-        # Generate obj.data file
-        create_obj_data(dataset_dir, len(class_names))
-        logger.debug("Generated obj.data file")
-
-        # Generate YAML file
-        yaml_path = os.path.join(dataset_dir, f"{dataset_id}.yaml")
-        generate_yolo_yaml(dataset_dir, yaml_path, class_names)
-        logger.debug("Generated YAML file")
-
-        # Log the directory structure after generating all files
-        log_directory_structure(dataset_dir, "After generating all files")
-
-        return {"dataset_id": dataset_id, "dataset_path": dataset_dir}
+        return result
     except Exception as e:
         logger.error(f"Error uploading dataset: {str(e)}")
         if os.path.exists(dataset_dir):
@@ -198,7 +155,6 @@ async def inference(inferenceRequest: InferenceRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/train")
 async def train_model(
     model_id: str = Query(...), 
@@ -209,73 +165,12 @@ async def train_model(
     imgsz: int = Body(640)
 ):
     try:
-        if epochs <= 0 or batch_size <= 0 or learning_rate <= 0:
-            raise HTTPException(status_code=400, detail="Invalid training parameters")
-
-        dataset_path = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
-        if not os.path.exists(dataset_path):
-            raise HTTPException(status_code=400, detail="Dataset not found")
-
-        yaml_path = os.path.join(dataset_path, f"{dataset_id}.yaml")
-        if not os.path.exists(yaml_path):
-            raise HTTPException(status_code=400, detail="YAML configuration file not found")
-
-        train_txt_path = os.path.abspath(os.path.join(dataset_path, 'train.txt'))
-        val_txt_path = os.path.abspath(os.path.join(dataset_path, 'val.txt'))
-
-        # Log paths and YAML contents
-        logger.debug(f"YAML Path: {yaml_path}")
-        with open(yaml_path, 'r') as f:
-            yaml_contents = f.read()
-        logger.debug(f"YAML Contents: {yaml_contents}")
-        
-        # Log existence of train.txt and val.txt using absolute paths
-        logger.debug(f"Checking paths: train.txt -> {train_txt_path}, val.txt -> {val_txt_path}")
-        
-        # Check for hidden characters or unexpected whitespace
-        def check_hidden_chars(file_path):
-            with open(file_path, 'rb') as f:
-                content = f.read()
-            if b'\0' in content:
-                logger.error(f"Hidden characters found in {file_path}")
-                return True
-            return False
-        
-        # Verify file existence and content
-        def verify_file(file_path):
-            if not os.path.exists(file_path):
-                logger.error(f"{file_path} does not exist")
-                return False
-            if check_hidden_chars(file_path):
-                raise HTTPException(status_code=400, detail=f"{file_path} contains hidden characters")
-            with open(file_path, 'r') as f:
-                content = f.read()
-            if not content.strip():
-                logger.error(f"{file_path} is empty")
-                return False
-            logger.debug(f"Contents of {file_path}: {content[:1000]}...")  # Print first 1000 chars
-            return True
-        
-        if not verify_file(train_txt_path) or not verify_file(val_txt_path):
-            raise HTTPException(status_code=400, detail="train.txt or val.txt validation failed")
-
-        # Log the current working directory
-        current_working_dir = os.getcwd()
-        logger.debug(f"Current working directory: {current_working_dir}")
-
-        # Print directory listing
-        dir_listing = os.listdir(dataset_path)
-        logger.debug(f"Directory listing for {dataset_path}: {dir_listing}")
-
-        training_params = {
-            "data": yaml_path,
-            "epochs": epochs,
-            "batch_size": batch_size,
-            "learning_rate": learning_rate,
-            "imgsz": imgsz
-        }
-        result = model_control.train_model(model_id, training_params)
+        result = handle_training_request(model_control, model_id, epochs, batch_size, learning_rate, dataset_id, imgsz)
         return result
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except FileNotFoundError as fnf:
+        raise HTTPException(status_code=404, detail=str(fnf))
     except Exception as e:
         logger.error(f"Error during training: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

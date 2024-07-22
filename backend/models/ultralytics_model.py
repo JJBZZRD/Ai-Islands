@@ -3,14 +3,12 @@ from tempfile import TemporaryDirectory
 from ultralytics import YOLO
 from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH
 from backend.data_utils.json_handler import JSONHandler
-from backend.data_utils.obj_generator import create_obj_data
 from .base_model import BaseModel
 import logging
 import cv2
 import numpy as np
 import torch
 from backend.settings.settings import get_hardware_preference
-from backend.controlers.library_control import LibraryControl
 import shutil
 
 logger = logging.getLogger(__name__)
@@ -19,7 +17,7 @@ class UltralyticsModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.model = None
-        self.library_control = LibraryControl()
+        #self.library_control = LibraryControl()
     
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -93,17 +91,6 @@ class UltralyticsModel(BaseModel):
             return self.predict_video(request_payload["video_frame"])
         else:
             return {"error": "Invalid request payload"}
-    
-    """# process request should be merged into inference
-    def process_request(self, request_payload: dict):
-        print("runned yolo inference function")
-        if "image_path" in request_payload:
-            print("runned yolo inference")
-            return self.predict_image(request_payload["image_path"])
-        elif "video_frame" in request_payload:
-            return self.predict_video(request_payload["video_frame"])
-        else:
-            return {"error": "Invalid request payload"}"""
 
     def predict_image(self, image_path: str):
         try:
@@ -190,18 +177,14 @@ class UltralyticsModel(BaseModel):
             if not best_pt_path:
                 raise FileNotFoundError("best.pt file not found after training")
 
-            # Copy and rename the best.pt file
             suffix = self.get_next_suffix(self.model_id)
             trained_model_name = f"{self.model_id}_{suffix}.pt"
             trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
-            # Copy the best.pt file to the downloads folder
             shutil.copy(best_pt_path, trained_model_path)
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
-    
-            original_model_info = self.library_control.get_model_info_library(self.model_id)
-            
-            new_entry = {
+
+            new_model_info = {
                 "model_id": f"{self.model_id}_{suffix}",
                 "base_model": f"{self.model_id}_{suffix}",
                 "dir": os.path.dirname(trained_model_path),
@@ -212,17 +195,8 @@ class UltralyticsModel(BaseModel):
                     "batch_size": batch_size,
                     "learning_rate": learning_rate,
                     "imgsz": imgsz
-                },
-            # Retain additional fields from the original model
-            "is_online": original_model_info.get("is_online"),
-            "model_source": original_model_info.get("model_source"),
-            "model_class": original_model_info.get("model_class"),
-            "tags": original_model_info.get("tags"),
-            "dataset_format": original_model_info.get("dataset_format"),
-            "requirements": original_model_info.get("requirements"),
-            "auth_token": original_model_info.get("auth_token"),
+                }
             }
-            new_model_id = self.library_control.add_fine_tuned_model(new_entry)
 
             # Remove the extra pretrained model file
             pretrained_model_path = os.path.join(ROOT_DIR, f"{self.model_id}.pt")
@@ -235,8 +209,12 @@ class UltralyticsModel(BaseModel):
             if os.path.exists(runs_folder) and os.path.isdir(runs_folder):
                 shutil.rmtree(runs_folder)
                 logger.info(f"Deleted runs folder: {runs_folder}")
-    
-            return {"message": "Training completed successfully", "trained_model_path": trained_model_path, "new_model_id": new_model_id}
+
+            return {
+                "message": "Training completed successfully",
+                "trained_model_path": trained_model_path,
+                "new_model_info": new_model_info
+            }
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
             return {"error": str(e)}
