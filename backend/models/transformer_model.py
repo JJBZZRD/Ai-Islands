@@ -18,6 +18,7 @@ class TransformerModel(BaseModel):
         self.processor = None
         self.pipeline = None
         self.config = None
+        self.languages = None
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -29,7 +30,6 @@ class TransformerModel(BaseModel):
             requirements = model_info.get('requirements', {})
             required_classes = requirements.get('required_classes', {})
             requires_auth = requirements.get('requires_auth', False)
-            trust_remote_code = requirements.get('trust_remote_code', False)
             auth_token = model_info.get('auth_token', None)
             
             if requires_auth and not auth_token:
@@ -49,8 +49,7 @@ class TransformerModel(BaseModel):
                         model_id, 
                         cache_dir=model_dir, 
                         force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None, 
-                        trust_remote_code=trust_remote_code,
+                        use_auth_token=auth_token if requires_auth else None,
                         **model_config
                     )
                 elif class_type == "tokenizer":
@@ -58,8 +57,7 @@ class TransformerModel(BaseModel):
                         model_id, 
                         cache_dir=model_dir, 
                         force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None, 
-                        trust_remote_code=trust_remote_code,
+                        use_auth_token=auth_token if requires_auth else None,
                         **tokenizer_config
                     )
                 elif class_type == "processor":
@@ -68,8 +66,7 @@ class TransformerModel(BaseModel):
                         model_id, 
                         cache_dir=model_dir, 
                         force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None, 
-                        trust_remote_code=trust_remote_code,
+                        use_auth_token=auth_token if requires_auth else None,
                         **processor_config
                     )
             
@@ -98,14 +95,16 @@ class TransformerModel(BaseModel):
             
             requirements = model_info.get('requirements', {})
             required_classes = requirements.get('required_classes', {})
-            trust_remote_code = requirements.get('trust_remote_code', False)
             pipeline_tag = model_info.get('pipeline_tag')
             
             self.config = model_info.get('config', {})
             model_config = self.config.get('model_config', {})
             tokenizer_config = self.config.get('tokenizer_config', {})
             processor_config = self.config.get('processor_config', {})
-            pipeline_config = self.config.get('pipeline_config', {})
+            translation_config = self.config.get('translation_config', {})
+            
+            # for translation models to check if the languages are supported
+            self.languages = model_info.get('languages', {})
             
             for class_type, class_name in required_classes.items():
                 class_ = getattr(transformers, class_name)
@@ -116,7 +115,6 @@ class TransformerModel(BaseModel):
                         self.model_id,
                         cache_dir=model_dir,
                         local_files_only=True,
-                        trust_remote_code=trust_remote_code,
                         device_map='auto',
                         **model_config
                     )
@@ -128,7 +126,6 @@ class TransformerModel(BaseModel):
                         self.model_id,
                         cache_dir=model_dir,
                         local_files_only=True,
-                        trust_remote_code=trust_remote_code,
                         **tokenizer_config
                     )
                     if self.tokenizer is None:
@@ -139,27 +136,18 @@ class TransformerModel(BaseModel):
                         self.model_id,
                         cache_dir=model_dir,
                         local_files_only=True,
-                        trust_remote_code=trust_remote_code,
                         **processor_config
                     )
                     if self.processor is None:
                         raise ValueError(f"Failed to load processor: {self.model_id}")
+
+            # for those translation models that require pipeline task = "translation_XX_to_YY"
+            # it will set the pipeline task to be "translation_{src}_to_{tgt}"
+            if translation_config:
+                pipeline_tag = self._get_translation_pipeline_task(translation_config.get('src_lang'), translation_config.get('tgt_lang'))
             
-            if pipeline_tag:
-                logger.info(f"Creating pipeline with tag: {pipeline_tag}")
-                pipeline_args = {
-                    "task": pipeline_tag,
-                    "model": self.model,
-                    "tokenizer": self.tokenizer,
-                    "trust_remote_code": trust_remote_code
-                }
-                if self.processor:
-                    pipeline_args["processor"] = self.processor
-                
-                self.pipeline = transformers.pipeline(**pipeline_args, **pipeline_config)
-                if self.pipeline is None:
-                    raise ValueError(f"Failed to create pipeline for model: {self.model_id}")
-            
+            self.pipeline = self._construct_pipeline(pipeline_tag)
+            logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
             if self.model is not None:
                 logger.info(f"Model device: {self.model.device}")
@@ -170,16 +158,22 @@ class TransformerModel(BaseModel):
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
     
-    # This is a method to test model predict
-    # This method needs further modification to work with different types of models
     def inference(self, data: dict):
         try:
-            print(data["payload"])
-            print(self.pipeline)
-            output = self.pipeline(data["payload"])
-            print("output")
-            print(output)
+            # if the api request contains translation_config, it will set the pipeline task to be "translation_{src}_to_{tgt}"
+            if data.get("translation_config"):
+                pipeline_tag = self._get_translation_pipeline_task(data["translation_config"]["src_lang"], data["translation_config"]["tgt_lang"])
+                self.pipeline = self._construct_pipeline(pipeline_tag)
+            
+            pipeline_config = data.get("pipeline_config", {})
+            
+            print("data payload: ", data["payload"])
+            # call the pipeline with the payload and any extra pipeline_config provided in the request
+            output = self.pipeline(data["payload"], **pipeline_config)
             return output
+        except KeyError as e:
+            logger.error(f"{str(e)} has to be provided in the request data")
+            return {"error": f"{str(e)} has to be provided in the request data"}
         except Exception as e:
             logger.error(f"Error during inference: {str(e)}")
             return {"error": str(e)}
@@ -187,9 +181,28 @@ class TransformerModel(BaseModel):
     def configure(self, data: dict):
         pass
 
-
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
+    
+    def _construct_pipeline(self, pipeline_tag: str):
+        pipeline_args = {
+            "task": pipeline_tag,
+            "model": self.model,
+            "tokenizer": self.tokenizer
+        }
+        if self.processor:
+            pipeline_args["processor"] = self.processor
+        pipeline_config = self.config.get('pipeline_config', {})
+        return transformers.pipeline(**pipeline_args, **pipeline_config)
+    
+    def _get_translation_pipeline_task(self, src: str, tgt: str):
+        if self._is_languages_supported(src) and self._is_languages_supported(tgt):
+            return f"translation_{src}_to_{tgt}"
+        else:
+            raise ValueError(f"Translation pipeline not available for {src} to {tgt}")
+        
+    def _is_languages_supported(self, lang: str):
+        return lang in self.languages
         
     # def process_request(self, request_payload: dict):
     #     if self.pipeline:
