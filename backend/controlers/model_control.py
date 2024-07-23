@@ -50,6 +50,10 @@ class ModelControl:
             if req == "terminate":
                 conn.send("Terminating")
                 break
+            # the first if block is for backward compatibility
+            # i.e. if type(req) == str and req.startswith("predict:")
+            # pls remove this block after all models are updated
+            # pls keep the second if block (req["task"] == "inference":)
             if type(req) == str and req.startswith("predict:"):
                 payload = json.loads(req.split(":", 1)[1])
                 prediction = model.process_request(payload)
@@ -171,6 +175,10 @@ class ModelControl:
             return conn.recv()
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+        
+    def configure_model(self, model_id: str, config: dict):
+        active_model = self.get_active_model(model_id)
+        active_model['model'].configure(config)
     
     def train_model(self, train_request):
         try:
