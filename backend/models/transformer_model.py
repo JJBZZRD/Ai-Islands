@@ -7,6 +7,7 @@ from huggingface_hub import snapshot_download
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import DOWNLOADED_MODELS_PATH
 import importlib
+from accelerate import Accelerator
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class TransformerModel(BaseModel):
         self.processor = None
         self.pipeline = None
         self.config = None
+        self.device = None
         self.languages = None
 
     @staticmethod
@@ -103,6 +105,7 @@ class TransformerModel(BaseModel):
             processor_config = self.config.get('processor_config', {})
             translation_config = self.config.get('translation_config', {})
             
+            self.device = device
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             
@@ -115,7 +118,6 @@ class TransformerModel(BaseModel):
                         self.model_id,
                         cache_dir=model_dir,
                         local_files_only=True,
-                        device_map='auto',
                         **model_config
                     )
                     if self.model is None:
@@ -188,12 +190,18 @@ class TransformerModel(BaseModel):
         pipeline_args = {
             "task": pipeline_tag,
             "model": self.model,
-            "tokenizer": self.tokenizer
+            "tokenizer": self.tokenizer,
+            "device": self.device
         }
         if self.processor:
             pipeline_args["processor"] = self.processor
         pipeline_config = self.config.get('pipeline_config', {})
-        return transformers.pipeline(**pipeline_args, **pipeline_config)
+        
+        pipe = transformers.pipeline(**pipeline_args, **pipeline_config)
+        
+        accelerator = Accelerator()
+        
+        return accelerator.prepare(pipe)
     
     def _get_translation_pipeline_task(self, src: str, tgt: str):
         if self._is_languages_supported(src) and self._is_languages_supported(tgt):
