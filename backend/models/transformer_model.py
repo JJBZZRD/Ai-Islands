@@ -18,7 +18,7 @@ class TransformerModel(BaseModel):
         self.pipeline = None
         self.config = None
         self.device = None
-        self.languages = None
+        self.languages = {}
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -37,38 +37,27 @@ class TransformerModel(BaseModel):
                 return None
 
             config = model_info.get('config', {})
-            model_config = config.get('model_config', {})
-            tokenizer_config = config.get('tokenizer_config', {})
-            processor_config = config.get('processor_config', {})
 
+            # for loop to download all the required classes
+            # exmaple: class_type = "model", class_name = "AutoModelForSeq2SeqLM"
             for class_type, class_name in required_classes.items():
-                if class_type == "model":
-                    module = importlib.import_module('transformers')
-                    ModelClass = getattr(module, class_name)
-                    ModelClass.from_pretrained(
-                        model_id, 
-                        cache_dir=model_dir, 
-                        force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None,
-                        **model_config
-                    )
-                elif class_type == "tokenizer":
-                    transformers.AutoTokenizer.from_pretrained(
-                        model_id, 
-                        cache_dir=model_dir, 
-                        force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None,
-                        **tokenizer_config
-                    )
-                elif class_type == "processor":
-                    ProcessorClass = getattr(transformers, class_name)
-                    ProcessorClass.from_pretrained(
-                        model_id, 
-                        cache_dir=model_dir, 
-                        force_download=True, 
-                        use_auth_token=auth_token if requires_auth else None,
-                        **processor_config
-                    )
+            
+                print("class_type: ", class_type)
+                print("class_name: ", class_name)
+                
+                # dynamically import the class from transformers library, ex: AutoModelForSeq2SeqLM
+                class_ = getattr(transformers, class_name)
+                
+                # read the corresponding config for the class_type
+                # ex: obj_config = model_config/pipeline_config
+                obj_config = config.get(f'{class_type}_config', {})
+                
+                # download the class object from huggingface transformers library
+                obj = class_.from_pretrained(
+                    model_id,
+                    cache_dir=model_dir,
+                    **obj_config
+                )
             
             if requires_auth:
                 config['auth_token'] = auth_token
@@ -95,33 +84,42 @@ class TransformerModel(BaseModel):
             
             requirements = model_info.get('requirements', {})
             required_classes = requirements.get('required_classes', {})
+            
             pipeline_tag = model_info.get('pipeline_tag')
             
             self.config = model_info.get('config', {})
             translation_config = self.config.get('translation_config', {})
+            
             
             if self.config.get("device_config", {}).get("device"):
                 self.device = self.config["device_config"]["device"]
             else:
                 self.device = device
             print("using device: ", self.device)
+            
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             
+            # for loop to load all the required classes
             for class_type, class_name in required_classes.items():
                 
                 print("class_type: ", class_type)
                 print("class_name: ", class_name)
                 
+                # dynamically import the class from transformers library
                 class_ = getattr(transformers, class_name)
                 
+                # read the corresponding config for the class_type
                 obj_config = self.config.get(f'{class_type}_config', {})
+                # load the class object from the local model directory
                 obj = class_.from_pretrained(
                     self.model_id,
                     cache_dir=model_dir,
                     local_files_only=True,
                     **obj_config
                 )
+                
+                # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
                 logger.info(f"created {class_type} object: {obj}")
 
@@ -133,11 +131,6 @@ class TransformerModel(BaseModel):
             self.pipeline = self._construct_pipeline(pipeline_tag)
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
-            # if self.model is not None:
-            #     logger.info(f"Model device: {self.model.device}")
-            #     logger.info(f"Model dtype: {self.model.dtype}")
-            # else:
-            #     logger.warning("Model is None, unable to log device and dtype information")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
@@ -171,7 +164,7 @@ class TransformerModel(BaseModel):
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
         print("pipeline_args: ", self.pipeline_args)
-        pipe = transformers.pipeline(pipeline_tag, device=self.device, **self.pipeline_args, **pipeline_config)
+        pipe = transformers.pipeline(task=pipeline_tag, device=self.device, **self.pipeline_args, **pipeline_config)
         accelerator = Accelerator()
         
         return accelerator.prepare(pipe)
