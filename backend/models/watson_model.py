@@ -7,22 +7,26 @@ from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService
 from ibm_watsonx_ai.foundation_models import ModelInference
 from ibm_watsonx_ai.foundation_models.utils.enums import DecodingMethods
 from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
+from langchain_ibm import WatsonxEmbeddings
+from ibm_watsonx_ai.foundation_models.utils.enums import EmbeddingTypes
+from backend.utils.dataset_utility import DatasetManagement
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 LIBRARY_PATH = "data/library.json"
-
-
 
 class WatsonModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.project_id = None
-        self.model = None
+        self.config = None
         self.auth = Authentication()
         self.resource_service = ResourceService()
         self.account_info = AccountInfo()
         self.model_inference = None
+        self.embeddings = None
+        self.is_loaded = False
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -46,7 +50,6 @@ class WatsonModel(BaseModel):
                 'watson_machine_learning': False
             }
             
-            # ... in the download method:
             for resource in resources:
                 resource_name = resource['name']
                 if check_service(resource_name, 'cloud object storage'):
@@ -74,13 +77,27 @@ class WatsonModel(BaseModel):
             # Create the new entry for library.json
             logger.info(f"Creating library entry for Watson model {model_id}")
 
-            system_prompt = """You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response."""
             new_entry = model_info.copy()
             new_entry.update({
                 "base_model": model_id,
                 "dir": model_dir,
                 "is_customised": False,
-                "config": {
+            })
+
+            # Add specific configuration based on model type
+            if model_id in ["ibm/slate-30m-english-rtrvr", "ibm/slate-125m-english-rtrvr", 
+                            "sentence-transformers/all-minilm-l12-v2", "intfloat/multilingual-e5-large"]:
+                # Configuration for embedding models
+                new_entry["config"] = {
+                    "project_id": "",  # This will be set later when the user selects a project
+                    "embedding_dimensions": model_info.get("embedding_dimensions"),
+                    "max_input_tokens": model_info.get("max_input_tokens"),
+                    "supported_languages": model_info.get("supported_languages", []),
+                }
+            else:
+                # Configuration for non-embedding models (existing configuration)
+                system_prompt = """You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response."""
+                new_entry["config"] = {
                     "project_id": "",  # This will be set later when the user selects a project
                     "prompt": {
                         "system_prompt": system_prompt,
@@ -94,14 +111,14 @@ class WatsonModel(BaseModel):
                         "min_new_tokens": 1,
                         "repetition_penalty": 1.0,
                         "random_seed": 42,
-                        "stop_sequences": [],
+                        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"],
                     },
                     "rag_settings": {
                         "use_dataset": False,
-                        "dataset_name": None
+                        "dataset_name": None,
+                        "similarity_threshold": 0.5
                     }
                 }
-            })
 
             logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
             return new_entry
@@ -126,7 +143,7 @@ class WatsonModel(BaseModel):
         self.project_id = selected_project["id"]
         logger.info(f"Selected project: {selected_project['name']} (ID: {self.project_id})")
 
-        # Update the library with the selected project_id
+        # Update the library and the instance config
         with open(LIBRARY_PATH, "r") as file:
             library = json.load(file)
         model_info = library.get(self.model_id, {})
@@ -135,6 +152,9 @@ class WatsonModel(BaseModel):
         with open(LIBRARY_PATH, "w") as file:
             json.dump(library, file, indent=4)
 
+        # Update the instance config
+        self.config = model_info.get('config', {})
+
         return True
 
     def load(self, device: str, model_info: dict):
@@ -142,122 +162,173 @@ class WatsonModel(BaseModel):
             # Validate API key
             api_key = os.getenv("IBM_CLOUD_API_KEY")
             if not api_key:
-                logger.error("IBM_CLOUD_API_KEY not found in environment variables")
-                return False
+                raise ValueError("IBM_CLOUD_API_KEY not found in environment variables")
 
-            valid = self.auth._validate_api_key(api_key)
-            if not valid:
-                logger.error("Invalid IBM Cloud API key")
-                return False
+            # Validate API key using the Authentication class
+            if not self.auth._validate_api_key(api_key):
+                raise ValueError("Invalid IBM_CLOUD_API_KEY")
 
-            self.project_id = model_info.get("config", {}).get("project_id")
+            # Get the URL from environment variable
+            url = os.getenv("IBM_CLOUD_MODELS_URL")
+            if not url:
+                raise ValueError("IBM_CLOUD_MODELS_URL not found in environment variables")
+
+            self.config = model_info.get("config", {})
+            self.project_id = self.config.get("project_id")
             
-            # # Load model info from library
-            # with open(LIBRARY_PATH, "r") as file:
-            #     library = json.load(file)
-            #     model_info = library.get(self.model_id, {})
-            #     self.project_id = model_info.get("config", {}).get("project_id")
-
             if not self.project_id:
                 if not self.select_project():
-                    return False
+                    raise ValueError("Failed to select a project")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
+            logger.info(f"Using project ID: {self.project_id}")
 
-            # Set model ID, project ID, and credentials which are used to authenticate the model using api key and model URL
-            self.model_inference = ModelInference(
-                model_id=self.model_id,
-                credentials=self.account_info.credentials,
-                project_id=self.project_id
-            )
+            # Check if it's an embedding model
+            if self.model_id in ["ibm/slate-30m-english-rtrvr", "ibm/slate-125m-english-rtrvr", 
+                                 "sentence-transformers/all-minilm-l12-v2", "intfloat/multilingual-e5-large"]:
+                embedding_type = self._get_embedding_type(self.model_id)
+                logger.info(f"Initializing embedding model with type: {embedding_type}")
+                
+                self.embeddings = WatsonxEmbeddings(
+                    model_id=embedding_type,
+                    url=url,
+                    apikey=api_key,
+                    project_id=self.project_id
+                )
+                logger.info(f"Connected to Watson embedding model {self.model_id}")
+                logger.info(f"Embedding dimensions: {self.config.get('embedding_dimensions')}")
+                logger.info(f"Max input tokens: {self.config.get('max_input_tokens')}")
+                self.is_loaded = True
+            else:
+                self.model_inference = ModelInference(
+                    model_id=self.model_id,
+                    credentials=self.account_info.credentials,
+                    project_id=self.project_id
+                )
+                logger.info(f"Connected to Watson WML model {self.model_id}")
+                logger.info(f"Model parameters: {self.config.get('parameters')}")
+                self.is_loaded = True
 
-            logger.info(f"Connected to Watson WML model {self.model_id}")
             return True
+        except AttributeError as e:
+            logger.error(f"AttributeError while loading model {self.model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            self.is_loaded = False
+            return False
         except Exception as e:
             logger.error(f"Error loading model {self.model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            self.is_loaded = False
             return False
 
+    def _get_embedding_type(self, model_id):
+        embedding_types = {
+            "ibm/slate-30m-english-rtrvr": EmbeddingTypes.IBM_SLATE_30M_ENG.value,
+            "ibm/slate-125m-english-rtrvr": EmbeddingTypes.IBM_SLATE_125M_ENG.value,
+            "sentence-transformers/all-minilm-l12-v2": "sentence-transformers/all-minilm-l12-v2",
+            "intfloat/multilingual-e5-large": "intfloat/multilingual-e5-large"
+        }
+        return embedding_types.get(model_id, EmbeddingTypes.IBM_SLATE_30M_ENG.value)
+
     def inference(self, data: dict):
+        if not self.is_loaded:
+            logger.error(f"Model {self.model_id} not initialized. Please call load() before inference.")
+            return {"error": "Model not initialized. Please call load() before inference."}
+
         try:
-            logger.info(f"Starting inference with data: {data}")
-            payload = data.get("payload", "")
-            if not payload:
-                logger.error("No payload found in the input data")
-                return {"error": "No payload found in the input data"}
-            
-            logger.info(f"Extracted payload: {payload}")
-
-            with open(LIBRARY_PATH, "r") as file:
-                library = json.load(file)
-                model_info = library.get(self.model_id, {})
-                config = model_info.get("config", {})
+            if self.embeddings:
+                # We can change this to accept multiple inputs, and give multiple outputs - for analytics
+                text = data.get('payload', '')
+                if not text:
+                    raise ValueError("Text is required for embedding generation")
+                embedding = self.embeddings.embed_query(text)
+                return {"embedding": embedding, "dimensions": len(embedding)}
+            elif self.model_inference:
+                logger.info(f"Starting inference with data: {data}")
+                payload = data.get("payload", "")
+                if not payload:
+                    logger.error("No payload found in the input data")
+                    return {"error": "No payload found in the input data"}
                 
-                prompt_info = config.get("prompt", {})
-                parameters = config.get("parameters", {})
-                rag_settings = config.get("rag_settings", {})
+                logger.info(f"Extracted payload: {payload}")
 
-            full_prompt = ""
-            if prompt_info.get("system_prompt"):
-                full_prompt += f"{prompt_info['system_prompt']}\n\n"
-            if prompt_info.get("example_conversation"):
-                full_prompt += f"{prompt_info['example_conversation']}\n\n"
-            
-            if rag_settings.get("use_dataset"):
-                dataset_name = rag_settings.get("dataset_name")
-                # Implement dataset retrieval logic here
-                # relevant_entries = dataset_management.find_relevant_entries(text, dataset_name)
-                # if relevant_entries:
-                #     full_prompt += "Relevant information:\n"
-                #     for entry in relevant_entries:
-                #         full_prompt += f"- {entry}\n"
-                #     full_prompt += "\n"
-            
-            full_prompt += f"Human: {payload}\n\nAI:"
-            
-            params = {
-                GenParams.DECODING_METHOD: DecodingMethods.SAMPLE,
-                GenParams.TEMPERATURE: parameters.get("temperature"),
-                GenParams.TOP_K: parameters.get("top_k"),
-                GenParams.TOP_P: parameters.get("top_p"),
-                GenParams.MAX_NEW_TOKENS: parameters.get("max_new_tokens"),
-                GenParams.MIN_NEW_TOKENS: parameters.get("min_new_tokens"),
-                GenParams.REPETITION_PENALTY: parameters.get("repetition_penalty"),
-                GenParams.RANDOM_SEED: parameters.get("random_seed"),
-                GenParams.STOP_SEQUENCES: parameters.get("stop_sequences")
-            }
-            
-            logger.info(f"Sending prompt to model: {full_prompt}")
-            logger.info(f"Using parameters: {params}")
-            
-            result = self.model_inference.generate_text(prompt=full_prompt, params=params)
-            
-            for stop_seq in parameters.get("stop_sequences", []):
-                if stop_seq in result:
-                    result = result.split(stop_seq)[0]
-            
-            final_result = {"result": result.strip()}
-            logger.info(f"Final result: {final_result}")
-            return final_result
+                prompt_info = self.config.get("prompt", {})
+                parameters = self.config.get("parameters", {})
+                rag_settings = self.config.get("rag_settings", {})
 
+                logger.info(f"Prompt info: {prompt_info}")
+                logger.info(f"Parameters: {parameters}")
+                logger.info(f"RAG settings: {rag_settings}")
+
+                full_prompt = ""
+                if prompt_info.get("system_prompt"):
+                    full_prompt += f"{prompt_info['system_prompt']}\n\n"
+                    logger.info(f"Added system prompt: {prompt_info['system_prompt']}")
+                if prompt_info.get("example_conversation"):
+                    full_prompt += f"{prompt_info['example_conversation']}\n\n"
+                    logger.info(f"Added example conversation: {prompt_info['example_conversation']}")
+                
+                if rag_settings.get("use_dataset"):
+                    logger.info("RAG is enabled, attempting to find relevant entries")
+                    dataset_name = rag_settings.get("dataset_name")
+                    similarity_threshold = rag_settings.get("similarity_threshold", 0.5)
+                    if dataset_name:
+                        logger.info(f"Using dataset: {dataset_name}")
+                        dataset_management = DatasetManagement()
+                        relevant_entries = dataset_management.find_relevant_entries(payload, dataset_name, similarity_threshold)
+                        if relevant_entries:
+                            logger.info(f"Found {len(relevant_entries)} relevant entries")
+                            full_prompt += "Relevant information:\n"
+                            for entry in relevant_entries:
+                                full_prompt += f"- {entry}\n"
+                            full_prompt += "\n"
+                            logger.info(f"Added relevant entries to prompt: {relevant_entries}")
+                        else:
+                            logger.info("No relevant entries found")
+                    else:
+                        logger.warning("RAG is enabled but no dataset name provided")
+                else:
+                    logger.info("RAG is not enabled")
+                
+                full_prompt += f"Human: {payload}\n\nAI:"
+                logger.info(f"Final full prompt: {full_prompt}")
+                
+                params = {
+                    GenParams.DECODING_METHOD: DecodingMethods.SAMPLE,
+                    GenParams.TEMPERATURE: parameters.get("temperature"),
+                    GenParams.TOP_K: parameters.get("top_k"),
+                    GenParams.TOP_P: parameters.get("top_p"),
+                    GenParams.MAX_NEW_TOKENS: parameters.get("max_new_tokens"),
+                    GenParams.MIN_NEW_TOKENS: parameters.get("min_new_tokens"),
+                    GenParams.REPETITION_PENALTY: parameters.get("repetition_penalty"),
+                    GenParams.RANDOM_SEED: parameters.get("random_seed"),
+                    GenParams.STOP_SEQUENCES: parameters.get("stop_sequences")
+                }
+                
+                logger.info(f"Using parameters: {params}")
+                
+                result = self.model_inference.generate_text(prompt=full_prompt, params=params)
+                logger.info(f"Raw result from model: {result}")
+                
+                for stop_seq in parameters.get("stop_sequences", []):
+                    if stop_seq in result:
+                        result = result.split(stop_seq)[0]
+                        logger.info(f"Applied stop sequence: {stop_seq}")
+                
+                final_result = {"result": result.strip()}
+                logger.info(f"Final result: {final_result}")
+                return final_result
+            else:
+                raise ValueError("Neither embeddings nor model_inference is initialized.")
         except Exception as e:
             logger.error(f"Error during inference: {e}", exc_info=True)
             return {"error": str(e)}
 
     def process_request(self, payload: dict):
-        # Implement the logic to process a prediction request
-        logger.info(f"Processing request with payload: {json.dumps(payload)}")
-        # ... prediction logic ...
-        prediction = {"result": "prediction"}  # Placeholder for the actual prediction result
-        return prediction
+        return self.inference(payload)
 
     def predict(self, text: str):
-        # Implement the logic for sentiment prediction
-        logger.info(f"Predicting sentiment for text: {text}")
-        # ... sentiment prediction logic ...
-        sentiment = {"sentiment": "positive"}  # Placeholder for the actual sentiment result
-        return sentiment
-
-
+        return self.inference({"payload": text})
 
 # ------------- LOCAL METHODS -------------
 
