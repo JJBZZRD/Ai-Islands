@@ -37,7 +37,7 @@ class LLMApp:
         self.tokenizer = None
         self.chat_history = []
         self.use_history = BooleanVar(value=False)
-        self.accelerator = Accelerator()
+        self.accelerator = Accelerator(device_placement=True, mixed_precision='fp16')
 
         # Update RAG components
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -216,19 +216,20 @@ Remember, your role is to assist and inform, not to make decisions for the user.
                 trust_remote_code=True
             )
 
+            device = "cuda" if torch.cuda.is_available() else "cpu"
             self.pipeline = pipeline(
                 "text-generation",
                 model=self.model_id,
                 tokenizer=self.tokenizer,
                 torch_dtype=torch.bfloat16,
-                device_map="auto",
                 trust_remote_code=True,
-                model_kwargs={"cache_dir": self.model_dir, "local_files_only": True}
+                model_kwargs={"cache_dir": self.model_dir, "local_files_only": True},
+                device=device  # Explicitly set the device
             )
 
             self.pipeline = self.accelerator.prepare(self.pipeline)
 
-            self.status_label.config(text="Model loaded successfully")
+            self.status_label.config(text=f"Model loaded successfully on {device}")
             self.load_button.config(state=tk.DISABLED)
         except Exception as e:
             self.status_label.config(text="Error loading model")
