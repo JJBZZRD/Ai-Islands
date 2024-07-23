@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 class TransformerModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
-        self.model = None
-        self.tokenizer = None
-        self.processor = None
+        self.pipeline_args = {}
         self.pipeline = None
         self.config = None
         self.device = None
@@ -100,12 +98,9 @@ class TransformerModel(BaseModel):
             pipeline_tag = model_info.get('pipeline_tag')
             
             self.config = model_info.get('config', {})
-            model_config = self.config.get('model_config', {})
-            tokenizer_config = self.config.get('tokenizer_config', {})
-            processor_config = self.config.get('processor_config', {})
             translation_config = self.config.get('translation_config', {})
             
-            if self.config.get("device_config").get("device"):
+            if self.config.get("device_config", {}).get("device"):
                 self.device = self.config["device_config"]["device"]
             else:
                 self.device = device
@@ -114,38 +109,21 @@ class TransformerModel(BaseModel):
             self.languages = model_info.get('languages', {})
             
             for class_type, class_name in required_classes.items():
+                
+                print("class_type: ", class_type)
+                print("class_name: ", class_name)
+                
                 class_ = getattr(transformers, class_name)
                 
-                if class_type == "model":
-                    logger.info(f"Loading model with {class_name}")
-                    self.model = class_.from_pretrained(
-                        self.model_id,
-                        cache_dir=model_dir,
-                        local_files_only=True,
-                        **model_config
-                    )
-                    if self.model is None:
-                        raise ValueError(f"Failed to load model: {self.model_id}")
-                elif class_type == "tokenizer":
-                    logger.info(f"Loading tokenizer with {class_name}")
-                    self.tokenizer = class_.from_pretrained(
-                        self.model_id,
-                        cache_dir=model_dir,
-                        local_files_only=True,
-                        **tokenizer_config
-                    )
-                    if self.tokenizer is None:
-                        raise ValueError(f"Failed to load tokenizer: {self.model_id}")
-                elif class_type == "processor":
-                    logger.info(f"Loading processor with {class_name}")
-                    self.processor = class_.from_pretrained(
-                        self.model_id,
-                        cache_dir=model_dir,
-                        local_files_only=True,
-                        **processor_config
-                    )
-                    if self.processor is None:
-                        raise ValueError(f"Failed to load processor: {self.model_id}")
+                obj_config = self.config.get(f'{class_type}_config', {})
+                obj = class_.from_pretrained(
+                    self.model_id,
+                    cache_dir=model_dir,
+                    local_files_only=True,
+                    **obj_config
+                )
+                self.pipeline_args.update({class_type: obj})
+                logger.info(f"created {class_type} object: {obj}")
 
             # for those translation models that require pipeline task = "translation_XX_to_YY"
             # it will set the pipeline task to be "translation_{src}_to_{tgt}"
@@ -155,11 +133,11 @@ class TransformerModel(BaseModel):
             self.pipeline = self._construct_pipeline(pipeline_tag)
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
-            if self.model is not None:
-                logger.info(f"Model device: {self.model.device}")
-                logger.info(f"Model dtype: {self.model.dtype}")
-            else:
-                logger.warning("Model is None, unable to log device and dtype information")
+            # if self.model is not None:
+            #     logger.info(f"Model device: {self.model.device}")
+            #     logger.info(f"Model dtype: {self.model.dtype}")
+            # else:
+            #     logger.warning("Model is None, unable to log device and dtype information")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
@@ -191,18 +169,9 @@ class TransformerModel(BaseModel):
         logger.warning("Training method not implemented for TransformerModel")
     
     def _construct_pipeline(self, pipeline_tag: str):
-        pipeline_args = {
-            "task": pipeline_tag,
-            "model": self.model,
-            "tokenizer": self.tokenizer,
-            "device": self.device
-        }
-        if self.processor:
-            pipeline_args["processor"] = self.processor
         pipeline_config = self.config.get('pipeline_config', {})
-        
-        pipe = transformers.pipeline(**pipeline_args, **pipeline_config)
-        
+        print("pipeline_args: ", self.pipeline_args)
+        pipe = transformers.pipeline(pipeline_tag, device=self.device, **self.pipeline_args, **pipeline_config)
         accelerator = Accelerator()
         
         return accelerator.prepare(pipe)

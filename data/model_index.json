@@ -245,6 +245,25 @@
       "pipeline_config": {}
     }
   },
+  "facebook/detr-resnet-50-panoptic": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+        "tagss........"
+    ],
+    "pipeline_tag": "image-segmentation",
+    "model_card_url": "https://huggingface.co/facebook/detr-resnet-50-panoptic",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForImageSegmentation",
+        "image_processor": "AutoImageProcessor"
+      },
+      "required_packages": ["timm", "pillow"]
+    },
+    "config": {},
+    "model_desc": "description......."
+  },
   "codellama/codellama-34b-instruct-hf": {
     "is_online": true,
     "model_source": "IBM",
