@@ -105,7 +105,11 @@ class TransformerModel(BaseModel):
             processor_config = self.config.get('processor_config', {})
             translation_config = self.config.get('translation_config', {})
             
-            self.device = device
+            if self.config.get("device_config").get("device"):
+                self.device = self.config["device_config"]["device"]
+            else:
+                self.device = device
+            print("using device: ", self.device)
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             

@@ -49,6 +49,9 @@
         "temperature": 1.0,
         "repetition_penalty": 1.0,
         "no_repeat_ngram_size": 0
+      },
+      "device_config": {
+          "device": "cpu"
       }
     }
   },
