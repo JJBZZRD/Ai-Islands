@@ -25,8 +25,8 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/openai-community/gpt2",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       }
@@ -41,8 +41,8 @@
     ],
     "pipeline_tag": "sentiment-analysis",
     "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForSequenceClassification",
         "tokenizer": "AutoTokenizer"
       }
@@ -64,7 +64,13 @@
       "region:us"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+    "dataset_format": "yolo",
+    "requirements": {
+      "required_classes": {
+        "model": "YOLO"
+      }
+    }
   },
   "yolov8s": {
     "is_online": false,
@@ -81,7 +87,13 @@
       "license:agpl-3.0"
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov8/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+    "dataset_format": "yolo",
+    "requirements": {
+      "required_classes": {
+        "model": "YOLO"
+      }
+    }
   },
   "yolov10n": {
     "is_online": false,
@@ -97,7 +109,13 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+    "dataset_format": "yolo",
+    "requirements": {
+      "required_classes": {
+        "model": "YOLO"
+      }
+    }
   },
   "yolov10s": {
     "is_online": false,
@@ -113,9 +131,41 @@
       "en",
       "license:agpl-3.0"
     ],
-    "model_detail": "https://docs.ultralytics.com/models/yolov10/"
+    "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+    "dataset_format": "yolo",
+    "requirements": {
+      "required_classes": {
+        "model": "YOLO"
+      }
+    }
   },
-  "google/owlvit-base-patch32" : {
+  "facebook/detr-resnet-50-panoptic": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "vision",
+      "object-detection",
+      "instance-segmentation",
+      "panoptic-segmentation",
+      "detr",
+      "en",
+      "license:apache-2.0"
+    ],
+    "pipeline_tag": "object-detection",
+    "model_card_url": "https://huggingface.co/facebook/detr-resnet-50-panoptic",
+    "requirements": {
+      "required_classes": {
+        "model": "DetrForSegmentation",
+        "processor": "DetrFeatureExtractor"
+      }
+    },
+    "model_desc": "DETR (DEtection TRansformer) is an object detection model that uses a transformer-based architecture. This specific model is trained for panoptic segmentation, which combines both instance segmentation and semantic segmentation.",
+    "model_detail": "https://github.com/facebookresearch/detr"
+  },
+  "google/owlvit-base-patch32": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
@@ -131,8 +181,8 @@
     ],
     "pipeline_tag": "object-detection",
     "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "OwlViTForObjectDetection",
         "processor": "OwlViTProcessor"
       }
@@ -157,8 +207,8 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       },
@@ -182,8 +232,8 @@
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/nomic-ai/gpt4all-j",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       }
@@ -212,8 +262,8 @@
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct",
     "model_desc": "Meta-Llama-3-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
-    "requirements":{
-      "required_classes":{
+    "requirements": {
+      "required_classes": {
         "model": "AutoModelForCausalLM",
         "tokenizer": "AutoTokenizer"
       },
