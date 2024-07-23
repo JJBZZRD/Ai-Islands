@@ -42,6 +42,14 @@ class TrainRequest(BaseModel):
                         description="Example: Training parameters and dataset path"
                     )]
 
+class ConfigureRequest(BaseModel):
+    model_id: str
+    data: Annotated[dict | None, 
+                    Field(
+                        title="Data to be used for configuring", 
+                        description="Example: Configuration parameters"
+                    )]
+
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
     try:
@@ -168,6 +176,13 @@ async def inference(inferenceRequest: InferenceRequest):
 async def train_model(trainRequest: TrainRequest):
     try:
         return model_control.train_model(jsonable_encoder(trainRequest))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/configure")
+async def configure_model(configureRequest: ConfigureRequest):
+    try:
+        return model_control.configure_model(jsonable_encoder(configureRequest))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
