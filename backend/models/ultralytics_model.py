@@ -1,7 +1,8 @@
 import os
 from tempfile import TemporaryDirectory
 from ultralytics import YOLO
-from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH
+from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH, UPLOAD_DATASET_DIR
+from backend.data_utils.file_utils import verify_file
 from backend.data_utils.json_handler import JSONHandler
 from .base_model import BaseModel
 import logging
@@ -147,11 +148,13 @@ class UltralyticsModel(BaseModel):
             print(f"Error predicting video frame: {str(e)}")
             return {"error": str(e)}
 
-    def train(self, training_params: dict):
+    def train(self, data):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
 
+            training_params = self._handle_training_request(data)
+            
             data_path = training_params['data']
             epochs = training_params.get('epochs', 10)
             batch_size = training_params.get('batch_size', 16)
@@ -225,3 +228,57 @@ class UltralyticsModel(BaseModel):
         while f"{base_model_id}_{i}" in library:
             i += 1
         return i
+
+    def _handle_training_request(self, data):
+        epochs = data['epochs']
+        batch_size = data['batch_size']
+        learning_rate = data['learning_rate']
+        dataset_id = data['dataset_id']
+        imgsz = data['imgsz']
+        
+        try:
+            if epochs <= 0 or batch_size <= 0 or learning_rate <= 0:
+                raise ValueError("Invalid training parameters")
+
+            dataset_path = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
+            if not os.path.exists(dataset_path):
+                raise FileNotFoundError("Dataset not found")
+
+            yaml_path = os.path.join(dataset_path, f"{dataset_id}.yaml")
+            if not os.path.exists(yaml_path):
+                raise FileNotFoundError("YAML configuration file not found")
+
+            train_txt_path = os.path.abspath(os.path.join(dataset_path, 'train.txt'))
+            val_txt_path = os.path.abspath(os.path.join(dataset_path, 'val.txt'))
+
+            # Log paths and YAML contents
+            logger.debug(f"YAML Path: {yaml_path}")
+            with open(yaml_path, 'r') as f:
+                yaml_contents = f.read()
+            logger.debug(f"YAML Contents: {yaml_contents}")
+            
+            # Log existence of train.txt and val.txt using absolute paths
+            logger.debug(f"Checking paths: train.txt -> {train_txt_path}, val.txt -> {val_txt_path}")
+            
+            if not verify_file(train_txt_path) or not verify_file(val_txt_path):
+                raise ValueError("train.txt or val.txt validation failed")
+
+            # Log the current working directory
+            current_working_dir = os.getcwd()
+            logger.debug(f"Current working directory: {current_working_dir}")
+
+            # Print directory listing
+            dir_listing = os.listdir(dataset_path)
+            logger.debug(f"Directory listing for {dataset_path}: {dir_listing}")
+
+            training_params = {
+                "data": yaml_path,
+                "epochs": epochs,
+                "batch_size": batch_size,
+                "learning_rate": learning_rate,
+                "imgsz": imgsz
+            }
+            return training_params
+        except Exception as e:
+            logger.error(f"Error during training: {str(e)}")
+            raise

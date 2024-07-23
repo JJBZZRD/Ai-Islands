@@ -34,6 +34,14 @@ class InferenceRequest(BaseModel):
                         description="Example: For sentiment analysis, it will be a sentence. For image classification, it will be an image path"
                     )]
 
+class TrainRequest(BaseModel):
+    model_id: str
+    data: Annotated[dict | None, 
+                    Field(
+                        title="Data to be used for training", 
+                        description="Example: Training parameters and dataset path"
+                    )]
+
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
     try:
@@ -155,25 +163,33 @@ async def inference(inferenceRequest: InferenceRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/train")
-async def train_model(
-    model_id: str = Query(...), 
-    epochs: int = Body(...), 
-    batch_size: int = Body(...), 
-    learning_rate: float = Body(...), 
-    dataset_id: str = Body(...),
-    imgsz: int = Body(640)
-):
+async def train_model(trainRequest: TrainRequest):
     try:
-        result = handle_training_request(model_control, model_id, epochs, batch_size, learning_rate, dataset_id, imgsz)
-        return result
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except FileNotFoundError as fnf:
-        raise HTTPException(status_code=404, detail=str(fnf))
+        return model_control.train_model(jsonable_encoder(trainRequest))
     except Exception as e:
-        logger.error(f"Error during training: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# @router.post("/train")
+# async def train_model(
+#     model_id: str = Query(...), 
+#     epochs: int = Body(...), 
+#     batch_size: int = Body(...), 
+#     learning_rate: float = Body(...), 
+#     dataset_id: str = Body(...),
+#     imgsz: int = Body(640)
+# ):
+#     try:
+#         result = handle_training_request(model_control, model_id, epochs, batch_size, learning_rate, dataset_id, imgsz)
+#         return result
+#     except ValueError as ve:
+#         raise HTTPException(status_code=400, detail=str(ve))
+#     except FileNotFoundError as fnf:
+#         raise HTTPException(status_code=404, detail=str(fnf))
+#     except Exception as e:
+#         logger.error(f"Error during training: {str(e)}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 # Creating a web socket connection for real-time video and live webcam processing
 # It will receives video frames as bytes, process it using the model and sends results back to user

@@ -161,8 +161,9 @@ class ModelControl:
     def inference(self, inference_request):
         try:
             print(inference_request)
+            model_id = inference_request['model_id']
             inference_request = inference_request
-            active_model = self.get_active_model(inference_request['model_id'])
+            active_model = self.get_active_model(model_id)
             conn = active_model['conn']
             req = inference_request
             req['task'] = "inference"
@@ -171,35 +172,69 @@ class ModelControl:
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
     
-    def train_model(self, model_id: str, training_params: dict):
-        active_model = self.get_active_model(model_id)
-        if not active_model:
-            raise ValueError(f"Model {model_id} is not loaded")
-        
-        conn = active_model['conn']
-        conn.send({"task": "train", "data": training_params})
-        result = conn.recv()
-
-        if "error" not in result:
-            new_model_info = result["new_model_info"]
-            new_model_id = new_model_info["model_id"]
+    def train_model(self, train_request):
+        try:
+            print(train_request)
+            model_id = train_request['model_id']
+            train_request = train_request
+            active_model = self.get_active_model(model_id)
+            conn = active_model['conn']
+            req = train_request
+            req['task'] = "train"
+            conn.send(req)
+            result = conn.recv()
             
-            # Get the original model info
-            original_model_info = self.library_control.get_model_info_library(model_id)
+            if "error" not in result:
+                new_model_info = result["new_model_info"]
+                new_model_id = new_model_info["model_id"]
             
-            # Create a new entry by copying the original model info and updating with new info
-            updated_model_info = original_model_info.copy()
-            updated_model_info.update(new_model_info)
+                # Get the original model info
+                original_model_info = self.library_control.get_model_info_library(model_id)
             
-            # Ensure that these fields are correctly set for the new model
-            updated_model_info["is_customised"] = True
-            updated_model_info["base_model"] = new_model_id  
+                # Create a new entry by copying the original model info and updating with new info
+                updated_model_info = original_model_info.copy()
+                updated_model_info.update(new_model_info)
             
-            # Add the new model to the library
-            self.library_control.add_fine_tuned_model(updated_model_info)
-            logger.info(f"New fine-tuned model {new_model_id} added to library")
+                # Ensure that these fields are correctly set for the new model
+                updated_model_info["is_customised"] = True
+                updated_model_info["base_model"] = new_model_id  
+            
+                # Add the new model to the library
+                self.library_control.add_fine_tuned_model(updated_model_info)
+                logger.info(f"New fine-tuned model {new_model_id} added to library")
+            return result
+        except KeyError:
+            return {"error": f"Model {train_request['model_id']} is not loaded. Please load the model first"}
     
-        return result
+    # def train_model(self, model_id: str, training_params: dict):
+    #     active_model = self.get_active_model(model_id)
+    #     if not active_model:
+    #         raise ValueError(f"Model {model_id} is not loaded")
+        
+    #     conn = active_model['conn']
+    #     conn.send({"task": "train", "data": training_params})
+    #     result = conn.recv()
+
+    #     if "error" not in result:
+    #         new_model_info = result["new_model_info"]
+    #         new_model_id = new_model_info["model_id"]
+            
+    #         # Get the original model info
+    #         original_model_info = self.library_control.get_model_info_library(model_id)
+            
+    #         # Create a new entry by copying the original model info and updating with new info
+    #         updated_model_info = original_model_info.copy()
+    #         updated_model_info.update(new_model_info)
+            
+    #         # Ensure that these fields are correctly set for the new model
+    #         updated_model_info["is_customised"] = True
+    #         updated_model_info["base_model"] = new_model_id  
+            
+    #         # Add the new model to the library
+    #         self.library_control.add_fine_tuned_model(updated_model_info)
+    #         logger.info(f"New fine-tuned model {new_model_id} added to library")
+    
+    #     return result
 
     # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
