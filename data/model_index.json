@@ -239,10 +239,21 @@
       "requires_auth": true
     },
     "config": {
-      "model_config": {},
+      "model_config": {
+        "torch_dtype": "float16"
+      },
       "tokenizer_config": {},
       "processor_config": {},
-      "pipeline_config": {}
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 10000,
+        "num_beams": 2,
+        "use_cache": true
+      },
+      "device_config": {
+        "device": "cuda"
+        
+      }
     }
   },
   "codellama/codellama-34b-instruct-hf": {
