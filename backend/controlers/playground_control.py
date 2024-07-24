@@ -37,7 +37,7 @@ class PlaygroundControl:
     def remove_chain_from_playground(self):
         pass
     
-    def load_playground(self):
+    def load_playground(self, playground_id: str):
         pass
     
     def save_playground(self):

@@ -1,11 +1,7 @@
-[
-    {
-        "playground_id": "playground1",
-        "models": [
-            "model1",
-            "model2",
-            "model3"
-        ],
-        "chain": ["model1", "model2"]
+{
+    "playground1": {
+        "description": "New Playground Description",
+        "models": [],
+        "chain": []
     }
-]
+}
