@@ -186,6 +186,13 @@ async def configure_model(configureRequest: ConfigureRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.delete("/delete-model")
+async def delete_model(model_id: str = Query(...)):
+    try:
+        return model_control.delete_model(model_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # @router.post("/train")
 # async def train_model(
 #     model_id: str = Query(...), 
