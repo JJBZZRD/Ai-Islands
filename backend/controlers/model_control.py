@@ -73,6 +73,13 @@ class ModelControl:
                 print("prediction done")
                 print(prediction)
                 conn.send(prediction)
+            elif req["task"] == "configure":
+                print("running control configure")
+                print("req data ", req["data"])
+                result = model.configure(req["data"])
+                print("configure done")
+                print(result)
+                conn.send(result)
 
     def download_model(self, model_id: str, auth_token: str = None):
         model_info = self.library_control.get_model_info_index(model_id)
@@ -194,17 +201,27 @@ class ModelControl:
             model_id = configure_request['model_id']
             config_data = configure_request['data']
             
+            model_info = self.library_control.get_model_info_library(model_id)
+            is_online = model_info.get('is_online', False)  
+            
             updated_config = self.library_control.update_model_config(model_id, config_data)
             
             if updated_config:
-                if self.is_model_loaded(model_id):
-                    self.unload_model(model_id)
-                    self.load_model(model_id)
-                    
+                if is_online:
+                    active_model = self.get_active_model(model_id)
+                    conn = active_model['conn']
+                    req = config_data
+                    req['task'] = "configure"
+                    conn.send(req)
+                    return conn.recv()
+                else:
+                    if self.is_model_loaded(model_id):
+                        self.unload_model(model_id)
+                        self.load_model(model_id)
+                        
                 return {"message": f"Model {model_id} configuration updated in library"}
             else:
-                return {"error": f"Failed to update configuration for model {model_id}"}
-            
+                return {"error": f"Failed to update configuration for model {model_id}"}   
         except KeyError:
             return {"error": f"Model {configure_request['model_id']} not found in library"}
     
