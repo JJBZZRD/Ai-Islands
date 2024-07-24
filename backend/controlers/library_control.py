@@ -111,7 +111,7 @@ class LibraryControl:
 
             library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
             if model_id in library:
-                library[model_id]['config'].update(new_config)
+                library[model_id]['config'] = self._merge_configs(library[model_id]['config'], new_config)
                 JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
                 logger.info(f"Configuration updated for model {model_id}")
                 return library[model_id]['config']
@@ -121,6 +121,14 @@ class LibraryControl:
         except Exception as e:
             logger.error(f"Error updating configuration for model {model_id}: {str(e)}")
             return None
+
+    def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
+        for key, value in new_config.items():
+            if isinstance(value, dict) and key in original_config:
+                original_config[key] = self._merge_configs(original_config[key], value)
+            else:
+                original_config[key] = value
+        return original_config
 
     def save_new_model(self, model_id: str, new_model_id: str, new_config: dict):
         logger.info(f"Attempting to save new model {new_model_id} based on {model_id}")

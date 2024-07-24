@@ -189,12 +189,12 @@ class ModelControl:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
         
     def configure_model(self, configure_request):
-        #update model config in library and reload model if active
         try:
             print(configure_request)
             model_id = configure_request['model_id']
+            config_data = configure_request['data']
             
-            updated_config = self.library_control.update_model_config(model_id, configure_request['config'])
+            updated_config = self.library_control.update_model_config(model_id, config_data)
             
             if updated_config:
                 if self.is_model_loaded(model_id):
@@ -204,9 +204,6 @@ class ModelControl:
                 return {"message": f"Model {model_id} configuration updated in library"}
             else:
                 return {"error": f"Failed to update configuration for model {model_id}"}
-            
-            
-                
             
         except KeyError:
             return {"error": f"Model {configure_request['model_id']} not found in library"}
