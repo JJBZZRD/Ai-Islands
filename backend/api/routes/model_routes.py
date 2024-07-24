@@ -218,8 +218,3 @@ class ModelRouter:
         finally:
             await websocket.close()
 
-app = FastAPI()
-model_control = ModelControl()
-model_router = ModelRouter(model_control)
-
-app.include_router(model_router.router, prefix="/api")
