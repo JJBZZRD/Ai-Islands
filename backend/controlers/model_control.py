@@ -189,6 +189,7 @@ class ModelControl:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
         
     def configure_model(self, configure_request):
+        #update model config in library and reload model if active
         try:
             print(configure_request)
             model_id = configure_request['model_id']
