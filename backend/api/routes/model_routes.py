@@ -64,6 +64,7 @@ class ModelRouter:
         self.router.add_api_route("/upload-video/", self.upload_video, methods=["POST"])
         self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
+        self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
 
     async def list_active_models(self):
         try:
@@ -218,3 +219,12 @@ class ModelRouter:
         finally:
             await websocket.close()
 
+    async def delete_model(self, model_id: str = Query(...)):
+        try:
+            result = self.model_control.delete_model(model_id)
+            if result:
+                return {"message": f"Model {model_id} deleted successfully"}
+            else:
+                raise HTTPException(status_code=404, detail=f"Model {model_id} not found or could not be deleted")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))

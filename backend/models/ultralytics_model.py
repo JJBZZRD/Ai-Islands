@@ -23,7 +23,8 @@ class UltralyticsModel(BaseModel):
     @staticmethod
     def download(model_id: str, model_info: dict):
         try:
-            model_dir = os.path.join('data', 'downloads', 'ultralytics')
+            base_dir = os.path.join('data', 'downloads', 'ultralytics')
+            model_dir = os.path.join(base_dir, model_id)
             if not os.path.exists(model_dir):
                 os.makedirs(model_dir, exist_ok=True)
 
@@ -182,7 +183,13 @@ class UltralyticsModel(BaseModel):
 
             suffix = self.get_next_suffix(self.model_id)
             trained_model_name = f"{self.model_id}_{suffix}.pt"
-            trained_model_path = os.path.join('data', 'downloads', 'ultralytics', trained_model_name)
+            
+            # Create a new directory for the trained model
+            base_dir = os.path.join('data', 'downloads', 'ultralytics')
+            trained_model_dir = os.path.join(base_dir, f"{self.model_id}_{suffix}")
+            os.makedirs(trained_model_dir, exist_ok=True)
+            
+            trained_model_path = os.path.join(trained_model_dir, trained_model_name)
             shutil.copy(best_pt_path, trained_model_path)
 
             logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
@@ -190,7 +197,7 @@ class UltralyticsModel(BaseModel):
             new_model_info = {
                 "model_id": f"{self.model_id}_{suffix}",
                 "base_model": f"{self.model_id}_{suffix}",
-                "dir": os.path.dirname(trained_model_path),
+                "dir": trained_model_dir,
                 "model_desc": f"Fine-tuned {self.model_id} model",
                 "is_customised": True,
                 "config": {

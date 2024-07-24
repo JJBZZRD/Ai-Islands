@@ -9,6 +9,7 @@ from backend.controlers.library_control import LibraryControl
 from backend.utils.helpers import install_packages
 import torch
 import importlib
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +161,18 @@ class ModelControl:
         raise KeyError(f"Model {model_id} not found in active models.")
     
     def delete_model(self, model_id: str):
-        return self.library_control.delete_model(model_id)
+        if self.is_model_loaded(model_id):
+            self.unload_model(model_id)
+        #use model info to extract dir and then delete model folder and contents from directory. if successfull library controll called to delete model from json
+        model_info = self.library_control.get_model_info_library(model_id)
+        if model_info:
+            model_dir = model_info['dir']
+            if os.path.exists(model_dir):
+                shutil.rmtree(model_dir)
+                logger.info(f"Model {model_id} directory deleted")
+
+        self.library_control.delete_model(model_id)
+        return {"message": f"Model {model_id} deleted"}
     
     def inference(self, inference_request):
         try:
@@ -176,9 +188,25 @@ class ModelControl:
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
         
-    def configure_model(self, model_id: str, config: dict):
-        active_model = self.get_active_model(model_id)
-        active_model['model'].configure(config)
+    def configure_model(self, configure_request):
+        try:
+            print(configure_request)
+            model_id = configure_request['model_id']
+            config_data = configure_request['data']
+            
+            updated_config = self.library_control.update_model_config(model_id, config_data)
+            
+            if updated_config:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                    self.load_model(model_id)
+                    
+                return {"message": f"Model {model_id} configuration updated in library"}
+            else:
+                return {"error": f"Failed to update configuration for model {model_id}"}
+            
+        except KeyError:
+            return {"error": f"Model {configure_request['model_id']} not found in library"}
     
     def train_model(self, train_request):
         try:
