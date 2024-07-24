@@ -9,6 +9,7 @@ from backend.controlers.library_control import LibraryControl
 from backend.utils.helpers import install_packages
 import torch
 import importlib
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +44,17 @@ class ModelControl:
     def _load_process(model_class, conn, model_id, device, model_info):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
-        model.load(device, model_info)
+        model.load(device=device, model_info=model_info)
         conn.send("Model loaded")
         while True:
             req = conn.recv()
             if req == "terminate":
                 conn.send("Terminating")
                 break
+            # the first if block is for backward compatibility
+            # i.e. if type(req) == str and req.startswith("predict:")
+            # pls remove this block after all models are updated
+            # pls keep the second if block (req["task"] == "inference":)
             if type(req) == str and req.startswith("predict:"):
                 payload = json.loads(req.split(":", 1)[1])
                 prediction = model.process_request(payload)
@@ -61,12 +66,20 @@ class ModelControl:
                 print("prediction done")
                 print(prediction)
                 conn.send(prediction)
+            elif req["task"] == "train":
+                print("running control train")
+                print("req data ", req["data"])
+                prediction = model.train(req["data"])
+                print("prediction done")
+                print(prediction)
+                conn.send(prediction)
 
     def download_model(self, model_id: str, auth_token: str = None):
         model_info = self.library_control.get_model_info_index(model_id)
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
+        
 
         model_info.update({"auth_token": auth_token})
 
@@ -81,12 +94,14 @@ class ModelControl:
         
         # Check if the download was successful
         return self.library_control.get_model_info_library(model_id) is not None
-
+            
     def load_model(self, model_id: str):
         model_info = self.library_control.get_model_info_library(model_id)
         if not model_info:
             logger.error(f"Model info not found for {model_id}")
             return False
+
+        logger.debug(f"Fetched model info: {model_info}")
 
         model_class = self._get_model_class(model_id, "library")
         model_dir = model_info['dir']
@@ -96,19 +111,23 @@ class ModelControl:
         if not os.path.exists(model_dir) and not is_online:
             logger.error(f"Model directory not found: {model_dir}")
             return False
-        
+
         device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
+        logger.debug(f"Using device: {device}")
 
         parent_conn, child_conn = multiprocessing.Pipe()
         process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info))
         process.start()
 
-        if parent_conn.recv() == "Model loaded":
+        response = parent_conn.recv()
+        logger.debug(f"Received response from load process: {response}")
+
+        if response == "Model loaded":
             self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
             logger.info(f"Model {model_id} loaded and process started.")
             return True
         else:
-            logger.error(f"Failed to load model {model_id}.")
+            logger.error(f"Failed to load model {model_id}. Response: {response}")
             return False
 
     def is_model_loaded(self, model_id: str):
@@ -142,13 +161,25 @@ class ModelControl:
         raise KeyError(f"Model {model_id} not found in active models.")
     
     def delete_model(self, model_id: str):
-        return self.library_control.delete_model(model_id)
+        if self.is_model_loaded(model_id):
+            self.unload_model(model_id)
+        #use model info to extract dir and then delete model folder and contents from directory. if successfull library controll called to delete model from json
+        model_info = self.library_control.get_model_info_library(model_id)
+        if model_info:
+            model_dir = model_info['dir']
+            if os.path.exists(model_dir):
+                shutil.rmtree(model_dir)
+                logger.info(f"Model {model_id} directory deleted")
+
+        self.library_control.delete_model(model_id)
+        return {"message": f"Model {model_id} deleted"}
     
     def inference(self, inference_request):
         try:
             print(inference_request)
+            model_id = inference_request['model_id']
             inference_request = inference_request
-            active_model = self.get_active_model(inference_request['model_id'])
+            active_model = self.get_active_model(model_id)
             conn = active_model['conn']
             req = inference_request
             req['task'] = "inference"
@@ -156,7 +187,91 @@ class ModelControl:
             return conn.recv()
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+        
+    def configure_model(self, configure_request):
+        try:
+            print(configure_request)
+            model_id = configure_request['model_id']
+            config_data = configure_request['data']
             
+            updated_config = self.library_control.update_model_config(model_id, config_data)
+            
+            if updated_config:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                    self.load_model(model_id)
+                    
+                return {"message": f"Model {model_id} configuration updated in library"}
+            else:
+                return {"error": f"Failed to update configuration for model {model_id}"}
+            
+        except KeyError:
+            return {"error": f"Model {configure_request['model_id']} not found in library"}
+    
+    def train_model(self, train_request):
+        try:
+            print(train_request)
+            model_id = train_request['model_id']
+            train_request = train_request
+            active_model = self.get_active_model(model_id)
+            conn = active_model['conn']
+            req = train_request
+            req['task'] = "train"
+            conn.send(req)
+            result = conn.recv()
+            
+            if "error" not in result:
+                new_model_info = result["new_model_info"]
+                new_model_id = new_model_info["model_id"]
+            
+                # Get the original model info
+                original_model_info = self.library_control.get_model_info_library(model_id)
+            
+                # Create a new entry by copying the original model info and updating with new info
+                updated_model_info = original_model_info.copy()
+                updated_model_info.update(new_model_info)
+            
+                # Ensure that these fields are correctly set for the new model
+                updated_model_info["is_customised"] = True
+                updated_model_info["base_model"] = new_model_id  
+            
+                # Add the new model to the library
+                self.library_control.add_fine_tuned_model(updated_model_info)
+                logger.info(f"New fine-tuned model {new_model_id} added to library")
+            return result
+        except KeyError:
+            return {"error": f"Model {train_request['model_id']} is not loaded. Please load the model first"}
+    
+    # def train_model(self, model_id: str, training_params: dict):
+    #     active_model = self.get_active_model(model_id)
+    #     if not active_model:
+    #         raise ValueError(f"Model {model_id} is not loaded")
+        
+    #     conn = active_model['conn']
+    #     conn.send({"task": "train", "data": training_params})
+    #     result = conn.recv()
+
+    #     if "error" not in result:
+    #         new_model_info = result["new_model_info"]
+    #         new_model_id = new_model_info["model_id"]
+            
+    #         # Get the original model info
+    #         original_model_info = self.library_control.get_model_info_library(model_id)
+            
+    #         # Create a new entry by copying the original model info and updating with new info
+    #         updated_model_info = original_model_info.copy()
+    #         updated_model_info.update(new_model_info)
+            
+    #         # Ensure that these fields are correctly set for the new model
+    #         updated_model_info["is_customised"] = True
+    #         updated_model_info["base_model"] = new_model_id  
+            
+    #         # Add the new model to the library
+    #         self.library_control.add_fine_tuned_model(updated_model_info)
+    #         logger.info(f"New fine-tuned model {new_model_id} added to library")
+    
+    #     return result
+
     # this will be deprecated
     def predict(self, model_id: str, request_payload: dict):
         active_model = self.get_active_model(model_id)
@@ -176,12 +291,12 @@ class ModelControl:
             raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
 
         if not model_info:
-            raise ValueError(f"Model info not found for {model_id}")
-        
+            raise ValueError(f"Model info not found for {model_id} in {source}")
+    
         model_class_name = model_info.get('model_class')
         if not model_class_name:
             raise ValueError(f"Model class not specified for {model_id}")
-        
+
         try:
             module = importlib.import_module('backend.models')
             model_class = getattr(module, model_class_name)

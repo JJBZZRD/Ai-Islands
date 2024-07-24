@@ -13,7 +13,7 @@ uploaded_images/
 data/uploaded_images
 uploaded_videos/
 data/uploaded_videos
-data/uploaded_datasets
+data/uploaded_dataset
 library.json
 data/library.json
 data/downloads

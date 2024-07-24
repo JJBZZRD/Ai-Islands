@@ -1,20 +1,21 @@
 import logging
 import cv2
-from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body, WebSocket, WebSocketDisconnect
-from backend.controlers.model_control import ModelControl
-from backend.core.config import DOWNLOADED_MODELS_PATH, UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR
 import os
 import shutil
 import uuid
-from typing import Dict, Any
 import json
-from pydantic import BaseModel, Field
-from typing import Annotated
-import numpy as np
 import asyncio
 import torch
 from fastapi.responses import JSONResponse
+from fastapi import UploadFile, APIRouter, File, HTTPException, Query, Body, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel, Field
+from typing import Annotated, Dict, Any
+import numpy as np
+from backend.controlers.model_control import ModelControl
+from backend.core.config import UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
+from backend.data_utils.dataset_processor import process_dataset
+from backend.data_utils.training_handler import handle_training_request
 
 router = APIRouter()
 
@@ -31,6 +32,22 @@ class InferenceRequest(BaseModel):
                     Field(
                         title="Data to be used for inference", 
                         description="Example: For sentiment analysis, it will be a sentence. For image classification, it will be an image path"
+                    )]
+
+class TrainRequest(BaseModel):
+    model_id: str
+    data: Annotated[dict | None, 
+                    Field(
+                        title="Data to be used for training", 
+                        description="Example: Training parameters and dataset path"
+                    )]
+
+class ConfigureRequest(BaseModel):
+    model_id: str
+    data: Annotated[dict | None, 
+                    Field(
+                        title="Data to be used for configuring", 
+                        description="Example: Configuration parameters"
                     )]
 
 @router.post("/upload-image/")
@@ -70,6 +87,31 @@ async def upload_video(file: UploadFile = File(...)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail= str(e))
+
+@router.post("/upload-dataset/")
+async def upload_dataset(file: UploadFile = File(...), model_id: str = Query(...)):
+    dataset_dir = ""
+    try:
+        # Generate a unique identifier for the dataset
+        dataset_id = str(uuid.uuid4())
+        dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
+
+        # Save the uploaded file
+        os.makedirs(dataset_dir, exist_ok=True)
+        file_path = os.path.join(dataset_dir, file.filename)
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Process the dataset
+        result = process_dataset(file_path, dataset_dir, dataset_id)
+
+        return result
+    except Exception as e:
+        logger.error(f"Error uploading dataset: {str(e)}")
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/models/active")
 async def list_active_models():
@@ -129,33 +171,52 @@ async def inference(inferenceRequest: InferenceRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Conduct prediction
-@router.post("/predict/")
-async def predict(model_id: str = Query(...), request_payload: Dict[str, Any] = Body(...)):
+
+@router.post("/train")
+async def train_model(trainRequest: TrainRequest):
     try:
-        active_model = model_control.get_active_model(model_id)
-        if not active_model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found or not loaded")
-
-        conn = active_model['conn']
-        
-        # Adjust the image path to be absolute path before sending to the model process
-        if "image_path" in request_payload:
-            request_payload["image_path"] = os.path.join(UPLOAD_IMAGE_DIR, request_payload["image_path"])
-        else:
-            raise HTTPException(status_code = 500, detail = "Invalid request payload")
-
-        conn.send(f"predict:{json.dumps(request_payload)}")
-        prediction = conn.recv()
-
-        return {"model_id": model_id, "prediction": prediction}
+        return model_control.train_model(jsonable_encoder(trainRequest))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@router.post("/configure")
+async def configure_model(configureRequest: ConfigureRequest):
+    try:
+        return model_control.configure_model(jsonable_encoder(configureRequest))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/delete-model")
+async def delete_model(model_id: str = Query(...)):
+    try:
+        return model_control.delete_model(model_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# @router.post("/train")
+# async def train_model(
+#     model_id: str = Query(...), 
+#     epochs: int = Body(...), 
+#     batch_size: int = Body(...), 
+#     learning_rate: float = Body(...), 
+#     dataset_id: str = Body(...),
+#     imgsz: int = Body(640)
+# ):
+#     try:
+#         result = handle_training_request(model_control, model_id, epochs, batch_size, learning_rate, dataset_id, imgsz)
+#         return result
+#     except ValueError as ve:
+#         raise HTTPException(status_code=400, detail=str(ve))
+#     except FileNotFoundError as fnf:
+#         raise HTTPException(status_code=404, detail=str(fnf))
+#     except Exception as e:
+#         logger.error(f"Error during training: {str(e)}")
+#         raise HTTPException(status_code=500, detail=str(e))
+
 # Creating a web socket connection for real-time video and live webcam processing
 # It will receives video frames as bytes, process it using the model and sends results back to user
 @router.websocket("/ws/predict-live/{model_id}")
-async def websocket_video(websocket: WebSocket, model_id: str):
+async def predict_live(websocket: WebSocket, model_id: str):
     await websocket.accept()
     try:
         if not model_control.is_model_loaded(model_id):
@@ -165,56 +226,32 @@ async def websocket_video(websocket: WebSocket, model_id: str):
 
         active_model = model_control.get_active_model(model_id)
         if not active_model:
-            await websocket.send_json({"error": f"Model {model_id} is not found or model is not loaded"})
+            await websocket.send_json({"error": f"Model {model_id} is not found or not loaded"})
             await websocket.close()
             return
 
         conn = active_model['conn']
-
+        
         while True:
-            try:
-                data = await websocket.receive_bytes()
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                
-                print("Frame received and decoded")
-
-                # Process frame asynchronously
-                prediction = await asyncio.get_event_loop().run_in_executor(None, process_frame, conn, frame)
-
-                # Send prediction results back to the client
-                await websocket.send_json(prediction)
-                print("Prediction sent to client")
-            except WebSocketDisconnect:
-                logger.info("User disconnected")
-                break
-            except Exception as e:
-                logger.error(f"Error processing frame: {str(e)}")
-                await websocket.send_json({"error": f"Error processing frame: {str(e)}"})
-                break
+            frame_data = await websocket.receive_bytes()
+            nparr = np.frombuffer(frame_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if frame is None:
+                await websocket.send_json({"error": "Invalid frame data"})
+                continue
+            
+            conn.send({"task": "inference", "data": {"video_frame": frame.tolist()}})
+            prediction = conn.recv()
+            
+            await websocket.send_json(prediction)
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")
     except Exception as e:
-        logger.error(f"Error during websocket communication: {str(e)}")
-        await websocket.send_json({"error": f"Error during websocket communication: {str(e)}"})
+        logger.error(f"Error in predict_live: {str(e)}")
+        await websocket.send_json({"error": str(e)})
     finally:
-        try:
-            await websocket.close()
-        except Exception as close_exception:
-            logger.error(f"Error closing websocket: {str(close_exception)}")
-        logger.info("Connection closed")
-
-def process_frame(conn, frame):
-    # Use GPU if available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if device.type == 'cuda':
-        logger.info("Using GPU for inference")
-    else:
-        logger.info("Using CPU for inference")
-
-    request_payload = {"video_frame": frame.tolist()}
-    conn.send(f"predict:{json.dumps(request_payload)}")
-    prediction = conn.recv()
-    return prediction
-
+        await websocket.close()
 
 """
     This route is used to predict the sentiment of a given sentence using the sentiment model

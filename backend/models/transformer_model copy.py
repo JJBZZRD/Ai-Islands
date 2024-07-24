@@ -1,7 +1,13 @@
 import os
+import sys
+
+# Add the project root directory to the Python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, project_root)
+
 import torch
 import transformers
-from .base_model import BaseModel
+from backend.models.base_model import BaseModel
 import logging
 from huggingface_hub import snapshot_download
 from backend.data_utils.json_handler import JSONHandler
@@ -13,12 +19,16 @@ logger = logging.getLogger(__name__)
 
 class TransformerModel(BaseModel):
     def __init__(self, model_id: str):
+        self.accelerator = Accelerator()
         self.model_id = model_id
-        self.pipeline_args = {}
+        self.model = None
+        self.tokenizer = None
+        self.processor = None
         self.pipeline = None
         self.config = None
         self.device = None
-        self.languages = {}
+        self.languages = None
+        self.model_dir = None
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -37,30 +47,38 @@ class TransformerModel(BaseModel):
                 return None
 
             config = model_info.get('config', {})
+            model_config = config.get('model_config', {})
+            tokenizer_config = config.get('tokenizer_config', {})
+            processor_config = config.get('processor_config', {})
 
-            # for loop to download all the required classes
-            # exmaple: class_type = "model", class_name = "AutoModelForSeq2SeqLM"
             for class_type, class_name in required_classes.items():
-            
-                print("class_type: ", class_type)
-                print("class_name: ", class_name)
-                
-                # dynamically import the class from transformers library, ex: AutoModelForSeq2SeqLM
-                class_ = getattr(transformers, class_name)
-                
-                # read the corresponding config for the class_type
-                # ex: obj_config = model_config/pipeline_config
-                obj_config = config.get(f'{class_type}_config', {})
-                
-                if auth_token:
-                    obj_config['use_auth_token'] = auth_token
-                
-                # download the class object from huggingface transformers library
-                obj = class_.from_pretrained(
-                    model_id,
-                    cache_dir=model_dir,
-                    **obj_config
-                )
+                if class_type == "model":
+                    module = importlib.import_module('transformers')
+                    ModelClass = getattr(module, class_name)
+                    ModelClass.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None,
+                        **model_config
+                    )
+                elif class_type == "tokenizer":
+                    transformers.AutoTokenizer.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None,
+                        **tokenizer_config
+                    )
+                elif class_type == "processor":
+                    ProcessorClass = getattr(transformers, class_name)
+                    ProcessorClass.from_pretrained(
+                        model_id, 
+                        cache_dir=model_dir, 
+                        force_download=True, 
+                        use_auth_token=auth_token if requires_auth else None,
+                        **processor_config
+                    )
             
             if requires_auth:
                 config['auth_token'] = auth_token
@@ -79,64 +97,45 @@ class TransformerModel(BaseModel):
     def load(self, device: torch.device, model_info: dict):
         try:
             model_dir = model_info['dir']
+            self.model_dir = model_dir
+            logger.info(f"Attempting to load model from directory: {model_dir}")
             if not os.path.exists(model_dir):
+                logger.error(f"Model directory not found: {model_dir}")
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
             
             logger.info(f"Loading model from {model_dir}")
             logger.info(f"Model info: {model_info}")
             
-            requirements = model_info.get('requirements', {})
-            required_classes = requirements.get('required_classes', {})
-            
-            pipeline_tag = model_info.get('pipeline_tag')
-            
             self.config = model_info.get('config', {})
-            translation_config = self.config.get('translation_config', {})
-            
+            pipeline_tag = model_info.get('pipeline_tag', 'text-generation')
             
             if self.config.get("device_config", {}).get("device"):
                 self.device = self.config["device_config"]["device"]
             else:
                 self.device = device
-            print("using device: ", self.device)
+            logger.info(f"Using device: {self.device}")
             
-            # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             
-            # for loop to load all the required classes
-            for class_type, class_name in required_classes.items():
-                
-                print("class_type: ", class_type)
-                print("class_name: ", class_name)
-                
-                # dynamically import the class from transformers library
-                class_ = getattr(transformers, class_name)
-                
-                # read the corresponding config for the class_type
-                obj_config = self.config.get(f'{class_type}_config', {})
-                # load the class object from the local model directory
-                obj = class_.from_pretrained(
-                    self.model_id,
-                    cache_dir=model_dir,
-                    local_files_only=True,
-                    **obj_config
-                )
-                
-                # store the class object in the pipeline_args dictionary
-                self.pipeline_args.update({class_type: obj})
-                logger.info(f"created {class_type} object: {obj}")
-
-            # for those translation models that require pipeline task = "translation_XX_to_YY"
-            # it will set the pipeline task to be "translation_{src}_to_{tgt}"
-            if translation_config:
-                pipeline_tag = self._get_translation_pipeline_task(translation_config.get('src_lang'), translation_config.get('tgt_lang'))
+            logger.info(f"Loading tokenizer for {self.model_id}")
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(
+                self.model_id,
+                cache_dir=model_dir,
+                local_files_only=True,
+                trust_remote_code=True
+            )
+            logger.info("Tokenizer loaded successfully")
             
+            logger.info(f"Constructing pipeline with tag: {pipeline_tag}")
             self.pipeline = self._construct_pipeline(pipeline_tag)
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
+            
             logger.info(f"Model loaded successfully from {model_dir}")
+            logger.info(f"Model device: {self.pipeline.device}")
+            logger.info(f"Model dtype: {self.pipeline.model.dtype}")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
-            raise  # Re-raise the exception to be caught by the caller
+            raise
     
     def inference(self, data: dict):
         try:
@@ -165,12 +164,33 @@ class TransformerModel(BaseModel):
         logger.warning("Training method not implemented for TransformerModel")
     
     def _construct_pipeline(self, pipeline_tag: str):
+        logger.info(f"Constructing pipeline with tag: {pipeline_tag}")
+        pipeline_args = {
+            "task": pipeline_tag,
+            "model": self.model_id,
+            "tokenizer": self.tokenizer,
+            "torch_dtype": torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+            "trust_remote_code": True,
+            "model_kwargs": {"cache_dir": self.model_dir, "local_files_only": True},
+            "device": self.device
+        }
         pipeline_config = self.config.get('pipeline_config', {})
-        print("pipeline_args: ", self.pipeline_args)
-        pipe = transformers.pipeline(task=pipeline_tag, device=self.device, **self.pipeline_args, **pipeline_config)
-        accelerator = Accelerator()
         
-        return accelerator.prepare(pipe)
+        logger.info(f"Pipeline arguments: {pipeline_args}")
+        logger.info(f"Additional pipeline config: {pipeline_config}")
+        
+        try:
+            pipe = transformers.pipeline(**pipeline_args, **pipeline_config)
+            logger.info("Pipeline created successfully")
+        except Exception as e:
+            logger.error(f"Error creating pipeline: {str(e)}")
+            raise
+        
+        logger.info(f"Moving model to device: {self.device}")
+        pipe.model.to(self.device)
+        
+        logger.info("Preparing pipeline with accelerator")
+        return self.accelerator.prepare(pipe)
     
     def _get_translation_pipeline_task(self, src: str, tgt: str):
         if self._is_languages_supported(src) and self._is_languages_supported(tgt):
@@ -220,4 +240,36 @@ class TransformerModel(BaseModel):
     #     except Exception as e:
     #         logger.error(f"Error during image processing: {str(e)}")
     #         return {"error": str(e)}
-        
+if __name__ == "__main__":
+    import torch
+    from backend.data_utils.json_handler import JSONHandler
+
+    # Initialize the model
+    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+    transformer_model = TransformerModel(model_id)
+
+    # Load model info
+    json_handler = JSONHandler()
+    model_info = json_handler.read_json('data/library.json').get(model_id, {})
+
+    if not model_info:
+        print(f"Error: Model info for {model_id} not found in library.json")
+    else:
+        # Set device
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Using device: {device}")
+
+        # Load the model
+        try:
+            transformer_model.load(device, model_info)
+            print("Model loaded successfully")
+
+            # Test inference
+            test_input = "Translate the following English text to French: 'Hello, how are you?'"
+            result = transformer_model.inference({"payload": test_input})
+            print("Inference result:", result)
+
+        except Exception as e:
+            print(f"Error loading or using the model: {str(e)}")
+
+    print("Test completed")

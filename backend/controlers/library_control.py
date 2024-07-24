@@ -1,3 +1,4 @@
+from hmac import new
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
 import logging
@@ -18,7 +19,10 @@ class LibraryControl:
         if not isinstance(library, dict):
             library = {}
         
-        library[model_id] = new_entry
+        if model_id in library:
+            library[model_id].update(new_entry)
+        else:
+            library[model_id] = new_entry
         
         logger.debug(f"New library entry: {new_entry}")
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
@@ -82,4 +86,83 @@ class LibraryControl:
         library.pop(model_id, None)
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
         logger.info(f"Model {model_id} deleted from library.")
-        return True
+        return {"message": f"Model {model_id} deleted from library."}
+
+    def add_fine_tuned_model(self, new_entry: dict):
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        base_model_id = new_entry['base_model']
+    
+        new_model_id = new_entry['model_id']
+    
+        # Adding new entry to the library
+        library[new_model_id] = new_entry
+
+        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+        logger.info(f"New fine-tuned model {new_model_id} added to library")
+        return new_model_id
+    
+    def update_model_config(self, model_id: str, new_config: dict):
+        logger.info(f"Attempting to update configuration for model {model_id}")
+        try:
+            model_info = self.get_model_info_library(model_id)
+            if not model_info:
+                logger.error(f"Model info not found for {model_id}")
+                return None
+
+            library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+            if model_id in library:
+                library[model_id]['config'] = self._merge_configs(library[model_id]['config'], new_config)
+                JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+                logger.info(f"Configuration updated for model {model_id}")
+                return library[model_id]['config']
+            else:
+                logger.error(f"Model {model_id} not found in library")
+                return None
+        except Exception as e:
+            logger.error(f"Error updating configuration for model {model_id}: {str(e)}")
+            return None
+
+    def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
+        for key, value in new_config.items():
+            if isinstance(value, dict) and key in original_config:
+                original_config[key] = self._merge_configs(original_config[key], value)
+            else:
+                original_config[key] = value
+        return original_config
+
+    def save_new_model(self, model_id: str, new_model_id: str, new_config: dict):
+        logger.info(f"Attempting to save new model {new_model_id} based on {model_id}")
+        try:
+            model_info = self.get_model_info_library(model_id)
+            if not model_info:
+                logger.error(f"Model info not found for {model_id}")
+                return None
+            self.update_library(new_model_id, model_info)
+            updated_config = self.update_model_config(new_model_id, new_config)
+            if updated_config:
+                logger.info(f"New model {new_model_id} saved successfully")
+                return new_model_id
+            else:
+                logger.error(f"Failed to update configuration for new model {new_model_id}")
+                return None
+        except Exception as e:
+            logger.error(f"Error saving new model {new_model_id}: {str(e)}")
+            return None
+
+    def update_model_id(self, model_id: str, new_model_id: str):
+        logger.info(f"Attempting to update model ID from {model_id} to {new_model_id}")
+        try:
+            model_info = self.get_model_info_library(model_id)
+            if not model_info:
+                logger.error(f"Model info not found for {model_id}")
+                return None
+            self.update_library(new_model_id, model_info)
+            if self.delete_model(model_id):
+                logger.info(f"Model ID updated from {model_id} to {new_model_id}")
+                return new_model_id
+            else:
+                logger.error(f"Failed to delete old model {model_id}")
+                return None
+        except Exception as e:
+            logger.error(f"Error updating model ID from {model_id} to {new_model_id}: {str(e)}")
+            return None

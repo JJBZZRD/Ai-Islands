@@ -3,6 +3,7 @@ uvicorn
 transformers
 ultralytics==8.2.48
 huggingface_hub
+accelerate
 httpx
 pytest
 opencv-python
