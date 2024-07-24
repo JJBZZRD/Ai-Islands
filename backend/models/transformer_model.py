@@ -52,6 +52,9 @@ class TransformerModel(BaseModel):
                 # ex: obj_config = model_config/pipeline_config
                 obj_config = config.get(f'{class_type}_config', {})
                 
+                if auth_token:
+                    obj_config['use_auth_token'] = auth_token
+                
                 # download the class object from huggingface transformers library
                 obj = class_.from_pretrained(
                     model_id,
