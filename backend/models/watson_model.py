@@ -11,6 +11,7 @@ from langchain_ibm import WatsonxEmbeddings
 from ibm_watsonx_ai.foundation_models.utils.enums import EmbeddingTypes
 from backend.utils.dataset_utility import DatasetManagement
 from dotenv import load_dotenv
+from backend.utils.watson_settings_manager import watson_settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +21,6 @@ LIBRARY_PATH = "data/library.json"
 class WatsonModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
-        self.project_id = None
         self.config = None
         self.auth = Authentication()
         self.resource_service = ResourceService()
@@ -28,6 +28,30 @@ class WatsonModel(BaseModel):
         self.model_inference = None
         self.embeddings = None
         self.is_loaded = False
+        self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+        self.project_id = watson_settings.get('USER_PROJECT_ID')
+        
+        if not self.project_id:
+            self.select_project()
+        
+        logger.info(f"Initialized WatsonModel with API_KEY: {self.api_key[:5]}... and PROJECT_ID: {self.project_id}")
+
+    def select_project(self):
+        projects = get_projects()
+        if not projects:
+            logger.error("No projects available. Please create a project in IBM Watson Studio.")
+            return False
+
+        # Use the first project
+        selected_project = projects[0]
+        self.project_id = selected_project["id"]
+        logger.info(f"Selected project: {selected_project['name']} (ID: {self.project_id})")
+
+        # Update the USER_PROJECT_ID setting
+        watson_settings.set("USER_PROJECT_ID", self.project_id)
+        logger.info(f"Updated USER_PROJECT_ID={self.project_id}")
+
+        return True
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -91,41 +115,6 @@ class WatsonModel(BaseModel):
             logger.error(f"Error adding model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
             return None
-
-    def select_project(self):
-        load_dotenv()  # Reload environment variables
-        projects = get_projects()
-        if not projects:
-            logger.error("No projects available. Please create a project in IBM Watson Studio.")
-            return False
-
-        # Use the first project
-        selected_project = projects[0]
-        self.project_id = selected_project["id"]
-        logger.info(f"Selected project: {selected_project['name']} (ID: {self.project_id})")
-
-        # Update the .env file with the selected project ID
-        env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
-        self.update_env_file(env_path, "USER_PROJECT_ID", self.project_id)
-        logger.info(f"Updated .env file with USER_PROJECT_ID={self.project_id}")
-
-        return True
-
-    def update_env_file(self, file_path, key, value):
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
-
-        with open(file_path, 'w') as file:
-            updated = False
-            for line in lines:
-                if line.startswith(f"{key}="):
-                    file.write(f"{key}={value}\n")
-                    updated = True
-                else:
-                    file.write(line)
-            if not updated:
-                file.write(f"\n{key}={value}\n")
-        load_dotenv()  # Reload environment variables after update
 
     def load(self, device: str, model_info: dict):
         try:

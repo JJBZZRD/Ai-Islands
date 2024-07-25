@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService, AccountInfo, get_projects
 import logging
+from backend.utils.watson_settings_manager import watson_settings
 
 load_dotenv()
 
@@ -55,10 +56,9 @@ class DatasetManagement:
             self.embeddings = SentenceTransformer(self.model_name)
 
     def _initialize_watson_embeddings(self):
-        load_dotenv()  # Reload environment variables
         logger.info(f"Initializing Watson embeddings: {self.model_name}")
-        api_key = os.getenv("IBM_CLOUD_API_KEY")
-        url = os.getenv("IBM_CLOUD_MODELS_URL")
+        api_key = watson_settings.get("IBM_CLOUD_API_KEY")
+        url = watson_settings.get("IBM_CLOUD_MODELS_URL")
         project_id = self._get_or_create_project_id()
 
         if not all([api_key, url, project_id]):

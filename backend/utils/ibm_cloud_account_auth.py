@@ -3,18 +3,16 @@ import requests
 import logging
 from dotenv import load_dotenv
 from ibm_watsonx_ai import APIClient, Credentials
-
-# Load environment variables from .env file
-load_dotenv()
+from backend.utils.watson_settings_manager import watson_settings
 
 IAM_TOKEN_URL = "https://iam.cloud.ibm.com/identity/token"
 RESOURCE_SERVICE_URL = "https://resource-controller.cloud.ibm.com/v2/resource_instances"
 
 class Authentication:
     def __init__(self):
-        self.api_key = os.getenv('IBM_CLOUD_API_KEY')
+        self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
         if not self.api_key:
-            raise ValueError("API key is not set in the environment variables.")
+            raise ValueError("API key is not set in the settings.")
 
     def _validate_api_key(self, api_key: str) -> bool:
         url = IAM_TOKEN_URL
@@ -94,10 +92,9 @@ class ResourceService:
 
 class AccountInfo:
     def __init__(self):
-        load_dotenv()  # Load environment variables
-        self.api_key = os.getenv('IBM_CLOUD_API_KEY')
-        self.projects_url = os.getenv('IBM_CLOUD_PROJECTS_URL')
-        self.models_url = os.getenv('IBM_CLOUD_MODELS_URL')
+        self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+        self.projects_url = watson_settings.get('IBM_CLOUD_PROJECTS_URL')
+        self.models_url = watson_settings.get('IBM_CLOUD_MODELS_URL')
         self.credentials = Credentials(
             url=self.models_url,
             api_key=self.api_key
@@ -107,7 +104,7 @@ class AccountInfo:
         self.resource_service = ResourceService()
 
         if not self.api_key or not self.projects_url or not self.models_url:
-            raise ValueError("API key or URLs are not set in the environment variables.")
+            raise ValueError("API key or URLs are not set in the settings.")
 
     def get_iam_token(self):
         return self.auth.get_iam_token()

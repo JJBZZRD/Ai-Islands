@@ -7,6 +7,7 @@ from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService
 from ibm_watson import NaturalLanguageUnderstandingV1, TextToSpeechV1, SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from pydub import AudioSegment
+from backend.utils.watson_settings_manager import watson_settings
 
 logger = logging.getLogger(__name__)
 
@@ -77,12 +78,11 @@ class WatsonService(BaseModel):
             return None
 
     def load(self, device: str, model_info: dict):
-        load_dotenv()  # Reload environment variables
         try:
             # Validate API key
-            api_key = os.getenv("IBM_CLOUD_API_KEY")
+            api_key = watson_settings.get("IBM_CLOUD_API_KEY")
             if not api_key:
-                logger.error("IBM_CLOUD_API_KEY not found in environment variables")
+                logger.error("IBM_CLOUD_API_KEY not found in settings")
                 return False
 
             valid = self.account_info.auth._validate_api_key(api_key)
