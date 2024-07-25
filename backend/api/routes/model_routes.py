@@ -16,7 +16,7 @@ from backend.controlers.model_control import ModelControl
 from backend.core.config import UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
 from backend.data_utils.dataset_processor import process_dataset
 from backend.data_utils.training_handler import handle_training_request
-
+from fastapi.responses import JSONResponse #for temporary i will display the result of inference as html
 router = APIRouter()
 
 model_control = ModelControl()
@@ -156,10 +156,19 @@ async def is_model_loaded(model_id: str = Query(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/inference")
+"""@router.post("/inference")
 async def inference(inferenceRequest: InferenceRequest):
     try:
         return model_control.inference(jsonable_encoder(inferenceRequest))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))"""
+#Thisis for temporary since i want to visualise the output of image inference
+
+@router.post("/inference")
+async def inference(inferenceRequest: InferenceRequest):
+    try:
+        result = model_control.inference(jsonable_encoder(inferenceRequest))
+        return JSONResponse(content=result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -8,6 +8,10 @@ from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import DOWNLOADED_MODELS_PATH
 import importlib
 from accelerate import Accelerator
+from PIL import Image
+import requests
+from io import BytesIO
+from backend.utils.vision_utils import process_vision_output
 
 logger = logging.getLogger(__name__)
 
@@ -143,11 +147,21 @@ class TransformerModel(BaseModel):
                 self.pipeline = self._construct_pipeline(pipeline_tag)
             
             pipeline_config = data.get("pipeline_config", {})
+            payload = data["payload"]
             
-            print("data payload: ", data["payload"])
-            # call the pipeline with the payload and any extra pipeline_config provided in the request
-            output = self.pipeline(data["payload"], **pipeline_config)
-            return output
+            print("data payload: ", payload)
+            
+            # Handle the vision tasks
+            if self.pipeline.task in ["image-segmentation", 'zero-shot-image-classification']:
+                model_id = data.get("model_id")
+                return self._vision_inference(payload, model_id)
+                
+            else:
+                # This is for non vision task
+                # call the pipeline with the payload and any extra pipeline_config provided in the request
+                output = self.pipeline(payload, **pipeline_config)
+                return output
+            
         except KeyError as e:
             logger.error(f"{str(e)} has to be provided in the request data")
             return {"error": f"{str(e)} has to be provided in the request data"}
@@ -160,7 +174,83 @@ class TransformerModel(BaseModel):
 
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
-    
+
+    def _process_image(self, payload):
+        try:
+            # Load the image
+            if isinstance(payload, str):
+                if payload.startswith(('http://', 'https://')):
+                    response = requests.get(payload)
+                    image = Image.open(BytesIO(response.content))
+                else:
+                    image = Image.open(payload)
+            elif isinstance(payload, bytes):
+                image = Image.open(BytesIO(payload))
+            else:
+                raise ValueError("Invalid image data")
+
+            logger.info(f"Image loaded successfully. Size: {image.size}")
+
+            # Get the image processor
+            # image_processor = self.pipeline_args.get('image_processor')
+            # if image_processor is None:
+            #     raise ValueError("Image processor not found in pipeline arguments")
+
+            # Process the image using the predefined image_processor
+            # inputs = image_processor(images=image, return_tensors="pt")
+            return image
+
+        except Exception as e:
+            logger.error(f"Error processing image: {str(e)}", exc_info=True)
+            raise
+
+    def _vision_inference(self, payload, model_id):
+        try:
+            # Process the image
+            inputs  = self._process_image(payload)
+            # Run inference
+            with torch.no_grad():
+                output = self.pipeline(inputs)
+            logger.info(f"Inference completed. Output type: {type(output)}")
+            logger.info(f"Output content: {output}")
+
+            # Process the output and create visualization
+            result = process_vision_output(inputs, output, self.pipeline.task)
+            logger.info("Visualization processed successfully")
+            return result
+        except Exception as e:
+            logger.error(f"Error in vision inference: {str(e)}", exc_info=True)
+            return {"error": str(e)}
+
+    # def _process_vision_output(self, output):
+    #     if isinstance(output, list):
+    #         return [self._process_vision_output(item) for item in output]
+    #     elif isinstance(output, dict):
+    #         processed = {}
+    #         for k, v in output.items():
+    #             if k == 'mask' and isinstance(v, Image.Image):
+    #                 # Convert mask to a compact representation
+    #                 processed[k] = self._compress_mask(v)
+    #             else:
+    #                 processed[k] = self._process_vision_output(v)
+    #         return processed
+    #     elif isinstance(output, (int, float, str, bool, type(None))):
+    #         return output
+    #     elif hasattr(output, 'tolist'):  # For numpy arrays
+    #         return output.tolist()
+    #     elif hasattr(output, 'cpu'):  # For torch tensors
+    #         return output.cpu().tolist()
+    #     else:
+    #         return str(output)
+        
+    # def _compress_mask(self, mask):
+    #     # Convert mask to numpy array and then to a compact list representation
+    #     mask_np = np.array(mask)
+    #     return {
+    #         'shape': mask_np.shape,
+    #         'data': base64.b64encode(mask_np.tobytes()).decode('utf-8')
+    #     }
+
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
         print("pipeline_args: ", self.pipeline_args)
