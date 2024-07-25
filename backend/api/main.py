@@ -2,6 +2,13 @@ import logging
 from fastapi import FastAPI
 from backend.api.routes import model_routes, hardware, data_routes
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+logging.info(f"IBM_CLOUD_API_KEY: ...{os.getenv('IBM_CLOUD_API_KEY')[-4:]}")
+logging.info(f"IBM_CLOUD_PROJECTS_URL: {os.getenv('IBM_CLOUD_PROJECTS_URL')}")
+logging.info(f"IBM_CLOUD_MODELS_URL: {os.getenv('IBM_CLOUD_MODELS_URL')}")
+
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

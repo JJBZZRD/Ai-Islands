@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from dotenv import load_dotenv
 from .base_model import BaseModel
 from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService, AccountInfo
 from ibm_watson import NaturalLanguageUnderstandingV1, TextToSpeechV1, SpeechToTextV1
@@ -43,40 +44,6 @@ class WatsonService(BaseModel):
                 if check_service(resource_name, service_name):
                     service_available = True
                     logger.info(f"Matched service: {resource_name}")
-                    
-                    # Create service-specific configuration
-                    if "natural-language-understanding" in service_name.lower():
-                        config = {
-                            "service_name": service_name,
-                            "features": {
-                                "sentiment": True,
-                                "emotion": True,
-                                "entities": True,
-                                "keywords": True,
-                                "categories": True,
-                                "concepts": True,
-                                "relations": True,
-                                "semantic_roles": True
-                            }
-                        }
-                    elif "text-to-speech" in service_name.lower():
-                        config = {
-                            "service_name": service_name,
-                            "voice": "en-US_AllisonV3Voice",
-                            "pitch": 0,
-                            "speed": 0
-                        }
-                    elif "speech-to-text" in service_name.lower():
-                        config = {
-                            "service_name": service_name,
-                            "model": "en-US_BroadbandModel",
-                            "content_type": "audio/wav"
-                        }
-                    else:
-                        config = {
-                            "service_name": service_name
-                        }
-                    
                     break
 
             if not service_available:
@@ -99,8 +66,7 @@ class WatsonService(BaseModel):
             new_entry.update({
                 "base_model": model_id,
                 "dir": service_dir,
-                "is_customised": False,
-                "config": config
+                "is_customised": False
             })
 
             logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
@@ -111,6 +77,7 @@ class WatsonService(BaseModel):
             return None
 
     def load(self, device: str, model_info: dict):
+        load_dotenv()  # Reload environment variables
         try:
             # Validate API key
             api_key = os.getenv("IBM_CLOUD_API_KEY")

@@ -55,6 +55,7 @@ class DatasetManagement:
             self.embeddings = SentenceTransformer(self.model_name)
 
     def _initialize_watson_embeddings(self):
+        load_dotenv()  # Reload environment variables
         logger.info(f"Initializing Watson embeddings: {self.model_name}")
         api_key = os.getenv("IBM_CLOUD_API_KEY")
         url = os.getenv("IBM_CLOUD_MODELS_URL")

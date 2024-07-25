@@ -94,6 +94,7 @@ class ResourceService:
 
 class AccountInfo:
     def __init__(self):
+        load_dotenv()  # Load environment variables
         self.api_key = os.getenv('IBM_CLOUD_API_KEY')
         self.projects_url = os.getenv('IBM_CLOUD_PROJECTS_URL')
         self.models_url = os.getenv('IBM_CLOUD_MODELS_URL')

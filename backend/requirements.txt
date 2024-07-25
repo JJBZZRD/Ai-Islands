@@ -12,6 +12,7 @@ gputil
 ibm_watsonx_ai
 ibm_watson
 ibm_cloud_sdk_core
+langchain_ibm
 pydub
 scikit-learn
 faiss-cpu
