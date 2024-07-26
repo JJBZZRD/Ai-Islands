@@ -51,7 +51,7 @@
         "no_repeat_ngram_size": 0
       },
       "device_config": {
-          "device": "cpu"
+        "device": "cpu"
       }
     }
   },
@@ -95,6 +95,29 @@
     ],
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
     "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+    "dataset_format": "yolo",
+    "requirements": {
+      "required_classes": {
+        "model": "YOLO"
+      }
+    }
+  },
+  "yolov9t": {
+    "is_online": false,
+    "model_source": "ultralytics",
+    "model_class": "UltralyticsModel",
+    "tags": [
+      "yolo",
+      "object-detection",
+      "pytorch",
+      "yolov9",
+      "yolov9t",
+      "computer-vision",
+      "en",
+      "license:agpl-3.0"
+    ],
+    "model_desc": "YOLOv9t is the smallest version of the YOLOv9 family, designed for fast and efficient object detection on resource-constrained devices.",
+    "model_detail": "https://docs.ultralytics.com/models/yolov9/",
     "dataset_format": "yolo",
     "requirements": {
       "required_classes": {
@@ -168,11 +191,68 @@
         "model": "AutoModelForImageSegmentation",
         "image_processor": "AutoImageProcessor"
       },
-      "required_packages": ["timm", "pillow"]
+      "required_packages": [ "timm", "pillow" ]
     },
     "config": {},
     "model_desc": "DETR (DEtection TRansformer) is an object detection model that uses a transformer-based architecture. This specific model is trained for panoptic segmentation, which combines both instance segmentation and semantic segmentation.",
     "model_detail": "https://github.com/facebookresearch/detr"
+  },
+  "microsoft/beit-large-finetuned-ade-640-640": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "vision",
+      "image-segmentation",
+      "beit",
+      "ade20k",
+      "en",
+      "license:apache-2.0"
+    ],
+    "pipeline_tag": "image-segmentation",
+    "model_card_url": "https://huggingface.co/microsoft/beit-large-finetuned-ade-640-640",
+    "requirements": {
+      "required_classes": {
+        "model": "BeitForSemanticSegmentation",
+        "image_processor": "AutoImageProcessor"
+      }
+    },
+    "config": {},
+    "model_desc": "BEiT (Bidirectional Encoder representation from Image Transformers) is a vision transformer model pre-trained on masked image modeling task. This specific model is the large variant fine-tuned on the ADE20K dataset for semantic segmentation.",
+    "model_detail": "https://github.com/microsoft/unilm/tree/master/beit"
+  },
+  "nvidia/segformer-b0-finetuned-ade-512-512": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "tensorflow",
+      "vision",
+      "image-segmentation",
+      "segformer",
+      "ade20k",
+      "scene_parse_150",
+      "en",
+      "license:other",
+      "arxiv:2105.15203"
+    ],
+    "pipeline_tag": "image-segmentation",
+    "model_card_url": "https://huggingface.co/nvidia/segformer-b0-finetuned-ade-512-512",
+    "requirements": {
+      "required_classes": {
+        "model": "SegformerForSemanticSegmentation",
+        "image_processor": "AutoImageProcessor"
+      }
+    },
+    "model_desc": "SegFormer (b0-sized) model fine-tuned on ADE20k at resolution 512x512. It uses a hierarchical Transformer encoder and a lightweight all-MLP decode head to achieve great results on semantic segmentation benchmarks.",
+    "model_detail": "https://arxiv.org/abs/2105.15203",
+    "config": {
+      "model_config": {}
+    }
   },
   "google/owlvit-base-patch32": {
     "is_online": false,
@@ -201,6 +281,33 @@
       "tokenizer_config": {},
       "processor_config": {},
       "pipeline_config": {}
+    }
+  },
+  "openai/clip-vit-base-patch16": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "vision",
+      "zero-shot-image-classification",
+      "clip",
+      "license:",
+      "arxiv:2103:00020"
+    ],
+    "pipeline_tag": "zero-shot-image-classification",
+    "model_card_url": "https://huggingface.co/openai/clip-vit-base-patch16",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForZeroShotImageClassification",
+        "image_processor": "AutoProcessor"
+      }
+    },
+    "model_desc": "The CLIP model was developed by researchers at OpenAI to learn about what contributes to robustness in computer vision tasks. The model was also developed to test the ability of models to generalize to arbitrary image classification tasks in a zero-shot manner. It was not developed for general model deployment - to deploy models like CLIP, researchers will first need to carefully study their capabilities in relation to the specific context they’re being deployed within.",
+    "model_detail": "https://arxiv.org/abs/2103:00020",
+    "config": {
+      "model_config": {}
     }
   },
   "meta-llama/Meta-Llama-3-8B": {
@@ -304,7 +411,7 @@
       },
       "device_config": {
         "device": "cuda"
-        
+
       }
     }
   },
@@ -480,7 +587,7 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "Llama-2-13b-chat is an auto-regressive language model that uses an optimized transformer architecture.",
     "model_detail": "Llama-2-13b-chat is a pretrained and fine-tuned generative text model with 13 billion parameters, optimized for dialogue use cases."
-    },
+  },
   "meta-llama/llama-3-70b-instruct": {
     "is_online": true,
     "model_source": "IBM",
@@ -499,7 +606,7 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
     "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases."
-    },
+  },
   "meta-llama/llama-3-8b-instruct": {
     "is_online": true,
     "model_source": "IBM",
@@ -518,7 +625,7 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "Llama-3-8b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
     "model_detail": "Llama-3-8b-instruct is a pretrained and fine-tuned generative text model with 8 billion parameters, optimized for dialogue use cases."
-    },
+  },
   "mistralai/mixtral-8x7b-instruct-v01": {
     "is_online": true,
     "model_source": "IBM",
@@ -536,7 +643,7 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
     "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below."
-    },
+  },
   "ibm/natural-language-understanding": {
     "is_online": true,
     "model_source": "IBM",
@@ -598,7 +705,7 @@
     "languages": [
       "English"
     ],
-    "labels" : [
+    "labels": [
       "positive",
       "neutral",
       "negative"
@@ -624,7 +731,7 @@
     "languages": [
       "English"
     ],
-    "labels" : [
+    "labels": [
       "negative",
       "positive"
     ],
@@ -654,7 +761,7 @@
       "Italian",
       "Spanish"
     ],
-    "labels" : [
+    "labels": [
       "5 stars",
       "4 stars",
       "3 stars",
@@ -676,9 +783,9 @@
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "tags": [
-        "Text Classification",
-        "Text Reranker",
-        "Multilingual"
+      "Text Classification",
+      "Text Reranker",
+      "Multilingual"
     ],
     "languages": [
       "Arabic",
@@ -734,14 +841,14 @@
         "model": "AutoModelForSequenceClassification",
         "tokenizer": "AutoTokenizer"
       },
-      "required_packages": ["einops"]
+      "required_packages": [ "einops" ]
     },
     "config": {
       "model_config": {
         "trust_remote_code": true
       },
       "tokenizer_config": {
-          "trust_remote_code": true
+        "trust_remote_code": true
       },
       "pipeline_config": {
         "trust_remote_code": true
@@ -1205,16 +1312,16 @@
       "kwi": "Awa-Cuaiquer",
       "xmm": "Manado Malay",
       "msb": "Masbatenyo"
-      },
-      "pipeline_tag": "translation",    
-      "model_desc": "MADLAD-400-10B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 250 billion tokens covering over 450 languages using publicly     available data. It is competitive with models that are significantly larger.",
-      "model_card_url": "https://huggingface.co/google/madlad400-10b-mt",
-      "requirements": {
-        "required_classes": {
-          "model": "AutoModelForSeq2SeqLM",
-          "tokenizer": "AutoTokenizer"
-        }
+    },
+    "pipeline_tag": "translation",
+    "model_desc": "MADLAD-400-10B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 250 billion tokens covering over 450 languages using publicly     available data. It is competitive with models that are significantly larger.",
+    "model_card_url": "https://huggingface.co/google/madlad400-10b-mt",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSeq2SeqLM",
+        "tokenizer": "AutoTokenizer"
       }
+    }
   },
   "google/madlad400-3b-mt": {
     "is_online": false,
@@ -1642,16 +1749,16 @@
       "kwi": "Awa-Cuaiquer",
       "xmm": "Manado Malay",
       "msb": "Masbatenyo"
-      },
-      "pipeline_tag": "translation",    
-      "model_desc": "MADLAD-400-3B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 1 trillion tokens covering over 450 languages using publicly available data. It is competitive with models that are significantly larger.",
-      "model_card_url": "https://huggingface.co/google/madlad400-3b-mt",
-      "requirements": {
-        "required_classes": {
-          "model": "AutoModelForSeq2SeqLM",
-          "tokenizer": "AutoTokenizer"
-        }
+    },
+    "pipeline_tag": "translation",
+    "model_desc": "MADLAD-400-3B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 1 trillion tokens covering over 450 languages using publicly available data. It is competitive with models that are significantly larger.",
+    "model_card_url": "https://huggingface.co/google/madlad400-3b-mt",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSeq2SeqLM",
+        "tokenizer": "AutoTokenizer"
       }
+    }
   },
   "facebook/nllb-200-distilled-600M": {
     "is_online": false,
@@ -1865,7 +1972,7 @@
       "zho_Hant": "Chinese Traditional",
       "zul_Latn": "Zulu"
     },
-    "pipeline_tag": "translation",    
+    "pipeline_tag": "translation",
     "model_desc": "NLLB-200 is a machine translation model primarily intended for research in machine translation, - especially for low-resource languages. It allows for single sentence translation among 200 languages. Information on how to - use the model can be found in Fairseq code repository along with the training code and references to evaluation and training data. Primary users are researchers and machine translation research community. NLLB-200 is trained on general domain text data and is not intended to be used with domain specific texts, such as medical domain or legal domain. The model is not intended to be used for document translation. The model was trained with input lengths not exceeding 512 tokens, therefore translating longer sequences might result in quality degradation. NLLB-200 translations can not be used as certified translations.",
     "model_card_url": "https://huggingface.co/facebook/nllb-200-distilled-600M",
     "requirements": {
@@ -2003,9 +2110,9 @@
     },
     "config": {
       "pipeline_config": {
-        "return_timestamps": false, 
+        "return_timestamps": false,
         "generate_kwargs": {
-          "language": null, 
+          "language": null,
           "task": null
         }
       }
