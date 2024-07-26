@@ -138,3 +138,6 @@ class PlaygroundControl:
     
     def save_playground(self):
         pass
+    
+    def inference(self, request: dict):
+        pass
