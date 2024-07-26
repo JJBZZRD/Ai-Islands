@@ -2041,7 +2041,8 @@
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
       "model_config": {
-        "torch_dtype": "bfloat16"
+        "torch_dtype": "float16",
+        "load_in_8bit": true
       },
       "tokenizer_config": {},
       "processor_config": {},
@@ -2053,6 +2054,11 @@
       },
       "device_config": {
         "device": "cuda"
+      },
+      "quantization_config": {
+        "load_in_8bit": true,
+        "llm_int8_threshold": 6.0,
+        "llm_int8_has_fp16_weight": true
       }
     }
   }
