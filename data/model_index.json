@@ -261,54 +261,95 @@
     "tags": [
       "transformers",
       "pytorch",
-      "owlvit",
-      "object-detection",
       "vision",
+      "zero-shot-object-detection",
+      "owlvit",
       "en",
       "license:apache-2.0",
-      "region:us"
+      "arxiv:2205.06230"
     ],
-    "pipeline_tag": "object-detection",
+    "pipeline_tag": "zero-shot-object-detection",
     "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
     "requirements": {
       "required_classes": {
-        "model": "OwlViTForObjectDetection",
-        "processor": "OwlViTProcessor"
+        "model": "AutoModelForZeroShotObjectDetection",
+        "image_processor": "OwlViTImageProcessor",
+        "tokenizer": "CLIPTokenizerFast"
       }
     },
     "config": {
-      "model_config": {},
-      "tokenizer_config": {},
       "processor_config": {},
       "pipeline_config": {}
-    }
+    },
+    "model_desc": "OWL-ViT (Vision Transformer for Open-World Localization) is a zero-shot text-conditioned object detection model that can be used to query an image with one or multiple text queries.",
+    "model_detail": "https://arxiv.org/abs/2205.06230"
   },
-  "openai/clip-vit-base-patch16": {
+  "IDEA-Research/grounding-dino-tiny": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "tags": [
       "transformers",
       "pytorch",
+      "safetensors",
       "vision",
-      "zero-shot-image-classification",
-      "clip",
-      "license:",
-      "arxiv:2103:00020"
+      "object-detection",
+      "zero-shot-object-detection",
+      "grounding-dino",
+      "en",
+      "license:apache-2.0",
+      "arxiv:2303.05499"
     ],
-    "pipeline_tag": "zero-shot-image-classification",
-    "model_card_url": "https://huggingface.co/openai/clip-vit-base-patch16",
+    "pipeline_tag": "zero-shot-object-detection",
+    "model_card_url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
     "requirements": {
       "required_classes": {
-        "model": "AutoModelForZeroShotImageClassification",
-        "image_processor": "AutoProcessor"
+        "model": "AutoModelForZeroShotObjectDetection",
+        "image_processor": "GroundingDinoImageProcessor",
+        "tokenizer": "BertTokenizerFast"
       }
     },
-    "model_desc": "The CLIP model was developed by researchers at OpenAI to learn about what contributes to robustness in computer vision tasks. The model was also developed to test the ability of models to generalize to arbitrary image classification tasks in a zero-shot manner. It was not developed for general model deployment - to deploy models like CLIP, researchers will first need to carefully study their capabilities in relation to the specific context they’re being deployed within.",
-    "model_detail": "https://arxiv.org/abs/2103:00020",
     "config": {
-      "model_config": {}
-    }
+      "pipeline_config": {
+        "box_threshold": 0.4,
+        "text_threshold": 0.3
+      }
+    },
+    "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
+    "model_detail": "https://arxiv.org/abs/2303.05499"
+  },
+  "microsoft/resnet-50": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "transformers",
+      "pytorch",
+      "tensorflow",
+      "jax",
+      "safetensors",
+      "vision",
+      "image-classification",
+      "resnet",
+      "imagenet-1k",
+      "en",
+      "license:apache-2.0",
+      "arxiv:1512.03385"
+    ],
+    "pipeline_tag": "image-classification",
+    "model_card_url": "https://huggingface.co/microsoft/resnet-50",
+    "requirements": {
+      "required_classes": {
+        "model": "ResNetForImageClassification",
+        "image_processor": "AutoImageProcessor"
+      }
+    },
+    "config": {
+      "processor_config": {},
+      "pipeline_config": {}
+    },
+    "model_desc": "ResNet-50 v1.5 is a convolutional neural network that democratized the concepts of residual learning and skip connections. This model is pre-trained on ImageNet-1k at resolution 224x224.",
+    "model_detail": "https://arxiv.org/abs/1512.03385"
   },
   "meta-llama/Meta-Llama-3-8B": {
     "is_online": false,

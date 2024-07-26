@@ -152,13 +152,34 @@ class TransformerModel(BaseModel):
             
             print("data payload: ", data["payload"])
             # call the pipeline with the payload and any extra pipeline_config provided in the request
-            output = self.pipeline(data["payload"], **pipeline_config)
             
-            # For image-based tasks, we need to pass the original image
-            if self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
-                # Assuming data["payload"] is the path to the image file
+            # for zero shot tasks, both image and text must be passed
+            if self.pipeline.task in ['zero-shot-object-detection']:
+                image_path = data["payload"].get("image")
+                text = data["payload"].get("text")
+                if not image_path or not text:
+                    raise KeyError("'image' and 'text' must be provided in the request data for zero-shot tasks")
+                try:
+                    print(f"Opening image from path: {image_path}")
+                    with Image.open(image_path) as image:
+                        print(f"Image opened successfully: {image}")
+                        print(f"Text: {text}")
+                        output = self.pipeline(image=image, candidate_labels=text, **pipeline_config)
+                        print(f"Pipeline output: {output}")
+                        if output is None:
+                            raise ValueError("Pipeline output is None")
+                except FileNotFoundError:
+                    raise FileNotFoundError(f"Image file not found: {image_path}")
+                except Exception as e:
+                    raise e
+            
+            # For image-based tasks, we need to pass the original image, output needs to be processde again into serialised format to avoid error
+            elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
+                    output = self.pipeline(data["payload"], **pipeline_config)
                     output = process_vision_output(image, output, self.pipeline.task)
+            else:
+                output = self.pipeline(data["payload"], **pipeline_config)
             
             return output
         except KeyError as e:
