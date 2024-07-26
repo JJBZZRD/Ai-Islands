@@ -1,0 +1,6 @@
+{
+  "use_chunking": true,
+  "chunk_size": 30,
+  "chunk_overlap": 5,
+  "chunk_method": "fixed_length"
+}

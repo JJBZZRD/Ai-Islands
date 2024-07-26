@@ -235,10 +235,17 @@ class WatsonModel(BaseModel):
                     logger.info("RAG is enabled, attempting to find relevant entries")
                     dataset_name = rag_settings.get("dataset_name")
                     similarity_threshold = rag_settings.get("similarity_threshold", 0.5)
+                    use_chunking = rag_settings.get("use_chunking", False)
+                    logger.info(f"Chunking is {'enabled' if use_chunking else 'disabled'}")
                     if dataset_name:
                         logger.info(f"Using dataset: {dataset_name}")
                         dataset_management = DatasetManagement()
-                        relevant_entries = dataset_management.find_relevant_entries(payload, dataset_name, similarity_threshold)
+                        relevant_entries = dataset_management.find_relevant_entries(
+                            payload, 
+                            dataset_name, 
+                            use_chunking=use_chunking,
+                            similarity_threshold=similarity_threshold
+                        )
                         if relevant_entries:
                             logger.info(f"Found {len(relevant_entries)} relevant entries")
                             full_prompt += "Relevant information:\n"
