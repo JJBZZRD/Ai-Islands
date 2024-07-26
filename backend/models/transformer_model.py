@@ -1,6 +1,8 @@
 import os
 import torch
 import transformers
+
+from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
 import logging
 from huggingface_hub import snapshot_download
@@ -8,6 +10,7 @@ from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import DOWNLOADED_MODELS_PATH
 import importlib
 from accelerate import Accelerator
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +153,13 @@ class TransformerModel(BaseModel):
             print("data payload: ", data["payload"])
             # call the pipeline with the payload and any extra pipeline_config provided in the request
             output = self.pipeline(data["payload"], **pipeline_config)
+            
+            # For image-based tasks, we need to pass the original image
+            if self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
+                # Assuming data["payload"] is the path to the image file
+                with Image.open(data["payload"]) as image:
+                    output = process_vision_output(image, output, self.pipeline.task)
+            
             return output
         except KeyError as e:
             logger.error(f"{str(e)} has to be provided in the request data")
