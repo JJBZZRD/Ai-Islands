@@ -671,6 +671,90 @@
       }
     }
   },
+  "cross-encoder/nli-roberta-base": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Zero Shot Classification",
+      "Sentiment Analysis",
+      "Custom Labels"
+
+    ],
+    "languages": [
+      "English"
+    ],
+    "pipeline_tag": "zero-shot-classification",
+    "model_desc": "This model was trained using SentenceTransformers Cross-Encoder class. This model can classify text into custom labels.",
+    "model_card_url": "https://huggingface.co/cross-encoder/nli-roberta-base",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {
+      "pipeline_config": {
+        "candidate_labels": ["technology", "sports", "foods"]
+      }
+    }
+  },
+  "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Zero Shot Classification",
+      "Sentiment Analysis",
+      "Custom Labels"
+
+    ],
+    "languages": [
+      "English"
+    ],
+    "pipeline_tag": "zero-shot-classification",
+    "model_desc": "This model was trained on the MultiNLI, Fever-NLI and Adversarial-NLI (ANLI) datasets, which comprise 763 913 NLI hypothesis-premise pairs. This base model outperforms almost all large models on the ANLI benchmark. The base model is DeBERTa-v3-base from Microsoft. The v3 variant of DeBERTa substantially outperforms previous versions of the model by including a different pre-training objective, see annex 11 of the original DeBERTa paper. This model can classify text into custom labels.",
+    "model_card_url": "https://huggingface.co/facebook/bart-large-mnli",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {
+      "pipeline_config": {
+        "candidate_labels": ["technology", "sports", "foods"]
+      }
+    }
+  },
+  "facebook/bart-large-mnli": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Zero Shot Classification",
+      "Sentiment Analysis",
+      "Custom Labels"
+
+    ],
+    "languages": [
+      "English"
+    ],
+    "pipeline_tag": "zero-shot-classification",
+    "model_desc": "Yin et al. proposed a method for using pre-trained NLI models as a ready-made zero-shot sequence classifiers. The method works by posing the sequence to be classified as the NLI premise and to construct a hypothesis from each candidate label. ",
+    "model_card_url": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {
+      "pipeline_config": {
+        "candidate_labels": ["technology", "sports", "foods"]
+      }
+    }
+  },
   "jinaai/jina-reranker-v2-base-multilingual": {
     "is_online": false,
     "model_source": "transformers",
@@ -748,6 +832,46 @@
       }
     },
     "model_desc": "The Jina Reranker v2 (jina-reranker-v2-base-multilingual) is a transformer-based model that has been fine-tuned for text reranking task, which is a crucial component in many information retrieval systems. It is a cross-encoder model that takes a query and a document pair as input and outputs a score indicating the relevance of the document to the query. The model is trained on a large dataset of query-document pairs and is capable of reranking documents in multiple languages with high accuracy. The jina-reranker-v2-base-multilingual model is capable of handling long texts with a context length of up to 1024 tokens, enabling the processing of extensive inputs. To enable the model to handle long texts that exceed 1024 tokens, the model uses a sliding window approach to chunk the input text into smaller pieces and rerank each chunk separately."
+  },
+  "BAAI/bge-reranker-v2-m3": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+        "Text Classification",
+        "Text Reranker",
+        "Multilingual"
+    ],
+    "languages": [
+      "Arabic",
+      "Bengali",
+      "English",
+      "Spanish",
+      "Persian (Farsi)",
+      "Finnish",
+      "French",
+      "Hindi",
+      "Indonesian",
+      "Japanese",
+      "Korean",
+      "Russian",
+      "Swahili",
+      "Telugu",
+      "Thai",
+      "Chinese",
+      "German",
+      "Yoruba"
+    ],
+    "pipeline_tag": "text-classification",
+    "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForSequenceClassification",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {},
+    "model_desc": "Different from embedding model, reranker uses question and document as input and directly output similarity instead of embedding. You can get a relevance score by inputting query and passage to the reranker. And the score can be mapped to a float value in [0,1] by sigmoid function."
   },
   "google-t5/t5-large": {
     "is_online": false,
@@ -1998,7 +2122,8 @@
     "requirements": {
       "required_classes": {
         "model": "AutoModelForSpeechSeq2Seq",
-        "processor": "AutoProcessor"
+        "tokenizer": "AutoTokenizer",
+        "feature_extractor": "AutoFeatureExtractor"
       }
     },
     "config": {
