@@ -1,42 +1,39 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Shell
-    x:Class="frontend.AppShell"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:frontend.Views"
-    Shell.FlyoutBehavior="Flyout"
-    Title="frontend">
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:frontend.Views"
+       x:Class="frontend.Views.AppShell"
+       FlyoutBehavior="Flyout">
 
-	<FlyoutItem Title="Browse"
-                Icon="search.png">
+	<!-- AI Index Page -->
+	<FlyoutItem Title="AI Index" Icon="ai_index.png">
 		<ShellContent
-            Title="Browse"
-            ContentTemplate="{DataTemplate views:MainPage}"
-            Route="MainPage"
-            Icon="dotnet_bot.png"/>
+            Title="AI Index"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="AIIndexPage"/>
 	</FlyoutItem>
-	<FlyoutItem Title="Library"
-            Icon="folder.png">
+
+	<!-- Library Page -->
+	<FlyoutItem Title="Library" Icon="library.png">
 		<ShellContent
             Title="Library"
-            ContentTemplate="{DataTemplate views:Library}"
-            Route="MainPage" />
-	</FlyoutItem>
-	<FlyoutItem Title="Playground"
-            Icon="mouse.png">
-		<ShellContent
-            Title="Setting"
-            ContentTemplate="{DataTemplate views:Playground}"
-            Route="MainPage"
-            Icon="dotnet_bot.png"/>
-	</FlyoutItem>
-	<FlyoutItem Title="Setting"
-            Icon="gear.png">
-		<ShellContent
-            Title="Setting"
-            ContentTemplate="{DataTemplate views:Setting}"
-            Route="MainPage"
-            Icon="dotnet_bot.png"/>
+            ContentTemplate="{DataTemplate local:Library}"
+            Route="LibraryPage"/>
 	</FlyoutItem>
 
+	<!-- Playground Page -->
+	<FlyoutItem Title="Playground" Icon="playground.png">
+		<ShellContent
+            Title="Playground"
+            ContentTemplate="{DataTemplate local:Playground}"
+            Route="PlaygroundPage"/>
+	</FlyoutItem>
+
+	<!-- Settings Page -->
+	<FlyoutItem Title="Settings" Icon="settings.png">
+		<ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate local:Setting}"
+            Route="SettingsPage"/>
+	</FlyoutItem>
 </Shell>

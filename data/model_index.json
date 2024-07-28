@@ -70,6 +70,7 @@
       "license:agpl-3.0",
       "region:us"
     ],
+    "pipeline_tag": "object-detection",
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
     "model_detail": "https://docs.ultralytics.com/models/yolov8/",
     "dataset_format": "yolo",
@@ -93,6 +94,7 @@
       "en",
       "license:agpl-3.0"
     ],
+    "pipeline_tag": "object-detection",
     "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
     "model_detail": "https://docs.ultralytics.com/models/yolov8/",
     "dataset_format": "yolo",
@@ -116,6 +118,7 @@
       "en",
       "license:agpl-3.0"
     ],
+    "pipeline_tag": "object-detection",
     "model_desc": "YOLOv9t is the smallest version of the YOLOv9 family, designed for fast and efficient object detection on resource-constrained devices.",
     "model_detail": "https://docs.ultralytics.com/models/yolov9/",
     "dataset_format": "yolo",
@@ -139,6 +142,7 @@
       "en",
       "license:agpl-3.0"
     ],
+    "pipeline_tag": "object-detection",
     "model_detail": "https://docs.ultralytics.com/models/yolov10/",
     "dataset_format": "yolo",
     "requirements": {
@@ -161,6 +165,7 @@
       "en",
       "license:agpl-3.0"
     ],
+    "pipeline_tag": "object-detection",
     "model_detail": "https://docs.ultralytics.com/models/yolov10/",
     "dataset_format": "yolo",
     "requirements": {

@@ -50,6 +50,16 @@ class ConfigureRequest(BaseModel):
                         description="Example: Configuration parameters"
                     )]
 
+@router.get("/models")
+async def get_models():
+    try:
+        with open('data/model_index.json', 'r') as f:
+            models = json.load(f)
+        return JSONResponse(content=models)
+    except Exception as e:
+        logger.error(f"Error reading model index: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/upload-image/")
 async def upload_image(file: UploadFile = File(...)):
     try:
