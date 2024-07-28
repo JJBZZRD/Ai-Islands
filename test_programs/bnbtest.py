@@ -5,6 +5,8 @@ import os
 import tkinter as tk
 from tkinter import scrolledtext, ttk
 import gc
+from backend.core.exceptions import FileReadError, FileWriteError
+from backend.data_utils.json_handler import JSONHandler
 
 class SettingsWindow:
     def __init__(self, master, chat_interface):
@@ -15,26 +17,19 @@ class SettingsWindow:
         notebook = ttk.Notebook(self.window)
         notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # BNB Config
-        bnb_frame = ttk.Frame(notebook)
-        notebook.add(bnb_frame, text="BNB Config")
-        self.load_in_4bit = tk.BooleanVar(value=True)
-        self.bnb_4bit_use_double_quant = tk.BooleanVar(value=True)
-        self.bnb_4bit_quant_type = tk.StringVar(value="nf4")
-        self.bnb_4bit_compute_dtype = tk.StringVar(value="bfloat16")
-
-        ttk.Checkbutton(bnb_frame, text="Load in 4-bit", variable=self.load_in_4bit).pack(anchor=tk.W)
-        ttk.Checkbutton(bnb_frame, text="Use double quant", variable=self.bnb_4bit_use_double_quant).pack(anchor=tk.W)
-        ttk.Label(bnb_frame, text="Quant type:").pack(anchor=tk.W)
-        ttk.Entry(bnb_frame, textvariable=self.bnb_4bit_quant_type).pack(fill=tk.X)
-        ttk.Label(bnb_frame, text="Compute dtype:").pack(anchor=tk.W)
-        ttk.Entry(bnb_frame, textvariable=self.bnb_4bit_compute_dtype).pack(fill=tk.X)
+        # Quantization frame
+        quant_frame = ttk.Frame(notebook)
+        notebook.add(quant_frame, text="Quantization")
+        self.quant_mode = tk.StringVar(value=chat_interface.settings["quantization_config"].get("current_mode", "4-bit"))
+        ttk.Label(quant_frame, text="Quantization mode:").pack(anchor=tk.W)
+        ttk.Radiobutton(quant_frame, text="4-bit", variable=self.quant_mode, value="4-bit").pack(anchor=tk.W)
+        ttk.Radiobutton(quant_frame, text="8-bit", variable=self.quant_mode, value="8-bit").pack(anchor=tk.W)
 
         # Pipeline Parameters
         pipeline_frame = ttk.Frame(notebook)
         notebook.add(pipeline_frame, text="Pipeline")
-        self.max_new_tokens = tk.IntVar(value=100)
-        self.num_return_sequences = tk.IntVar(value=1)
+        self.max_new_tokens = tk.IntVar(value=chat_interface.settings["pipeline_config"]["max_new_tokens"])
+        self.num_return_sequences = tk.IntVar(value=chat_interface.settings["pipeline_config"]["num_return_sequences"])
 
         ttk.Label(pipeline_frame, text="Max new tokens:").pack(anchor=tk.W)
         ttk.Entry(pipeline_frame, textvariable=self.max_new_tokens).pack(fill=tk.X)
@@ -44,8 +39,8 @@ class SettingsWindow:
         # Model Parameters
         model_frame = ttk.Frame(notebook)
         notebook.add(model_frame, text="Model")
-        self.model_name = tk.StringVar(value="meta-llama/Meta-Llama-3.1-8B-Instruct")
-        self.cache_dir = tk.StringVar(value="data/downloads/transformers/meta-llama/Meta-Llama-3.1-8B-Instruct")
+        self.model_name = tk.StringVar(value=chat_interface.settings["model"]["name"])
+        self.cache_dir = tk.StringVar(value=chat_interface.settings["model"]["cache_dir"])
 
         ttk.Label(model_frame, text="Model name:").pack(anchor=tk.W)
         ttk.Entry(model_frame, textvariable=self.model_name).pack(fill=tk.X)
@@ -60,7 +55,7 @@ class SettingsWindow:
         # System Prompt
         system_frame = ttk.Frame(notebook)
         notebook.add(system_frame, text="System Prompt")
-        self.system_prompt = tk.StringVar(value="You are a helpful AI assistant.")
+        self.system_prompt = tk.StringVar(value=chat_interface.settings["system_prompt"])
         ttk.Label(system_frame, text="System prompt:").pack(anchor=tk.W)
         ttk.Entry(system_frame, textvariable=self.system_prompt).pack(fill=tk.X)
 
@@ -94,72 +89,88 @@ class ChatInterface:
         self.settings_button = tk.Button(master, text="Settings", command=self.open_settings)
         self.settings_button.grid(row=2, column=2, padx=10, pady=10)
 
-        self.messages = [
-            {"role": "system", "content": "You are a helpful AI assistant."}
-        ]
+        self.json_handler = JSONHandler()
+        self.config_file = "test programs/bnbtest_library.json"
+        self.load_settings_from_json()
 
         self.model = None
         self.tokenizer = None
         self.text_generation_pipeline = None
         self.accelerator = None
 
-        # Default settings
-        self.settings = {
-            "bnb_config": {
-                "load_in_4bit": True,
-                "bnb_4bit_use_double_quant": True,
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_compute_dtype": torch.bfloat16
-            },
-            "pipeline": {
-                "max_new_tokens": 100,
-                "num_return_sequences": 1
-            },
-            "model": {
-                "name": "meta-llama/Meta-Llama-3.1-8B-Instruct",
-                "cache_dir": "data/downloads/transformers/meta-llama/Meta-Llama-3.1-8B-Instruct"
-            },
-            "system_prompt": "You are a helpful AI assistant."
-        }
+    def load_settings_from_json(self):
+        try:
+            config = self.json_handler.read_json(self.config_file)
+            model_config = config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["config"]
+            
+            self.settings = {
+                "model_config": model_config["model_config"],
+                "tokenizer_config": model_config["tokenizer_config"],
+                "processor_config": model_config["processor_config"],
+                "pipeline_config": model_config["pipeline_config"],
+                "device_config": model_config["device_config"],
+                "quantization_config": model_config["quantization_config"],
+                "auth_token": model_config["auth_token"],
+                "system_prompt": model_config["system_prompt"],
+                "model": {
+                    "name": config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["base_model"],
+                    "cache_dir": config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["dir"]
+                }
+            }
+            
+            self.messages = [
+                {"role": "system", "content": self.settings["system_prompt"]}
+            ]
+            
+        except FileReadError as e:
+            print(f"Error loading settings: {e}")
+            self.update_chat_history("Error loading settings. Please check the configuration file.\n")
 
-    def open_settings(self):
-        SettingsWindow(self.master, self)
+    def save_settings_to_json(self):
+        try:
+            config = self.json_handler.read_json(self.config_file)
+            model_config = config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["config"]
+            
+            model_config.update(self.settings)
+            model_config.pop("model", None)  # Remove the 'model' key from the config
+            
+            config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["base_model"] = self.settings["model"]["name"]
+            config["meta-llama/Meta-Llama-3.1-8B-Instruct"]["dir"] = self.settings["model"]["cache_dir"]
+            
+            self.json_handler.write_json(self.config_file, config)
+        except (FileReadError, FileWriteError) as e:
+            print(f"Error saving settings: {e}")
+            self.update_chat_history("Error saving settings. Changes may not persist.\n")
 
-    def update_settings(self, settings_window):
-        self.settings["bnb_config"]["load_in_4bit"] = settings_window.load_in_4bit.get()
-        self.settings["bnb_config"]["bnb_4bit_use_double_quant"] = settings_window.bnb_4bit_use_double_quant.get()
-        self.settings["bnb_config"]["bnb_4bit_quant_type"] = settings_window.bnb_4bit_quant_type.get()
-        self.settings["bnb_config"]["bnb_4bit_compute_dtype"] = getattr(torch, settings_window.bnb_4bit_compute_dtype.get())
-        self.settings["pipeline"]["max_new_tokens"] = settings_window.max_new_tokens.get()
-        self.settings["pipeline"]["num_return_sequences"] = settings_window.num_return_sequences.get()
-        self.settings["model"]["name"] = settings_window.model_name.get()
-        self.settings["model"]["cache_dir"] = settings_window.cache_dir.get()
-        self.settings["system_prompt"] = settings_window.system_prompt.get()
-
-        self.messages[0] = {"role": "system", "content": self.settings["system_prompt"]}
-        self.update_chat_history("Settings updated. Please reload the model for changes to take effect.\n")
+    def set_quantization_mode(self, mode):
+        self.settings["quantization_config"]["current_mode"] = mode
+        self.save_settings_to_json()
+        self.update_chat_history(f"Quantization mode set to {mode} and saved. Please reload the model for changes to take effect.\n")
 
     def load_model(self):
-        USE_CPU = False
+        USE_CPU = self.settings["device_config"]["device"] == "cpu"
         self.accelerator = Accelerator(cpu=USE_CPU)
 
         if not os.path.exists(self.settings["model"]["cache_dir"]):
             self.update_chat_history("Error: Cache directory not found.\n")
             return
 
-        bnb_config = BitsAndBytesConfig(**self.settings["bnb_config"])
+        current_mode = self.settings["quantization_config"].get("current_mode", "4-bit")
+        bnb_config = BitsAndBytesConfig(**self.settings["quantization_config"][current_mode])
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.settings["model"]["name"],
             cache_dir=self.settings["model"]["cache_dir"],
             local_files_only=True,
             quantization_config=bnb_config,
+            **self.settings["model_config"]
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.settings["model"]["name"],
             cache_dir=self.settings["model"]["cache_dir"],
-            local_files_only=True
+            local_files_only=True,
+            **self.settings["tokenizer_config"]
         )
 
         self.model = self.accelerator.prepare(self.model)
@@ -167,7 +178,8 @@ class ChatInterface:
         self.text_generation_pipeline = pipeline(
             "text-generation",
             model=self.model,
-            tokenizer=self.tokenizer
+            tokenizer=self.tokenizer,
+            **self.settings["pipeline_config"]
         )
 
         self.send_button.config(state=tk.NORMAL)
@@ -234,6 +246,21 @@ class ChatInterface:
         self.chat_history.insert(tk.END, message)
         self.chat_history.configure(state='disabled')
         self.chat_history.see(tk.END)
+
+    def open_settings(self):
+        SettingsWindow(self.master, self)
+
+    def update_settings(self, settings_window):
+        self.settings["pipeline_config"]["max_new_tokens"] = settings_window.max_new_tokens.get()
+        self.settings["pipeline_config"]["num_return_sequences"] = settings_window.num_return_sequences.get()
+        self.settings["model"]["name"] = settings_window.model_name.get()
+        self.settings["model"]["cache_dir"] = settings_window.cache_dir.get()
+        self.settings["system_prompt"] = settings_window.system_prompt.get()
+        self.set_quantization_mode(settings_window.quant_mode.get())
+
+        self.messages[0] = {"role": "system", "content": self.settings["system_prompt"]}
+        self.save_settings_to_json()
+        self.update_chat_history("Settings updated and saved. Please reload the model for changes to take effect.\n")
 
 # Create and run the Tkinter application
 root = tk.Tk()
