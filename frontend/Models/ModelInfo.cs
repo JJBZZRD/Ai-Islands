@@ -8,6 +8,8 @@ namespace frontend.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        
+        [JsonPropertyName("is_online")]
         public bool IsOnline { get; set; }
 
         [JsonPropertyName("pipeline_tag")]

@@ -13,9 +13,7 @@ namespace frontend.Models
 
         public string PipelineTag { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_online")]
         public bool IsOnline { get; set; }
-
         public string Status => IsOnline ? "Online" : "Offline";
         public string Description { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
