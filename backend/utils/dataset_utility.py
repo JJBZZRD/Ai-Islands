@@ -83,7 +83,11 @@ class DatasetManagement:
         logger.info(f"Initializing Watson embeddings: {model_name}")
         api_key = watson_settings.get("IBM_CLOUD_API_KEY")
         url = watson_settings.get("IBM_CLOUD_MODELS_URL")
-        project_id = self._get_or_create_project_id()
+        project_id = watson_settings.get("USER_PROJECT_ID")
+
+        if not project_id:
+            project_id = self._get_or_create_project_id()
+            watson_settings.set("USER_PROJECT_ID", project_id)
 
         if not all([api_key, url, project_id]):
             logger.error("Missing required Watson credentials")
@@ -142,12 +146,20 @@ class DatasetManagement:
 
     def _get_or_create_project_id(self):
         logger.info("Getting or creating project ID")
+        project_id = watson_settings.get("USER_PROJECT_ID")
+        if project_id:
+            logger.info(f"Using existing project ID: {project_id}")
+            return project_id
+
         projects = get_projects()
         if not projects:
             logger.error("No projects available")
             raise ValueError("No projects available. Please create a project in IBM Watson Studio.")
-        logger.info(f"Using project ID: {projects[0]['id']}")
-        return projects[0]["id"]
+        
+        project_id = projects[0]["id"]
+        watson_settings.set("USER_PROJECT_ID", project_id)
+        logger.info(f"Created and stored new project ID: {project_id}")
+        return project_id
 
     @classmethod
     def get_available_models(cls):
