@@ -183,14 +183,14 @@ class ChatInterface:
             **self.settings["tokenizer_config"]
         )
 
-        self.model = self.accelerator.prepare(self.model)
+        ##self.model = self.accelerator.prepare(self.model)
 
-        self.text_generation_pipeline = pipeline(
+        self.text_generation_pipeline = self.accelerator.prepare(pipeline(
             "text-generation",
             model=self.model,
             tokenizer=self.tokenizer,
             **self.settings["pipeline_config"]
-        )
+        ))
 
         self.send_button.config(state=tk.NORMAL)
         self.load_button.config(state=tk.DISABLED)
