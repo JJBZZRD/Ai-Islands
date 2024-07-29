@@ -28,6 +28,7 @@ class SettingsWindow:
         ttk.Label(quant_frame, text="Quantization mode:").pack(anchor=tk.W)
         ttk.Radiobutton(quant_frame, text="4-bit", variable=self.quant_mode, value="4-bit").pack(anchor=tk.W)
         ttk.Radiobutton(quant_frame, text="8-bit", variable=self.quant_mode, value="8-bit").pack(anchor=tk.W)
+        ttk.Radiobutton(quant_frame, text="bfloat16", variable=self.quant_mode, value="bfloat16").pack(anchor=tk.W)
 
         # Pipeline Parameters
         pipeline_frame = ttk.Frame(notebook)
@@ -165,15 +166,20 @@ class ChatInterface:
             self.update_chat_history("Error: Cache directory not found.\n")
             return
 
+        model_config = self.settings["model_config"].copy()
+
         current_mode = self.settings["quantization_config"].get("current_mode", "4-bit")
-        bnb_config = BitsAndBytesConfig(**self.settings["quantization_config"])
+        if current_mode != "bfloat16" and self.settings["quantization_config"]:
+            bnb_config = BitsAndBytesConfig(**self.settings["quantization_config"])
+            model_config["quantization_config"] = bnb_config
+        else:
+            model_config["torch_dtype"] = torch.bfloat16
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.settings["model"]["name"],
             cache_dir=self.settings["model"]["cache_dir"],
             local_files_only=True,
-            quantization_config=bnb_config,
-            **self.settings["model_config"]
+            **model_config
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -183,19 +189,29 @@ class ChatInterface:
             **self.settings["tokenizer_config"]
         )
 
-        ##self.model = self.accelerator.prepare(self.model)
+        # Prepare the model using accelerator
+        self.model = self.accelerator.prepare(self.model)
 
-        self.text_generation_pipeline = self.accelerator.prepare(pipeline(
+        self.text_generation_pipeline = pipeline(
             "text-generation",
             model=self.model,
             tokenizer=self.tokenizer,
             **self.settings["pipeline_config"]
-        ))
+        )
+
+        # Prepare the pipeline using accelerator
+        self.text_generation_pipeline = self.accelerator.prepare(self.text_generation_pipeline)
 
         self.send_button.config(state=tk.NORMAL)
         self.load_button.config(state=tk.DISABLED)
         self.unload_button.config(state=tk.NORMAL)
-        self.update_chat_history("Model loaded successfully.\n")
+        self.update_chat_history(f"Model loaded successfully on {self.accelerator.device}.\n")
+
+        # Debug prints
+        print(f"Device config: {self.settings['device_config']['device']}")
+        print(f"Quantization mode: {current_mode}")
+        print(f"Model device: {self.model.device}")
+        print(f"Accelerator device: {self.accelerator.device}")
 
     def unload_model(self):
         if self.text_generation_pipeline:
@@ -264,7 +280,10 @@ class ChatInterface:
     def update_settings(self, settings_window):
         # Update quantization settings
         quant_mode = settings_window.quant_mode.get()
-        self.settings["quantization_config"] = self.settings["quantization_config_options"][quant_mode].copy()
+        if quant_mode == "bfloat16":
+            self.settings["quantization_config"] = {}
+        else:
+            self.settings["quantization_config"] = self.settings["quantization_config_options"][quant_mode].copy()
         self.settings["quantization_config"]["current_mode"] = quant_mode
 
         # Update pipeline settings

@@ -46,11 +46,7 @@
                 "device": "cuda"
             },
             "quantization_config": {
-                "load_in_4bit": true,
-                "bnb_4bit_use_double_quant": true,
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_compute_dtype": "bfloat16",
-                "current_mode": "4-bit"
+                "current_mode": "bfloat16"
             },
             "quantization_config_options": {
                 "4-bit": {
@@ -61,7 +57,8 @@
                 },
                 "8-bit": {
                     "load_in_8bit": true
-                }
+                },
+                "bfloat16": {}
             },
             "auth_token": "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",
             "system_prompt": "You are a helpful assistant."
