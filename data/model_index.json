@@ -1011,7 +1011,7 @@
       "Yoruba"
     ],
     "pipeline_tag": "text-classification",
-    "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
+    "model_card_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
     "requirements": {
       "required_classes": {
         "model": "AutoModelForSequenceClassification",
@@ -2276,12 +2276,103 @@
     },
     "config": {
       "pipeline_config": {
+        "max_new_tokens": 128,
+        "chunk_length_s": 30,
+        "batch_size": 16,
         "return_timestamps": false,
         "generate_kwargs": {
           "language": null,
           "task": null
         }
       }
+    }
+  },
+  "suno/bark-small": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text to Speech",
+      "Audio",
+      "Multilingual",
+      "nonverbal communications"
+    ],
+    "languages": [
+      "English",
+      "German",
+      "Spanish",
+      "French",
+      "Hindi",
+      "Italian",
+      "Japanese",
+      "Korean",
+      "Polish",
+      "Portuguese",
+      "Russian",
+      "Turkish"
+    ],
+    "pipeline_tag": "text-to-speech",
+    "model_desc": "Bark is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio - including music, background noise and simple sound effects. The model can also produce nonverbal communications like laughing, sighing and crying. To support the research community, we are providing access to pretrained model checkpoints ready for inference.",
+    "model_card_url": "https://huggingface.co/suno/bark-small",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModel",
+        "tokenizer": "AutoTokenizer",
+        "config": "AutoConfig"
+      }
+    },
+    "config": {
+      "pipeline_config": {
+        "forward_params": {
+          "do_sample": true
+        }
+      }
+    }
+  },
+  "facebook/mms-tts-eng": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text to Speech",
+      "Audio",
+      "English"
+    ],
+    "languages": ["English"],
+    "pipeline_tag": "text-to-speech",
+    "model_desc": "VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) is an end-to-end speech synthesis model that predicts a speech waveform conditional on an input text sequence. It is a conditional variational autoencoder (VAE) comprised of a posterior encoder, decoder, and conditional prior. A set of spectrogram-based acoustic features are predicted by the flow-based module, which is formed of a Transformer-based text encoder and multiple coupling layers. The spectrogram is decoded using a stack of transposed convolutional layers, much in the same style as the HiFi-GAN vocoder. Motivated by the one-to-many nature of the TTS problem, where the same text input can be spoken in multiple ways, the model also includes a stochastic duration predictor, which allows the model to synthesise speech with different rhythms from the same input text.The model is trained end-to-end with a combination of losses derived from variational lower bound and adversarial training. To improve the expressiveness of the model, normalizing flows are applied to the conditional prior distribution. During inference, the text encodings are up-sampled based on the duration prediction module, and then mapped into the waveform using a cascade of the flow module and HiFi-GAN decoder. Due to the stochastic nature of the duration predictor, the model is non-deterministic, and thus requires a fixed seed to generate the same speech waveform.",
+    "model_card_url": "https://huggingface.co/facebook/mms-tts-eng",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForTextToWaveform",
+        "tokenizer": "AutoTokenizer"
+      }
+    },
+    "config": {}
+  },
+  "microsoft/speecht5_tts": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "tags": [
+      "Text to Speech",
+      "Audio",
+      "English"
+    ],
+    "languages": ["English"],
+    "pipeline_tag": "text-to-speech",
+    "model_desc": "Motivated by the success of T5 (Text-To-Text Transfer Transformer) in pre-trained natural language processing models, we propose a unified-modal SpeechT5 framework that explores the encoder-decoder pre-training for self-supervised speech/text representation learning. The SpeechT5 framework consists of a shared encoder-decoder network and six modal-specific (speech/text) pre/post-nets. After preprocessing the input speech/text through the pre-nets, the shared encoder-decoder network models the sequence-to-sequence transformation, and then the post-nets generate the output in the speech/text modality based on the output of the decoder. Leveraging large-scale unlabeled speech and text data, we pre-train SpeechT5 to learn a unified-modal representation, hoping to improve the modeling capability for both speech and text. To align the textual and speech information into this unified semantic space, we propose a cross-modal vector quantization approach that randomly mixes up speech/text states with latent units as the interface between encoder and decoder.",
+    "model_card_url": "https://huggingface.co/microsoft/speecht5_tts",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForTextToSpectrogram",
+        "tokenizer": "AutoTokenizer",
+        "feature_extractor": "AutoFeatureExtractor"
+      },
+      "required_packages": ["sentencepiece"]
+    },
+    "config": {
+      "speaker_embedding_config": "default"
     }
   },
   "meta-llama/Meta-Llama-3.1-8B-Instruct": {
