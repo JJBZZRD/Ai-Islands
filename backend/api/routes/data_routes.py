@@ -4,6 +4,7 @@ from backend.utils.dataset_utility import DatasetManagement
 import json
 from pathlib import Path
 import logging
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,8 @@ class ChunkingSettings(BaseModel):
     chunk_size: int = 500
     chunk_overlap: int = 50
     chunk_method: str = 'fixed_length'
+    rows_per_chunk: int = 1
+    csv_columns: List[str] = []
 
 class DatasetProcessRequest(BaseModel):
     file_path: str
@@ -28,7 +31,8 @@ async def process_dataset(request: DatasetProcessRequest):
             chunking_settings = json.load(f)
 
         dataset_manager = DatasetManagement(model_name=request.model_name)
-        result = dataset_manager.process_dataset(request.file_path, chunking_settings=chunking_settings)
+        file_path = Path(request.file_path)
+        result = dataset_manager.process_dataset(file_path, chunking_settings=chunking_settings)
         return result
     except Exception as e:
         logger.error(f"Error processing dataset: {str(e)}", exc_info=True)

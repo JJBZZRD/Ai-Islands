@@ -13,6 +13,7 @@ from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService
 import logging
 from backend.utils.watson_settings_manager import watson_settings
 import shutil
+from backend.utils.file_type_manager import FileTypeManager
 
 load_dotenv()
 
@@ -48,6 +49,7 @@ class DatasetManagement:
         logger.info(f"Initializing DatasetManagement with model: {self.model_name}")
         self.embeddings = None
         self.chunking_settings = self._load_chunking_settings()
+        self.file_type_manager = FileTypeManager()
 
     def _load_chunking_settings(self):
         config_path = Path("backend/settings/chunking_settings.json")
@@ -172,38 +174,50 @@ class DatasetManagement:
         logger.info(f"Generated embeddings with shape: {embeddings.shape}")
         return embeddings
 
-    def process_dataset(self, file_path: str, chunking_settings: dict = None):
+    def process_dataset(self, file_path: Path, chunking_settings: dict = None):
+        logger.info(f"Processing dataset: {file_path}")
         try:
-            logger.info(f"Processing dataset: {file_path}")
             if chunking_settings:
                 self.chunking_settings = chunking_settings
             
-            file_path = Path(file_path)
             filename = file_path.stem
             dataset_dir = Path("Datasets") / filename
             dataset_dir.mkdir(parents=True, exist_ok=True)
 
-            original_csv_path = dataset_dir / f"{filename}.csv"
-            if not original_csv_path.exists():
-                shutil.copy2(file_path, original_csv_path)
+            original_file_path = dataset_dir / file_path.name
+            if not original_file_path.exists():
+                shutil.copy2(file_path, original_file_path)
 
             method_folder = "chunked" if self.chunking_settings["use_chunking"] else "default"
             processing_dir = dataset_dir / method_folder
             processing_dir.mkdir(exist_ok=True)
 
-            df = pd.read_csv(original_csv_path)
-            logger.info(f"Loaded dataset with {len(df)} rows")
+            is_csv = file_path.suffix.lower() == '.csv'
             
-            texts = df.apply(lambda row: ' '.join([f"{col}: {val}" for col, val in row.items()]), axis=1).tolist()
-
-            if self.chunking_settings["use_chunking"]:
-                chunked_texts = self._create_chunks(texts)
-                logger.info(f"Created {len(chunked_texts)} chunks during preprocessing")
-                logger.info(f"Sample chunk: {chunked_texts[0][:50]}...")  # Log a sample chunk
-                embeddings = self.generate_embeddings(chunked_texts)
+            if is_csv:
+                df = pd.read_csv(file_path)
+                if self.chunking_settings["use_chunking"] and self.chunking_settings["chunk_method"] == 'csv_row':
+                    texts = self._process_csv_rows(df)
+                    # Save chunks separately
+                    chunks_pickle_path = processing_dir / "chunks.pkl"
+                    with open(chunks_pickle_path, 'wb') as f:
+                        pickle.dump(texts, f)
+                    logger.info(f"Saved chunks to {chunks_pickle_path}")
+                else:
+                    texts = df.apply(lambda row: ', '.join([f"{col}: {val}" for col, val in row.items()]), axis=1).tolist()
             else:
-                embeddings = self.generate_embeddings(texts)
-            
+                texts = self.file_type_manager.read_file(file_path)
+                if self.chunking_settings["use_chunking"]:
+                    texts = self._create_chunks(texts)
+                    # Save chunks separately
+                    chunks_pickle_path = processing_dir / "chunks.pkl"
+                    with open(chunks_pickle_path, 'wb') as f:
+                        pickle.dump(texts, f)
+                    logger.info(f"Saved chunks to {chunks_pickle_path}")
+
+            logger.info(f"Processed dataset with {len(texts)} chunks/rows")
+
+            embeddings = self.generate_embeddings(texts)
             logger.info(f"Generated {len(embeddings)} embeddings")
 
             faiss.normalize_L2(embeddings)
@@ -221,14 +235,9 @@ class DatasetManagement:
             logger.info(f"Saved embeddings to {embedding_pickle_path}")
 
             data_pickle_path = processing_dir / "data.pkl"
-            df.to_pickle(data_pickle_path)
-            logger.info(f"Saved original data to {data_pickle_path}")
-
-            if self.chunking_settings["use_chunking"]:
-                chunks_pickle_path = processing_dir / "chunks.pkl"
-                with open(chunks_pickle_path, 'wb') as f:
-                    pickle.dump(chunked_texts, f)
-                logger.info(f"Saved {len(chunked_texts)} chunks to {chunks_pickle_path}")
+            with open(data_pickle_path, 'wb') as f:
+                pickle.dump(texts, f)
+            logger.info(f"Saved processed data to {data_pickle_path}")
 
             model_info = {
                 "model_type": 'watson' if isinstance(self.embeddings, WatsonxEmbeddings) else 'sentence_transformer',
@@ -245,32 +254,73 @@ class DatasetManagement:
             return {"message": "Dataset processed successfully", "model_info": model_info}
 
         except Exception as e:
-            logger.error(f"Error processing dataset: {e}")
+            logger.error(f"Error processing dataset: {e}", exc_info=True)
             return {"message": "Error processing dataset", "error": str(e)}
 
     def _create_chunks(self, texts):
-        chunk_size = self.chunking_settings.get('chunk_size', 30)
-        chunk_overlap = self.chunking_settings.get('chunk_overlap', 5)
         chunk_method = self.chunking_settings.get('chunk_method', 'fixed_length')
+        chunk_size = self.chunking_settings.get('chunk_size', 500)
+        chunk_overlap = self.chunking_settings.get('chunk_overlap', 50)
         
-        logger.info(f"Creating chunks with size: {chunk_size}, overlap: {chunk_overlap}, method: {chunk_method}")
+        logger.info(f"Creating chunks with method: {chunk_method}")
         
         chunks = []
-        for text in texts:
-            if chunk_method == 'fixed_length':
-                # Split the text into fields
-                fields = text.split(',')
-                # Join fields with a space for better readability
-                text = ' '.join(f"{field.strip()}" for field in fields)
-                # Create chunks
-                text_chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size - chunk_overlap)]
-                chunks.extend(text_chunks)
+        if chunk_method == 'csv_row':
+            chunks = texts  # For CSV, each row is already a separate item
+        else:
+            for text in texts:
+                if chunk_method == 'fixed_length':
+                    chunks.extend(self._fixed_length_chunks(text, chunk_size, chunk_overlap))
+                elif chunk_method == 'sentence':
+                    chunks.extend(self._sentence_chunks(text))
+                elif chunk_method == 'paragraph':
+                    chunks.extend(self._paragraph_chunks(text))
+                else:
+                    logger.warning(f"Unknown chunking method: {chunk_method}. Falling back to fixed_length.")
+                    chunks.extend(self._fixed_length_chunks(text, chunk_size, chunk_overlap))
         
         logger.info(f"Created {len(chunks)} total chunks from {len(texts)} original texts")
         logger.info(f"Sample chunks:")
         for i in range(min(3, len(chunks))):
-            logger.info(f"Chunk {i+1}: {chunks[i]}")
+            logger.info(f"Chunk {i+1}: {chunks[i][:100]}...")  # Show first 100 chars of each sample chunk
         return chunks
+
+    def _process_csv_rows(self, df):
+        rows_per_chunk = self.chunking_settings.get('rows_per_chunk', 1)
+        columns = self.chunking_settings.get('csv_columns', df.columns.tolist())
+        
+        chunks = []
+        for i in range(0, len(df), rows_per_chunk):
+            chunk_rows = df.iloc[i:i+rows_per_chunk]
+            chunk_text = []
+            for j, row in chunk_rows.iterrows():
+                row_text = ', '.join([f"{col}: {row[col]}" for col in columns])
+                chunk_text.append(f"Row {j+1}: {row_text}")
+            chunks.append('\n'.join(chunk_text))
+        
+        logger.info(f"Created {len(chunks)} chunks from CSV data")
+        logger.info(f"Sample chunk: {chunks[0][:200]}...")  # Log a sample chunk for verification
+        return chunks
+
+    def _fixed_length_chunks(self, text, chunk_size, chunk_overlap):
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = start + chunk_size
+            chunk = text[start:end]
+            chunks.append(chunk)
+            start += chunk_size - chunk_overlap
+        return chunks
+
+    def _sentence_chunks(self, text):
+        # Simple sentence splitting using periods, question marks, and exclamation points
+        sentences = text.replace('!', '.').replace('?', '.').split('.')
+        return [sentence.strip() for sentence in sentences if sentence.strip()]
+
+    def _paragraph_chunks(self, text):
+        # Simple paragraph splitting using double newlines
+        paragraphs = text.split('\n\n')
+        return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
     def list_datasets(self):
         try:
@@ -318,6 +368,10 @@ class DatasetManagement:
         relevant_similarities = D[0][D[0] > similarity_threshold]
         logger.info(f"Found {len(relevant_indices)} entries above similarity threshold {similarity_threshold}")
 
+        if len(relevant_indices) == 0:
+            logger.info("No relevant entries found above the similarity threshold")
+            return []  # Return an empty list if no relevant entries are found
+
         if use_chunking:
             chunks_pickle_path = processing_dir / "chunks.pkl"
             if chunks_pickle_path.exists():
@@ -330,9 +384,9 @@ class DatasetManagement:
                     logger.info(f"Chunk {i+1}: {relevant_entries[i]}")
             else:
                 logger.warning("Chunks file not found. Falling back to full entries.")
-                relevant_entries = original_data.iloc[relevant_indices].to_dict('records')
+                relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
         else:
-            relevant_entries = original_data.iloc[relevant_indices].to_dict('records')
+            relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
             logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
 
         # Sort entries by similarity (highest to lowest)
@@ -344,9 +398,13 @@ class DatasetManagement:
         return formatted_entries
 
     def format_entry(self, entry):
-        if isinstance(entry, str):  # It's a chunk
+        if isinstance(entry, str):  # It's a chunk or a string entry
             return entry
+        elif isinstance(entry, (list, np.ndarray)):
+            return ', '.join([f"{val}" for val in entry])
         elif isinstance(entry, dict):
+            return ', '.join([f"{key}: {value}" for key, value in entry.items()])
+        elif isinstance(entry, pd.Series):
             return ', '.join([f"{key}: {value}" for key, value in entry.items()])
         else:
             return str(entry)  # Fallback for any other type
