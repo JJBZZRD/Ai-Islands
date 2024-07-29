@@ -46,7 +46,8 @@ class DatasetManagement:
 
     def __init__(self, model_name=None):
         self.model_name = model_name or self.SENTENCE_TRANSFORMER_MODELS[0]
-        logger.info(f"Initializing DatasetManagement with model: {self.model_name}")
+        self.model_type = 'watson' if self.model_name in self.WATSON_MODELS else 'sentence_transformer'
+        logger.info(f"Initializing DatasetManagement with model: {self.model_name} (type: {self.model_type})")
         self.embeddings = None
         self.chunking_settings = self._load_chunking_settings()
         self.file_type_manager = FileTypeManager()
@@ -66,8 +67,11 @@ class DatasetManagement:
             }
 
     def _initialize_embedding_model(self, model_info):
-        model_type = model_info['model_type']
-        model_name = model_info['model_name']
+        logger.info(f"Initializing embedding model with info: {model_info}")
+        model_type = model_info.get('model_type')
+        model_name = model_info.get('model_name')
+        
+        logger.info(f"Model type: {model_type}, Model name: {model_name}")
         
         if model_type == 'watson':
             logger.info(f"Initializing Watson embeddings: {model_name}")
@@ -85,9 +89,14 @@ class DatasetManagement:
         url = watson_settings.get("IBM_CLOUD_MODELS_URL")
         project_id = watson_settings.get("USER_PROJECT_ID")
 
+        logger.info(f"Initial project ID from settings: {project_id}")
+
         if not project_id:
             project_id = self._get_or_create_project_id()
             watson_settings.set("USER_PROJECT_ID", project_id)
+            logger.info(f"New project ID set: {project_id}")
+
+        logger.info(f"Final project ID being used: {project_id}")
 
         if not all([api_key, url, project_id]):
             logger.error("Missing required Watson credentials")
@@ -170,11 +179,14 @@ class DatasetManagement:
 
     def generate_embeddings(self, texts, model_info=None):
         logger.info(f"Generating embeddings for {len(texts)} texts")
+        logger.info(f"Model info: {model_info}")
         
         if model_info is None:
             if self.embeddings is None:
-                self.embeddings = self._initialize_embedding_model({'model_type': 'sentence_transformer', 'model_name': self.model_name})
+                logger.info(f"Initializing default embedding model: {self.model_name} (type: {self.model_type})")
+                self.embeddings = self._initialize_embedding_model({'model_type': self.model_type, 'model_name': self.model_name})
         else:
+            logger.info(f"Initializing embedding model with provided info: {model_info}")
             self.embeddings = self._initialize_embedding_model(model_info)
 
         if isinstance(self.embeddings, WatsonxEmbeddings):
@@ -229,7 +241,11 @@ class DatasetManagement:
 
             logger.info(f"Processed dataset with {len(texts)} chunks/rows")
 
-            embeddings = self.generate_embeddings(texts)
+            model_info = {
+                "model_type": 'watson' if self.model_name in self.WATSON_MODELS else 'sentence_transformer',
+                "model_name": self.model_name
+            }
+            embeddings = self.generate_embeddings(texts, model_info)
             logger.info(f"Generated {len(embeddings)} embeddings")
 
             faiss.normalize_L2(embeddings)

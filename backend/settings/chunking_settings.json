@@ -1,5 +1,5 @@
 {
-  "use_chunking": true,
+  "use_chunking": false,
   "chunk_size": 500,
   "chunk_overlap": 50,
   "chunk_method": "paragraph",
