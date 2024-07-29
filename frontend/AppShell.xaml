@@ -5,10 +5,26 @@
        x:Class="frontend.Views.AppShell"
        FlyoutBehavior="Flyout">
 
-	<!-- AI Index Page -->
+    <Shell.TitleView>
+        <Grid Padding="15,0,0,0">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="Center">
+                <Image Source="ai_island.png"
+                   HeightRequest="50"
+                   WidthRequest="50"
+                   VerticalOptions="Center"/>
+                <Label Text="AI Island"
+                   FontSize="19"
+                   TextColor="White"
+                   VerticalOptions="Center"
+                   />
+            </StackLayout>
+        </Grid>
+    </Shell.TitleView>
+
+    <!-- AI Index Page -->
 	<FlyoutItem Title="AI Index" Icon="ai_index.png">
 		<ShellContent
-            Title="AI Index"
+            Title="AI Index" 
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="AIIndexPage"/>
 	</FlyoutItem>

@@ -7,12 +7,22 @@ using System.IO;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using frontend.Models;
+using System.ComponentModel;
 
 namespace frontend.Views
 {
-    public partial class Library : ContentPage
+    public partial class Library : ContentPage, INotifyPropertyChanged
     {
-        public ObservableCollection<ModelItem> Models { get; set; }
+        private ObservableCollection<ModelItem> _models;
+        public ObservableCollection<ModelItem> Models
+        {
+            get => _models;
+            set
+            {
+                _models = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Library()
         {
@@ -22,29 +32,40 @@ namespace frontend.Views
             LoadLibraryModels();
         }
 
-        private void LoadLibraryModels()
+        private async void LoadLibraryModels()
         {
             try
             {
-                string jsonString = File.ReadAllText("library.json");
-                var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
-
-                foreach (var model in libraryModels)
+                using (HttpClient client = new HttpClient())
                 {
-                    Models.Add(new ModelItem
+                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library");
+                    if (response.IsSuccessStatusCode)
                     {
-                        Name = model.Key,
-                        PipelineTag = model.Value.PipelineTag,
-                        IsOnline = model.Value.IsOnline,
-                        Description = model.Value.Description ?? "No description available",
-                        Tags = string.Join(", ", model.Value.Tags ?? new List<string>()),
-                        LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
-                    });
+                        var jsonString = await response.Content.ReadAsStringAsync();
+                        var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
+
+                        foreach (var model in libraryModels)
+                        {
+                            Models.Add(new ModelItem
+                            {
+                                Name = model.Key,
+                                PipelineTag = model.Value.PipelineTag,
+                                IsOnline = model.Value.IsOnline,
+                                Description = model.Value.Description ?? "No description available",
+                                Tags = string.Join(", ", model.Value.Tags ?? new List<string>()),
+                                LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
+                            });
+                        }
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", "Failed to load library models.", "OK");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", $"Failed to load library models: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"Failed to load library models: {ex.Message}", "OK");
             }
         }
 

@@ -4,55 +4,95 @@
              x:Class="frontend.Views.Library"
              BackgroundColor="White">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <Label Text="Library" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
+            <Label Text="View and manage your pre-downloaded model" 
+               FontSize="17" TextColor="Black" />
 
-        <StackLayout Grid.Row="0" Padding="20">
-            <Label Text="Library" FontSize="24" FontAttributes="Bold"/>
-            <Label Text="View and manage your pre-downloaded models" FontSize="14" TextColor="Gray"/>
-        </StackLayout>
-
-        <Grid Grid.Row="1" Padding="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0">
+            <Grid Margin="0,20,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <SearchBar Grid.Column="0" Placeholder="Search" BackgroundColor="Transparent"/>
-                <Button Grid.Column="1" Text="Filter" BackgroundColor="#7B61FF" TextColor="White" CornerRadius="5" Margin="10,0,0,0"/>
+                <Frame Grid.Column="0" 
+                   Padding="5,0" 
+                   CornerRadius="10"
+                   HasShadow="False"
+                   BorderColor="#E0E0E0"
+                   BackgroundColor="White">
+                    <Frame.Shadow>
+                        <Shadow 
+                            Brush="Black"
+                            Offset="0,2"
+                            Radius="4"
+                            Opacity="1"/>
+                    </Frame.Shadow>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" 
+                           Source="search_icon_2.png" 
+                           HeightRequest="15" 
+                           WidthRequest="15" 
+                           Margin="10,0,0,0"/>
+                        <SearchBar Grid.Column="1" 
+                               Placeholder="Search" 
+                               PlaceholderColor="#888888"
+                               TextColor="Black"
+                               FontSize="15"
+                               HorizontalTextAlignment="Start"
+                               VerticalOptions="Center"
+                               BackgroundColor="Transparent"/>
+                    </Grid>
+                </Frame>
+                <Button Grid.Column="1" Text="Filter" BackgroundColor="#3366FF" TextColor="White" CornerRadius="5" Margin="10,0,0,0"/>
             </Grid>
 
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Models}" Margin="0,20,0,0">
+            <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="10" Padding="10">
+                <Grid ColumnDefinitions="3*, 2*, *, Auto">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                    <Label Text="Action" FontAttributes="Bold" Grid.Column="3" TextColor="Black"/>
+                </Grid>
+            </Frame>
+
+            <CollectionView ItemsSource="{Binding Models}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,0,0,10" Padding="10" BorderColor="LightGray">
-                            <StackLayout>
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <Label Text="{Binding Name}" FontAttributes="Bold" Grid.Column="0"/>
-                                    <Label Text="{Binding Status}" Grid.Column="1"/>
-                                </Grid>
-                                <Label Text="{Binding Type}" FontSize="Small"/>
-                                <Label Text="{Binding Description}" FontSize="Small"/>
-                                <Label Text="{Binding Tags}" FontSize="Small" TextColor="Gray"/>
-                                <Button Text="{Binding Status, Converter={StaticResource StatusToButtonTextConverter}}"
-                                        BackgroundColor="#7B61FF"
+                        <Frame BorderColor="LightGray" 
+                               BackgroundColor="White" 
+                               CornerRadius="10" 
+                               Padding="10" 
+                               HasShadow="True"
+							   Margin="0,5">
+                            <Grid ColumnDefinitions="3*, 2*, *, Auto">
+                                <Label Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center"
+                                       TextColor="Black"/>
+                                <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                       TextColor="Black"/>
+                                <Label Grid.Column="2" Text="{Binding Status}" VerticalOptions="Center"
+                                       TextColor="Gray"/>
+                                <Button Grid.Column="3" 
+                                        Text="Load"
+                                        BackgroundColor="#3366FF"
                                         TextColor="White"
                                         CornerRadius="5"
                                         Command="{Binding LoadOrStopCommand}"
-                                        HorizontalOptions="End"/>
-                            </StackLayout>
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="End"
+                                        Padding="10,5"/>
+                            </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </Grid>
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -33,7 +33,7 @@ namespace frontend.Views
         private async void LoadModels()
         {
             var client = new HttpClient();
-            var response = await client.GetAsync("http://127.0.0.1:8000/models");
+            var response = await client.GetAsync("http://127.0.0.1:8000/models?source=index");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
