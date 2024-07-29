@@ -14,6 +14,7 @@ ibm_watsonx_ai
 ibm_watson
 ibm_cloud_sdk_core
 pydub
+sentencepiece
 # Requires CUDA 12.1 installation for cuda access
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch
