@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, pipeline
 from accelerate import Accelerator
@@ -28,13 +32,18 @@ class SettingsWindow:
         # Pipeline Parameters
         pipeline_frame = ttk.Frame(notebook)
         notebook.add(pipeline_frame, text="Pipeline")
+        self.max_length = tk.IntVar(value=chat_interface.settings["pipeline_config"]["max_length"])
         self.max_new_tokens = tk.IntVar(value=chat_interface.settings["pipeline_config"]["max_new_tokens"])
-        self.num_return_sequences = tk.IntVar(value=chat_interface.settings["pipeline_config"]["num_return_sequences"])
+        self.num_beams = tk.IntVar(value=chat_interface.settings["pipeline_config"]["num_beams"])
+        self.use_cache = tk.BooleanVar(value=chat_interface.settings["pipeline_config"]["use_cache"])
 
+        ttk.Label(pipeline_frame, text="Max length:").pack(anchor=tk.W)
+        ttk.Entry(pipeline_frame, textvariable=self.max_length).pack(fill=tk.X)
         ttk.Label(pipeline_frame, text="Max new tokens:").pack(anchor=tk.W)
         ttk.Entry(pipeline_frame, textvariable=self.max_new_tokens).pack(fill=tk.X)
-        ttk.Label(pipeline_frame, text="Num return sequences:").pack(anchor=tk.W)
-        ttk.Entry(pipeline_frame, textvariable=self.num_return_sequences).pack(fill=tk.X)
+        ttk.Label(pipeline_frame, text="Num beams:").pack(anchor=tk.W)
+        ttk.Entry(pipeline_frame, textvariable=self.num_beams).pack(fill=tk.X)
+        ttk.Checkbutton(pipeline_frame, text="Use cache", variable=self.use_cache).pack(anchor=tk.W)
 
         # Model Parameters
         model_frame = ttk.Frame(notebook)
@@ -90,7 +99,7 @@ class ChatInterface:
         self.settings_button.grid(row=2, column=2, padx=10, pady=10)
 
         self.json_handler = JSONHandler()
-        self.config_file = "test programs/bnbtest_library.json"
+        self.config_file = "test_programs/bnbtest_library.json"
         self.load_settings_from_json()
 
         self.model = None
@@ -110,6 +119,7 @@ class ChatInterface:
                 "pipeline_config": model_config["pipeline_config"],
                 "device_config": model_config["device_config"],
                 "quantization_config": model_config["quantization_config"],
+                "quantization_config_options": model_config["quantization_config_options"],
                 "auth_token": model_config["auth_token"],
                 "system_prompt": model_config["system_prompt"],
                 "model": {
@@ -156,7 +166,7 @@ class ChatInterface:
             return
 
         current_mode = self.settings["quantization_config"].get("current_mode", "4-bit")
-        bnb_config = BitsAndBytesConfig(**self.settings["quantization_config"][current_mode])
+        bnb_config = BitsAndBytesConfig(**self.settings["quantization_config"])
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.settings["model"]["name"],
@@ -229,10 +239,11 @@ class ChatInterface:
             self.update_chat_history("Error: Model not loaded.\n")
             return
 
+        # Use the settings from pipeline_config
+        max_new_tokens = self.settings["pipeline_config"]["max_new_tokens"]
+        
         result = self.text_generation_pipeline(
-            self.messages,
-            max_new_tokens=100,
-            num_return_sequences=1
+            self.messages
         )
 
         print("Raw model output:", result)  # Print raw output for debugging
@@ -251,14 +262,21 @@ class ChatInterface:
         SettingsWindow(self.master, self)
 
     def update_settings(self, settings_window):
+        # Update quantization settings
+        quant_mode = settings_window.quant_mode.get()
+        self.settings["quantization_config"] = self.settings["quantization_config_options"][quant_mode].copy()
+        self.settings["quantization_config"]["current_mode"] = quant_mode
+
+        # Update pipeline settings
+        self.settings["pipeline_config"]["max_length"] = settings_window.max_length.get()
         self.settings["pipeline_config"]["max_new_tokens"] = settings_window.max_new_tokens.get()
-        self.settings["pipeline_config"]["num_return_sequences"] = settings_window.num_return_sequences.get()
+        self.settings["pipeline_config"]["num_beams"] = settings_window.num_beams.get()
+        self.settings["pipeline_config"]["use_cache"] = settings_window.use_cache.get()
+
         self.settings["model"]["name"] = settings_window.model_name.get()
         self.settings["model"]["cache_dir"] = settings_window.cache_dir.get()
         self.settings["system_prompt"] = settings_window.system_prompt.get()
-        self.set_quantization_mode(settings_window.quant_mode.get())
 
-        self.messages[0] = {"role": "system", "content": self.settings["system_prompt"]}
         self.save_settings_to_json()
         self.update_chat_history("Settings updated and saved. Please reload the model for changes to take effect.\n")
 

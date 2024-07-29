@@ -29,8 +29,7 @@
         "model_detail": "https://llama.meta.com/get-started/",
         "config": {
             "model_config": {
-                "torch_dtype": "float16",
-                "load_in_8bit": true,
+                "torch_dtype": "bfloat16",
                 "use_auth_token": "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"
             },
             "tokenizer_config": {
@@ -47,6 +46,13 @@
                 "device": "cuda"
             },
             "quantization_config": {
+                "load_in_4bit": true,
+                "bnb_4bit_use_double_quant": true,
+                "bnb_4bit_quant_type": "nf4",
+                "bnb_4bit_compute_dtype": "bfloat16",
+                "current_mode": "4-bit"
+            },
+            "quantization_config_options": {
                 "4-bit": {
                     "load_in_4bit": true,
                     "bnb_4bit_use_double_quant": true,
@@ -54,9 +60,7 @@
                     "bnb_4bit_compute_dtype": "bfloat16"
                 },
                 "8-bit": {
-                    "load_in_8bit": true,
-                    "llm_int8_threshold": 6.0,
-                    "llm_int8_has_fp16_weight": true
+                    "load_in_8bit": true
                 }
             },
             "auth_token": "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",
