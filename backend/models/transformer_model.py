@@ -22,6 +22,8 @@ class TransformerModel(BaseModel):
         self.config = None
         self.device = None
         self.languages = {}
+        self.accelerator = None
+        self.model_instance_data = []
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -81,6 +83,7 @@ class TransformerModel(BaseModel):
 
     def load(self, device: torch.device, model_info: dict):
         try:
+            #Get the model directory
             model_dir = model_info['dir']
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
@@ -88,13 +91,30 @@ class TransformerModel(BaseModel):
             logger.info(f"Loading model from {model_dir}")
             logger.info(f"Model info: {model_info}")
             
+            # Getting the model config and loading required variables for model loading
+            self.config = model_info.get('config', {})
+            model_config = self.config.get('model_config', {})
             requirements = model_info.get('requirements', {})
             required_classes = requirements.get('required_classes', {})
-            
             pipeline_tag = model_info.get('pipeline_tag')
-            
-            self.config = model_info.get('config', {})
             translation_config = self.config.get('translation_config', {})
+            
+            # getting the device configurations and setting up the accelerator accordingly
+            if model_info.get('device_config', {}):
+                USE_CPU = model_info.get('device_config', {}).get('device') == "cpu"
+            else:
+                USE_CPU = device == "cpu"
+            self.accelerator = Accelerator(cpu=USE_CPU)
+            
+            # getting the quantization configurations and setting up the model config accordingly
+            current_mode = self.config["quantization_config"].get("current_mode")
+            if current_mode != "bfloat16" and self.config["quantization_config"]:
+                bnb_config = transformers.BitsAndBytesConfig(**self.config["quantization_config_options"].get(current_mode,{}))
+                model_config["quantization_config"] = bnb_config
+            else:
+                model_config["torch_dtype"] = torch.bfloat16
+            
+            
             
             
             if self.config.get("device_config", {}).get("device"):
@@ -124,11 +144,15 @@ class TransformerModel(BaseModel):
                     local_files_only=True,
                     **obj_config
                 )
+        
                 
                 # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
                 logger.info(f"created {class_type} object: {obj}")
 
+
+            self.pipeline_args["model"] = self.accelerator.prepare(self.pipeline_args["model"])
+            
             # for those translation models that require pipeline task = "translation_XX_to_YY"
             # it will set the pipeline task to be "translation_{src}_to_{tgt}"
             if translation_config:
@@ -178,6 +202,14 @@ class TransformerModel(BaseModel):
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
                     output = process_vision_output(image, output, self.pipeline.task)
+            
+            elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
+                self.model_instance_data.append(self.config.get("system_prompt"))
+                if self.config.get("chat_history"):
+                    self.model_instance_data.append()
+                    output = self.pipeline(data["payload"], **pipeline_config)
+                else:
+                    output = self.pipeline(data["payload"], **pipeline_config)
             else:
                 output = self.pipeline(data["payload"], **pipeline_config)
             
@@ -198,10 +230,10 @@ class TransformerModel(BaseModel):
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
         print("pipeline_args: ", self.pipeline_args)
-        pipe = transformers.pipeline(task=pipeline_tag, device=self.device, **self.pipeline_args, **pipeline_config)
-        accelerator = Accelerator()
+        pipe = transformers.pipeline(task=pipeline_tag, **self.pipeline_args, **pipeline_config)
+        #accelerator = Accelerator()
         
-        return accelerator.prepare(pipe)
+        return self.accelerator.prepare(pipe)
     
     def _get_translation_pipeline_task(self, src: str, tgt: str):
         if self._is_languages_supported(src) and self._is_languages_supported(tgt):
