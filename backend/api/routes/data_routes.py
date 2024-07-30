@@ -5,8 +5,25 @@ import uuid
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from backend.core.config import UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
 from backend.data_utils.dataset_processor import process_dataset
+from pydantic import BaseModel
+from backend.utils.dataset_utility import DatasetManagement
+from typing import List
+from pathlib import Path
+import json
 
 logger = logging.getLogger(__name__)
+
+class ChunkingSettings(BaseModel):
+    use_chunking: bool = False
+    chunk_size: int = 500
+    chunk_overlap: int = 50
+    chunk_method: str = 'fixed_length'
+    rows_per_chunk: int = 1
+    csv_columns: List[str] = []
+
+class DatasetProcessRequest(BaseModel):
+    file_path: str
+    model_name: str = None
 
 class DataRouter:
     def __init__(self):
@@ -16,6 +33,10 @@ class DataRouter:
         self.router.add_api_route("/upload-image/", self.upload_image, methods=["POST"])
         self.router.add_api_route("/upload-video/", self.upload_video, methods=["POST"])
         self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
+        self.router.add_api_route("/process_dataset", self.process_dataset, methods=["POST"])
+        self.router.add_api_route("/update_chunking_settings", self.update_chunking_settings, methods=["POST"])
+        self.router.add_api_route("/list_datasets", self.list_datasets, methods=["GET"])
+        self.router.add_api_route("/available_models", self.get_available_models, methods=["GET"])
 
     async def upload_image(self, file: UploadFile = File(...)):
         try:
@@ -68,70 +89,42 @@ class DataRouter:
             if os.path.exists(dataset_dir):
                 shutil.rmtree(dataset_dir)
             raise HTTPException(status_code=500, detail=str(e))
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from backend.utils.dataset_utility import DatasetManagement
-import json
-from pathlib import Path
-import logging
-from typing import List
 
-logger = logging.getLogger(__name__)
+    async def process_dataset(self, request: DatasetProcessRequest):
+        try:
+            config_path = Path("backend/settings/chunking_settings.json")
+            with open(config_path, 'r') as f:
+                chunking_settings = json.load(f)
 
-router = APIRouter()
+            dataset_manager = DatasetManagement(model_name=request.model_name)
+            file_path = Path(request.file_path)
+            result = dataset_manager.process_dataset(file_path, chunking_settings=chunking_settings)
+            return result
+        except Exception as e:
+            logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Error processing dataset: {str(e)}")
 
-class ChunkingSettings(BaseModel):
-    use_chunking: bool = False
-    chunk_size: int = 500
-    chunk_overlap: int = 50
-    chunk_method: str = 'fixed_length'
-    rows_per_chunk: int = 1
-    csv_columns: List[str] = []
+    async def update_chunking_settings(self, settings: ChunkingSettings):
+        try:
+            config_path = Path("backend/settings/chunking_settings.json")
+            with open(config_path, 'w') as f:
+                json.dump(settings.dict(), f, indent=2)
+            return {"message": "Chunking settings updated successfully"}
+        except Exception as e:
+            logger.error(f"Error updating chunking settings: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Error updating chunking settings: {str(e)}")
 
-class DatasetProcessRequest(BaseModel):
-    file_path: str
-    model_name: str = None
+    async def list_datasets(self):
+        try:
+            dataset_manager = DatasetManagement()
+            return dataset_manager.list_datasets()
+        except Exception as e:
+            logger.error(f"Error listing datasets: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Error listing datasets: {str(e)}")
 
-@router.post("/process_dataset")
-async def process_dataset(request: DatasetProcessRequest):
-    try:
-        # Load chunking settings from the JSON file
-        config_path = Path("backend/settings/chunking_settings.json")
-        with open(config_path, 'r') as f:
-            chunking_settings = json.load(f)
-
-        dataset_manager = DatasetManagement(model_name=request.model_name)
-        file_path = Path(request.file_path)
-        result = dataset_manager.process_dataset(file_path, chunking_settings=chunking_settings)
-        return result
-    except Exception as e:
-        logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error processing dataset: {str(e)}")
-
-@router.post("/update_chunking_settings")
-async def update_chunking_settings(settings: ChunkingSettings):
-    try:
-        config_path = Path("backend/settings/chunking_settings.json")
-        with open(config_path, 'w') as f:
-            json.dump(settings.dict(), f, indent=2)
-        return {"message": "Chunking settings updated successfully"}
-    except Exception as e:
-        logger.error(f"Error updating chunking settings: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error updating chunking settings: {str(e)}")
-
-@router.get("/list_datasets")
-async def list_datasets():
-    try:
-        dataset_manager = DatasetManagement()
-        return dataset_manager.list_datasets()
-    except Exception as e:
-        logger.error(f"Error listing datasets: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error listing datasets: {str(e)}")
-
-@router.get("/available_models")
-async def get_available_models():
-    try:
-        return DatasetManagement.get_available_models()
-    except Exception as e:
-        logger.error(f"Error getting available models: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error getting available models: {str(e)}")
+    async def get_available_models(self):
+        try:
+            return DatasetManagement.get_available_models()
+        except Exception as e:
+            logger.error(f"Error getting available models: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Error getting available models: {str(e)}")
