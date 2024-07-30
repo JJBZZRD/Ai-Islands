@@ -5,6 +5,7 @@ ultralytics==8.2.48
 huggingface_hub
 accelerate
 httpx
+soundfile
 pytest
 opencv-python
 websockets
@@ -12,8 +13,14 @@ gputil
 ibm_watsonx_ai
 ibm_watson
 ibm_cloud_sdk_core
+langchain_ibm
 pydub
 bitsandbytes
+scikit-learn
+faiss-cpu
+sentence-transformers
+nltk
+python-docx
 # Requires CUDA 12.1 installation for cuda access
 --extra-index-url https://download.pytorch.org/whl/cu121
 torch

@@ -2,12 +2,14 @@ import os
 import torch
 import transformers
 
+from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
 import logging
 from huggingface_hub import snapshot_download
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import DOWNLOADED_MODELS_PATH
+from backend.data_utils.speaker_embedding_generator import get_speaker_embedding
 import importlib
 from accelerate import Accelerator
 from PIL import Image
@@ -173,16 +175,10 @@ class TransformerModel(BaseModel):
     
     def inference(self, data: dict):
         try:
-            # if the api request contains translation_config, it will set the pipeline task to be "translation_{src}_to_{tgt}"
-            if data.get("translation_config"):
-                pipeline_tag = self._get_translation_pipeline_task(data["translation_config"]["src_lang"], data["translation_config"]["tgt_lang"])
-                self.pipeline = self._construct_pipeline(pipeline_tag)
-            
+            # if the api request contains pipeline_config, it will be passed to the pipeline for single-use only
             pipeline_config = data.get("pipeline_config", {})
-            
             print("data payload: ", data["payload"])
-            # call the pipeline with the payload and any extra pipeline_config provided in the request
-            
+
             # for zero shot tasks, both image and text must be passed
             if self.pipeline.task in ['zero-shot-object-detection']:
                 image_path = data["payload"].get("image")
@@ -209,6 +205,27 @@ class TransformerModel(BaseModel):
                     output = self.pipeline(data["payload"], **pipeline_config)
                     output = process_vision_output(image, output, self.pipeline.task)
             
+            # For text-to-speech tasks, if speaker_embedding_config exists in self.config, the model will need speaker embedding to generate speech
+            elif self.pipeline.task in ["text-to-audio", "text-to-speech"]:
+                if self.config.get("speaker_embedding_config"):
+                    print("successfully got speaker embedding config")
+                    # get the speaker embedding config from the request data and the default speaker embedding config from the model config
+                    speaker_embedding_config = data.get("speaker_embedding_config")
+                    default_speaker_embedding_config = self.config.get("speaker_embedding_config")
+                    # get the speaker embedding tensor, if speaker_embedding_config is not provided, it will use the default speaker embedding config
+                    speaker_embedding = get_speaker_embedding(speaker_embedding_config, default_speaker_embedding_config)
+                    pipeline_config.update({"forward_params": {"speaker_embeddings": speaker_embedding}})
+                output = self.pipeline(data["payload"], **pipeline_config)
+                output = process_audio_output(output)
+            # For some translation models, if the api request contains translation_config, it will set the pipeline task to be "translation_{src}_to_{tgt}"
+            # the new pipeline is single-use only
+            elif data.get("translation_config"):
+                pipeline_tag = self._get_translation_pipeline_task(data["translation_config"]["src_lang"], data["translation_config"]["tgt_lang"])
+                temp_pipeline = self._construct_pipeline(pipeline_tag)
+                output = temp_pipeline(data["payload"], **pipeline_config)
+            
+            # For other tasks, the pipeline will be called with the payload
+            
             elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
                 
                 user_prompt = self.config.get("user_prompt").copy()
@@ -227,6 +244,7 @@ class TransformerModel(BaseModel):
                     output = self.pipeline(self.model_instance_data + [user_prompt], **pipeline_config)
                     output = output[0]["generated_text"][-1].get("content")
             else:
+                # call the pipeline with the payload and any extra pipeline_config provided in the request
                 output = self.pipeline(data["payload"], **pipeline_config)
             
             return output
