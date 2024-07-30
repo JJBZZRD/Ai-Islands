@@ -2187,6 +2187,10 @@
     },
     "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
+    "mapping": {
+        "input": "text",
+        "output": "text"
+    },
     "config": {
         "model_config": {
             "torch_dtype": "bfloat16"
@@ -2219,7 +2223,11 @@
             "bfloat16": {}
         },
         "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
-        "user_prompt": {"role": "user", "content": "[MASK]"}
+        "user_prompt": {"role": "user", "content": "[USER]"},
+        "example_conversation": [
+            {"role": "user", "content": "[USER]"},
+            {"role": "assistant", "content": "[ASSISTANT]"}
+        ]
     }
 }
 }
