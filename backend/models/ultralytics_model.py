@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from backend.settings.settings import get_hardware_preference
 import shutil
+from backend.utils.helpers import get_next_suffix
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +182,7 @@ class UltralyticsModel(BaseModel):
             if not best_pt_path:
                 raise FileNotFoundError("best.pt file not found after training")
 
-            suffix = self.get_next_suffix(self.model_id)
+            suffix = get_next_suffix(self.model_id)
             trained_model_name = f"{self.model_id}_{suffix}.pt"
             
             # Create a new directory for the trained model
@@ -228,13 +229,6 @@ class UltralyticsModel(BaseModel):
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
             return {"error": str(e)}
-        
-    def get_next_suffix(self, base_model_id):
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-        i = 1
-        while f"{base_model_id}_{i}" in library:
-            i += 1
-        return i
 
     def _handle_training_request(self, data):
         epochs = data['epochs']

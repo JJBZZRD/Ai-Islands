@@ -92,7 +92,7 @@ class LibraryControl:
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         base_model_id = new_entry['base_model']
     
-        new_model_id = new_entry['model_id']
+        new_model_id = new_entry.pop('model_id')
     
         # Adding new entry to the library
         library[new_model_id] = new_entry

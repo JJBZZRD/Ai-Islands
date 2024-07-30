@@ -1,18 +1,22 @@
 import os
 import torch
 import transformers
+import evaluate
+import shutil
+import numpy as np
 
+from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
 from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
+from backend.utils.helpers import get_next_suffix
 import logging
-from huggingface_hub import snapshot_download
-from backend.data_utils.json_handler import JSONHandler
-from backend.core.config import DOWNLOADED_MODELS_PATH
+from backend.core.config import ROOT_DIR
 from backend.data_utils.speaker_embedding_generator import get_speaker_embedding
-import importlib
 from accelerate import Accelerator
 from PIL import Image
+from datasets import load_dataset
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +27,7 @@ class TransformerModel(BaseModel):
         self.pipeline = None
         self.config = None
         self.device = None
+        self.model_dir = None
         self.languages = {}
 
     @staticmethod
@@ -86,6 +91,8 @@ class TransformerModel(BaseModel):
             model_dir = model_info['dir']
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
+            
+            self.model_dir = model_dir
             
             logger.info(f"Loading model from {model_dir}")
             logger.info(f"Model info: {model_info}")
@@ -210,8 +217,94 @@ class TransformerModel(BaseModel):
     def configure(self, data: dict):
         pass
 
-    def train(self, data_path: str, epochs: int = 3):
-        logger.warning("Training method not implemented for TransformerModel")
+    def train(self, data: dict):
+        dataset_path = data.get("data")
+        tokenizer_args = data.get("tokenizer_args", {})
+        training_args = data.get("training_args", {})
+        
+        if not dataset_path:
+            return {"error": "Dataset path not provided in the request data"}
+        
+        dataset = load_dataset('csv', data_files=dataset_path)
+        dataset = dataset["train"]
+        
+        model = self.pipeline_args.get("model")
+        tokenizer = self.pipeline_args.get("tokenizer")
+        
+        def _preprocess_function(data_entry):
+            tokenizer_params = {
+                "padding": "max_length",
+                "truncation": True,
+                "max_length": 128
+            }
+            tokenizer_params.update(tokenizer_args)
+            return tokenizer(data_entry['text'], **tokenizer_params)
+        
+        dataset = dataset.map(_preprocess_function)
+        
+        dataset = dataset.train_test_split(test_size=0.2)
+
+        data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+        accuracy = evaluate.load("accuracy")
+
+        def compute_metrics(eval_pred):
+            predictions, labels = eval_pred
+            predictions = np.argmax(predictions, axis=1)
+            return accuracy.compute(predictions=predictions, references=labels)
+        
+        suffix = get_next_suffix(self.model_id)
+        trained_model_dir = os.path.join(f"{self.model_dir}_{suffix}")
+        temp_output_dir = os.path.join(ROOT_DIR, "temp")
+        
+        os.makedirs(temp_output_dir, exist_ok=True)
+        
+        default_training_args = {
+            "output_dir": temp_output_dir,
+            "save_only_model": True,
+            "learning_rate": 1e-7,
+            "num_train_epochs": 5,
+            "weight_decay": 0.01,
+            "eval_strategy": "epoch",
+            "save_strategy": "epoch",
+            "save_total_limit": 3,
+            "load_best_model_at_end": True
+        }
+        
+        default_training_args.update(training_args)
+        
+        training_args = TrainingArguments(
+            **default_training_args
+        )
+
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=dataset["train"],
+            eval_dataset=dataset["test"],
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            compute_metrics=compute_metrics,
+        )
+
+        trainer.train()
+        trainer.save_model(trained_model_dir)
+        
+        shutil.rmtree(temp_output_dir, ignore_errors=True)
+        
+        new_model_info = {
+            "model_id": f"{self.model_id}_{suffix}",
+            "base_model": f"{self.model_id}_{suffix}",
+            "dir": trained_model_dir,
+            "model_desc": f"Fine-tuned {self.model_id} model",
+            "is_customised": True
+        }
+        
+        return {
+                "message": "Training completed successfully",
+                "trained_model_path": trained_model_dir,
+                "new_model_info": new_model_info
+                }
     
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
