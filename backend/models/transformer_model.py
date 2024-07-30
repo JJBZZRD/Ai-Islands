@@ -107,12 +107,13 @@ class TransformerModel(BaseModel):
             self.accelerator = Accelerator(cpu=USE_CPU)
             
             # getting the quantization configurations and setting up the model config accordingly
-            current_mode = self.config["quantization_config"].get("current_mode")
-            if current_mode != "bfloat16" and self.config["quantization_config"]:
-                bnb_config = transformers.BitsAndBytesConfig(**self.config["quantization_config_options"].get(current_mode,{}))
-                model_config["quantization_config"] = bnb_config
-            else:
-                model_config["torch_dtype"] = torch.bfloat16
+            if self.config.get("quantization_config", {}):
+                current_mode = self.config["quantization_config"].get("current_mode")
+                if current_mode != "bfloat16" and self.config["quantization_config"]:
+                    bnb_config = transformers.BitsAndBytesConfig(**self.config["quantization_config_options"].get(current_mode,{}))
+                    model_config["quantization_config"] = bnb_config
+                else:
+                    model_config["torch_dtype"] = torch.bfloat16
             
             
             
@@ -164,6 +165,8 @@ class TransformerModel(BaseModel):
             
             if self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
                 self.model_instance_data.append(self.config.get("system_prompt"))
+                if self.config.get("example_conversation"):
+                    self.model_instance_data += self.config.get("example_conversation")
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
@@ -221,7 +224,8 @@ class TransformerModel(BaseModel):
                     output = output[0]["generated_text"][-1].get("content")
                     print("model_instance_data: ", self.model_instance_data)
                 else:
-                    output = self.pipeline(user_prompt, **pipeline_config)
+                    output = self.pipeline(self.model_instance_data + [user_prompt], **pipeline_config)
+                    output = output[0]["generated_text"][-1].get("content")
             else:
                 output = self.pipeline(data["payload"], **pipeline_config)
             
