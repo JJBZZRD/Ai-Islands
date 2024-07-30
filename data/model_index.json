@@ -1,4 +1,679 @@
 {
+  "codellama/codellama-34b-instruct-hf": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "code-generation"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Code Llama is an AI model built on top of Llama 2, fine-tuned for generating and discussing code.",
+    "model_detail": "Code Llama is a pretrained and fine-tuned generative text models with 34 billion parameters. This model is designed for general code synthesis and understanding.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "google/flan-t5-xl": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "A pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format.",
+    "model_detail": "flan-t5-xl (3B) is a 3 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "google/flan-t5-xxl": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "flan-t5-xxl is an 11 billion parameter model based on the Flan-T5 family.",
+    "model_detail": "flan-t5-xxl (11B) is an 11 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "google/flan-ul2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "flan-ul2 is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net.",
+    "model_detail": "flan-ul2 (20B) is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net (FLAN). Compared to the original UL2 model, flan-ul2 (20B) is more usable for few-shot in-context learning because it was trained with a three times larger receptive field. flan-ul2 (20B) outperforms flan-t5 (11B) by an overall relative improvement of +3.2%.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm-mistralai/merlinite-7b": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Merlinite-7b is a Mistral-7b-derivative model trained with the LAB methodology, using Mixtral-8x7b-Instruct as a teacher model.",
+    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm/granite-13b-chat-v2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm/granite-13b-instruct-v2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm/granite-20b-multilingual": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm/granite-7b-lab": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "meta-llama/llama-2-13b-chat": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Llama-2-13b-chat is an auto-regressive language model that uses an optimized transformer architecture.",
+    "model_detail": "Llama-2-13b-chat is a pretrained and fine-tuned generative text model with 13 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "meta-llama/llama-3-70b-instruct": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+    "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "meta-llama/llama-3-8b-instruct": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Llama-3-8b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+    "model_detail": "Llama-3-8b-instruct is a pretrained and fine-tuned generative text model with 8 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "mistralai/mixtral-8x7b-instruct-v01": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "text-generation",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
+    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
+    }
+  },
+  "ibm/natural-language-understanding": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "text-analysis",
+      "sentiment-analysis",
+      "emotion-detection",
+      "entity-extraction",
+      "keyword-extraction",
+      "category-classification",
+      "concept-tagging",
+      "relation-extraction",
+      "semantic-role-labeling"
+    ],
+    "pipeline_tag": "text-analysis",
+    "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
+    "model_desc": "IBM Watson Natural Language Understanding is a cloud-native product that uses deep learning to extract metadata from text such as entities, keywords, categories, sentiment, emotion, relations, and syntax.",
+    "model_detail": "This service can analyze text to extract metadata from content such as concepts, entities, keywords, categories, sentiment, emotion, relations, and semantic roles using natural language processing.",
+    "config": {
+      "service_name": "natural-language-understanding",
+      "features": {
+        "sentiment": true,
+        "emotion": true,
+        "entities": true,
+        "keywords": true,
+        "categories": true,
+        "concepts": true,
+        "relations": true,
+        "semantic_roles": true
+      }
+    }
+  },
+  "ibm/text-to-speech": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "text-to-speech",
+      "audio-synthesis",
+      "voice-generation",
+      "speech-synthesis"
+    ],
+    "pipeline_tag": "text-to-speech",
+    "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
+    "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
+    "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis.",
+    "config": {
+      "service_name": "text-to-speech",
+      "voice": "en-US_AllisonV3Voice",
+      "pitch": 0,
+      "speed": 0
+    }
+  },
+  "ibm/speech-to-text": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonService",
+    "tags": [
+      "speech-to-text",
+      "audio-transcription",
+      "voice-recognition",
+      "speech-recognition"
+    ],
+    "pipeline_tag": "speech-to-text",
+    "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
+    "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
+    "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription.",
+    "config": {
+      "service_name": "speech-to-text",
+      "model": "en-US_BroadbandModel",
+      "content_type": "audio/wav"
+    }
+  },
+  "ibm/slate-30m-english-rtrvr": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "document-comparison",
+      "retrieval-augmented-generation"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+    "model_desc": "The slate-30m-english-rtrvr is a distilled version of the slate-125m-english-rtrvr, provided by IBM. It's trained to maximize cosine similarity between two text inputs for later similarity evaluation.",
+    "model_detail": "This embedding model has 6 layers, is faster than slate-125m-english-rtrvr, and is fine-tuned for sentence retrieval-based tasks. It generates 384-dimensional embeddings with a 512 token input limit.",
+    "config": {
+      "embedding_dimensions": 384,
+      "max_input_tokens": 512,
+      "supported_languages": ["English"]
+    }
+  },
+  "ibm/slate-125m-english-rtrvr": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "document-comparison",
+      "retrieval-augmented-generation"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+    "model_desc": "The slate-125m-english-rtrvr is an IBM-provided embedding model designed for text embedding tasks.",
+    "model_detail": "This embedding model generates 768-dimensional embeddings with a 512 token input limit. It's the larger version compared to slate-30m-english-rtrvr.",
+    "config": {
+      "embedding_dimensions": 768,
+      "max_input_tokens": 512,
+      "supported_languages": ["English"]
+    }
+  },
+  "sentence-transformers/all-minilm-l12-v2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "sentence-similarity",
+      "information-retrieval",
+      "clustering"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2",
+    "model_desc": "The all-minilm-l12-v2 is a sentence and short paragraph encoder provided by the open-source NLP community via Hugging Face.",
+    "model_detail": "This model outputs 384-dimensional vectors capturing semantic information in text. It's fine-tuned on over 1 billion sentence pairs and is suitable for tasks like information retrieval, clustering, and sentence similarity detection.",
+    "config": {
+      "embedding_dimensions": 384,
+      "max_input_tokens": 256,
+      "supported_languages": ["English"]
+    }
+  },
+  "intfloat/multilingual-e5-large": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "multilingual",
+      "semantic-search",
+      "document-comparison",
+      "retrieval-augmented-generation"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://huggingface.co/intfloat/multilingual-e5-large",
+    "model_desc": "The multilingual-e5-large is a multilingual embedding model built by Microsoft and provided via Hugging Face.",
+    "model_detail": "This model has 24 layers and generates 1024-dimensional embeddings with a 512 token input limit. It supports up to 100 languages and is suitable for various multilingual embedding tasks.",
+    "config": {
+      "embedding_dimensions": 1024,
+      "max_input_tokens": 512,
+      "supported_languages": ["Multilingual (up to 100 languages)"]
+    }
+  },
   "openai-community/gpt2": {
     "is_online": false,
     "model_source": "transformers",
@@ -455,285 +1130,6 @@
 
       }
     }
-  },
-  "codellama/codellama-34b-instruct-hf": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "code-generation"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Code Llama is an AI model built on top of Llama 2, fine-tuned for generating and discussing code.",
-    "model_detail": "Code Llama is a pretrained and fine-tuned generative text models with 34 billion parameters. This model is designed for general code synthesis and understanding."
-  },
-  "google/flan-t5-xl": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "A pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format.",
-    "model_detail": "flan-t5-xl (3B) is a 3 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance."
-  },
-  "google/flan-t5-xxl": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "flan-t5-xxl is an 11 billion parameter model based on the Flan-T5 family.",
-    "model_detail": "flan-t5-xxl (11B) is an 11 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance."
-  },
-  "google/flan-ul2": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "flan-ul2 is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net.",
-    "model_detail": "flan-ul2 (20B) is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net (FLAN). Compared to the original UL2 model, flan-ul2 (20B) is more usable for few-shot in-context learning because it was trained with a three times larger receptive field. flan-ul2 (20B) outperforms flan-t5 (11B) by an overall relative improvement of +3.2%."
-  },
-  "ibm-mistralai/merlinite-7b": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Merlinite-7b is a Mistral-7b-derivative model trained with the LAB methodology, using Mixtral-8x7b-Instruct as a teacher model.",
-    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced."
-  },
-  "ibm/granite-13b-chat-v2": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
-    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community."
-  },
-  "ibm/granite-13b-instruct-v2": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
-    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community."
-  },
-  "ibm/granite-20b-multilingual": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
-    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community."
-  },
-  "ibm/granite-7b-lab": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
-    "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community."
-  },
-  "meta-llama/llama-2-13b-chat": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Llama-2-13b-chat is an auto-regressive language model that uses an optimized transformer architecture.",
-    "model_detail": "Llama-2-13b-chat is a pretrained and fine-tuned generative text model with 13 billion parameters, optimized for dialogue use cases."
-  },
-  "meta-llama/llama-3-70b-instruct": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
-    "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases."
-  },
-  "meta-llama/llama-3-8b-instruct": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "question-answering",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Llama-3-8b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
-    "model_detail": "Llama-3-8b-instruct is a pretrained and fine-tuned generative text model with 8 billion parameters, optimized for dialogue use cases."
-  },
-  "mistralai/mixtral-8x7b-instruct-v01": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "tags": [
-      "text-generation",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
-    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below."
-  },
-  "ibm/natural-language-understanding": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonService",
-    "tags": [
-      "text-analysis",
-      "sentiment-analysis",
-      "emotion-detection",
-      "entity-extraction",
-      "keyword-extraction",
-      "category-classification",
-      "concept-tagging",
-      "relation-extraction",
-      "semantic-role-labeling"
-    ],
-    "pipeline_tag": "text-analysis",
-    "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
-    "model_desc": "IBM Watson Natural Language Understanding is a cloud-native product that uses deep learning to extract metadata from text such as entities, keywords, categories, sentiment, emotion, relations, and syntax.",
-    "model_detail": "This service can analyze text to extract metadata from content such as concepts, entities, keywords, categories, sentiment, emotion, relations, and semantic roles using natural language processing."
-  },
-  "ibm/text-to-speech": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonService",
-    "tags": [
-      "text-to-speech",
-      "audio-synthesis",
-      "voice-generation",
-      "speech-synthesis"
-    ],
-    "pipeline_tag": "text-to-speech",
-    "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
-    "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
-    "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis."
-  },
-  "ibm/speech-to-text": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonService",
-    "tags": [
-      "speech-to-text",
-      "audio-transcription",
-      "voice-recognition",
-      "speech-recognition"
-    ],
-    "pipeline_tag": "speech-to-text",
-    "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
-    "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
-    "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription."
   },
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
     "is_online": false,
