@@ -1,0 +1,71 @@
+{
+    "meta-llama/Meta-Llama-3.1-8B-Instruct": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "llama",
+            "meta",
+            "llama-3",
+            "text-generation",
+            "text-generation-inference",
+            "en",
+            "license:llama3",
+            "region:us"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForCausalLM",
+                "tokenizer": "AutoTokenizer"
+            },
+            "requires_auth": true
+        },
+        "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
+        "model_detail": "https://llama.meta.com/get-started/",
+        "config": {
+            "model_config": {
+                "torch_dtype": "bfloat16",
+                "use_auth_token": "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"
+            },
+            "tokenizer_config": {
+                "use_auth_token": "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"
+            },
+            "processor_config": {},
+            "pipeline_config": {
+                "max_length": 512,
+                "max_new_tokens": 1000,
+                "num_beams": 2,
+                "use_cache": true
+            },
+            "device_config": {
+                "device": "cuda"
+            },
+            "quantization_config": {
+                "current_mode": "bfloat16"
+            },
+            "quantization_config_options": {
+                "4-bit": {
+                    "load_in_4bit": true,
+                    "bnb_4bit_use_double_quant": true,
+                    "bnb_4bit_quant_type": "nf4",
+                    "bnb_4bit_compute_dtype": "bfloat16"
+                },
+                "8-bit": {
+                    "load_in_8bit": true
+                },
+                "bfloat16": {}
+            },
+            "auth_token": "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",
+            "system_prompt": "You are a helpful assistant."
+        },
+        "auth_token": "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",
+        "base_model": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "dir": "data\\downloads\\transformers\\meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "is_customised": false
+    }
+}

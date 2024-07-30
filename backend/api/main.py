@@ -7,6 +7,7 @@ from backend.api.routes.library_routes import LibraryRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.library_control import LibraryControl
+from backend.api.routes.settings_routes import SettingsRouter
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
@@ -24,6 +25,7 @@ model_router = ModelRouter(model_control)
 hardware_router = HardwareRouter()
 data_router = DataRouter()
 library_router = LibraryRouter(library_control)
+settings_router = SettingsRouter()
 
 # Add logging middleware
 @app.middleware("http")
@@ -38,6 +40,7 @@ app.include_router(model_router.router)
 app.include_router(hardware_router.router, prefix="/hardware", tags=["hardware"])
 app.include_router(data_router.router, prefix="/data", tags=["data"])
 app.include_router(library_router.router, prefix="/library", tags=["library"])
+app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -22,6 +22,7 @@ UPLOAD_VID_DIR= os.path.join(ROOT_DIR, 'data', 'uploaded_videos')
 CONFIG_PATH = os.path.join(ROOT_DIR, 'data', 'settings.json')
 UPLOAD_DATASET_DIR = os.path.join(ROOT_DIR, 'data', 'uploaded_dataset')
 PLAYGROUND_JSON_PATH = os.path.join(ROOT_DIR, 'data', 'playground.json')
+SPEAKER_EMBEDDING_PATH = os.path.join(ROOT_DIR, 'data', 'speaker_embeddings.json')
 
 # Ensure the upload directory exists
 if not os.path.exists(UPLOAD_IMAGE_DIR):
