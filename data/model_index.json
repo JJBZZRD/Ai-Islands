@@ -2224,6 +2224,7 @@
         },
         "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
         "user_prompt": {"role": "user", "content": "[USER]"},
+        "assistant_prompt": {"role": "assistant", "content": "[ASSISTANT]"},
         "example_conversation": [
             {"role": "user", "content": "[USER]"},
             {"role": "assistant", "content": "[ASSISTANT]"}

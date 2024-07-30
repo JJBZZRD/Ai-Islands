@@ -161,6 +161,9 @@ class TransformerModel(BaseModel):
             self.pipeline = self._construct_pipeline(pipeline_tag)
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
+            
+            if self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
+                self.model_instance_data.append(self.config.get("system_prompt"))
         except Exception as e:
             logger.error(f"Error loading model from {model_dir}: {str(e)}")
             raise  # Re-raise the exception to be caught by the caller
@@ -204,12 +207,21 @@ class TransformerModel(BaseModel):
                     output = process_vision_output(image, output, self.pipeline.task)
             
             elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
-                self.model_instance_data.append(self.config.get("system_prompt"))
+                
+                user_prompt = self.config.get("user_prompt").copy()
+                for key in user_prompt:
+                    if user_prompt.get(key) == "[USER]":
+                        user_prompt.update({key: data["payload"]})
+                        print("user_prompt: ", user_prompt)
+                
                 if self.config.get("chat_history"):
-                    self.model_instance_data.append()
-                    output = self.pipeline(data["payload"], **pipeline_config)
+                    self.model_instance_data.append(user_prompt)
+                    output = self.pipeline(self.model_instance_data, **pipeline_config)
+                    self.model_instance_data.append(output[0]["generated_text"][-1])
+                    output = output[0]["generated_text"][-1].get("content")
+                    print("model_instance_data: ", self.model_instance_data)
                 else:
-                    output = self.pipeline(data["payload"], **pipeline_config)
+                    output = self.pipeline(user_prompt, **pipeline_config)
             else:
                 output = self.pipeline(data["payload"], **pipeline_config)
             
