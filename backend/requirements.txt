@@ -15,6 +15,7 @@ ibm_watson
 ibm_cloud_sdk_core
 langchain_ibm
 pydub
+bitsandbytes
 scikit-learn
 faiss-cpu
 sentence-transformers
