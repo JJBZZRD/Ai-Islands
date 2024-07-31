@@ -3,6 +3,7 @@ from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import PLAYGROUND_JSON_PATH
 from backend.playground.playground import Playground
 from backend.controlers.library_control import LibraryControl
+from backend.controlers.runtime_control import RuntimeControl
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ class PlaygroundControl:
         self.model_control = model_control
         self.library_control = LibraryControl()
         self.playgrounds = {}
+        self.initialise_all_playgrounds()
     
     def create_playground(self,playground_id: str = None, description: str = None ):
         try:
@@ -37,8 +39,9 @@ class PlaygroundControl:
             playgrounds[playground_id] = new_playground
 
             # Write updated playgrounds back to file
-            JSONHandler.write_json(PLAYGROUND_JSON_PATH, playgrounds)
-
+            result = JSONHandler.write_json(PLAYGROUND_JSON_PATH, playgrounds)
+            if result:
+                self.load_playground(playground_id)
             logger.info(f"Created new playground with ID: {playground_id}")
             return {"playground_id": playground_id, "playground": new_playground}
 
@@ -134,18 +137,29 @@ class PlaygroundControl:
     
     def load_playground_chain(self, playground_id: str):
         # call load_playground_chain on specific instance of playground. 
-        # If succesfull, call library control to set active_in_chain to True for all models in the chain.
+        # If succesfull, call library control to set active_in_chain to True for all models in the chain
         result = self.playgrounds[playground_id].load_playground_chain()
         if result:
+            runtime_data = RuntimeControl.get_runtime_data("playground")
             for model_id in self.playgrounds[playground_id].chain:
-                self.library_control.set_active_in_chain(model_id)
+                if runtime_data.get(model_id):
+                    runtime_data[model_id].append(playground_id)
+                else:
+                    runtime_data.update({model_id: [playground_id]})
+            RuntimeControl.update_runtime_data("playground", runtime_data)
         return result
     
     def stop_playground_chain(self, playground_id: str):
         result = self.playgrounds[playground_id].stop_playground_chain()
-        if result:
-            for model_id in self.playgrounds[playground_id].chain:
-                self.library_control.set_inactive_in_chain(model_id)
+
+        runtime_data = RuntimeControl.get_runtime_data("playground")
+        
+        for model_id in self.playgrounds[playground_id].chain:
+            runtime_data[model_id].remove(playground_id)
+            if len(runtime_data[model_id]) == 0:
+                self.playgrounds[playground_id].unload_model(model_id)
+                del runtime_data[model_id]
+        RuntimeControl.update_runtime_data("playground", runtime_data)
         return result
     
     def add_chain_to_playground(self):
@@ -158,6 +172,11 @@ class PlaygroundControl:
         self.playgrounds[playground_id] = Playground(playground_id, self.model_control)
         playground_info = self.get_playground_info(playground_id)
         self.playgrounds[playground_id].load_playground(playground_id, playground_info)
+        
+    def initialise_all_playgrounds(self):
+        playgrounds = self.list_playgrounds()
+        for playground_id in playgrounds:
+            self.load_playground(playground_id)
     
     def save_playground(self):
         pass

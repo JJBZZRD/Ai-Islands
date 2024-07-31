@@ -20,13 +20,18 @@ class Playground:
             self.model_control.load_model(model_id)
         return True
     
-    def stop_playground_chain(self):
-        for model_id in self.chain:
-            self.model_control.unload_model(model_id)
-        return True
+    
+    def unload_model(self, model_id: str):
+        return self.model_control.unload_model(model_id)
     
     def inference(self, payload: str):
         input = payload
         for model in self.chain:
             input = model.inference(input)
         return input
+    
+    # def stop_playground_chain(self):
+    #     for model_id in self.chain:
+    #         result = self.model_control.unload_model(model_id)
+    #         result = result and True
+    #     return result
