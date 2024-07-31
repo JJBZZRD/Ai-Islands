@@ -15,10 +15,12 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# Instantiate controls
+# Instantiate controls and set all models inactive in chain
 model_control = ModelControl()
-playground_control = PlaygroundControl(model_control)
 library_control = LibraryControl()
+library_control.set_all_inactive_in_chain()
+playground_control = PlaygroundControl(model_control)
+
 
 # Create router instances
 model_router = ModelRouter(model_control)

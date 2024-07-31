@@ -178,3 +178,9 @@ class LibraryControl:
         model_info['active_in_chain'] = False
         self.update_library(model_id, model_info)
         return model_info
+    
+    def set_all_inactive_in_chain(self):
+        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+        for model_id in library:
+            self.set_inactive_in_chain(model_id)
+        return True
