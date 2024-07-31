@@ -41,7 +41,7 @@ class ModelControl:
         return True
 
     @staticmethod
-    def _load_process(model_class, conn, model_id, device, model_info):
+    def _load_process(model_class, conn, model_id, device, model_info, lock):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
         model.load(device=device, model_info=model_info)
@@ -51,6 +51,7 @@ class ModelControl:
             if req == "terminate":
                 conn.send("Terminating")
                 break
+            lock.acquire()
             # the first if block is for backward compatibility
             # i.e. if type(req) == str and req.startswith("predict:")
             # pls remove this block after all models are updated
@@ -58,21 +59,20 @@ class ModelControl:
             if type(req) == str and req.startswith("predict:"):
                 payload = json.loads(req.split(":", 1)[1])
                 prediction = model.process_request(payload)
-                conn.send(prediction)
             elif req["task"] == "inference":
                 print("running control inference")
                 print("req data ", req["data"])
                 prediction = model.inference(req["data"])
                 print("prediction done")
                 print(prediction)
-                conn.send(prediction)
             elif req["task"] == "train":
                 print("running control train")
                 print("req data ", req["data"])
                 prediction = model.train(req["data"])
                 print("prediction done")
                 print(prediction)
-                conn.send(prediction)
+            lock.release()    
+            conn.send(prediction)
 
     def _get_model_info(self, model_id: str, source: str = "library"):
         if source == "library":
@@ -129,8 +129,9 @@ class ModelControl:
             device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
             logger.debug(f"Using device: {device}")
 
+            lock = multiprocessing.Lock()
             parent_conn, child_conn = multiprocessing.Pipe()
-            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info))
+            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info, lock))
             process.start()
 
             response = parent_conn.recv()
