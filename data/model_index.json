@@ -143,6 +143,7 @@
       "license:agpl-3.0"
     ],
     "pipeline_tag": "object-detection",
+    "model_desc": "Real-time object detection aims to accurately predict object categories and positions in images with low latency. The YOLO series has been at the forefront of this research due to its balance between performance and efficiency. However, reliance on NMS and architectural inefficiencies have hindered optimal performance. YOLOv10 addresses these issues by introducing consistent dual assignments for NMS-free training and a holistic efficiency-accuracy driven model design strategy.",
     "model_detail": "https://docs.ultralytics.com/models/yolov10/",
     "dataset_format": "yolo",
     "requirements": {
@@ -322,39 +323,6 @@
     },
     "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
     "model_detail": "https://arxiv.org/abs/2303.05499"
-  },
-  "microsoft/resnet-50": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "tags": [
-      "transformers",
-      "pytorch",
-      "tensorflow",
-      "jax",
-      "safetensors",
-      "vision",
-      "image-classification",
-      "resnet",
-      "imagenet-1k",
-      "en",
-      "license:apache-2.0",
-      "arxiv:1512.03385"
-    ],
-    "pipeline_tag": "image-classification",
-    "model_card_url": "https://huggingface.co/microsoft/resnet-50",
-    "requirements": {
-      "required_classes": {
-        "model": "ResNetForImageClassification",
-        "image_processor": "AutoImageProcessor"
-      }
-    },
-    "config": {
-      "processor_config": {},
-      "pipeline_config": {}
-    },
-    "model_desc": "ResNet-50 v1.5 is a convolutional neural network that democratized the concepts of residual learning and skip connections. This model is pre-trained on ImageNet-1k at resolution 224x224.",
-    "model_detail": "https://arxiv.org/abs/1512.03385"
   },
   "meta-llama/Meta-Llama-3-8B": {
     "is_online": false,

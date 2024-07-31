@@ -6,11 +6,26 @@ namespace frontend.Views
     public partial class AppShell : Shell
     {
         public ICommand NavigateCommand { get; }
+        private Library libraryPage;
         public AppShell()
         {
             InitializeComponent();
             Routing.RegisterRoute("MainPage", typeof(MainPage));
+            libraryPage = new Library();
             Routing.RegisterRoute("Library", typeof(Library));
+
+            NavigateCommand = new Command<string>(async (route) =>
+            {
+                if (route == "LibraryPage")
+                {
+                    // Use the existing Library instance
+                    await Navigation.PushAsync(libraryPage);
+                }
+                else
+                {
+                    await Shell.Current.GoToAsync(route);
+                }
+            });
             Routing.RegisterRoute("Playground", typeof(Playground));
             Routing.RegisterRoute("Setting", typeof(Setting));
             NavigateCommand = new Command<string>(async (route) => await Shell.Current.GoToAsync(route));

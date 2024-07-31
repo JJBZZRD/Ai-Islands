@@ -149,6 +149,7 @@ class TransformerModel(BaseModel):
                 self.pipeline = self._construct_pipeline(pipeline_tag)
             
             pipeline_config = data.get("pipeline_config", {})
+            visualize = data.get("visualize", False)
             
             print("data payload: ", data["payload"])
             # call the pipeline with the payload and any extra pipeline_config provided in the request
@@ -168,6 +169,11 @@ class TransformerModel(BaseModel):
                         print(f"Pipeline output: {output}")
                         if output is None:
                             raise ValueError("Pipeline output is None")
+                        
+                        # only visualise output if requested
+                        if visualize:
+                            output = process_vision_output(image, output, self.pipeline.task)
+
                 except FileNotFoundError:
                     raise FileNotFoundError(f"Image file not found: {image_path}")
                 except Exception as e:
@@ -177,7 +183,8 @@ class TransformerModel(BaseModel):
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
-                    output = process_vision_output(image, output, self.pipeline.task)
+                    if visualize:
+                        output = process_vision_output(image, output, self.pipeline.task)
             else:
                 output = self.pipeline(data["payload"], **pipeline_config)
             

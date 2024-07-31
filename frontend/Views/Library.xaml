@@ -2,9 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.Library"
+             xmlns:local="clr-namespace:frontend.Views"
              BackgroundColor="White">
 
-    <ScrollView>
+    <ScrollView VerticalScrollBarVisibility="Always">
         <VerticalStackLayout Padding="20" Spacing="10">
             <Label Text="Library" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
             <Label Text="View and manage your pre-downloaded model" 
@@ -45,7 +46,8 @@
                                FontSize="15"
                                HorizontalTextAlignment="Start"
                                VerticalOptions="Center"
-                               BackgroundColor="Transparent"/>
+                               BackgroundColor="Transparent"
+                               TextChanged="OnSearchTextChanged"/>
                     </Grid>
                 </Frame>
                 <Button Grid.Column="1" Text="Filter" BackgroundColor="#3366FF" TextColor="White" CornerRadius="5" Margin="10,0,0,0"/>
@@ -67,18 +69,23 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame BorderColor="LightGray" 
-                               BackgroundColor="White" 
-                               CornerRadius="10" 
-                               Padding="10" 
-                               HasShadow="True"
-							   Margin="0,5">
+                            BackgroundColor="White" 
+                            CornerRadius="10" 
+                            Padding="10" 
+                            HasShadow="True"
+                            Margin="0,5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:Library}}, Path=NavigateToModelInfoCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
                             <Grid ColumnDefinitions="3*, 2*, *, Auto">
                                 <Label Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center"
-                                       TextColor="Black"/>
+                                    TextColor="Black"/>
                                 <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
-                                       TextColor="Black"/>
+                                    TextColor="Black"/>
                                 <Label Grid.Column="2" Text="{Binding Status}" VerticalOptions="Center"
-                                       TextColor="Gray"/>
+                                    TextColor="Gray"/>
                                 <Button Grid.Column="3" 
                                         Text="Load"
                                         BackgroundColor="#3366FF"

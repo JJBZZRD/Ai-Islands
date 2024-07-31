@@ -1,27 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 using System.Windows.Input;
-using System.Text.Json.Serialization;
-namespace frontend.Models
+
+public class ModelItem
 {
-    public class ModelItem
-    {
-        public string Name { get; set; } = string.Empty;
-
-        public string PipelineTag { get; set; } = string.Empty;
-
-        public bool IsOnline { get; set; }
-        public string Status => IsOnline ? "Online" : "Offline";
-        public string Description { get; set; } = string.Empty;
-        public string Tags { get; set; } = string.Empty;
-        public ICommand LoadOrStopCommand { get; set; }
-
-        public ModelItem()
-        {
-            LoadOrStopCommand = new Command(() => { });
-        }
-    }
+    public string? Name { get; set; }
+    public string? PipelineTag { get; set; }
+    public bool IsOnline { get; set; }
+    public string Status => IsOnline ? "Online" : "Offline";
+    public string? Description { get; set; }
+    public string? ModelDesc { get; set; }
+    public string? ModelDetail { get; set; }
+    public List<string>? Tags { get; set; }
+    public bool IsInLibrary { get; set; }
+    [JsonIgnore]
+    public ICommand? LoadOrStopCommand { get; set; }
+    public string? ModelSource { get; set; }
+    public string? ModelClass { get; set; }
+    public string? ModelCardUrl { get; set; }
+    public string? DatasetFormat { get; set; }
 }

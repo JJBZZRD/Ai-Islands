@@ -66,7 +66,7 @@ async def get_models(source: str = Query("index", description="Source of models:
         if source == "library":
             with open('data/library.json', 'r') as f:
                 models = json.load(f)
-        else:  # Default to index
+        else:  
             with open('data/model_index.json', 'r') as f:
                 models = json.load(f)
         return JSONResponse(content=models)

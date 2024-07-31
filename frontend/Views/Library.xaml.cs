@@ -8,12 +8,16 @@ using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace frontend.Views
+
 {
+    public class RefreshLibraryMessage { }
     public partial class Library : ContentPage, INotifyPropertyChanged
     {
         private ObservableCollection<ModelItem> _models;
+
         public ObservableCollection<ModelItem> Models
         {
             get => _models;
@@ -24,49 +28,118 @@ namespace frontend.Views
             }
         }
 
+        private ObservableCollection<ModelItem> _allModels;
+        public ObservableCollection<ModelItem> AllModels
+        {
+            get => _allModels;
+            set
+            {
+                _allModels = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICommand NavigateToModelInfoCommand { get; private set; }
+
+        // page constructor
         public Library()
         {
             InitializeComponent();
             Models = new ObservableCollection<ModelItem>();
+            AllModels = new ObservableCollection<ModelItem>();
             BindingContext = this;
-            LoadLibraryModels();
+
+            // receive refresh library message from the main page
+            WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
+            {
+                System.Diagnostics.Debug.WriteLine("RefreshLibraryMessage received");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await RefreshLibraryModels();
+                });
+            });
+
+            MainThread.BeginInvokeOnMainThread(async () => await RefreshLibraryModels());
         }
 
-        private async void LoadLibraryModels()
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await RefreshLibraryModels();
+        }
+
+        private async Task RefreshLibraryModels()
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library");
+                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library"); // fetch library data
                     if (response.IsSuccessStatusCode)
                     {
+                        // deserialie the json response into a dictionary
                         var jsonString = await response.Content.ReadAsStringAsync();
                         var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
 
+                        // create new collection of ModelItem from the deserialised data
+                        var newModels = new ObservableCollection<ModelItem>();
                         foreach (var model in libraryModels)
                         {
-                            Models.Add(new ModelItem
+                            newModels.Add(new ModelItem
                             {
                                 Name = model.Key,
-                                PipelineTag = model.Value.PipelineTag,
+                                PipelineTag = model.Value.PipelineTag ?? model.Value.Type ?? "Unknown",
                                 IsOnline = model.Value.IsOnline,
                                 Description = model.Value.Description ?? "No description available",
-                                Tags = string.Join(", ", model.Value.Tags ?? new List<string>()),
+                                Tags = model.Value.Tags != null ? new List<string>(model.Value.Tags) : new List<string>(),
                                 LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
                             });
                         }
+
+                        AllModels = new ObservableCollection<ModelItem>(newModels);
+                        Models = new ObservableCollection<ModelItem>(newModels);
+
+                        OnPropertyChanged(nameof(Models));
+                        OnPropertyChanged(nameof(AllModels));
                     }
                     else
                     {
-                        await DisplayAlert("Error", "Failed to load library models.", "OK");
+                        await DisplayAlert("Error", "Failed to refresh library models.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to load library models: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"Failed to refresh library models: {ex.Message}", "OK");
             }
+        }
+
+        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Search text changed to: '{e.NewTextValue}'");
+
+            if (string.IsNullOrWhiteSpace(e.NewTextValue)) 
+            {
+                Models = new ObservableCollection<ModelItem>(AllModels);
+            }
+            else
+            {
+                var searchTerm = e.NewTextValue.ToLower();
+                var filteredModels = AllModels.Where(m =>
+                    m.Name.ToLower().Contains(searchTerm) ||
+                    (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
+                ).ToList();
+
+                Models = new ObservableCollection<ModelItem>(filteredModels);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"After filtering: Models count: {Models.Count}");
+            OnPropertyChanged(nameof(Models));
+        }
+
+        public async Task RefreshModels()
+        {
+            System.Diagnostics.Debug.WriteLine("RefreshModels started");
+            await RefreshLibraryModels();
         }
 
         private async void LoadOrStopModel(string modelName)
@@ -97,6 +170,11 @@ namespace frontend.Views
             {
                 await DisplayAlert("Error", $"Failed to {endpoint} model {modelName}: {ex.Message}", "OK");
             }
+        }
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
         }
     }
 }

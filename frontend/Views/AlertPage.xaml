@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.AlertPage"
+             BackgroundColor="Transparent">
+    <ContentPage.Content>
+        <Grid BackgroundColor="#80000000" Padding="30">
+            <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1C1C1E}"
+                   CornerRadius="10"
+                   HasShadow="True"
+                   VerticalOptions="Center"
+                   WidthRequest="300">
+                <StackLayout Spacing="20" Padding="20">
+                    <Label x:Name="TitleLabel"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="MessageLabel"
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center"/>
+                    <ProgressBar x:Name="DownloadProgressBar"
+                                 Progress="0"
+                                 ProgressColor="Green"
+                                 IsVisible="False" 
+                                 HeightRequest="10"/>
+                    <Button x:Name="OkButton"
+                            Text="OK"
+                            HorizontalOptions="Center"
+                            WidthRequest="100"
+                            IsVisible="False"
+                            Clicked="OnOkButtonClicked" />
+                </StackLayout>
+            </Frame>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

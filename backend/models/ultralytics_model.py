@@ -11,6 +11,8 @@ import numpy as np
 import torch
 from backend.settings.settings import get_hardware_preference
 import shutil
+from PIL import Image
+from backend.utils.process_vis_out import process_vision_output
 
 logger = logging.getLogger(__name__)
 
@@ -85,14 +87,36 @@ class UltralyticsModel(BaseModel):
         
         if self.model is None:
             raise ValueError("Model is not loaded")
+        
+        visualize = request_payload.get("visualize", False)
+        result = {}
+
         if "image_path" in request_payload:
             print("Running image inference")
-            return self.predict_image(request_payload["image_path"])
+            image_path = request_payload["image_path"]
+            predictions = self.predict_image(image_path)
+            result["predictions"] = predictions
+
+            if visualize:
+                with Image.open(image_path) as image:
+                    visualization = process_vision_output(image, predictions, "object-detection")
+                result["visualization"] = visualization
+
         elif "video_frame" in request_payload:
             print("Running video inference")
-            return self.predict_video(request_payload["video_frame"])
+            frame = request_payload["video_frame"]
+            predictions = self.predict_video(frame)
+            result["predictions"] = predictions
+
+            if visualize:
+                image = Image.fromarray(frame)
+                visualization = process_vision_output(image, predictions, "object-detection")
+                result["visualization"] = visualization
+
         else:
             return {"error": "Invalid request payload"}
+
+        return result
 
     def predict_image(self, image_path: str):
         try:
