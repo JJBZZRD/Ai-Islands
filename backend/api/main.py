@@ -18,7 +18,6 @@ app = FastAPI()
 # Instantiate controls and set all models inactive in chain
 model_control = ModelControl()
 library_control = LibraryControl()
-library_control.set_all_inactive_in_chain()
 playground_control = PlaygroundControl(model_control)
 
 

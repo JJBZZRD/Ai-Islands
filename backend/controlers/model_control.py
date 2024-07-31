@@ -7,6 +7,7 @@ import gc
 from backend.settings.settings import get_hardware_preference, set_hardware_preference
 from backend.controlers.library_control import LibraryControl
 from backend.utils.helpers import install_packages
+from backend.controlers.runtime_control import RuntimeControl
 import torch
 import importlib
 import shutil
@@ -151,15 +152,15 @@ class ModelControl:
     def is_model_loaded(self, model_id: str):
         return model_id in self.models
 
-    def unload_model(self, model_id: str, force_stop: bool = False):
+    def unload_model(self, model_id: str):
         try:
-            model_info = self._get_model_info(model_id)
-            
             if model_id in self.models:
-                if model_info.get('active_in_chain', False) and not force_stop:
+                runtime_data = RuntimeControl.get_runtime_data("playground")
+                
+                if runtime_data.get(model_id) and len(runtime_data[model_id]) != 0:
                     logger.info(f"Model {model_id} is active in a chain. Please stop the chain first.")
                     return False
-                
+            
                 conn = self.models[model_id]['conn']
                 conn.send("terminate")
                 self.models[model_id]['process'].join()
