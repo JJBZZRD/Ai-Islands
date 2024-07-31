@@ -166,3 +166,15 @@ class LibraryControl:
         except Exception as e:
             logger.error(f"Error updating model ID from {model_id} to {new_model_id}: {str(e)}")
             return None
+        
+    def set_active_in_chain(self, model_id):
+        model_info = self.get_model_info_library(model_id)
+        model_info['active_in_chain'] = True
+        self.update_library(model_id, model_info)
+        return model_info
+    
+    def set_inactive_in_chain(self, model_id):
+        model_info = self.get_model_info_library(model_id)
+        model_info['active_in_chain'] = False
+        self.update_library(model_id, model_info)
+        return model_info

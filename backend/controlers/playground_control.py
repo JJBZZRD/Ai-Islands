@@ -1,6 +1,8 @@
 import uuid
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import PLAYGROUND_JSON_PATH
+from backend.playground.playground import Playground
+from backend.controlers.library_control import LibraryControl
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,6 +11,7 @@ logger = logging.getLogger(__name__)
 class PlaygroundControl:
     def __init__(self, model_control):
         self.model_control = model_control
+        self.library_control = LibraryControl()
         self.playgrounds = {}
     
     def create_playground(self,playground_id: str = None, description: str = None ):
@@ -120,12 +123,30 @@ class PlaygroundControl:
         except Exception as e:
             logger.error(f"Error removing model from playground: {str(e)}")
             raise
+        
+    def get_playground_info(self, playground_id: str):
+        try:
+            playgrounds = JSONHandler.read_json(PLAYGROUND_JSON_PATH)
+            return playgrounds[playground_id]
+        except Exception as e:
+            logger.error(f"Error getting playground info: {str(e)}")
+            raise
     
-    def run_playground(self):
-        pass
+    def load_playground_chain(self, playground_id: str):
+        # call load_playground_chain on specific instance of playground. 
+        # If succesfull, call library control to set active_in_chain to True for all models in the chain.
+        result = self.playgrounds[playground_id].load_playground_chain()
+        if result:
+            for model_id in self.playgrounds[playground_id].chain:
+                self.library_control.set_active_in_chain(model_id)
+        return result
     
-    def stop_playground(self):
-        pass
+    def stop_playground_chain(self, playground_id: str):
+        result = self.playgrounds[playground_id].stop_playground_chain()
+        if result:
+            for model_id in self.playgrounds[playground_id].chain:
+                self.library_control.set_inactive_in_chain(model_id)
+        return result
     
     def add_chain_to_playground(self):
         pass
@@ -134,7 +155,9 @@ class PlaygroundControl:
         pass
     
     def load_playground(self, playground_id: str):
-        pass
+        self.playgrounds[playground_id] = Playground(playground_id, self.model_control)
+        playground_info = self.get_playground_info(playground_id)
+        self.playgrounds[playground_id].load_playground(playground_id, playground_info)
     
     def save_playground(self):
         pass
