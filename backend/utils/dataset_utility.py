@@ -198,12 +198,9 @@ class DatasetManagement:
         logger.info(f"Generated embeddings with shape: {embeddings.shape}")
         return embeddings
 
-    def process_dataset(self, file_path: Path, chunking_settings: dict = None):
+    def process_dataset(self, file_path: Path):
         logger.info(f"Processing dataset: {file_path}")
         try:
-            if chunking_settings:
-                self.chunking_settings = chunking_settings
-            
             filename = file_path.stem
             dataset_dir = Path("Datasets") / filename
             dataset_dir.mkdir(parents=True, exist_ok=True)
