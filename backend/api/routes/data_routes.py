@@ -34,7 +34,6 @@ class DataRouter:
         self.router.add_api_route("/upload-video/", self.upload_video, methods=["POST"])
         self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
         self.router.add_api_route("/process_dataset", self.process_dataset, methods=["POST"])
-        self.router.add_api_route("/update_chunking_settings", self.update_chunking_settings, methods=["POST"])
         self.router.add_api_route("/list_datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available_models", self.get_available_models, methods=["GET"])
 
@@ -92,27 +91,13 @@ class DataRouter:
 
     async def process_dataset(self, request: DatasetProcessRequest):
         try:
-            config_path = Path("backend/settings/chunking_settings.json")
-            with open(config_path, 'r') as f:
-                chunking_settings = json.load(f)
-
             dataset_manager = DatasetManagement(model_name=request.model_name)
             file_path = Path(request.file_path)
-            result = dataset_manager.process_dataset(file_path, chunking_settings=chunking_settings)
+            result = dataset_manager.process_dataset(file_path)
             return result
         except Exception as e:
             logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error processing dataset: {str(e)}")
-
-    async def update_chunking_settings(self, settings: ChunkingSettings):
-        try:
-            config_path = Path("backend/settings/chunking_settings.json")
-            with open(config_path, 'w') as f:
-                json.dump(settings.dict(), f, indent=2)
-            return {"message": "Chunking settings updated successfully"}
-        except Exception as e:
-            logger.error(f"Error updating chunking settings: {str(e)}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Error updating chunking settings: {str(e)}")
 
     async def list_datasets(self):
         try:

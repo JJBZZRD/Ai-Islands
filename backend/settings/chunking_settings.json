@@ -1,8 +1,8 @@
 {
-  "use_chunking": false,
+  "use_chunking": true,
   "chunk_size": 500,
   "chunk_overlap": 50,
-  "chunk_method": "paragraph",
+  "chunk_method": "csv_row",
   "rows_per_chunk": 1,
   "csv_columns": []
 }
