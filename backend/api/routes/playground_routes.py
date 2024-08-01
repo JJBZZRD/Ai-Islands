@@ -1,8 +1,8 @@
-import logging
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from backend.controlers.playground_control import PlaygroundControl
+import logging
 from fastapi.encoders import jsonable_encoder
 
 logger = logging.getLogger(__name__)
@@ -12,11 +12,16 @@ class CreatePlaygroundRequest(BaseModel):
     description: str = None
 
 class UpdatePlaygroundRequest(BaseModel):
+    playground_id: str = ...
     new_playground_id: str = None
     description: str = None
 
 class ChainConfigureRequest(BaseModel):
     chain: List[str]
+    
+class InferenceRequest(BaseModel):
+    playground_id: str = ...
+    data: dict = ...
 
 class PlaygroundRouter:
     def __init__(self, playground_control: PlaygroundControl):
@@ -46,10 +51,10 @@ class PlaygroundRouter:
             logger.error(f"Error creating playground: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def update_playground(self, playground_id: str, request: UpdatePlaygroundRequest):
+    async def update_playground(self, request: UpdatePlaygroundRequest):
         try:
             result = self.playground_control.update_playround_info(
-                playground_id, 
+                playground_id=request.playground_id, 
                 new_playground_id=request.new_playground_id, 
                 description=request.description
             )
@@ -66,7 +71,7 @@ class PlaygroundRouter:
             logger.error(f"Error deleting playground: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def add_model_to_playground(self, playground_id: str = Query(...), model_id: str = Query(...)):
+    async def add_model_to_playground(self, playground_id: str = Body(...), model_id: str = Body(...)):
         try:
             result = self.playground_control.add_model_to_playground(playground_id, model_id)
             return result
@@ -74,7 +79,7 @@ class PlaygroundRouter:
             logger.error(f"Error adding model to playground: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def remove_model_from_playground(self, playground_id: str = Query(...), model_id: str = Query(...)):
+    async def remove_model_from_playground(self, playground_id: str = Body(...), model_id: str = Body(...)):
         try:
             result = self.playground_control.remove_model_from_playground(playground_id, model_id)
             return result
@@ -122,9 +127,9 @@ class PlaygroundRouter:
             logger.error(f"Error stopping playground chain: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def inference(self, playground_id: str = Query(...), payload: str = Query(...)):
+    async def inference(self, inference_request: InferenceRequest):
         try:
-            result = self.playground_control.inference(playground_id, payload)
+            result = self.playground_control.inference(jsonable_encoder(inference_request))
             return result
         except Exception as e:
             logger.error(f"Error performing inference: {str(e)}")

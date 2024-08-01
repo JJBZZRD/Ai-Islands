@@ -6,6 +6,7 @@ from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
+from backend.controlers.runtime_control import RuntimeControl
 from backend.controlers.library_control import LibraryControl
 from backend.api.routes.settings_routes import SettingsRouter
 from backend.api.routes.playground_routes import PlaygroundRouter
@@ -21,6 +22,7 @@ model_control = ModelControl()
 library_control = LibraryControl()
 playground_control = PlaygroundControl(model_control)
 
+RuntimeControl.initialise_runtime_data()
 
 # Create router instances
 model_router = ModelRouter(model_control)

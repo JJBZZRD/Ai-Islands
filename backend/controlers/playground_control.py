@@ -76,6 +76,7 @@ class PlaygroundControl:
     def add_model_to_playground(self, playground_id: str, model_id: str):
         try:
             playground = self.playgrounds.get(playground_id)
+
             if not playground:
                 logger.error(f"Playground {playground_id} not found")
                 return None
@@ -84,11 +85,11 @@ class PlaygroundControl:
                 logger.info(f"Model {model_id} already in playground {playground_id}")
                 return {"playground_id": playground_id, "models": playground.models}
             
-            if not self.library_control.get(model_id):
+            if not self.library_control.get_model_info_library(model_id):
                 logger.error(f"Model {model_id} not in library")
                 return {"error": f"Model {model_id} not in library"}
             
-            playground.models.append({model_id: self.library_control.get_model_info(model_id).get("mapping")})
+            playground.models[model_id] = self.library_control.get_model_info_library(model_id).get("mapping")
             self._write_playgrounds_to_json()
             
             logger.info(f"Added model {model_id} to playground {playground_id}")
@@ -108,7 +109,7 @@ class PlaygroundControl:
                 logger.info(f"Model {model_id} not in playground {playground_id}")
                 return {"playground_id": playground_id, "models": playground.models}
             
-            playground.models.remove(model_id)
+            playground.models.pop(model_id)
             self._write_playgrounds_to_json()
             
             logger.info(f"Removed model {model_id} from playground {playground_id}")
@@ -159,9 +160,13 @@ class PlaygroundControl:
         
     
     def load_playground_chain(self, playground_id: str):
+        if playground_id not in self.playgrounds:
+            return {"error": f"Playground {playground_id} not found"}
         playground = self.playgrounds[playground_id]
+        logger.info(f"Loading chain for playground {playground_id}")
         for model_id in playground.chain:
             self.model_control.load_model(model_id)
+            logger.info(f"Model {model_id} loaded")
         
         playground.active_chain = True
         
@@ -176,14 +181,25 @@ class PlaygroundControl:
     
     def stop_playground_chain(self, playground_id: str):
         playground = self.playgrounds[playground_id]
+
         runtime_data = RuntimeControl.get_runtime_data("playground")
-        
+
         for model_id in playground.chain:
             runtime_data[model_id].remove(playground_id)
+            # remove model from runtime data if no playground is using it
             if len(runtime_data[model_id]) == 0:
-                self.model_control.unload_model(model_id)
                 del runtime_data[model_id]
+
+        # update runtime data
         RuntimeControl.update_runtime_data("playground", runtime_data)
+        
+        for model_id in playground.chain:
+            print("try to unload model", model_id)
+            if runtime_data.get(model_id) is None:
+                print("try to unload model, model count = 0")
+                self.model_control.unload_model(model_id)
+                print("model unloaded", model_id)
+        
         return True
     
     def _initialise_playground(self, playground_id: str):
@@ -201,14 +217,21 @@ class PlaygroundControl:
             logger.error(f"Error listing playgrounds: {str(e)}")
             raise
     
-    
-    
-    def inference(self, playground_id: str, payload: str):
+    def inference(self, inference_request):
+        playground_id = inference_request.get("playground_id")
+        data = inference_request.get("data")
         playground = self.playgrounds[playground_id]
-        input_data = payload
+
         for model_id in playground.chain:
-            inference_result = self.model_control.inference(model_id, input_data)
-            input_data = inference_result
+            model_inference_request = {
+                "model_id": model_id,
+                "data": {
+                    "payload": str(data)
+                }
+            }
+            inference_result = self.model_control.inference(model_inference_request)
+            print("inference_result", inference_result)
+            data = inference_result
         return inference_result
     
     def _write_playgrounds_to_json(self):
