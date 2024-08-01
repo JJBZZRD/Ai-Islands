@@ -193,10 +193,9 @@ class PlaygroundControl:
         # update runtime data
         RuntimeControl.update_runtime_data("playground", runtime_data)
         
+        # unload models with model control if no playground is using it
         for model_id in playground.chain:
-            print("try to unload model", model_id)
             if runtime_data.get(model_id) is None:
-                print("try to unload model, model count = 0")
                 self.model_control.unload_model(model_id)
                 print("model unloaded", model_id)
         
@@ -217,6 +216,8 @@ class PlaygroundControl:
             logger.error(f"Error listing playgrounds: {str(e)}")
             raise
     
+    # we have to make this inference funciton more generic
+    # currently i have hardcoded the payload to be a string
     def inference(self, inference_request):
         playground_id = inference_request.get("playground_id")
         data = inference_request.get("data")
