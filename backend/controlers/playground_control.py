@@ -14,7 +14,7 @@ class PlaygroundControl:
         self.model_control = model_control
         self.library_control = LibraryControl()
         self.playgrounds = {}
-        self.initialise_all_playgrounds()
+        self._initialise_all_playgrounds()
     
     def create_playground(self,playground_id: str = None, description: str = None ):
         try:
@@ -22,12 +22,13 @@ class PlaygroundControl:
             if playground_id is None:
                 playground_id = str(uuid.uuid4())
 
+            print(playground_id, description)
             # Create new playground entry
             new_playground = Playground(playground_id, {"description": description or "New Playground", "models": {}, "chain": []})
 
             # Add new playground
             self.playgrounds[playground_id] = new_playground
-            self.write_playgrounds_to_json()
+            self._write_playgrounds_to_json()
             
             logger.info(f"Created new playground with ID: {playground_id}")
             return {"playground_id": playground_id, "playground": new_playground.create_playground_dictionary()}
@@ -48,7 +49,7 @@ class PlaygroundControl:
             playground = self.playgrounds.pop(playground_id)
             self.playgrounds[new_playground_id] = playground
         
-        self.write_playgrounds_to_json()
+        self._write_playgrounds_to_json()
         return {"status": "success", "message": "Playground updated"}
     
     def delete_playground(self, playground_id: str):
@@ -64,7 +65,7 @@ class PlaygroundControl:
             
             # Delete from self.playgrounds
             del self.playgrounds[playground_id]
-            self.write_playgrounds_to_json()
+            self._write_playgrounds_to_json()
             
             logger.info(f"Deleted playground with ID: {playground_id}")
             return {"playground_id": playground_id, "status": "deleted"}
@@ -83,8 +84,12 @@ class PlaygroundControl:
                 logger.info(f"Model {model_id} already in playground {playground_id}")
                 return {"playground_id": playground_id, "models": playground.models}
             
+            if not self.library_control.get(model_id):
+                logger.error(f"Model {model_id} not in library")
+                return {"error": f"Model {model_id} not in library"}
+            
             playground.models.append({model_id: self.library_control.get_model_info(model_id).get("mapping")})
-            self.write_playgrounds_to_json()
+            self._write_playgrounds_to_json()
             
             logger.info(f"Added model {model_id} to playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
@@ -104,7 +109,7 @@ class PlaygroundControl:
                 return {"playground_id": playground_id, "models": playground.models}
             
             playground.models.remove(model_id)
-            self.write_playgrounds_to_json()
+            self._write_playgrounds_to_json()
             
             logger.info(f"Removed model {model_id} from playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
@@ -120,6 +125,9 @@ class PlaygroundControl:
         return playground_dict
     
     def get_playground_info(self, playground_id: str):
+        return self.playgrounds[playground_id].create_playground_dictionary()
+    
+    def _get_playground_json_data(self, playground_id: str):
         try:
             playgrounds = JSONHandler.read_json(PLAYGROUND_JSON_PATH)
             return playgrounds[playground_id]
@@ -146,7 +154,7 @@ class PlaygroundControl:
             prev_output_type = output_type
         
         playground.chain = chain
-        self.write_playgrounds_to_json()
+        self._write_playgrounds_to_json()
         return {"playground_id": playground_id, "chain": chain}
         
     
@@ -178,16 +186,16 @@ class PlaygroundControl:
         RuntimeControl.update_runtime_data("playground", runtime_data)
         return True
     
-    def initialise_playground(self, playground_id: str):
-        playground_info = self.get_playground_info(playground_id)
+    def _initialise_playground(self, playground_id: str):
+        playground_info = self._get_playground_json_data(playground_id)
         playground = Playground(playground_id, playground_info)
         self.playgrounds[playground_id] = playground
     
-    def initialise_all_playgrounds(self):
+    def _initialise_all_playgrounds(self):
         try:
             playgrounds = JSONHandler.read_json(PLAYGROUND_JSON_PATH)
             for playground_id in playgrounds:
-                self.initialise_playground(playground_id)
+                self._initialise_playground(playground_id)
             return {"status": "success", "message": "Playgrounds initialised"}
         except Exception as e:
             logger.error(f"Error listing playgrounds: {str(e)}")
@@ -203,7 +211,7 @@ class PlaygroundControl:
             input_data = inference_result
         return inference_result
     
-    def write_playgrounds_to_json(self):
+    def _write_playgrounds_to_json(self):
         playground_dict = self.list_playgrounds()
         JSONHandler.write_json(PLAYGROUND_JSON_PATH, playground_dict)
         return True
