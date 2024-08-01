@@ -169,7 +169,7 @@ class PlaygroundControl:
         pass
     
     def load_playground(self, playground_id: str):
-        self.playgrounds[playground_id] = Playground(playground_id, self.model_control)
+        self.playgrounds[playground_id] = Playground(playground_id)
         playground_info = self.get_playground_info(playground_id)
         self.playgrounds[playground_id].load_playground(playground_id, playground_info)
         

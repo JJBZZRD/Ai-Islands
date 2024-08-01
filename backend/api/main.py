@@ -1,7 +1,6 @@
 import logging
 from fastapi import FastAPI
 from backend.api.routes.model_routes import ModelRouter
-from backend.api.routes.hardware_routes import HardwareRouter
 from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
 from backend.controlers.model_control import ModelControl
@@ -23,7 +22,6 @@ playground_control = PlaygroundControl(model_control)
 
 # Create router instances
 model_router = ModelRouter(model_control)
-hardware_router = HardwareRouter()
 data_router = DataRouter()
 library_router = LibraryRouter(library_control)
 settings_router = SettingsRouter()
@@ -38,7 +36,6 @@ async def log_requests(request, call_next):
 
 # Include routers
 app.include_router(model_router.router)
-app.include_router(hardware_router.router, prefix="/hardware", tags=["hardware"])
 app.include_router(data_router.router, prefix="/data", tags=["data"])
 app.include_router(library_router.router, prefix="/library", tags=["library"])
 app.include_router(settings_router.router, prefix="/settings", tags=["settings"])

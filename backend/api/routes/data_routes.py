@@ -3,7 +3,7 @@ import os
 import shutil
 import uuid
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
-from backend.core.config import UPLOAD_IMAGE_DIR, UPLOAD_VID_DIR, UPLOAD_DATASET_DIR
+from backend.core.config import UPLOAD_DATASET_DIR
 from backend.data_utils.dataset_processor import process_dataset
 from pydantic import BaseModel
 from backend.utils.dataset_utility import DatasetManagement
@@ -30,43 +30,10 @@ class DataRouter:
         self.router = APIRouter()
 
         # Define routes
-        self.router.add_api_route("/upload-image/", self.upload_image, methods=["POST"])
-        self.router.add_api_route("/upload-video/", self.upload_video, methods=["POST"])
         self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
         self.router.add_api_route("/process_dataset", self.process_dataset, methods=["POST"])
         self.router.add_api_route("/list_datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available_models", self.get_available_models, methods=["GET"])
-
-    async def upload_image(self, file: UploadFile = File(...)):
-        try:
-            image_id = str(uuid.uuid4())
-            file_extension = file.filename.split('.')[-1]
-            file_path = os.path.join(UPLOAD_IMAGE_DIR, f"{image_id}.{file_extension}")
-            
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-            
-            relative_file_path = os.path.relpath(file_path, UPLOAD_IMAGE_DIR)
-            
-            return {"image_id": image_id, "file_path": relative_file_path}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-
-    async def upload_video(self, file: UploadFile = File(...)):
-        try:
-            video_id = str(uuid.uuid4())
-            file_extension = file.filename.split('.')[-1]
-            file_path = os.path.join(UPLOAD_VID_DIR, f"{video_id}.{file_extension}")
-            
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-                
-            relative_file_path = os.path.relpath(file_path, UPLOAD_VID_DIR)
-            
-            return {"video_id": video_id , "file_path": relative_file_path}
-        
-        except Exception as e:
-            raise HTTPException(status_code=500, detail= str(e))
 
     async def upload_dataset(self, file: UploadFile = File(...), model_id: str = Query(...)):
         dataset_dir = ""
