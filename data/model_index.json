@@ -3,6 +3,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "code-generation"
@@ -38,6 +39,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "question-answering",
       "summarization",
@@ -77,6 +79,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -117,6 +120,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -157,6 +161,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "summarization",
@@ -197,6 +202,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -236,6 +242,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -275,6 +282,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -315,6 +323,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -355,6 +364,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -396,6 +406,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -437,6 +448,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "question-answering",
@@ -478,6 +490,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-generation",
       "summarization",
@@ -518,6 +531,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "text-analysis",
       "sentiment-analysis",
@@ -551,6 +565,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
+    "mapping": {"input":"text", "output":"audio"},
     "tags": [
       "text-to-speech",
       "audio-synthesis",
@@ -572,6 +587,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
+    "mapping": {"input":"audio", "output":"text"},
     "tags": [
       "speech-to-text",
       "audio-transcription",
@@ -592,6 +608,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "embedding",
       "text-embedding",
@@ -613,6 +630,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "embedding",
       "text-embedding",
@@ -634,6 +652,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "embedding",
       "text-embedding",
@@ -656,6 +675,7 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "embedding",
       "text-embedding",
@@ -678,6 +698,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping":{"input":"text", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -734,6 +755,7 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "yolo",
       "object-detection",
@@ -758,6 +780,7 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "yolo",
       "object-detection",
@@ -781,6 +804,7 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "yolo",
       "object-detection",
@@ -804,6 +828,7 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "yolo",
       "object-detection",
@@ -826,6 +851,7 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "yolo",
       "object-detection",
@@ -848,6 +874,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -876,6 +903,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -902,6 +930,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -933,6 +962,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -963,6 +993,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -997,6 +1028,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"image", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -1030,6 +1062,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -1055,40 +1088,50 @@
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
-      "model_config": {},
-      "tokenizer_config": {},
-      "processor_config": {},
-      "pipeline_config": {}
+        "model_config": {
+            "torch_dtype": "bfloat16"
+
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+            "max_length": 512,
+            "max_new_tokens": 1000,
+            "num_beams": 2,
+            "use_cache": true
+        },
+        "device_config": {
+            "device": "cuda"
+        },
+        "quantization_config": {
+            "current_mode": "bfloat16"
+        },
+        "quantization_config_options": {
+            "4-bit": {
+                "load_in_4bit": true,
+                "bnb_4bit_use_double_quant": true,
+                "bnb_4bit_quant_type": "nf4",
+                "bnb_4bit_compute_dtype": "bfloat16"
+            },
+            "8-bit": {
+                "load_in_8bit": true
+            },
+            "bfloat16": {}
+        },
+        "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
+        "user_prompt": {"role": "user", "content": "[USER]"},
+        "assistant_prompt": {"role": "assistant", "content": "[ASSISTANT]"},
+        "example_conversation": [
+            {"role": "user", "content": "How are you?"},
+            {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
+        ]
     }
-  },
-  "nomic-ai/gpt4all-j": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "tags": [
-      "transformers",
-      "pytorch",
-      "safetensors",
-      "gptj",
-      "text-generation",
-      "en",
-      "license:apache-2.0"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://huggingface.co/nomic-ai/gpt4all-j",
-    "requirements": {
-      "required_classes": {
-        "model": "AutoModelForCausalLM",
-        "tokenizer": "AutoTokenizer"
-      }
-    },
-    "model_desc": "GPT4All-J is an Apache-2 licensed chatbot trained over a massive curated corpus of assistant interactions, including word problems, multi-turn dialogue, code, poems, songs, and stories. It's a finetuned version of GPT-J optimized for assistant-style interactions.",
-    "model_detail": "https://github.com/nomic-ai/gpt4all"
   },
   "meta-llama/Meta-Llama-3-8B-Instruct": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "transformers",
       "pytorch",
@@ -1114,27 +1157,50 @@
       "requires_auth": true
     },
     "config": {
-      "model_config": {
-        "torch_dtype": "float16"
-      },
-      "tokenizer_config": {},
-      "processor_config": {},
-      "pipeline_config": {
-        "max_length": 512,
-        "max_new_tokens": 10000,
-        "num_beams": 2,
-        "use_cache": true
-      },
-      "device_config": {
-        "device": "cuda"
+        "model_config": {
+            "torch_dtype": "bfloat16"
 
-      }
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+            "max_length": 512,
+            "max_new_tokens": 1000,
+            "num_beams": 2,
+            "use_cache": true
+        },
+        "device_config": {
+            "device": "cuda"
+        },
+        "quantization_config": {
+            "current_mode": "bfloat16"
+        },
+        "quantization_config_options": {
+            "4-bit": {
+                "load_in_4bit": true,
+                "bnb_4bit_use_double_quant": true,
+                "bnb_4bit_quant_type": "nf4",
+                "bnb_4bit_compute_dtype": "bfloat16"
+            },
+            "8-bit": {
+                "load_in_8bit": true
+            },
+            "bfloat16": {}
+        },
+        "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
+        "user_prompt": {"role": "user", "content": "How are you?"},
+        "assistant_prompt": {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"},
+        "example_conversation": [
+            {"role": "user", "content": "How are you?"},
+            {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
+        ]
     }
   },
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Text Classification",
       "Sentiment Analysis"
@@ -1161,6 +1227,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Text Classification",
       "Sentiment Analysis"
@@ -1186,6 +1253,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Text Classification",
       "Product Reviews"
@@ -1219,6 +1287,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1247,6 +1316,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1275,6 +1345,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1303,6 +1374,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Text Classification",
       "Text Reranker",
@@ -1381,6 +1453,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
         "Text Classification",
         "Text Reranker",
@@ -1421,6 +1494,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Translation",
       "Multilingual"
@@ -1451,6 +1525,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Translation",
       "Multilingual"
@@ -1888,6 +1963,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Translation",
       "Multilingual"
@@ -2325,6 +2401,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
       "Translation",
       "Multilingual"
@@ -2553,6 +2630,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"audio", "output":"text"},
     "tags": [
       "Automatic Speech Recognition",
       "Speech to Text",
@@ -2687,6 +2765,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"audio"},
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2729,6 +2808,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"audio"},
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2750,6 +2830,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"audio"},
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2775,6 +2856,7 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
+    "mapping": {"input":"text", "output":"text"},
     "tags": [
         "transformers",
         "pytorch",
@@ -2799,10 +2881,6 @@
     },
     "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
-    "mapping": {
-        "input": "text",
-        "output": "text"
-    },
     "config": {
         "model_config": {
             "torch_dtype": "bfloat16"
@@ -2838,8 +2916,8 @@
         "user_prompt": {"role": "user", "content": "[USER]"},
         "assistant_prompt": {"role": "assistant", "content": "[ASSISTANT]"},
         "example_conversation": [
-            {"role": "user", "content": "[USER]"},
-            {"role": "assistant", "content": "[ASSISTANT]"}
+          {"role": "user", "content": "How are you?"},
+          {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
         ]
     }
 }
