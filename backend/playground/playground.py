@@ -11,7 +11,6 @@ class Playground:
     
     def create_playground_dictionary(self):
         return {
-            "playground_id": self.playground_id,
             "description": self.description,
             "models": self.models,
             "chain": self.chain,
