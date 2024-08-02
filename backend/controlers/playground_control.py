@@ -1,3 +1,5 @@
+import json
+import os
 import uuid
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import PLAYGROUND_JSON_PATH
@@ -234,6 +236,14 @@ class PlaygroundControl:
             print("inference_result", inference_result)
             data = inference_result
         return inference_result
+    
+    @staticmethod
+    def _initialise_playground_data_directory():
+        # Create directory for playground data if it does not exist
+        if not os.path.exists(PLAYGROUND_JSON_PATH):
+            with open(PLAYGROUND_JSON_PATH, "w") as f:
+                json.dump({}, f)
+        return True
     
     def _write_playgrounds_to_json(self):
         playground_dict = self.list_playgrounds()

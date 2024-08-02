@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class RuntimeControl:
     
     @staticmethod
-    def initialise_runtime_data():
+    def _initialise_runtime_data():
         empty_runtime_data = {
             "playground": {}
         }
