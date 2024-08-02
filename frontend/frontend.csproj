@@ -98,6 +98,9 @@
 	  <Compile Update="Views\ChainAPI.xaml.cs">
 	    <DependentUpon>ChainAPI.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\FilterPopUp.xaml.cs">
+	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\TagsView.xaml.cs">
 	    <DependentUpon>TagsView.xaml</DependentUpon>
 	  </Compile>
@@ -123,6 +126,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ChainAPI.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FilterPopUp.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TagsView.xaml">

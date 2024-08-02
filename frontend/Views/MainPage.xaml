@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:frontend="clr-namespace:frontend.Views"
              xmlns:converters="clr-namespace:frontend.Converters"
+             xmlns:local="clr-namespace:frontend.Views"
              x:Class="frontend.Views.MainPage"
              BackgroundColor="#F2F2F2">
 
@@ -142,15 +143,22 @@
                 </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
-        <Frame x:Name="FilterPopup" 
-               IsVisible="false"
-               BackgroundColor="White"
-               CornerRadius="10"
-               HasShadow="True"
-               VerticalOptions="Center"
-               HorizontalOptions="Center"
-               Padding="20">
-            <!-- filter options should be added here -->
-        </Frame>
+        <BoxView x:Name="Overlay"
+             IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
+             BackgroundColor="#80000000"
+             InputTransparent="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnOverlayTapped"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <local:FilterPopup x:Name="FilterPopup"
+                   IsVisible="false"
+                   ModelTypes="{Binding ModelTypes}"
+                   FilterOnline="{Binding FilterOnline}"
+                   FilterOffline="{Binding FilterOffline}"
+                   AllModels="{Binding AllModels}"
+                   CloseRequested="OnCloseFilterPopup"
+                   ApplyFiltersRequested="OnApplyFilters"
+                   ResetFiltersRequested="OnResetFilters"/>
     </Grid>
 </ContentPage>

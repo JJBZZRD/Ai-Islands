@@ -11,7 +11,8 @@
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
     </ContentPage.Resources>
 
-    <ScrollView>
+    <Grid>
+        <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="10">
             <Label Text="Library" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
             <Label Text="View and manage your pre-downloaded models" 
@@ -68,7 +69,7 @@
                         TextColor="Black" 
                         CornerRadius="10" 
                         Margin="10,0,0,0"
-                        />
+                        Clicked="OnFilterClicked"/>
             </Grid>
 
             <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,5" HasShadow="True">
@@ -133,4 +134,22 @@
             </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
+    <BoxView x:Name="Overlay"
+         IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
+         BackgroundColor="#80000000"
+         InputTransparent="False">
+        <BoxView.GestureRecognizers>
+             <TapGestureRecognizer Tapped="OnOverlayTapped"/>
+        </BoxView.GestureRecognizers>
+    </BoxView>
+        <local:FilterPopup x:Name="FilterPopup"
+                   IsVisible="false"
+                   ModelTypes="{Binding ModelTypes}"
+                   FilterOnline="{Binding FilterOnline}"
+                   FilterOffline="{Binding FilterOffline}"
+                   AllModels="{Binding AllModels}"
+                   CloseRequested="OnCloseFilterPopup"
+                   ApplyFiltersRequested="OnApplyFilters"
+                   ResetFiltersRequested="OnResetFilters"/>
+    </Grid>
 </ContentPage>
