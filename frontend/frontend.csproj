@@ -60,6 +60,7 @@
 	  <None Remove="Resources\Images\add_icon.png" />
 	  <None Remove="Resources\Images\delete_icon.png" />
 	  <None Remove="Resources\Images\filter_icon.png" />
+	  <None Remove="Resources\Images\run_icon.png" />
 	  <None Remove="Resources\Images\search_icon_2.png" />
 	</ItemGroup>
 
@@ -97,6 +98,9 @@
 	  <Compile Update="Views\ChainAPI.xaml.cs">
 	    <DependentUpon>ChainAPI.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\TagsView.xaml.cs">
+	    <DependentUpon>TagsView.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -119,6 +123,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ChainAPI.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TagsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Playground.xaml">

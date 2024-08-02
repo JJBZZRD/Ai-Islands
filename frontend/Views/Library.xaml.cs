@@ -113,6 +113,7 @@ namespace frontend.Views
             }
         }
 
+        
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"Search text changed to: '{e.NewTextValue}'");

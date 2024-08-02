@@ -4,7 +4,7 @@
              xmlns:frontend="clr-namespace:frontend.Views"
              xmlns:converters="clr-namespace:frontend.Converters"
              x:Class="frontend.Views.MainPage"
-             BackgroundColor="White">
+             BackgroundColor="#F2F2F2">
 
     <ContentPage.Resources>
         <Style x:Key="DownloadAlertFrame" TargetType="Frame">
@@ -69,9 +69,9 @@
 
                     <Button Grid.Column="1" 
                             Text="Filter" 
-                            FontSize="15"
+                            FontSize="16"
                             ImageSource="filter_icon.png"
-                            HeightRequest="17"
+                            HeightRequest="10"
                             ContentLayout="Left,10"
                             BackgroundColor="Transparent" 
                             TextColor="Black" 
@@ -81,12 +81,12 @@
                             Clicked="OnFilterClicked"/>     
                 </Grid>
 
-                <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="10" Padding="10" Margin="0,5" HasShadow="True">
-                    <Grid ColumnDefinitions="3*, 2*, 1.5*, Auto">
+                <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,5" HasShadow="True">
+                    <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
                         <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
                         <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
                         <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
-                        <Label Text="Action" FontAttributes="Bold" Grid.Column="3" TextColor="Black"  HorizontalOptions="Center"/>
+                        
                     </Grid>
                 </Frame>
 
@@ -103,7 +103,7 @@
                                    HasShadow="True"
                                    Margin="0,5">
                                 <Frame.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnModelSelected"/>
+                                    <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
                                 <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
                                     <Label Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center"

@@ -67,35 +67,9 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("OnModelSelected called");
-            if (sender is Frame frame)
+            if (e.Parameter is ModelItem selectedModel)
             {
-                System.Diagnostics.Debug.WriteLine($"Sender is a Frame");
-                if (frame.BindingContext is ModelItem model)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Model selected: {model.Name}");
-                    try
-                    {
-                        var modelJson = System.Text.Json.JsonSerializer.Serialize(model);
-                        System.Diagnostics.Debug.WriteLine($"Serialized model: {modelJson}");
-
-                        await Navigation.PushAsync(new ModelInfoPage(model));
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
-                        System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-                        await DisplayAlert("Error", "Unable to open model details.", "OK");
-                    }
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("BindingContext is not a ModelItem");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Sender is not a Frame: {sender?.GetType().Name}");
+                await Navigation.PushAsync(new ModelInfoPage(selectedModel));
             }
         }
 
@@ -177,7 +151,7 @@ namespace frontend.Views
                     for (int i = 0; i <= 100; i++)
                     {
                         alertPage.UpdateProgress(i / 100.0);
-                        await Task.Delay(50); // Adjust this delay to control the speed of the simulation
+                        await Task.Delay(50); // adjust this delay to control the speed of the simulation
                     }
 
                     // wait for user to click "OK"
@@ -185,7 +159,7 @@ namespace frontend.Views
 
                     System.Diagnostics.Debug.WriteLine($"Model {modelName} downloaded successfully");
 
-                    // Update the local state in the ModelItem
+                    // update the local state in the ModelItem
                     var model = Models.FirstOrDefault(m => m.Name == modelName);
                     if (model != null)
                     {
