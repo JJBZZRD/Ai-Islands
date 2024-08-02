@@ -20,7 +20,7 @@ class RuntimeControl:
     @staticmethod
     def get_runtime_data(info_type: str):
         runtime_data = JSONHandler.read_json(RUNTIME_DATA_PATH)
-        logger.info(f"Successfully retrieved runtime data")
+        logger.info("Successfully retrieved runtime data")
         target_data = runtime_data[info_type]
         logger.info(f"Runtime data of {info_type} is retrieved")
         return target_data

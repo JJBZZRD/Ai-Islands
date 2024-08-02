@@ -53,25 +53,15 @@ class ModelControl:
                 conn.send("Terminating")
                 break
             lock.acquire()
-            # the first if block is for backward compatibility
-            # i.e. if type(req) == str and req.startswith("predict:")
-            # pls remove this block after all models are updated
-            # pls keep the second if block (req["task"] == "inference":)
-            if type(req) == str and req.startswith("predict:"):
-                payload = json.loads(req.split(":", 1)[1])
-                prediction = model.process_request(payload)
-            elif req["task"] == "inference":
-                print("running control inference")
-                print("req data ", req["data"])
+
+            if req["task"] == "inference":
+                logger.info(f"Running control inference for model {model_id}")
                 prediction = model.inference(req["data"])
-                print("prediction done")
-                print(prediction)
+                logger.info(f"Prediction done: {prediction}")
             elif req["task"] == "train":
-                print("running control train")
-                print("req data ", req["data"])
+                logger.info(f"Running control train for model {model_id}")
                 prediction = model.train(req["data"])
-                print("prediction done")
-                print(prediction)
+                logger.info(f"Training done: {prediction}")
             lock.release()    
             conn.send(prediction)
 
@@ -282,13 +272,3 @@ class ModelControl:
             return model_class
         except (ImportError, AttributeError) as e:
             raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
-
-    # this will be deprecated
-    def predict(self, model_id: str, request_payload: dict):
-        active_model = self.get_active_model(model_id)
-        if not active_model:
-            raise ValueError(f"Model {model_id} is not loaded")
-
-        conn = active_model['conn']
-        conn.send(json.dumps(request_payload))
-        return conn.recv()
