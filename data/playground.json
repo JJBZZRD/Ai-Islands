@@ -1,11 +1,20 @@
-[
-    {
-        "playground_id": "playground1",
-        "models": [
-            "model1",
-            "model2",
-            "model3"
+{
+    "playground_new": {
+        "description": "updated description",
+        "models": {
+            "cardiffnlp/twitter-roberta-base-sentiment-latest": {
+                "input": "text",
+                "output": "text"
+            },
+            "suno/bark-small": {
+                "input": "text",
+                "output": "audio"
+            }
+        },
+        "chain": [
+            "cardiffnlp/twitter-roberta-base-sentiment-latest",
+            "suno/bark-small"
         ],
-        "chain": ["model1", "model2"]
+        "active_chain": false
     }
-]
+}

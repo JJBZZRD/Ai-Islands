@@ -166,3 +166,4 @@ class LibraryControl:
         except Exception as e:
             logger.error(f"Error updating model ID from {model_id} to {new_model_id}: {str(e)}")
             return None
+        

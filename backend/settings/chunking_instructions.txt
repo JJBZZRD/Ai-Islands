@@ -1,0 +1,7 @@
+For chunking method we have options: "fixed_length", "sentence", "paragraph", "csv_row"
+
+Space Colonies dataset uses chunk size 100 and overlap 20.
+
+For CSV files, use the "csv_row" method to process each row by rows_per_chunk and selected columns.
+
+For text documents use the other options.
