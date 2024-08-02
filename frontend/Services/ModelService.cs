@@ -9,7 +9,7 @@ namespace frontend.Services
     public class ModelService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://127.0.0.1:8000"; // Replace with your actual API base URL
+        private const string BaseUrl = "http://127.0.0.1:8000/model"; // Updated base URL
 
         public ModelService()
         {
@@ -19,25 +19,25 @@ namespace frontend.Services
 
         public async Task<List<string>> ListActiveModels()
         {
-            var response = await _httpClient.GetAsync("/models/active");
+            var response = await _httpClient.GetAsync("/active");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
-            return result["active_models"];
+            return result?["active_models"] ?? new List<string>();
         }
 
         public async Task<bool> LoadModel(string modelId)
         {
-            var response = await _httpClient.PostAsync($"/models/load?model_id={modelId}", null);
+            var response = await _httpClient.PostAsync($"/load?model_id={modelId}", null);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> UnloadModel(string modelId)
         {
-            var response = await _httpClient.PostAsync($"/models/unload?model_id={modelId}", null);
+            var response = await _httpClient.PostAsync($"/unload?model_id={modelId}", null);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> DownloadModel(string modelId, string authToken = null)
+        public async Task<bool> DownloadModel(string modelId, string? authToken = null)
         {
             var url = $"/download-model?model_id={modelId}";
             if (!string.IsNullOrEmpty(authToken))
@@ -53,7 +53,7 @@ namespace frontend.Services
             var response = await _httpClient.GetAsync($"/is-model-loaded?model_id={modelId}");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            return result["message"].Contains("is loaded");
+            return result?["message"]?.Contains("is loaded") ?? false;
         }
 
         public async Task<object> Inference(string modelId, object data)
@@ -61,7 +61,7 @@ namespace frontend.Services
             var request = new { model_id = modelId, data = data };
             var response = await _httpClient.PostAsJsonAsync("/inference", request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<object>();
+            return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
         public async Task<object> TrainModel(string modelId, object data)
@@ -69,7 +69,7 @@ namespace frontend.Services
             var request = new { model_id = modelId, data = data };
             var response = await _httpClient.PostAsJsonAsync("/train", request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<object>();
+            return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
         public async Task<object> ConfigureModel(string modelId, object data)
@@ -77,7 +77,7 @@ namespace frontend.Services
             var request = new { model_id = modelId, data = data };
             var response = await _httpClient.PostAsJsonAsync("/configure", request);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<object>();
+            return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
         // Note: File upload methods (upload_image, upload_video, upload_dataset) are not included
