@@ -3,7 +3,7 @@ import websockets
 import cv2
 import json
 
-async def send_video(video_path, uri, frame_interval=1, resize_factor=0.5):
+async def send_video(video_path, uri, frame_interval=120, resize_factor=0.5):
     async with websockets.connect(uri) as websocket:
         cap = cv2.VideoCapture(video_path)
         frame_count = 0

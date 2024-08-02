@@ -208,7 +208,7 @@ class UltralyticsModel(BaseModel):
             suffix = self.get_next_suffix(self.model_id)
             trained_model_name = f"{self.model_id}_{suffix}.pt"
             
-            # Create a new directory for the trained model
+            # Save thr trained model to the ultralytics folder
             base_dir = os.path.join('data', 'downloads', 'ultralytics')
             trained_model_dir = os.path.join(base_dir, f"{self.model_id}_{suffix}")
             os.makedirs(trained_model_dir, exist_ok=True)

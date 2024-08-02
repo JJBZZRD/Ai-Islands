@@ -39,10 +39,22 @@
 
 	<!-- Playground Page -->
 	<FlyoutItem Title="Playground" Icon="playground.png">
-		<ShellContent
-            Title="Playground"
-            ContentTemplate="{DataTemplate local:Playground}"
-            Route="PlaygroundPage"/>
+        <ShellContent
+            Title="Models"
+            ContentTemplate="{DataTemplate local:Models}"
+            Route="Models"/>
+        <ShellContent
+            Title="Model Configuration"
+            ContentTemplate="{DataTemplate local:ModelConfig}"
+            Route="ModelConfig"/>
+        <ShellContent
+            Title="Chain"
+            ContentTemplate="{DataTemplate local:Chain}"
+            Route="Chain"/>   
+        <ShellContent
+            Title="Chain API"
+            ContentTemplate="{DataTemplate local:ChainAPI}"
+            Route="ChainAPI"/>
 	</FlyoutItem>
 
 	<!-- Settings Page -->

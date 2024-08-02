@@ -35,6 +35,11 @@ namespace frontend.Views
             LoadModels();
         }
 
+        private void OnFilterClicked(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = true;
+        }
+
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"Search text changed to: '{e.NewTextValue}'");
@@ -62,22 +67,35 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            if (sender is Frame frame && frame.BindingContext is ModelItem model)
+            System.Diagnostics.Debug.WriteLine("OnModelSelected called");
+            if (sender is Frame frame)
             {
-                try
+                System.Diagnostics.Debug.WriteLine($"Sender is a Frame");
+                if (frame.BindingContext is ModelItem model)
                 {
-                    var modelJson = System.Text.Json.JsonSerializer.Serialize(model);
                     System.Diagnostics.Debug.WriteLine($"Model selected: {model.Name}");
-                    System.Diagnostics.Debug.WriteLine($"Serialized model: {modelJson}");
+                    try
+                    {
+                        var modelJson = System.Text.Json.JsonSerializer.Serialize(model);
+                        System.Diagnostics.Debug.WriteLine($"Serialized model: {modelJson}");
 
-                    await Navigation.PushAsync(new ModelInfoPage(model));
+                        await Navigation.PushAsync(new ModelInfoPage(model));
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                        await DisplayAlert("Error", "Unable to open model details.", "OK");
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
-                    System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-                    await DisplayAlert("Error", "Unable to open model details.", "OK");
+                    System.Diagnostics.Debug.WriteLine("BindingContext is not a ModelItem");
                 }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Sender is not a Frame: {sender?.GetType().Name}");
             }
         }
 
@@ -155,7 +173,7 @@ namespace frontend.Views
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Simulate download progress
+                    // simulate download progress. I guess this should be modified to reflect actual download progress
                     for (int i = 0; i <= 100; i++)
                     {
                         alertPage.UpdateProgress(i / 100.0);

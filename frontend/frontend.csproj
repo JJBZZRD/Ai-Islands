@@ -57,6 +57,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\add_icon.png" />
+	  <None Remove="Resources\Images\delete_icon.png" />
+	  <None Remove="Resources\Images\filter_icon.png" />
 	  <None Remove="Resources\Images\search_icon_2.png" />
 	</ItemGroup>
 
@@ -82,6 +85,18 @@
 	  <Compile Update="Views\ModelInfoPage.xaml.cs">
 	    <DependentUpon>ModelInfoPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\Models.xaml.cs">
+	    <DependentUpon>Models.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelConfig.xaml.cs">
+	    <DependentUpon>ModelConfig.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Chain.xaml.cs">
+	    <DependentUpon>Chain.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ChainAPI.xaml.cs">
+	    <DependentUpon>ChainAPI.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -92,6 +107,18 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelInfoPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Models.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelConfig.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Chain.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ChainAPI.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Playground.xaml">

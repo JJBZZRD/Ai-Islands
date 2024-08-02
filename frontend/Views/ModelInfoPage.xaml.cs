@@ -16,6 +16,7 @@ namespace frontend.Views
             InitializeComponent();
             Model = model;
             BindingContext = this;
+            System.Diagnostics.Debug.WriteLine($"ModelInfoPage constructor called with model: {model?.Name}");
         }
 
         protected override void OnAppearing()
