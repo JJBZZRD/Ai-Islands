@@ -3,7 +3,7 @@ import os
 import shutil
 import uuid
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
-from backend.core.config import UPLOAD_DATASET_DIR
+from backend.core.config import UPLOAD_DATASET_DIR, DATASETS_DIR
 from backend.data_utils.dataset_processor import process_dataset
 from pydantic import BaseModel
 from backend.utils.dataset_utility import DatasetManagement
@@ -12,14 +12,6 @@ from pathlib import Path
 import json
 
 logger = logging.getLogger(__name__)
-
-class ChunkingSettings(BaseModel):
-    use_chunking: bool = False
-    chunk_size: int = 500
-    chunk_overlap: int = 50
-    chunk_method: str = 'fixed_length'
-    rows_per_chunk: int = 1
-    csv_columns: List[str] = []
 
 class DatasetProcessRequest(BaseModel):
     file_path: str
@@ -30,12 +22,31 @@ class DataRouter:
         self.router = APIRouter()
 
         # Define routes
-        self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
+        self.router.add_api_route("/upload_dataset/", self.upload_dataset, methods=["POST"])
+        self.router.add_api_route("/upload_image_dataset/", self.upload_image_dataset, methods=["POST"])
         self.router.add_api_route("/process_dataset", self.process_dataset, methods=["POST"])
         self.router.add_api_route("/list_datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available_models", self.get_available_models, methods=["GET"])
+    
+    async def upload_dataset(self, file_path: str):
+        try:
+            source_path = Path(file_path)
+            if not source_path.exists():
+                raise FileNotFoundError(f"File not found: {file_path}")
 
-    async def upload_dataset(self, file: UploadFile = File(...), model_id: str = Query(...)):
+            dataset_name = source_path.stem
+            dataset_folder = Path(DATASETS_DIR) / dataset_name
+            dataset_folder.mkdir(parents=True, exist_ok=True)
+
+            destination_path = dataset_folder / source_path.name
+            shutil.copy2(source_path, destination_path)
+
+            return {"message": f"Dataset uploaded successfully to {destination_path}"}
+        except Exception as e:
+            logger.error(f"Error uploading dataset: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def upload_image_dataset(self, file: UploadFile = File(...), model_id: str = Query(...)):
         dataset_dir = ""
         try:
             dataset_id = str(uuid.uuid4())

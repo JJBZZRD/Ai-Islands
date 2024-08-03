@@ -3,10 +3,11 @@ from fastapi import FastAPI
 from backend.api.routes.model_routes import ModelRouter
 from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
+from backend.api.routes.settings_routes import SettingsRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.library_control import LibraryControl
-from backend.api.routes.settings_routes import SettingsRouter
+
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)

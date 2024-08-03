@@ -27,7 +27,7 @@ class SettingsRouter:
         self.router.add_api_route("/update_watson_settings", self.update_watson_settings, methods=["POST"])
         self.router.add_api_route("/get_watson_settings", self.get_watson_settings, methods=["GET"])
         self.router.add_api_route("/update_chunking_settings", self.update_chunking_settings, methods=["POST"])
-        # Add new hardware-related routes
+        self.router.add_api_route("/get_chunking_settings", self.get_chunking_settings, methods=["GET"])
         self.router.add_api_route("/set-hardware", self.set_hardware, methods=["POST"])
         self.router.add_api_route("/get-hardware", self.get_hardware, methods=["GET"])
         self.router.add_api_route("/check-gpu", self.check_gpu, methods=["GET"])
@@ -49,6 +49,12 @@ class SettingsRouter:
         try:
             result = await self.service.update_chunking_settings(settings)
             return {"message": result}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_chunking_settings(self):
+        try:
+            return await self.service.get_chunking_settings()
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
