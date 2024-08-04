@@ -41,7 +41,6 @@ async def log_requests(request, call_next):
 
 # Include routers
 app.include_router(model_router.router, prefix="/model", tags=["model"])
-app.include_router(hardware_router.router, prefix="/hardware", tags=["hardware"])
 app.include_router(data_router.router, prefix="/data", tags=["data"])
 app.include_router(library_router.router, prefix="/library", tags=["library"])
 app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
