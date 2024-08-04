@@ -4,7 +4,7 @@ import logging
 import os
 import time
 import gc
-from backend.settings.settings import get_hardware_preference, set_hardware_preference
+from backend.settings.settings_service import SettingsService
 from backend.controlers.library_control import LibraryControl
 from backend.utils.helpers import install_packages
 from backend.controlers.runtime_control import RuntimeControl
@@ -16,12 +16,14 @@ logger = logging.getLogger(__name__)
 
 class ModelControl:
     def __init__(self):
+        settings_service = SettingsService()
         self.models = {}
-        self.hardware_preference = get_hardware_preference()  # Default will be CPU
+        self.hardware_preference = settings_service.get_hardware_preference()  # Default will be CPU
         self.library_control = LibraryControl()
         
     def set_hardware_preference(self, device: str):
-        set_hardware_preference(device)
+        settings_service = SettingsService()
+        settings_service.set_hardware_preference(device)
         self.hardware_preference = device
     
     @staticmethod

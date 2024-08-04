@@ -1,9 +1,9 @@
 import logging
 from fastapi import FastAPI
 from backend.api.routes.model_routes import ModelRouter
-from backend.api.routes.hardware_routes import HardwareRouter
 from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
+from backend.api.routes.settings_routes import SettingsRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
@@ -26,7 +26,6 @@ RuntimeControl._initialise_runtime_data()
 
 # Create router instances
 model_router = ModelRouter(model_control)
-hardware_router = HardwareRouter()
 data_router = DataRouter()
 library_router = LibraryRouter(library_control)
 settings_router = SettingsRouter()
