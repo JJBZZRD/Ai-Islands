@@ -1,25 +1,19 @@
+import os
 import json
 import logging
-import os
-
 from backend.controlers.library_control import LibraryControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.core.config import PLAYGROUND_JSON_PATH
 from backend.data_utils.json_handler import JSONHandler
 from backend.playground.playground import Playground
+from backend.core.exceptions import PlaygroundError, PlaygroundAlreadyExistsError, ChainNotCompatibleError, FileReadError, FileWriteError
 
 logger = logging.getLogger(__name__)
 
-
 class PlaygroundControl:
     """
-    PlaygroundControl class manages the creation, updating, deletion, and configuration of playgrounds.
-    It also handles the addition and removal of models to/from playgrounds, and manages the execution of model chains.
-
-    Attributes:
-        model_control: An instance of the model control class.
-        library_control: An instance of the LibraryControl class.
-        playgrounds: A dictionary storing all playground instances.
+    The PlaygroundControl class manages the creation, initialization, updating, and deletion of playgrounds.
+    It interacts with JSON files to persist playground data and handles models within each playground.
     """
 
     def __init__(self, model_control):
@@ -27,59 +21,72 @@ class PlaygroundControl:
         Initializes the PlaygroundControl instance.
 
         Args:
-            model_control: An instance of the model control class.
+            model_control: The model control instance to manage models.
+
+        Raises:
+            FileReadError: If there is an error reading the playground data.
+            FileWriteError: If there is an error writing the playground data.
         """
         self.model_control = model_control
         self.library_control = LibraryControl()
         self.playgrounds = {}
         self._initialise_playground_data_directory()
         self._initialise_all_playgrounds()
-        
 
     def create_playground(self, playground_id: str = None, description: str = None):
         """
         Creates a new playground.
 
         Args:
-            playground_id: Optional; The ID of the playground.
-            description: Optional; A description of the playground.
+            playground_id (str, optional): The ID of the playground. Defaults to None.
+            description (str, optional): The description of the playground. Defaults to None.
 
         Returns:
-            A dictionary containing the playground ID and the playground details.
+            dict: The data of the created playground.
+
+        Raises:
+            PlaygroundAlreadyExistsError: If the playground already exists.
+            FileWriteError: If there is an error writing the playground data.
         """
+        if not playground_id:
+            playground_id = f"new_playground_{len(self.playgrounds) + 1}"
+        elif playground_id in self.playgrounds:
+            logger.error(f"Playground {playground_id} already exists.")
+            raise PlaygroundAlreadyExistsError(playground_id)
+
+        new_playground = Playground(playground_id, description=description)
+        self.playgrounds[playground_id] = new_playground
+
         try:
-            if not playground_id:
-                playground_id = f"new_playground_{len(self.playgrounds) + 1}"
-
-            new_playground = Playground(playground_id, description=description)
-            self.playgrounds[playground_id] = new_playground
             self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing new playground data to JSON file")
+            raise e
 
-            logger.info(f"Created new playground with ID: {playground_id}")
-            return {
-                "playground_id": playground_id,
-                "playground": new_playground.create_playground_dictionary(),
-            }
+        logger.info(f"Created new playground with ID: {playground_id}")
 
-        except Exception as e:
-            logger.error(f"Error creating playground: {str(e)}")
-            raise
+        data = {"playground_id": playground_id, "playground": new_playground.to_dict()}
+        return data
 
     def update_playround_info(self, playground_id: str, new_playground_id: str = None, description: str = None):
         """
         Updates the information of an existing playground.
 
         Args:
-            playground_id: The ID of the playground to update.
-            new_playground_id: Optional; The new ID for the playground.
-            description: Optional; The new description for the playground.
+            playground_id (str): The ID of the playground to update.
+            new_playground_id (str, optional): The new ID of the playground. Defaults to None.
+            description (str, optional): The new description of the playground. Defaults to None.
 
         Returns:
-            A dictionary indicating the status of the update operation.
+            dict: The updated playground data.
+
+        Raises:
+            KeyError: If the playground does not exist.
+            FileWriteError: If there is an error writing the playground data.
         """
         if playground_id not in self.playgrounds:
             logger.error(f"Playground {playground_id} does not exist.")
-            return {"error": f"Playground {playground_id} does not exist."}
+            raise KeyError(f"Playground {playground_id} does not exist.")
 
         if description is not None:
             self.playgrounds[playground_id].description = description
@@ -88,157 +95,192 @@ class PlaygroundControl:
             playground = self.playgrounds.pop(playground_id)
             self.playgrounds[new_playground_id] = playground
 
-        self._write_playgrounds_to_json()
-        return {"status": "success", "message": "Playground updated"}
+        try:
+            self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing updated playground data to JSON file")
+            raise e
+        return {"playground_id": playground_id, "playground": self.playgrounds[playground_id].to_dict()}
 
     def delete_playground(self, playground_id: str):
         """
         Deletes an existing playground.
 
         Args:
-            playground_id: The ID of the playground to delete.
+            playground_id (str): The ID of the playground to delete.
 
         Returns:
-            A dictionary indicating the status of the delete operation.
+            bool: True if the operation is successful.
+
+        Raises:
+            KeyError: If the playground does not exist.
+            PlaygroundError: If the playground's chain is active.
+            FileWriteError: If there is an error writing the playground data.
         """
+        if playground_id not in self.playgrounds:
+            logger.error(f"Playground {playground_id} does not exist.")
+            raise KeyError(f"Playground {playground_id} does not exist.")
+
+        playground = self.playgrounds[playground_id]
+        if playground.active_chain:
+            logger.error(f"Playground {playground_id} is running a chain, please stop it before deleting.")
+            raise PlaygroundError(f"Playground {playground_id} is running a chain, please stop it before deleting.")
+
+        del self.playgrounds[playground_id]
         try:
-            if playground_id not in self.playgrounds:
-                logger.error(f"Playground {playground_id} does not exist.")
-                return {"error": f"Playground {playground_id} does not exist."}
-
-            playground = self.playgrounds[playground_id]
-            if playground.active_chain:
-                logger.error(f"Playground {playground_id} is running a chain, please stop it before deleting.")
-                return {"error": f"Playground {playground_id} is running a chain, please stop it before deleting."}
-
-            del self.playgrounds[playground_id]
             self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing updated playground data to JSON file after playground deletion")
+            raise e
 
-            logger.info(f"Deleted playground with ID: {playground_id}")
-            return {"playground_id": playground_id, "status": "deleted"}
-        except Exception as e:
-            logger.error(f"Error deleting playground: {str(e)}")
-            raise
+        logger.info(f"Deleted playground with ID: {playground_id}")
+        return True
 
     def add_model_to_playground(self, playground_id: str, model_id: str):
         """
         Adds a model to a playground.
 
         Args:
-            playground_id: The ID of the playground.
-            model_id: The ID of the model to add.
+            playground_id (str): The ID of the playground.
+            model_id (str): The ID of the model to add.
 
         Returns:
-            A dictionary containing the playground ID and the updated list of models.
+            dict: The updated models in the playground.
+
+        Raises:
+            KeyError: If the playground or model does not exist.
+            FileWriteError: If there is an error writing the playground data.
         """
-        try:
-            playground = self.playgrounds.get(playground_id)
+        playground = self.playgrounds.get(playground_id)
 
-            if not playground:
-                logger.error(f"Playground {playground_id} not found")
-                return None
+        if not playground:
+            logger.error(f"Playground {playground_id} not found")
+            raise KeyError(f"Playground {playground_id} not found")
 
-            if model_id in playground.models:
-                logger.info(f"Model {model_id} already in playground {playground_id}")
-                return {"playground_id": playground_id, "models": playground.models}
-
-            if not self.library_control.get_model_info_library(model_id):
-                logger.error(f"Model {model_id} not in library")
-                return {"error": f"Model {model_id} not in library"}
-
-            playground.models[model_id] = self.library_control.get_model_info_library(model_id).get("mapping")
-            self._write_playgrounds_to_json()
-
-            logger.info(f"Added model {model_id} to playground {playground_id}")
+        if model_id in playground.models:
+            logger.info(f"Model {model_id} already in playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
-        except Exception as e:
-            logger.error(f"Error adding model to playground: {str(e)}")
-            raise
+
+        if not self.library_control.get_model_info_library(model_id):
+            logger.error(f"Model {model_id} not in library")
+            raise KeyError(f"Model {model_id} not in library")
+
+        playground.models[model_id] = self.library_control.get_model_info_library(model_id).get("mapping")
+
+        try:
+            self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing updated playground data to JSON file after adding model")
+            raise e
+
+        logger.info(f"Added model {model_id} to playground {playground_id}")
+        return {"playground_id": playground_id, "models": playground.models}
 
     def remove_model_from_playground(self, playground_id: str, model_id: str):
         """
         Removes a model from a playground.
 
         Args:
-            playground_id: The ID of the playground.
-            model_id: The ID of the model to remove.
+            playground_id (str): The ID of the playground.
+            model_id (str): The ID of the model to remove.
 
         Returns:
-            A dictionary containing the playground ID and the updated list of models.
+            bool: True if the operation is successful.
+
+        Raises:
+            KeyError: If the playground does not exist.
+            FileWriteError: If there is an error writing the playground data.
         """
-        try:
-            playground = self.playgrounds.get(playground_id)
-            if not playground:
-                logger.error(f"Playground {playground_id} not found")
-                return None
+        playground = self.playgrounds.get(playground_id)
 
-            if model_id not in playground.models:
-                logger.info(f"Model {model_id} not in playground {playground_id}")
-                return {"playground_id": playground_id, "models": playground.models}
+        if not playground:
+            logger.error(f"Playground {playground_id} not found")
+            raise KeyError(f"Playground {playground_id} not found")
 
-            playground.models.pop(model_id)
-            self._write_playgrounds_to_json()
-
-            logger.info(f"Removed model {model_id} from playground {playground_id}")
+        if model_id not in playground.models:
+            logger.info(f"Model {model_id} not in playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
-        except Exception as e:
-            logger.error(f"Error removing model from playground: {str(e)}")
-            raise
+
+        playground.models.pop(model_id)
+
+        try:
+            self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing updated playground data to JSON file after removing model")
+            raise e
+
+        logger.info(f"Removed model {model_id} from playground {playground_id}")
+        return True
 
     def list_playgrounds(self):
         """
         Lists all playgrounds.
 
         Returns:
-            A dictionary containing all playgrounds and their details.
+            dict: A dictionary of all playgrounds.
         """
-        playground_dict = {}
+        result = {}
         for playground_id in self.playgrounds:
             playground = self.playgrounds[playground_id]
-            playground_dict[playground_id] = playground.create_playground_dictionary()
-        return playground_dict
+            result[playground_id] = playground.to_dict()
+        return result
 
     def get_playground_info(self, playground_id: str):
         """
         Retrieves information about a specific playground.
 
         Args:
-            playground_id: The ID of the playground.
+            playground_id (str): The ID of the playground.
 
         Returns:
-            A dictionary containing the playground details.
+            dict: The playground information.
         """
-        return self.playgrounds[playground_id].create_playground_dictionary()
+        if playground_id not in self.playgrounds:
+            logger.info(f"Playground {playground_id} not found")
+            return {}
+        return self.playgrounds[playground_id].to_dict()
 
     def configure_chain(self, playground_id: str, chain: list):
         """
-        Configures a chain of models for a playground.
+        Configures the chain of models for a playground.
 
         Args:
-            playground_id: The ID of the playground.
-            chain: A list of model IDs representing the chain.
+            playground_id (str): The ID of the playground.
+            chain (list): The list of model IDs to configure in the chain.
 
         Returns:
-            A dictionary indicating the status of the chain configuration.
+            dict: The updated chain configuration.
+
+        Raises:
+            PlaygroundError: If the chain is already running or if the models are not compatible.
+            KeyError: If a model is not found in the playground.
+            FileWriteError: If there is an error writing the playground data.
         """
         playground = self.playgrounds[playground_id]
 
         if playground.active_chain:
-            return {"error": f"Playground {playground_id} is already running a chain, please stop it before configuring."}
+            raise PlaygroundError(f"Playground {playground_id} is already running a chain, please stop it before configuring.")
 
         prev_output_type = None
 
         for model_id in chain:
             if model_id not in playground.models:
-                return {"error": f"Model {model_id} not in playground {playground_id}"}
+                raise KeyError(f"Model {model_id} not found in playground {playground_id}")
+
             input_type = playground.models.get(model_id).get("input")
             output_type = playground.models.get(model_id).get("output")
             if input_type != prev_output_type and prev_output_type is not None:
-                return {"error": f"Model {model_id} does not match the expected output of the previous model in the chain."}
+                raise ChainNotCompatibleError(f"Model {model_id}'s input type is not compatible with the previous model's output type")
             prev_output_type = output_type
 
         playground.chain = chain
-        self._write_playgrounds_to_json()
+
+        try:
+            self._write_playgrounds_to_json()
+        except FileWriteError as e:
+            logger.error("Error writing updated playground data to JSON file after configuring chain")
+            raise e
+
         return {"playground_id": playground_id, "chain": chain}
 
     def load_playground_chain(self, playground_id: str):
@@ -246,15 +288,21 @@ class PlaygroundControl:
         Loads the chain of models for a playground.
 
         Args:
-            playground_id: The ID of the playground.
+            playground_id (str): The ID of the playground.
 
         Returns:
-            A boolean indicating the success of the operation.
+            dict: The loaded chain configuration.
+
+        Raises:
+            KeyError: If the playground does not exist.
+            FileReadError: If there is an error reading the runtime data.
+            FileWriteError: If there is an error writing the runtime data.
         """
         if playground_id not in self.playgrounds:
-            return {"error": f"Playground {playground_id} not found"}
+            raise KeyError(f"Playground {playground_id} not found")
         playground = self.playgrounds[playground_id]
         logger.info(f"Loading chain for playground {playground_id}")
+
         for model_id in playground.chain:
             self.model_control.load_model(model_id)
             logger.info(f"Model {model_id} loaded")
@@ -264,60 +312,121 @@ class PlaygroundControl:
         runtime_data = RuntimeControl.get_runtime_data("playground")
         for model_id in playground.chain:
             if runtime_data.get(model_id):
-                runtime_data[model_id].append(playground_id)
+                runtime_data[model_id]["active"] = True
             else:
-                runtime_data.update({model_id: [playground_id]})
-        RuntimeControl.update_runtime_data("playground", runtime_data)
-        return True
+                runtime_data[model_id] = {"active": True}
+
+        try:
+            RuntimeControl.update_runtime_data("playground", runtime_data)
+        except (FileReadError, FileWriteError) as e:
+            logger.error(f"Error updating runtime data: {e}")
+            raise e
+
+        return {"playground_id": playground_id, "chain": playground.chain}
 
     def stop_playground_chain(self, playground_id: str):
         """
         Stops the chain of models for a playground.
 
         Args:
-            playground_id: The ID of the playground.
+            playground_id (str): The ID of the playground.
 
         Returns:
-            A boolean indicating the success of the operation.
+            bool: True if the operation is successful.
+
+        Raises:
+            KeyError: If the playground does not exist.
+            FileReadError: If there is an error reading the runtime data.
+            FileWriteError: If there is an error writing the runtime data.
         """
         playground = self.playgrounds[playground_id]
 
-        runtime_data = RuntimeControl.get_runtime_data("playground")
+        try:
+            runtime_data = RuntimeControl.get_runtime_data("playground")
+        except FileReadError as e:
+            logger.error(f"Error reading runtime data: {e}")
+            raise e
 
         for model_id in playground.chain:
-            runtime_data[model_id].remove(playground_id)
-            if len(runtime_data[model_id]) == 0:
-                del runtime_data[model_id]
+            if model_id in runtime_data:
+                runtime_data[model_id]["active"] = False
 
-        RuntimeControl.update_runtime_data("playground", runtime_data)
+        try:
+            RuntimeControl.update_runtime_data("playground", runtime_data)
+        except (FileReadError, FileWriteError) as e:
+            logger.error(f"Error updating runtime data: {e}")
+            raise e
 
         for model_id in playground.chain:
-            if runtime_data.get(model_id) is None:
-                self.model_control.unload_model(model_id)
-                print("model unloaded", model_id)
+            self.model_control.unload_model(model_id)
+            logger.info(f"Model {model_id} unloaded")
+
+        playground.active_chain = False
 
         return True
 
-    def _initialise_playground(self, playground_id: str):
+    def inference(self, inference_request):
         """
-        Initializes a playground from JSON data.
+        Executes inference on a playground's chain of models.
 
         Args:
-            playground_id: The ID of the playground.
+            inference_request (dict): The inference request containing the playground ID and data.
+
+        Returns:
+            dict: The inference result.
+
+        Raises:
+            KeyError: If the playground does not exist.
         """
-        playground_info = self._get_playground_json_data(playground_id)
+        playground_id = inference_request.get("playground_id")
+        data = inference_request.get("data")
+
+        if playground_id not in self.playgrounds:
+            logger.error(f"Playground {playground_id} not found")
+            raise KeyError(f"Playground {playground_id} not found")
+        playground = self.playgrounds[playground_id]
+
+        inference_result = data
+        for model_id in playground.chain:
+            inference_result = self.model_control.inference(model_id, inference_result)
+
+        return inference_result
+
+    def _initialise_playground(self, playground_id: str):
+        """
+        Initialise a single playground by loading its data from the JSON file.
+
+        Args:
+            playground_id (str): The ID of the playground to initialise.
+
+        Returns:
+            bool: True if the playground is successfully initialised.
+
+        Raises:
+            FileReadError: If there is an error reading the playground data.
+        """
+        try:
+            playground_info = self._get_playground_json_data(playground_id)
+        except FileReadError as e:
+            logger.error("Error reading playground data during initialisation")
+            raise e
         description = playground_info.get("description", "")
         models = playground_info.get("models", {})
         chain = playground_info.get("chain", [])
         playground = Playground(playground_id, description, models, chain)
         self.playgrounds[playground_id] = playground
 
+        return True
+
     def _initialise_all_playgrounds(self):
         """
-        Initializes all playgrounds from JSON data.
+        Initialise all playgrounds by loading their data from the JSON file.
 
         Returns:
-            A dictionary indicating the status of the initialization operation.
+            dict: A dictionary with the status and message of the operation.
+
+        Raises:
+            Exception: If there is an error listing the playgrounds.
         """
         try:
             playgrounds = JSONHandler.read_json(PLAYGROUND_JSON_PATH)
@@ -328,36 +437,12 @@ class PlaygroundControl:
             logger.error(f"Error listing playgrounds: {str(e)}")
             raise
 
-    def inference(self, inference_request):
-        """
-        Performs inference on a playground's model chain.
-
-        Args:
-            inference_request: A dictionary containing the playground ID and the data for inference.
-
-        Returns:
-            The result of the inference.
-        """
-        playground_id = inference_request.get("playground_id")
-        data = inference_request.get("data")
-        playground = self.playgrounds[playground_id]
-
-        for model_id in playground.chain:
-            model_inference_request = {
-                "model_id": model_id,
-                "data": {"payload": str(data)},
-            }
-            inference_result = self.model_control.inference(model_inference_request)
-            print("inference_result", inference_result)
-            data = inference_result
-        return inference_result
-
     def _initialise_playground_data_directory(self):
         """
-        Creates the directory for playground data if it does not exist.
+        Ensure that the playground data directory exists and create an empty JSON file if it does not.
 
         Returns:
-            A boolean indicating the success of the operation.
+            bool: True if the directory and file are successfully created.
         """
         if not os.path.exists(PLAYGROUND_JSON_PATH):
             with open(PLAYGROUND_JSON_PATH, "w") as f:
@@ -366,28 +451,38 @@ class PlaygroundControl:
 
     def _get_playground_json_data(self, playground_id: str):
         """
-        Retrieves JSON data for a specific playground.
+        Retrieve the JSON data for a specific playground.
 
         Args:
-            playground_id: The ID of the playground.
+            playground_id (str): The ID of the playground to retrieve data for.
 
         Returns:
-            A dictionary containing the playground data.
+            dict: The JSON data of the playground.
+
+        Raises:
+            FileReadError: If there is an error reading the playground data.
         """
         try:
             playgrounds = JSONHandler.read_json(PLAYGROUND_JSON_PATH)
             return playgrounds[playground_id]
-        except Exception as e:
-            logger.error(f"Error getting playground info: {str(e)}")
-            raise
+        except FileReadError as e:
+            logger.error(f"Error reading playground data: {str(e)}")
+            raise e
 
     def _write_playgrounds_to_json(self):
         """
-        Writes the current playground data to JSON.
+        Write the current playground data to the JSON file.
 
         Returns:
-            A boolean indicating the success of the operation.
+            bool: True if the data is successfully written.
+
+        Raises:
+            FileWriteError: If there is an error writing the playground data.
         """
         playground_dict = self.list_playgrounds()
-        JSONHandler.write_json(PLAYGROUND_JSON_PATH, playground_dict)
+        try:
+            JSONHandler.write_json(PLAYGROUND_JSON_PATH, playground_dict)
+        except FileWriteError as e:
+            logger.error("Error writing playgrounds data to playground.json")
+            raise e
         return True

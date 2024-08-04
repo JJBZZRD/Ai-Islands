@@ -5,7 +5,8 @@ class Playground:
     Attributes:
         playground_id (str): The unique identifier for the playground.
         description (str): A description of the playground.
-        models (dict): A dictionary of models added to the playground.
+        models (dict): A dictionary of models added to the playground, where the key is the model ID and 
+        the value is another dictionary which indicates the input and output types.
         chain (list): A list representing the order of models to be executed.
         active_chain (bool): A flag indicating whether the chain is currently active.
     """
@@ -32,7 +33,7 @@ class Playground:
         self.chain = chain
         self.active_chain = False
 
-    def create_playground_dictionary(self):
+    def to_dict(self):
         """
         Creates a dictionary representation of the playground.
 

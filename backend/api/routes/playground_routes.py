@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List
 from backend.controlers.playground_control import PlaygroundControl
+from backend.utils.api_response import success_response, error_response
 import logging
 from fastapi.encoders import jsonable_encoder
+from backend.core.exceptions import FileReadError, FileWriteError, PlaygroundError, PlaygroundAlreadyExistsError, ChainNotCompatibleError
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +48,12 @@ class PlaygroundRouter:
             playground_id = request.playground_id
             description = request.description
             result = self.playground_control.create_playground(playground_id, description)
-            return result
-        except Exception as e:
-            logger.error(f"Error creating playground: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            message = f"Successfully created new playground with ID: {playground_id}"
+            return success_response(message=message, data=result, status_code=201)
+        except PlaygroundAlreadyExistsError as e:
+            return error_response(message=str(e), status_code=409)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
 
     async def update_playground(self, request: UpdatePlaygroundRequest):
         try:
@@ -58,79 +62,89 @@ class PlaygroundRouter:
                 new_playground_id=request.new_playground_id, 
                 description=request.description
             )
-            return result
-        except Exception as e:
-            logger.error(f"Error updating playground: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-
+            if result:
+                return success_response(message="Playground updated successfully", data=result, status_code=200)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
+        
     async def delete_playground(self, playground_id: str = Query(...)):
         try:
             result = self.playground_control.delete_playground(playground_id)
-            return result
-        except Exception as e:
-            logger.error(f"Error deleting playground: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            if result:
+                return success_response(status_code=204)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except PlaygroundError as e:
+            return error_response(message=str(e), status_code=409)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
 
     async def add_model_to_playground(self, playground_id: str = Body(...), model_id: str = Body(...)):
         try:
             result = self.playground_control.add_model_to_playground(playground_id, model_id)
-            return result
-        except Exception as e:
-            logger.error(f"Error adding model to playground: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            return success_response(message=f"Model {model_id} added to playground {playground_id}", data=result, status_code=200)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
 
     async def remove_model_from_playground(self, playground_id: str = Body(...), model_id: str = Body(...)):
         try:
             result = self.playground_control.remove_model_from_playground(playground_id, model_id)
-            return result
-        except Exception as e:
-            logger.error(f"Error removing model from playground: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            if result:
+                return success_response(status_code=204)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
 
     async def list_playgrounds(self):
-        try:
-            result = self.playground_control.list_playgrounds()
-            return result
-        except Exception as e:
-            logger.error(f"Error listing playgrounds: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+        result = self.playground_control.list_playgrounds()
+        return success_response(data=result, status_code=200)
 
     async def get_playground_info(self, playground_id: str = Query(...)):
-        try:
-            result = self.playground_control.get_playground_info(playground_id)
-            return result
-        except Exception as e:
-            logger.error(f"Error getting playground info: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+        result = self.playground_control.get_playground_info(playground_id)
+        return success_response(data=result, status_code=200)
 
     async def configure_chain(self, playground_id: str = Query(...), request: ChainConfigureRequest = ...):
         try:
             result = self.playground_control.configure_chain(playground_id, request.chain)
-            return result
-        except Exception as e:
-            logger.error(f"Error configuring chain: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-
+            return success_response(message="Chain configured successfully", data=result, status_code=200)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except ChainNotCompatibleError as e:
+            return error_response(message=str(e), status_code=422)
+        except PlaygroundError as e:
+            return error_response(message=str(e), status_code=409)
+        except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
+        
     async def load_playground_chain(self, playground_id: str = Query(...)):
         try:
             result = self.playground_control.load_playground_chain(playground_id)
-            return {"message": "Playground chain loaded successfully"} if result else {"error": "Failed to load playground chain"}
-        except Exception as e:
-            logger.error(f"Error loading playground chain: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            return success_response(message="Playground chain loaded successfully", data=result, status_code=200)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
+        except (FileReadError, FileWriteError) as e:
+            return error_response(message=str(e), status_code=500)
 
     async def stop_playground_chain(self, playground_id: str = Query(...)):
         try:
             result = self.playground_control.stop_playground_chain(playground_id)
-            return {"message": "Playground chain stopped successfully"} if result else {"error": "Failed to stop playground chain"}
+            if result:
+                return success_response(status_code=204)
+        except (FileReadError, FileWriteError) as e:
+            return error_response(message=str(e), status_code=500)
         except Exception as e:
-            logger.error(f"Error stopping playground chain: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            return error_response(message=str(e), status_code=500)
 
     async def inference(self, inference_request: InferenceRequest):
         try:
             result = self.playground_control.inference(jsonable_encoder(inference_request))
-            return result
+            return success_response(data=result, status_code=200)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
         except Exception as e:
-            logger.error(f"Error performing inference: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
+            return error_response(message=str(e), status_code=500)
