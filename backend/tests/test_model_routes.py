@@ -11,7 +11,7 @@ def print_response(test_name, response):
 
 @pytest.mark.order1
 def test_download_model():
-    response = client.post("/download-model?model_id=ibm/granite-13b-chat-v2")
+    response = client.post("/model/download-model?model_id=ibm/granite-13b-chat-v2")
     print_response("Download Model", response)
     assert response.status_code == 200
 
@@ -23,25 +23,25 @@ def test_get_model_info():
 
 @pytest.mark.order3
 def test_load_model():
-    response = client.post("/models/load?model_id=ibm/granite-13b-chat-v2")
+    response = client.post("/model/models/load?model_id=ibm/granite-13b-chat-v2")
     print_response("Load Model", response)
     assert response.status_code == 200
 
 @pytest.mark.order4
 def test_list_active_models():
-    response = client.get("/models/active")
+    response = client.get("/model/models/active")
     print_response("List Active Models", response)
     assert response.status_code == 200
 
 @pytest.mark.order5
 def test_is_model_loaded():
-    response = client.get("/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
+    response = client.get("/model/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
     print_response("Is Model Loaded", response)
     assert response.status_code == 200
 
 @pytest.mark.order6
 def test_inference():
-    response = client.post("/inference", json={
+    response = client.post("/model/inference", json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {"payload": "Which colony produces quantum crystals?"}
     })
@@ -56,7 +56,7 @@ def test_configure_model():
     assert response.status_code == 200
 
     # Configure the model
-    response = client.post("/configure", json={
+    response = client.post("/model/configure", json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {
             "rag_settings": {
@@ -77,7 +77,7 @@ def test_configure_model():
 
 @pytest.mark.order8
 def test_inference_after_configuration():
-    response = client.post("/inference", json={
+    response = client.post("/model/inference", json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {"payload": "Which colony produces quantum crystals?"}
     })
@@ -86,12 +86,12 @@ def test_inference_after_configuration():
 
 @pytest.mark.order9
 def test_unload_model():
-    response = client.post("/models/unload?model_id=ibm/granite-13b-chat-v2")
+    response = client.post("/model/models/unload?model_id=ibm/granite-13b-chat-v2")
     print_response("Unload Model", response)
     assert response.status_code == 200
 
 @pytest.mark.order10
 def test_delete_model():
-    response = client.delete("/delete-model?model_id=ibm/granite-13b-chat-v2")
+    response = client.delete("/model/delete-model?model_id=ibm/granite-13b-chat-v2")
     print_response("Delete Model", response)
     assert response.status_code == 200
