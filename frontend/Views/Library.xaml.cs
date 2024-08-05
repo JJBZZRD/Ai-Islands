@@ -103,6 +103,14 @@ namespace frontend.Views
             FilterPopup.IsVisible = false;
         }
 
+        private async void OnModelSelected(object sender, TappedEventArgs e)
+        {
+            if (e.Parameter is ModelItem selectedModel)
+            {
+                await Navigation.PushAsync(new LibraryTabbedPage(selectedModel));
+            }
+        }
+
         protected override async void OnAppearing()
         {
             base.OnAppearing();

@@ -58,6 +58,7 @@
 
 	<ItemGroup>
 	  <None Remove="Resources\Images\add_icon.png" />
+	  <None Remove="Resources\Images\arrow_icon.png" />
 	  <None Remove="Resources\Images\delete_icon.png" />
 	  <None Remove="Resources\Images\filter_icon.png" />
 	  <None Remove="Resources\Images\run_icon.png" />
@@ -101,6 +102,18 @@
 	  <Compile Update="Views\FilterPopUp.xaml.cs">
 	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\LibraryTabbedPage.xaml.cs">
+	    <DependentUpon>LibraryTabbedPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Inference.xaml.cs">
+	    <DependentUpon>Inference.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\FineTune.xaml.cs">
+	    <DependentUpon>FineTune.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelInfoView.xaml.cs">
+	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\TagsView.xaml.cs">
 	    <DependentUpon>TagsView.xaml</DependentUpon>
 	  </Compile>
@@ -129,6 +142,18 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FilterPopUp.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\LibraryTabbedPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Inference.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FineTune.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelInfoView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TagsView.xaml">

@@ -64,4 +64,13 @@
             ContentTemplate="{DataTemplate local:Setting}"
             Route="SettingsPage"/>
 	</FlyoutItem>
+
+    <TabBar Route="LibraryTabbedPage">
+        <Tab Title="Inference">
+            <ShellContent ContentTemplate="{DataTemplate local:Inference}" />
+        </Tab>
+        <Tab Title="Fine-tune">
+            <ShellContent ContentTemplate="{DataTemplate local:FineTune}" />
+        </Tab>
+    </TabBar>
 </Shell>

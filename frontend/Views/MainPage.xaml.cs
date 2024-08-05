@@ -25,7 +25,7 @@ namespace frontend.Views
             }
         }
 
-        public ICommand NavigateToModelInfoCommand { get; private set; }
+        // public ICommand NavigateToModelInfoCommand { get; private set; }
         private ObservableCollection<ModelTypeFilter> _modelTypes;
         public ObservableCollection<ModelTypeFilter> ModelTypes
         {

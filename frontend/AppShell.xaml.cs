@@ -28,6 +28,7 @@ namespace frontend.Views
             });
             Routing.RegisterRoute("Playground", typeof(Playground));
             Routing.RegisterRoute("Setting", typeof(Setting));
+            Routing.RegisterRoute(nameof(LibraryTabbedPage), typeof(LibraryTabbedPage));
             NavigateCommand = new Command<string>(async (route) => await Shell.Current.GoToAsync(route));
             BindingContext = this;
         }
