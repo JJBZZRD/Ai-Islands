@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, Query, Body
 from pydantic import BaseModel
 from typing import List
 from backend.controlers.playground_control import PlaygroundControl
@@ -135,6 +135,8 @@ class PlaygroundRouter:
             result = self.playground_control.stop_playground_chain(playground_id)
             if result:
                 return success_response(status_code=204)
+        except KeyError as e:
+            return error_response(message=str(e), status_code=404)
         except (FileReadError, FileWriteError) as e:
             return error_response(message=str(e), status_code=500)
         except Exception as e:
