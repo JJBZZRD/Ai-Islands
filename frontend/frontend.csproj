@@ -117,6 +117,9 @@
 	  <Compile Update="Views\TagsView.xaml.cs">
 	    <DependentUpon>TagsView.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\DataRefinery.xaml.cs">
+	    <DependentUpon>DataRefinery.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -161,6 +164,9 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Playground.xaml">
 	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\DataRefinery.xaml">
+		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Setting.xaml">
 	    <Generator>MSBuild:Compile</Generator>

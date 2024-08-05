@@ -57,6 +57,14 @@
             Route="ChainAPI"/>
 	</FlyoutItem>
 
+    <!-- Data Refinery Page -->
+	<FlyoutItem Title="Data Refinery" Icon="datagrid.png">
+		<ShellContent
+            Title="Data Refinery"
+            ContentTemplate="{DataTemplate local:DataRefinery}"
+            Route="DataRefinery"/>
+	</FlyoutItem>
+
 	<!-- Settings Page -->
 	<FlyoutItem Title="Settings" Icon="settings.png">
 		<ShellContent
