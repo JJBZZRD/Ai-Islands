@@ -490,7 +490,7 @@ class PlaygroundControl:
             return {"status": "success", "message": "Playgrounds initialised"}
         except FileReadError as e:
             logger.error("Error reading playground data during initialisation")
-            raise
+            raise e
 
     def _initialise_playground_data_directory(self):
         """
