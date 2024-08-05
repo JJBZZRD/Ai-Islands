@@ -14,6 +14,7 @@ def success_response(message: str = "Success", data: dict = {}, status_code: int
         JSONResponse: A FastAPI JSONResponse object with the provided data and status code.
     """
     
+    # if status code is 204, no content should be returned
     if status_code == 204:
         return Response(status_code=status_code)
     
@@ -52,4 +53,5 @@ def error_response(message: str, status_code: int = 400, **more_info: dict) -> J
 # 403 for authorization failures
 # 404 for requests to non-existent resources
 # 409 for conflicts (e.g., resource already exists)
+# 422 for requests that is in an understandable format but having semantic errors
 # 500 for unexpected server errors

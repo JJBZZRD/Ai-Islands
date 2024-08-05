@@ -225,6 +225,8 @@ class PlaygroundControl:
         if model_id not in playground.models:
             logger.info(f"Model {model_id} not in playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
+        
+        #TODO: Check if the model is in the chain and return error if it is
 
         # Remove the model from the playground
         playground.models.pop(model_id)
@@ -430,18 +432,16 @@ class PlaygroundControl:
         """
         playground_id = inference_request.get("playground_id")
         data = inference_request.get("data")
-
-        # Check if the playground exists
-        if playground_id not in self.playgrounds:
-            logger.error(f"Playground {playground_id} not found")
-            raise KeyError(f"Playground {playground_id} not found")
         playground = self.playgrounds[playground_id]
 
-        # Execute inference on the chain of models
-        inference_result = data
         for model_id in playground.chain:
-            inference_result = self.model_control.inference(model_id, inference_result)
-
+            model_inference_request = {
+                "model_id": model_id,
+                "data": {"payload": str(data)},
+            }
+            inference_result = self.model_control.inference(model_inference_request)
+            print("inference_result", inference_result)
+            data = inference_result
         return inference_result
 
     def _initialise_playground(self, playground_id: str):
