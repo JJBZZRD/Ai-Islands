@@ -44,7 +44,7 @@
             ContentTemplate="{DataTemplate local:Models}"
             Route="Models"/>
         <ShellContent
-            Title="Model Configuration"
+            Title="Chain Configuration"
             ContentTemplate="{DataTemplate local:ModelConfig}"
             Route="ModelConfig"/>
         <ShellContent
