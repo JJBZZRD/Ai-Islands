@@ -124,7 +124,7 @@ class TransformerModel(BaseModel):
                 self.device = self.config["device_config"]["device"]
             else:
                 self.device = device
-            print("using device: ", self.device)
+            logger.info(f"Using device: {self.device}")
             
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
@@ -151,7 +151,7 @@ class TransformerModel(BaseModel):
                 
                 # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
-                logger.info(f"created {class_type} object: {obj}")
+                logger.info(f"succesfully loaded {class_type} from {model_dir}")
 
 
             self.pipeline_args["model"] = self.accelerator.prepare(self.pipeline_args["model"])
@@ -177,8 +177,6 @@ class TransformerModel(BaseModel):
         try:
             # if the api request contains pipeline_config, it will be passed to the pipeline for single-use only
             pipeline_config = data.get("pipeline_config", {})
-            visualize = data.get("visualize", False)
-            
             print("data payload: ", data["payload"])
 
             # for zero shot tasks, both image and text must be passed
@@ -198,7 +196,7 @@ class TransformerModel(BaseModel):
                             raise ValueError("Pipeline output is None")
                         
                         # only visualise output if requested
-                        if visualize:
+                        if self.config.get("visualize"):
                             output = process_vision_output(image, output, self.pipeline.task)
 
                 except FileNotFoundError:
@@ -210,9 +208,7 @@ class TransformerModel(BaseModel):
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
-                    if visualize:
-                        output = process_vision_output(image, output, self.pipeline.task)
-                    
+                    output = process_vision_output(image, output, self.pipeline.task)
             
             # For text-to-speech tasks, if speaker_embedding_config exists in self.config, the model will need speaker embedding to generate speech
             elif self.pipeline.task in ["text-to-audio", "text-to-speech"]:
@@ -274,7 +270,6 @@ class TransformerModel(BaseModel):
         pipeline_config = self.config.get('pipeline_config', {})
         print("pipeline_args: ", self.pipeline_args)
         pipe = transformers.pipeline(task=pipeline_tag, **self.pipeline_args, **pipeline_config)
-        #accelerator = Accelerator()
         
         return self.accelerator.prepare(pipe)
     

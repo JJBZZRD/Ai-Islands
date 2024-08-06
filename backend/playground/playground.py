@@ -1,47 +1,48 @@
-
-
 class Playground:
-    def __init__(self, playground_id: str, playground_info: dict):
+    """
+    The Playground class represents a playground environment where models can be added, configured, and executed in a chain.
+
+    Attributes:
+        playground_id (str): The unique identifier for the playground.
+        description (str): A description of the playground.
+        models (dict): A dictionary of models added to the playground, where the key is the model ID and 
+        the value is another dictionary which indicates the input and output types.
+        chain (list): A list representing the order of models to be executed.
+        active_chain (bool): A flag indicating whether the chain is currently active.
+    """
+
+    def __init__(
+        self,
+        playground_id: str,
+        description: str = "",
+        models: dict = {},
+        chain: list = [],
+    ):
+        """
+        Initializes a new instance of the Playground class.
+
+        Args:
+            playground_id (str): The unique identifier for the playground.
+            description (str, optional): A description of the playground. Defaults to an empty string.
+            models (dict, optional): A dictionary of models added to the playground. Defaults to an empty dictionary.
+            chain (list, optional): A list representing the chain of models to be executed. Defaults to an empty list.
+        """
         self.playground_id = playground_id
-        self.description = playground_info.get("description", "")
-        self.models = playground_info.get("models", {})
-        self.chain = playground_info.get("chain", [])
+        self.description = description
+        self.models = models
+        self.chain = chain
         self.active_chain = False
 
-    
-    def create_playground_dictionary(self):
+    def to_dict(self):
+        """
+        Creates a dictionary representation of the playground.
+
+        Returns:
+            dict: A dictionary containing the playground's description, models, chain, and active chain status.
+        """
         return {
             "description": self.description,
             "models": self.models,
             "chain": self.chain,
-            "active_chain": self.active_chain
+            "active_chain": self.active_chain,
         }
-
-    
-    
-    # def load_playground(self, playground_id: str, playground_info: dict):
-    #     self.playground_id = playground_id
-    #     self.description = playground_info.get("description", "")
-    #     self.models = playground_info.get("models", [])
-    #     self.chain = playground_info.get("chain", [])
-    
-    # def load_playground_chain(self):
-    #     for model_id in self.chain:
-    #         self.model_control.load_model(model_id)
-    #     return True
-    
-    
-    # def unload_model(self, model_id: str):
-    #     return self.model_control.unload_model(model_id)
-    
-    # def inference(self, payload: str):
-    #     input = payload
-    #     for model in self.chain:
-    #         input = model.inference(input)
-    #     return input
-    
-    # def stop_playground_chain(self):
-    #     for model_id in self.chain:
-    #         result = self.model_control.unload_model(model_id)
-    #         result = result and True
-    #     return result

@@ -1,3 +1,11 @@
 {
-    "hardware": "gpu"
+    "hardware": "cpu",
+    "chunking": {
+        "use_chunking": false,
+        "chunk_size": 1000,
+        "chunk_overlap": 100,
+        "chunk_method": "csv_row",
+        "rows_per_chunk": 1,
+        "csv_columns": []
+    }
 }

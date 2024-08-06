@@ -1,9 +1,13 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+
 from backend.api.routes.model_routes import ModelRouter
-from backend.api.routes.hardware_routes import HardwareRouter
 from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
+from backend.api.routes.settings_routes import SettingsRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
@@ -22,11 +26,10 @@ model_control = ModelControl()
 library_control = LibraryControl()
 playground_control = PlaygroundControl(model_control)
 
-RuntimeControl.initialise_runtime_data()
+RuntimeControl._initialise_runtime_data()
 
 # Create router instances
 model_router = ModelRouter(model_control)
-hardware_router = HardwareRouter()
 data_router = DataRouter()
 library_router = LibraryRouter(library_control)
 settings_router = SettingsRouter()
@@ -40,9 +43,16 @@ async def log_requests(request, call_next):
     logger.info(f"Completed response: {response.status_code}")
     return response
 
+# customise error response for validation errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=jsonable_encoder({"error": exc.errors()}),
+    )
+
 # Include routers
 app.include_router(model_router.router, prefix="/model", tags=["model"])
-app.include_router(hardware_router.router, prefix="/hardware", tags=["hardware"])
 app.include_router(data_router.router, prefix="/data", tags=["data"])
 app.include_router(library_router.router, prefix="/library", tags=["library"])
 app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
