@@ -440,11 +440,15 @@ class PlaygroundControl:
         for model_id in playground.chain:
             model_inference_request = {
                 "model_id": model_id,
-                "data": {"payload": str(data)},
+                "data": data,
+                "playground_request": True
             }
             inference_result = self.model_control.inference(model_inference_request)
             print("inference_result", inference_result)
-            data = inference_result
+            data = {
+                "payload": str(inference_result)
+            }
+            
         return inference_result
 
     def _initialise_playground(self, playground_id: str):
