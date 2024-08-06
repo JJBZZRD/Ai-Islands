@@ -8,6 +8,7 @@ using System;
 using frontend.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Linq;
+using frontend.Services;
 
 namespace frontend.Views
 {
@@ -38,17 +39,19 @@ namespace frontend.Views
         }
         public bool FilterOnline { get; set; }
         public bool FilterOffline { get; set; }
+        private readonly IModelService _modelService;
 
         // page constructor
-        public MainPage()
+        public MainPage(IModelService modelService)
         {
             InitializeComponent();
+            _modelService = modelService;
             Models = new ObservableCollection<ModelItem>();
             AllModels = new ObservableCollection<ModelItem>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
             FilterOnline = FilterOffline = false;
             BindingContext = this;
-            LoadModels();
+            _ = LoadModels();
         }
 
         private void OnFilterClicked(object sender, EventArgs e)
@@ -134,64 +137,104 @@ namespace frontend.Views
             }
         }
 
-        private async void LoadModels()
+        // private async void LoadModels()
+        // {
+        //     try
+        //     {
+        //         // create HTTP request to client
+        //         var client = new HttpClient();
+        //         var response = await client.GetAsync("http://127.0.0.1:8000/models?source=index");
+        //         if (response.IsSuccessStatusCode)
+        //         {
+        //             var content = await response.Content.ReadAsStringAsync();
+        //             System.Diagnostics.Debug.WriteLine($"API Response: {content}");
+        //             var modelsDict = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(content); // deserialise json response into dictionary of modelinfo objects
+
+        //             // clear existing models and populate models collection with new modelitem object
+                    
+        //             Models.Clear();
+
+        //             foreach (var model in modelsDict)
+        //             {
+        //                 System.Diagnostics.Debug.WriteLine($"Model: {model.Key}");
+        //                 System.Diagnostics.Debug.WriteLine($"  PipelineTag: '{model.Value.PipelineTag}'");
+        //                 System.Diagnostics.Debug.WriteLine($"  Type: '{model.Value.Type}'");
+        //                 var modelItem = new ModelItem
+        //                 {
+        //                     Name = model.Key,
+        //                     PipelineTag = !string.IsNullOrEmpty(model.Value.PipelineTag) ? model.Value.PipelineTag :
+        //                                 !string.IsNullOrEmpty(model.Value.Type) ? model.Value.Type : "Unknown",
+        //                     IsOnline = model.Value.IsOnline,
+        //                     Description = model.Value.Description ?? "No description available",
+        //                     Tags = model.Value.Tags ?? new List<string>(),
+        //                     LoadOrStopCommand = new Command(() => AddToLibrary(model.Key))
+        //                 };
+        //                 System.Diagnostics.Debug.WriteLine($"  ModelItem PipelineTag: '{modelItem.PipelineTag}'");
+        //                 Models.Add(modelItem);
+        //             }
+        //             System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
+
+        //             // initialises AllModels with the same data as Models for search functionality
+        //             AllModels = new ObservableCollection<ModelItem>(Models);
+        //             System.Diagnostics.Debug.WriteLine($"AllModels initialized with {AllModels.Count} items");
+        //         }
+        //         else
+        //         {
+        //             System.Diagnostics.Debug.WriteLine($"API request failed with status code: {response.StatusCode}");
+        //             await DisplayAlert("Error", "Failed to load models. Please try again.", "OK");
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         System.Diagnostics.Debug.WriteLine($"Error loading model data: {ex.Message}");
+        //         await DisplayAlert("Error", $"An error occurred while loading models: {ex.Message}", "OK");
+        //     }
+        //     var types = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t);
+        //     foreach (var type in types)
+        //     {
+        //         ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
+        //     }
+        //     InitializeFilterPopup();
+        // }
+
+        private async Task LoadModels()
         {
             try
             {
-                // create HTTP request to client
-                var client = new HttpClient();
-                var response = await client.GetAsync("http://127.0.0.1:8000/models?source=index");
-                if (response.IsSuccessStatusCode)
+                var modelsDict = await _modelService.GetIndex();
+
+                Models.Clear();
+
+                foreach (var model in modelsDict)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    System.Diagnostics.Debug.WriteLine($"API Response: {content}");
-                    var modelsDict = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(content); // deserialise json response into dictionary of modelinfo objects
-
-                    // clear existing models and populate models collection with new modelitem object
-                    
-                    Models.Clear();
-
-                    foreach (var model in modelsDict)
+                    var modelItem = new ModelItem
                     {
-                        System.Diagnostics.Debug.WriteLine($"Model: {model.Key}");
-                        System.Diagnostics.Debug.WriteLine($"  PipelineTag: '{model.Value.PipelineTag}'");
-                        System.Diagnostics.Debug.WriteLine($"  Type: '{model.Value.Type}'");
-                        var modelItem = new ModelItem
-                        {
-                            Name = model.Key,
-                            PipelineTag = !string.IsNullOrEmpty(model.Value.PipelineTag) ? model.Value.PipelineTag :
-                                        !string.IsNullOrEmpty(model.Value.Type) ? model.Value.Type : "Unknown",
-                            IsOnline = model.Value.IsOnline,
-                            Description = model.Value.Description ?? "No description available",
-                            Tags = model.Value.Tags ?? new List<string>(),
-                            LoadOrStopCommand = new Command(() => AddToLibrary(model.Key))
-                        };
-                        System.Diagnostics.Debug.WriteLine($"  ModelItem PipelineTag: '{modelItem.PipelineTag}'");
-                        Models.Add(modelItem);
-                    }
-                    System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
+                        Name = model.Key,
+                        PipelineTag = model.Value.TryGetValue("pipeline_tag", out var tag) ? tag?.ToString() : "Unknown",
+                        IsOnline = model.Value.TryGetValue("is_online", out var online) && (bool)online,
+                        Description = model.Value.TryGetValue("model_desc", out var desc) ? desc?.ToString() : "No description available",
+                        Tags = model.Value.TryGetValue("tags", out var tags) ? ((List<object>)tags).Cast<string>().ToList() : new List<string>(),
+                        LoadOrStopCommand = new Command(() => AddToLibrary(model.Key))
+                    };
+                    Models.Add(modelItem);
+                }
 
-                    // initialises AllModels with the same data as Models for search functionality
-                    AllModels = new ObservableCollection<ModelItem>(Models);
-                    System.Diagnostics.Debug.WriteLine($"AllModels initialized with {AllModels.Count} items");
-                }
-                else
+                AllModels = new ObservableCollection<ModelItem>(Models);
+
+                var types = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t);
+                ModelTypes.Clear();
+                foreach (var type in types)
                 {
-                    System.Diagnostics.Debug.WriteLine($"API request failed with status code: {response.StatusCode}");
-                    await DisplayAlert("Error", "Failed to load models. Please try again.", "OK");
+                    ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
                 }
+
+                InitializeFilterPopup();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading model data: {ex.Message}");
                 await DisplayAlert("Error", $"An error occurred while loading models: {ex.Message}", "OK");
             }
-            var types = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t);
-            foreach (var type in types)
-            {
-                ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
-            }
-            InitializeFilterPopup();
         }
 
         public async void AddToLibrary(string modelName)

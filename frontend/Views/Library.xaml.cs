@@ -8,6 +8,7 @@ using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using frontend.Services;
 
 namespace frontend.Views
 {
@@ -42,9 +43,12 @@ namespace frontend.Views
 
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
-        public Library()
+        private readonly ILibraryService _libraryService;
+
+        public Library(ILibraryService libraryService)
         {
             InitializeComponent();
+            _libraryService = libraryService;
             Models = new ObservableCollection<ModelItem>();
             AllModels = new ObservableCollection<ModelItem>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
@@ -121,35 +125,22 @@ namespace frontend.Views
         {
             try
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library");
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var jsonString = await response.Content.ReadAsStringAsync();
-                        var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
+                var libraryModels = await _libraryService.GetLibrary();
 
-                        var newModels = new ObservableCollection<ModelItem>(
-                            libraryModels.Select(model => new ModelItem
-                            {
-                                Name = model.Key,
-                                PipelineTag = model.Value.PipelineTag ?? model.Value.Type ?? "Unknown",
-                                IsOnline = model.Value.IsOnline,
-                                Description = model.Value.Description ?? "No description available",
-                                Tags = model.Value.Tags ?? new List<string>(),
-                                LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
-                            })
-                        );
-
-                        AllModels = newModels;
-                        Models = new ObservableCollection<ModelItem>(AllModels);
-                        InitializeFilterPopup();
-                    }
-                    else
+                var newModels = new ObservableCollection<ModelItem>(
+                    libraryModels.Select(model => new ModelItem
                     {
-                        await DisplayAlert("Error", "Failed to refresh library models.", "OK");
-                    }
-                }
+                        Name = model.Key,
+                        PipelineTag = ((Dictionary<string, object>)model.Value).TryGetValue("pipeline_tag", out var tag) ? tag?.ToString() : "Unknown",
+                        IsOnline = ((Dictionary<string, object>)model.Value).TryGetValue("is_online", out var online) && (bool)online,
+                        Description = ((Dictionary<string, object>)model.Value).TryGetValue("description", out var desc) ? desc?.ToString() : "No description available",
+                        Tags = ((Dictionary<string, object>)model.Value).TryGetValue("tags", out var tags) ? ((List<object>)tags).Cast<string>().ToList() : new List<string>(),
+                        LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
+                    })
+                );
+                AllModels = newModels;
+                Models = new ObservableCollection<ModelItem>(AllModels);
+                InitializeFilterPopup();
             }
             catch (Exception ex)
             {

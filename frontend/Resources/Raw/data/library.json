@@ -1,0 +1,566 @@
+{
+    "yolov8n": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov8",
+            "yolov8n",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0",
+            "region:us"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
+        "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov8n",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": false,
+        "config": {}
+    },
+    "yolov8n_1": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov8",
+            "yolov8n",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0",
+            "region:us"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
+        "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov8n",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": true,
+        "config": {
+            "epochs": 20,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        }
+    },
+    "yolov8n_2": {
+        "model_id": "yolov8n_2",
+        "base_model": "yolov8n",
+        "dir": "data\\downloads\\ultralytics",
+        "model_desc": "Fine-tuned yolov8n model",
+        "is_customised": true,
+        "config": {
+            "epochs": 1,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "pipeline_tag": "object-detection",
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov8",
+            "yolov8n",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0",
+            "region:us"
+        ],
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null
+    },
+    "yolov8n_3": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov8",
+            "yolov8n",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0",
+            "region:us"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Fine-tuned yolov8n model",
+        "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov8n",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": true,
+        "config": {
+            "epochs": 1,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "model_id": "yolov8n_3"
+    },
+    "microsoft/beit-large-finetuned-ade-640-640": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "vision",
+            "image-segmentation",
+            "beit",
+            "ade20k",
+            "en",
+            "license:apache-2.0"
+        ],
+        "pipeline_tag": "image-segmentation",
+        "model_card_url": "https://huggingface.co/microsoft/beit-large-finetuned-ade-640-640",
+        "requirements": {
+            "required_classes": {
+                "model": "BeitForSemanticSegmentation",
+                "image_processor": "AutoImageProcessor"
+            }
+        },
+        "config": {},
+        "model_desc": "BEiT (Bidirectional Encoder representation from Image Transformers) is a vision transformer model pre-trained on masked image modeling task. This specific model is the large variant fine-tuned on the ADE20K dataset for semantic segmentation.",
+        "model_detail": "https://github.com/microsoft/unilm/tree/master/beit",
+        "auth_token": null,
+        "base_model": "microsoft/beit-large-finetuned-ade-640-640",
+        "dir": "data\\downloads\\transformers\\microsoft/beit-large-finetuned-ade-640-640",
+        "is_customised": false
+    },
+    "nvidia/segformer-b0-finetuned-ade-512-512": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "tensorflow",
+            "vision",
+            "image-segmentation",
+            "segformer",
+            "ade20k",
+            "scene_parse_150",
+            "en",
+            "license:other",
+            "arxiv:2105.15203"
+        ],
+        "pipeline_tag": "image-segmentation",
+        "model_card_url": "https://huggingface.co/nvidia/segformer-b0-finetuned-ade-512-512",
+        "requirements": {
+            "required_classes": {
+                "model": "SegformerForSemanticSegmentation",
+                "image_processor": "SegformerImageProcessor"
+            }
+        },
+        "model_desc": "SegFormer (b0-sized) model fine-tuned on ADE20k at resolution 512x512. It uses a hierarchical Transformer encoder and a lightweight all-MLP decode head to achieve great results on semantic segmentation benchmarks.",
+        "model_detail": "https://arxiv.org/abs/2105.15203",
+        "config": {
+            "model_config": {
+                "image_size": 512
+            }
+        },
+        "auth_token": null,
+        "base_model": "nvidia/segformer-b0-finetuned-ade-512-512",
+        "dir": "data\\downloads\\transformers\\nvidia/segformer-b0-finetuned-ade-512-512",
+        "is_customised": false
+    },
+    "yolov10n": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov10",
+            "yolov10n",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov10n",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": false,
+        "config": {}
+    },
+    "yolov9c": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9c",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "YOLOv9c is part of the YOLOv9 family, which introduces groundbreaking techniques such as Programmable Gradient Information (PGI) and the Generalized Efficient Layer Aggregation Network (GELAN). It's designed for fast, accurate, and easy-to-use object detection.",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9c",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": false,
+        "config": {}
+    },
+    "yolov9t": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9t",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "YOLOv9t is the smallest version of the YOLOv9 family, designed for fast and efficient object detection on resource-constrained devices.",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9t",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": false,
+        "config": {}
+    },
+    "yolov9t_1": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9t",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Fine-tuned yolov9t model",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9t_1",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": true,
+        "config": {
+            "epochs": 10,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "model_id": "yolov9t_1"
+    },
+    "yolov9t_2": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9t",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Fine-tuned yolov9t model",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9t_2",
+        "dir": "data\\downloads\\ultralytics",
+        "is_customised": true,
+        "config": {
+            "epochs": 20,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "model_id": "yolov9t_2"
+    },
+    "yolov9t_3": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9t",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Fine-tuned yolov9t model",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9t_3",
+        "dir": "data\\downloads\\ultralytics\\yolov9t_3",
+        "is_customised": true,
+        "config": {
+            "epochs": 30,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "model_id": "yolov9t_3"
+    },
+    "IDEA-Research/grounding-dino-tiny": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "vision",
+            "object-detection",
+            "zero-shot-object-detection",
+            "grounding-dino",
+            "en",
+            "license:apache-2.0",
+            "arxiv:2303.05499"
+        ],
+        "pipeline_tag": "zero-shot-object-detection",
+        "model_card_url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForZeroShotObjectDetection",
+                "image_processor": "GroundingDinoImageProcessor",
+                "tokenizer": "BertTokenizerFast"
+            }
+        },
+        "config": {
+            "pipeline_config": {
+                "box_threshold": 0.4,
+                "text_threshold": 0.3
+            }
+        },
+        "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
+        "model_detail": "https://arxiv.org/abs/2303.05499",
+        "auth_token": null,
+        "base_model": "IDEA-Research/grounding-dino-tiny",
+        "dir": "data\\downloads\\transformers\\IDEA-Research/grounding-dino-tiny",
+        "is_customised": false
+    },
+    "google/owlvit-base-patch32": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "vision",
+            "zero-shot-object-detection",
+            "owlvit",
+            "en",
+            "license:apache-2.0",
+            "arxiv:2205.06230"
+        ],
+        "pipeline_tag": "zero-shot-object-detection",
+        "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForZeroShotObjectDetection",
+                "image_processor": "OwlViTImageProcessor",
+                "tokenizer": "CLIPTokenizerFast"
+            }
+        },
+        "config": {
+            "processor_config": {},
+            "pipeline_config": {}
+        },
+        "model_desc": "OWL-ViT (Vision Transformer for Open-World Localization) is a zero-shot text-conditioned object detection model that can be used to query an image with one or multiple text queries.",
+        "model_detail": "https://arxiv.org/abs/2205.06230",
+        "auth_token": null,
+        "base_model": "google/owlvit-base-patch32",
+        "dir": "data\\downloads\\transformers\\google/owlvit-base-patch32",
+        "is_customised": false
+    },
+    "yolov9t_4": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov9",
+            "yolov9t",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Fine-tuned yolov9t model",
+        "model_detail": "https://docs.ultralytics.com/models/yolov9/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov9t_4",
+        "dir": "data\\downloads\\ultralytics\\yolov9t_4",
+        "is_customised": true,
+        "config": {
+            "epochs": 40,
+            "batch_size": 16,
+            "learning_rate": 0.001,
+            "imgsz": 640
+        },
+        "model_id": "yolov9t_4"
+    },
+    "facebook/detr-resnet-50-panoptic": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "tags": [
+            "transformers",
+            "pytorch",
+            "vision",
+            "object-detection",
+            "instance-segmentation",
+            "panoptic-segmentation",
+            "detr",
+            "en",
+            "license:apache-2.0"
+        ],
+        "pipeline_tag": "image-segmentation",
+        "model_card_url": "https://huggingface.co/facebook/detr-resnet-50-panoptic",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForImageSegmentation",
+                "image_processor": "AutoImageProcessor"
+            },
+            "required_packages": [
+                "timm",
+                "pillow"
+            ]
+        },
+        "config": {},
+        "model_desc": "DETR (DEtection TRansformer) is an object detection model that uses a transformer-based architecture. This specific model is trained for panoptic segmentation, which combines both instance segmentation and semantic segmentation.",
+        "model_detail": "https://github.com/facebookresearch/detr",
+        "auth_token": null,
+        "base_model": "facebook/detr-resnet-50-panoptic",
+        "dir": "data\\downloads\\transformers\\facebook/detr-resnet-50-panoptic",
+        "is_customised": false
+    },
+    "yolov10s": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov10",
+            "yolov10s",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov10s",
+        "dir": "data\\downloads\\ultralytics\\yolov10s",
+        "is_customised": false,
+        "config": {}
+    }
+}

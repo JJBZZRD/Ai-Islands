@@ -3,10 +3,19 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+
 
 namespace frontend.Services
 {
-    public class LibraryService
+    public interface ILibraryService
+    {
+        Task<Dictionary<string, Dictionary<string, object>>> GetLibrary();
+        // Add other methods that should be part of the interface
+    }
+    public class LibraryService : ILibraryService
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "http://127.0.0.1:8000/library"; // Updated base URL
@@ -17,6 +26,24 @@ namespace frontend.Services
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
 
+        private const string LibraryJsonPath = "data/library.json";
+
+        public async Task<Dictionary<string, Dictionary<string, object>>> GetLibrary()
+        {
+            try
+            {
+                using var stream = await FileSystem.OpenAppPackageFileAsync(LibraryJsonPath);
+                using var reader = new StreamReader(stream);
+                var jsonContent = await reader.ReadToEndAsync();
+                return JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, object>>>(jsonContent)!;
+            }
+            catch (FileNotFoundException)
+            {
+                throw new FileNotFoundException("library.json file not found in the app package.");
+            }
+        }
+
+        
         public async Task<Dictionary<string, object>> UpdateLibrary(string modelId, Dictionary<string, object> newEntry)
         {
             var response = await _httpClient.PostAsJsonAsync($"/update?model_id={modelId}", newEntry);

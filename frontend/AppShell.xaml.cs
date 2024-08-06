@@ -1,6 +1,8 @@
-﻿using Microsoft.Maui.Controls;
+﻿using System.Windows.Input;
+using Microsoft.Maui.Controls;
 using System.Windows.Input;
-
+using frontend.Services;
+ 
 namespace frontend.Views
 {
     public partial class AppShell : Shell
@@ -11,9 +13,10 @@ namespace frontend.Views
         {
             InitializeComponent();
             Routing.RegisterRoute("MainPage", typeof(MainPage));
-            libraryPage = new Library();
+            var libraryService = new LibraryService(); // Create an instance of LibraryService
+            libraryPage = new Library(libraryService);
             Routing.RegisterRoute("Library", typeof(Library));
-
+ 
             NavigateCommand = new Command<string>(async (route) =>
             {
                 if (route == "LibraryPage")

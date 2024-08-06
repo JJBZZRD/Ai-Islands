@@ -3,10 +3,17 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace frontend.Services
 {
-    public class ModelService
+    public interface IModelService
+    {
+        Task<Dictionary<string, Dictionary<string, object>>> GetIndex();
+        // Add other methods that should be part of the interface
+    }
+    public class ModelService : IModelService
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "http://127.0.0.1:8000/model"; // Updated base URL
@@ -15,6 +22,23 @@ namespace frontend.Services
         {
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
+        }
+
+        // private const string IndexJsonPath = "data/model_index.json";
+
+        public async Task<Dictionary<string, Dictionary<string, object>>> GetIndex()
+        {
+            try
+            {
+                using var stream = await FileSystem.OpenAppPackageFileAsync("data/model_index.json");
+                using var reader = new StreamReader(stream);
+                var jsonContent = await reader.ReadToEndAsync();
+                return JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, object>>>(jsonContent)!;
+            }
+            catch (FileNotFoundException)
+            {
+                throw new FileNotFoundException("model_index.json file not found in the app package.");
+            }
         }
 
         public async Task<List<string>> ListActiveModels()
