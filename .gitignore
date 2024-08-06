@@ -16,6 +16,7 @@ data/uploaded_videos
 data/uploaded_dataset
 data/library.json
 data/playground.json
+data/runtime_data.json
 data/downloads
 *.egg-info/
 out/
