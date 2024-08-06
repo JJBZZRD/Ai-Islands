@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.ModelInfoView"
+             xmlns:views="clr-namespace:frontend.Views">
+    <ScrollView>
+        <StackLayout Padding="20">
+            <Label Text="{Binding Name}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
+            <Label Text="{Binding Description}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
+            <views:TagsView Tags="{Binding Tags}" />
+        </StackLayout>
+    </ScrollView>
+</ContentView>

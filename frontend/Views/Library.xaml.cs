@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Text.Json;
-using System.IO;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using frontend.Models;
@@ -11,23 +10,10 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace frontend.Views
-
 {
     public class RefreshLibraryMessage { }
     public partial class Library : ContentPage, INotifyPropertyChanged
     {
-        private ObservableCollection<ModelItem> _models;
-
-        public ObservableCollection<ModelItem> Models
-        {
-            get => _models;
-            set
-            {
-                _models = value;
-                OnPropertyChanged();
-            }
-        }
-
         private ObservableCollection<ModelItem> _allModels;
         public ObservableCollection<ModelItem> AllModels
         {
@@ -38,27 +24,91 @@ namespace frontend.Views
                 OnPropertyChanged();
             }
         }
+
+        private ObservableCollection<ModelItem> _models;
+        public ObservableCollection<ModelItem> Models
+        {
+            get => _models;
+            set
+            {
+                _models = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<ModelTypeFilter> ModelTypes { get; set; }
+        public bool FilterOnline { get; set; }
+        public bool FilterOffline { get; set; }
+
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
-        // page constructor
         public Library()
         {
             InitializeComponent();
             Models = new ObservableCollection<ModelItem>();
             AllModels = new ObservableCollection<ModelItem>();
+            ModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
 
-            // receive refresh library message from the main page
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
-                System.Diagnostics.Debug.WriteLine("RefreshLibraryMessage received");
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await RefreshLibraryModels();
-                });
+                await MainThread.InvokeOnMainThreadAsync(async () => await RefreshLibraryModels());
             });
 
             MainThread.BeginInvokeOnMainThread(async () => await RefreshLibraryModels());
+        }
+
+        private void InitializeFilterPopup()
+        {
+            var distinctTypes = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t).ToList();
+            ModelTypes = new ObservableCollection<ModelTypeFilter>(
+                distinctTypes.Select(tag => new ModelTypeFilter { TypeName = tag, IsSelected = false })
+            );
+            FilterPopup.ModelTypes = ModelTypes;
+            FilterPopup.AllModels = AllModels;
+            FilterPopup.FilterOnline = FilterOnline;
+            FilterPopup.FilterOffline = FilterOffline;
+
+            System.Diagnostics.Debug.WriteLine($"InitializeFilterPopup: ModelTypes count: {ModelTypes.Count}");
+        }
+
+        private void OnFilterClicked(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = true;
+        }
+
+        private void OnCloseFilterPopup(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+        }
+
+        private void OnOverlayTapped(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+        }
+
+        private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
+        {
+            Models = new ObservableCollection<ModelItem>(e.FilteredModels);
+            FilterOnline = FilterPopup.FilterOnline;
+            FilterOffline = FilterPopup.FilterOffline;
+            FilterPopup.IsVisible = false;
+        }
+
+        private void OnResetFilters(object sender, EventArgs e)
+        {
+            Models = new ObservableCollection<ModelItem>(AllModels);
+            FilterOnline = false;
+            FilterOffline = false;
+            FilterPopup.IsVisible = false;
+        }
+
+        private async void OnModelSelected(object sender, TappedEventArgs e)
+        {
+            if (e.Parameter is ModelItem selectedModel)
+            {
+                await Navigation.PushAsync(new LibraryTabbedPage(selectedModel));
+            }
         }
 
         protected override async void OnAppearing()
@@ -73,33 +123,27 @@ namespace frontend.Views
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library"); // fetch library data
+                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library");
                     if (response.IsSuccessStatusCode)
                     {
-                        // deserialie the json response into a dictionary
                         var jsonString = await response.Content.ReadAsStringAsync();
                         var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
 
-                        // create new collection of ModelItem from the deserialised data
-                        var newModels = new ObservableCollection<ModelItem>();
-                        foreach (var model in libraryModels)
-                        {
-                            newModels.Add(new ModelItem
+                        var newModels = new ObservableCollection<ModelItem>(
+                            libraryModels.Select(model => new ModelItem
                             {
                                 Name = model.Key,
                                 PipelineTag = model.Value.PipelineTag ?? model.Value.Type ?? "Unknown",
                                 IsOnline = model.Value.IsOnline,
                                 Description = model.Value.Description ?? "No description available",
-                                Tags = model.Value.Tags != null ? new List<string>(model.Value.Tags) : new List<string>(),
+                                Tags = model.Value.Tags ?? new List<string>(),
                                 LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
-                            });
-                        }
+                            })
+                        );
 
-                        AllModels = new ObservableCollection<ModelItem>(newModels);
-                        Models = new ObservableCollection<ModelItem>(newModels);
-
-                        OnPropertyChanged(nameof(Models));
-                        OnPropertyChanged(nameof(AllModels));
+                        AllModels = newModels;
+                        Models = new ObservableCollection<ModelItem>(AllModels);
+                        InitializeFilterPopup();
                     }
                     else
                     {
@@ -115,9 +159,7 @@ namespace frontend.Views
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Search text changed to: '{e.NewTextValue}'");
-
-            if (string.IsNullOrWhiteSpace(e.NewTextValue)) 
+            if (string.IsNullOrWhiteSpace(e.NewTextValue))
             {
                 Models = new ObservableCollection<ModelItem>(AllModels);
             }
@@ -131,15 +173,6 @@ namespace frontend.Views
 
                 Models = new ObservableCollection<ModelItem>(filteredModels);
             }
-
-            System.Diagnostics.Debug.WriteLine($"After filtering: Models count: {Models.Count}");
-            OnPropertyChanged(nameof(Models));
-        }
-
-        public async Task RefreshModels()
-        {
-            System.Diagnostics.Debug.WriteLine("RefreshModels started");
-            await RefreshLibraryModels();
         }
 
         private async void LoadOrStopModel(string modelName)
@@ -171,6 +204,7 @@ namespace frontend.Views
                 await DisplayAlert("Error", $"Failed to {endpoint} model {modelName}: {ex.Message}", "OK");
             }
         }
+
         protected override void OnDisappearing()
         {
             base.OnDisappearing();

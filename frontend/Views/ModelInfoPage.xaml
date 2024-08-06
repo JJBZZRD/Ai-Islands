@@ -2,14 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.ModelInfoPage"
+             xmlns:views="clr-namespace:frontend.Views"
              Title="{Binding Model.Name}"
              BackgroundColor="White">
     <ScrollView>
         <StackLayout Padding="20">
-            <Label x:Name="ModelNameLabel" Text="{Binding Model.Name}" FontSize="35" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
-            <Label x:Name="ModelDescriptionLabel" Text="{Binding Model.Description}" FontSize="20" Margin="10,10,0,20"  TextColor="Black"/>
-            <FlexLayout x:Name="TagsContainer" Wrap="Wrap" JustifyContent="Start" AlignItems="Start" Margin="10,10,0,20">
-            </FlexLayout>
+            <Label Text="{Binding Model.Name}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
+            <Label Text="{Binding Model.Description}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
+            <views:TagsView Tags="{Binding Tags}" />
         </StackLayout>
     </ScrollView>
 </ContentPage>

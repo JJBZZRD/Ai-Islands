@@ -7,12 +7,13 @@ using System.Collections.Generic;
 using System;
 using frontend.Models;
 using CommunityToolkit.Mvvm.Messaging;
+using System.Linq;
 
 namespace frontend.Views
 {
     public partial class MainPage : ContentPage, INotifyPropertyChanged //implement inotify for ui updates
     {
-        private ObservableCollection<ModelItem> AllModels { get; set; }
+        public ObservableCollection<ModelItem> AllModels { get; set; }
         private ObservableCollection<ModelItem> _models;
         public ObservableCollection<ModelItem> Models
         {
@@ -24,13 +25,28 @@ namespace frontend.Views
             }
         }
 
-        public ICommand NavigateToModelInfoCommand { get; private set; }
+        // public ICommand NavigateToModelInfoCommand { get; private set; }
+        private ObservableCollection<ModelTypeFilter> _modelTypes;
+        public ObservableCollection<ModelTypeFilter> ModelTypes
+        {
+            get => _modelTypes;
+            set
+            {
+                _modelTypes = value;
+                OnPropertyChanged(nameof(ModelTypes));
+            }
+        }
+        public bool FilterOnline { get; set; }
+        public bool FilterOffline { get; set; }
 
         // page constructor
         public MainPage()
         {
             InitializeComponent();
             Models = new ObservableCollection<ModelItem>();
+            AllModels = new ObservableCollection<ModelItem>();
+            ModelTypes = new ObservableCollection<ModelTypeFilter>();
+            FilterOnline = FilterOffline = false;
             BindingContext = this;
             LoadModels();
         }
@@ -38,6 +54,43 @@ namespace frontend.Views
         private void OnFilterClicked(object sender, EventArgs e)
         {
             FilterPopup.IsVisible = true;
+        }
+
+        private void OnCloseFilterPopup(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+        }
+
+        private void OnOverlayTapped(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+        }
+
+        private void InitializeFilterPopup()
+        {
+            var distinctTypes = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t).ToList();
+            FilterPopup.ModelTypes = new ObservableCollection<ModelTypeFilter>(
+                distinctTypes.Select(tag => new ModelTypeFilter { TypeName = tag, IsSelected = false })
+            );
+            FilterPopup.AllModels = AllModels;
+
+            System.Diagnostics.Debug.WriteLine($"Initialized FilterPopup with {FilterPopup.ModelTypes.Count} types");
+            foreach (var type in FilterPopup.ModelTypes)
+            {
+                System.Diagnostics.Debug.WriteLine($"Type: {type.TypeName}");
+            }
+        }
+
+        private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+            Models = e.FilteredModels;
+        }
+
+        private void OnResetFilters(object sender, EventArgs e)
+        {
+            FilterPopup.IsVisible = false;
+            Models = new ObservableCollection<ModelItem>(AllModels);
         }
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
@@ -67,35 +120,9 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("OnModelSelected called");
-            if (sender is Frame frame)
+            if (e.Parameter is ModelItem selectedModel)
             {
-                System.Diagnostics.Debug.WriteLine($"Sender is a Frame");
-                if (frame.BindingContext is ModelItem model)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Model selected: {model.Name}");
-                    try
-                    {
-                        var modelJson = System.Text.Json.JsonSerializer.Serialize(model);
-                        System.Diagnostics.Debug.WriteLine($"Serialized model: {modelJson}");
-
-                        await Navigation.PushAsync(new ModelInfoPage(model));
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
-                        System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-                        await DisplayAlert("Error", "Unable to open model details.", "OK");
-                    }
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("BindingContext is not a ModelItem");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Sender is not a Frame: {sender?.GetType().Name}");
+                await Navigation.PushAsync(new ModelInfoPage(selectedModel));
             }
         }
 
@@ -159,6 +186,12 @@ namespace frontend.Views
                 System.Diagnostics.Debug.WriteLine($"Error loading model data: {ex.Message}");
                 await DisplayAlert("Error", $"An error occurred while loading models: {ex.Message}", "OK");
             }
+            var types = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t);
+            foreach (var type in types)
+            {
+                ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
+            }
+            InitializeFilterPopup();
         }
 
         public async void AddToLibrary(string modelName)
@@ -177,7 +210,7 @@ namespace frontend.Views
                     for (int i = 0; i <= 100; i++)
                     {
                         alertPage.UpdateProgress(i / 100.0);
-                        await Task.Delay(50); // Adjust this delay to control the speed of the simulation
+                        await Task.Delay(50); // adjust this delay to control the speed of the simulation
                     }
 
                     // wait for user to click "OK"
@@ -185,7 +218,7 @@ namespace frontend.Views
 
                     System.Diagnostics.Debug.WriteLine($"Model {modelName} downloaded successfully");
 
-                    // Update the local state in the ModelItem
+                    // update the local state in the ModelItem
                     var model = Models.FirstOrDefault(m => m.Name == modelName);
                     if (model != null)
                     {
@@ -209,6 +242,27 @@ namespace frontend.Views
             {
                 await Navigation.PopModalAsync();
             }
+        }
+    }
+
+    public class ModelTypeFilter : INotifyPropertyChanged
+    {
+        public string TypeName { get; set; }
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -3,62 +3,80 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.Library"
              xmlns:local="clr-namespace:frontend.Views"
-             BackgroundColor="White">
+             xmlns:converters="clr-namespace:frontend.Converters"
+             BackgroundColor="#F2F2F2">
 
-    <ScrollView VerticalScrollBarVisibility="Always">
+    <ContentPage.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
+    </ContentPage.Resources>
+
+    <Grid>
+        <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="10">
             <Label Text="Library" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
-            <Label Text="View and manage your pre-downloaded model" 
-               FontSize="17" TextColor="Black" />
+            <Label Text="View and manage your pre-downloaded models" 
+                   FontSize="17" TextColor="Black" />
 
-            <Grid Margin="0,20,0,20">
+            <Grid HorizontalOptions="Start" Margin="0,20,0,20">
+                <Grid.WidthRequest>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="Android,iOS" Value="800" />
+                        <On Platform="WinUI,MacCatalyst" Value="{OnIdiom Phone=800, Default=-1}" />
+                    </OnPlatform>
+                </Grid.WidthRequest>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+
                 <Frame Grid.Column="0" 
-                   Padding="5,0" 
-                   CornerRadius="10"
-                   HasShadow="False"
-                   BorderColor="#E0E0E0"
-                   BackgroundColor="White">
-                    <Frame.Shadow>
-                        <Shadow 
-                            Brush="Black"
-                            Offset="0,2"
-                            Radius="4"
-                            Opacity="1"/>
-                    </Frame.Shadow>
+                       Padding="5,0" 
+                       CornerRadius="10"
+                       MinimumWidthRequest="350"
+                       HasShadow="False"
+                       BorderColor="#E0E0E0"
+                       BackgroundColor="White">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="0" 
-                           Source="search_icon_2.png" 
-                           HeightRequest="15" 
-                           WidthRequest="15" 
-                           Margin="10,0,0,0"/>
+                               Source="search_icon_2.png" 
+                               HeightRequest="15" 
+                               WidthRequest="15" 
+                               Margin="10,0,0,0"/>
                         <SearchBar Grid.Column="1" 
-                               Placeholder="Search" 
-                               PlaceholderColor="#888888"
-                               TextColor="Black"
-                               FontSize="15"
-                               HorizontalTextAlignment="Start"
-                               VerticalOptions="Center"
-                               BackgroundColor="Transparent"
-                               TextChanged="OnSearchTextChanged"/>
+                                   Placeholder="Search" 
+                                   PlaceholderColor="#888888"
+                                   TextColor="Black"
+                                   FontSize="15"
+                                   HorizontalTextAlignment="Start"
+                                   VerticalOptions="Center"
+                                   BackgroundColor="Transparent"
+                                   TextChanged="OnSearchTextChanged"/>
                     </Grid>
                 </Frame>
-                <Button Grid.Column="1" Text="Filter" BackgroundColor="#3366FF" TextColor="White" CornerRadius="5" Margin="10,0,0,0"/>
+
+                <Button Grid.Column="1" 
+                        Text="Filter" 
+                        FontSize="16"
+                        ImageSource="filter_icon.png"
+                        HeightRequest="10"
+                        ContentLayout="Left,10"
+                        BackgroundColor="Transparent" 
+                        TextColor="Black" 
+                        CornerRadius="10" 
+                        Margin="10,0,0,0"
+                        Clicked="OnFilterClicked"/>
             </Grid>
 
-            <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="10" Padding="10">
-                <Grid ColumnDefinitions="3*, 2*, *, Auto">
+            <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,5" HasShadow="True">
+                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
                     <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
                     <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
-                    <Label Text="Action" FontAttributes="Bold" Grid.Column="3" TextColor="Black"/>
                 </Grid>
             </Frame>
 
@@ -69,31 +87,43 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame BorderColor="LightGray" 
-                            BackgroundColor="White" 
-                            CornerRadius="10" 
-                            Padding="10" 
-                            HasShadow="True"
-                            Margin="0,5">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:Library}}, Path=NavigateToModelInfoCommand}"
-                                    CommandParameter="{Binding .}"/>
-                            </Frame.GestureRecognizers>
-                            <Grid ColumnDefinitions="3*, 2*, *, Auto">
+                               BackgroundColor="White" 
+                               CornerRadius="10" 
+                               Padding="10" 
+                               HasShadow="True"
+                               Margin="0,5">
+							<Frame.GestureRecognizers>
+								<TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
+							</Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
                                 <Label Grid.Column="0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center"
-                                    TextColor="Black"/>
+                                       TextColor="Black"/>
                                 <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
-                                    TextColor="Black"/>
-                                <Label Grid.Column="2" Text="{Binding Status}" VerticalOptions="Center"
-                                    TextColor="Gray"/>
+                                       TextColor="Black" Margin="10,0,0,0"/>
+                                <Frame Grid.Column="2" 
+                                       BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                       BorderColor="Transparent"
+                                       CornerRadius="18"
+                                       HeightRequest="33"
+                                       WidthRequest="60"
+                                       Padding="5,2"
+                                       HorizontalOptions="Start">
+                                    <Label Text="{Binding Status}"
+                                           TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
+                                           FontAttributes="Bold"
+                                           FontSize="12"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Center"/>
+                                </Frame>
                                 <Button Grid.Column="3" 
                                         Text="Load"
                                         BackgroundColor="#3366FF"
                                         TextColor="White"
-                                        CornerRadius="5"
+                                        CornerRadius="15"
+                                        HeightRequest="20"
                                         Command="{Binding LoadOrStopCommand}"
                                         VerticalOptions="Center"
-                                        HorizontalOptions="End"
+                                        HorizontalOptions="Center"
                                         Padding="10,5"/>
                             </Grid>
                         </Frame>
@@ -102,4 +132,22 @@
             </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
+    <BoxView x:Name="Overlay"
+         IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
+         BackgroundColor="#80000000"
+         InputTransparent="False">
+        <BoxView.GestureRecognizers>
+             <TapGestureRecognizer Tapped="OnOverlayTapped"/>
+        </BoxView.GestureRecognizers>
+    </BoxView>
+        <local:FilterPopup x:Name="FilterPopup"
+                   IsVisible="false"
+                   ModelTypes="{Binding ModelTypes}"
+                   FilterOnline="{Binding FilterOnline}"
+                   FilterOffline="{Binding FilterOffline}"
+                   AllModels="{Binding AllModels}"
+                   CloseRequested="OnCloseFilterPopup"
+                   ApplyFiltersRequested="OnApplyFilters"
+                   ResetFiltersRequested="OnResetFilters"/>
+    </Grid>
 </ContentPage>
