@@ -1,95 +1,73 @@
-"""import json
-from typing import Any, Dict, List
-from core.exceptions import FileReadError, FileWriteError
-from core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
-
-class JSONHandler:
-    def read_json(self, file_path):
-        try:
-            with open(file_path, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            raise FileReadError(f"Error reading JSON file {file_path}")
-        except json.JSONDecodeError as e:
-            raise FileReadError(f"Error decoding JSON file {file_path}: {e}")
-
-    def write_json(self, file_path, data):
-        try:
-            with open(file_path, 'w') as f:
-                json.dump(data, f, indent=4)
-        except Exception as e:
-            raise FileWriteError(f"Error writing JSON file {file_path}: {e}")
-
-    def update_json(file_path: str, update_data: Dict[str, Any]) -> None:
-        try:
-            current_data = JSONHandler.read_json(file_path)
-            current_data.update(update_data)
-            JSONHandler.write_json(file_path, current_data)
-        except (FileReadError, FileWriteError) as e:
-            raise e
-
-    def append_to_json_list(file_path: str, new_item: Any) -> None:
-        try:
-            current_data = JSONHandler.read_json(file_path)
-            if not isinstance(current_data, list):
-                raise ValueError("JSON file does not contain a list")
-            current_data.append(new_item)
-            JSONHandler.write_json(file_path, current_data)
-        except (FileReadError, FileWriteError, ValueError) as e:
-            raise e"""
 import json
+import logging
 from typing import Any, Dict
 from backend.core.exceptions import FileReadError, FileWriteError
 
+logger = logging.getLogger(__name__)
+
 class JSONHandler:
-    
+    """
+    JSONHandler class provides static methods to read, write, and update JSON files.
+    It handles exceptions and logs relevant information during file operations.
+    """
+
     @staticmethod
-    def read_json(file_path):
+    def read_json(file_path: str) -> Dict[str, Any]:
+        """
+        Reads a JSON file and returns its content as a dictionary.
+
+        Args:
+            file_path (str): The path to the JSON file.
+
+        Returns:
+            Dict[str, Any]: The content of the JSON file.
+
+        Raises:
+            FileReadError: If the file is not found, cannot be decoded, or any other error occurs.
+        """
         try:
-            print(f"Attempting to read JSON file at: {file_path}")
+            logger.info(f"Attempting to read JSON file at: {file_path}")
             with open(file_path, 'r') as f:
                 data = json.load(f)
-                print(f"Successfully read JSON file at: {file_path}")
+                logger.info(f"Successfully read JSON file at: {file_path}")
                 return data
         except FileNotFoundError:
-            print(f"File not found: {file_path}")
-            raise FileReadError(f"Error reading JSON file {file_path}")
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON file: {e}")
-            raise FileReadError(f"Error decoding JSON file {file_path}: {e}")
+            logger.error(f"File not found: {file_path}")
+            raise FileReadError(f"Error JSON file not found: {file_path}")
+        except TypeError as e:
+            logger.error(f"Error decoding JSON file: {e}")
+            raise FileReadError(f"Error decoding JSON file: {file_path}: {e}")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            logger.error(f"Unexpected error: {e}")
             raise FileReadError(f"Unexpected error reading JSON file {file_path}: {e}")
 
     @staticmethod
-    def write_json(file_path, data):
+    def write_json(file_path: str, data: Dict[str, Any]) -> bool:
+        """
+        Writes a dictionary to a JSON file.
+
+        Args:
+            file_path (str): The path to the JSON file.
+            data (Dict[str, Any]): The data to write to the JSON file.
+
+        Returns:
+            bool: True if the operation is successful.
+
+        Raises:
+            FileWriteError: If the file cannot be written, encoded, or any other error occurs.
+        """
         try:
-            print(f"Attempting to write JSON file at: {file_path}")
+            logger.info(f"Attempting to write JSON file at: {file_path}")
             with open(file_path, 'w') as f:
                 json.dump(data, f, indent=4)
-                print(f"Successfully wrote JSON file at: {file_path}")
+                logger.info(f"Successfully wrote JSON file at: {file_path}")
+            return True
+        except FileNotFoundError:
+            logger.error(f"File not found: {file_path}")
+            raise FileWriteError(f"Error JSON file not found: {file_path}")
+        except TypeError as e:
+            logger.error(f"Error encoding JSON file: {e}")
+            raise FileWriteError(f"Error encoding JSON file {file_path}: {e}")
         except Exception as e:
-            print(f"Error writing JSON file: {e}")
+            logger.error(f"Error writing JSON file: {e}")
             raise FileWriteError(f"Error writing JSON file {file_path}: {e}")
-
-    @staticmethod
-    def update_json(file_path: str, update_data: Dict[str, Any]) -> None:
-        try:
-            current_data = JSONHandler.read_json(file_path)
-            current_data.update(update_data)
-            JSONHandler.write_json(file_path, current_data)
-        except (FileReadError, FileWriteError) as e:
-            print(f"Error updating JSON file: {e}")
-            raise e
-
-    @staticmethod
-    def append_to_json_list(file_path: str, new_item: Any) -> None:
-        try:
-            current_data = JSONHandler.read_json(file_path)
-            if not isinstance(current_data, list):
-                raise ValueError("JSON file does not contain a list")
-            current_data.append(new_item)
-            JSONHandler.write_json(file_path, current_data)
-        except (FileReadError, FileWriteError, ValueError) as e:
-            print(f"Error appending to JSON list: {e}")
-            raise e

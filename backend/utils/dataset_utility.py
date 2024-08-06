@@ -14,6 +14,8 @@ import logging
 from backend.utils.watson_settings_manager import watson_settings
 import shutil
 from backend.utils.file_type_manager import FileTypeManager
+from backend.data_utils.json_handler import JSONHandler
+from backend.core.config import CONFIG_PATH
 
 load_dotenv()
 
@@ -53,18 +55,19 @@ class DatasetManagement:
         self.file_type_manager = FileTypeManager()
 
     def _load_chunking_settings(self):
-        config_path = Path("backend/settings/chunking_settings.json")
-        if config_path.exists():
-            with open(config_path, 'r') as f:
-                return json.load(f)
-        else:
-            logger.warning("Chunking settings file not found. Using default settings.")
+        config = JSONHandler.read_json(CONFIG_PATH)
+        chunking_settings = config.get('chunking', {})
+        if not chunking_settings:
+            logger.warning("Chunking settings not found. Using default settings.")
             return {
                 "use_chunking": False,
                 "chunk_size": 500,
                 "chunk_overlap": 50,
-                "chunk_method": "fixed_length"
+                "chunk_method": "fixed_length",
+                "rows_per_chunk": 1,
+                "csv_columns": []
             }
+        return chunking_settings
 
     def _initialize_embedding_model(self, model_info):
         logger.info(f"Initializing embedding model with info: {model_info}")
@@ -198,12 +201,9 @@ class DatasetManagement:
         logger.info(f"Generated embeddings with shape: {embeddings.shape}")
         return embeddings
 
-    def process_dataset(self, file_path: Path, chunking_settings: dict = None):
+    def process_dataset(self, file_path: Path):
         logger.info(f"Processing dataset: {file_path}")
         try:
-            if chunking_settings:
-                self.chunking_settings = chunking_settings
-            
             filename = file_path.stem
             dataset_dir = Path("Datasets") / filename
             dataset_dir.mkdir(parents=True, exist_ok=True)

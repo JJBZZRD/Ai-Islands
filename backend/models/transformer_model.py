@@ -124,7 +124,7 @@ class TransformerModel(BaseModel):
                 self.device = self.config["device_config"]["device"]
             else:
                 self.device = device
-            print("using device: ", self.device)
+            logger.info(f"Using device: {self.device}")
             
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
@@ -151,7 +151,7 @@ class TransformerModel(BaseModel):
                 
                 # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
-                logger.info(f"created {class_type} object: {obj}")
+                logger.info(f"succesfully loaded {class_type} from {model_dir}")
 
 
             self.pipeline_args["model"] = self.accelerator.prepare(self.pipeline_args["model"])
@@ -265,7 +265,6 @@ class TransformerModel(BaseModel):
         pipeline_config = self.config.get('pipeline_config', {})
         print("pipeline_args: ", self.pipeline_args)
         pipe = transformers.pipeline(task=pipeline_tag, **self.pipeline_args, **pipeline_config)
-        #accelerator = Accelerator()
         
         return self.accelerator.prepare(pipe)
     
