@@ -51,9 +51,9 @@ class ModelRouter:
         self.model_control = model_control
 
         # Define routes
-        self.router.add_api_route("/models/active", self.list_active_models, methods=["GET"])
-        self.router.add_api_route("/models/load", self.load_model, methods=["POST"])
-        self.router.add_api_route("/models/unload", self.unload_model, methods=["POST"])
+        self.router.add_api_route("/active", self.list_active_models, methods=["GET"])
+        self.router.add_api_route("/load", self.load_model, methods=["POST"])
+        self.router.add_api_route("/unload", self.unload_model, methods=["POST"])
         self.router.add_api_route("/download-model", self.download_model, methods=["POST"])
         self.router.add_api_route("/is-model-loaded", self.is_model_loaded, methods=["GET"])
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
