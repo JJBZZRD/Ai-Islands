@@ -9,7 +9,6 @@ import logging
 import cv2
 import numpy as np
 import torch
-from backend.settings.settings import get_hardware_preference
 import shutil
 from PIL import Image
 from backend.utils.process_vis_out import process_vision_output

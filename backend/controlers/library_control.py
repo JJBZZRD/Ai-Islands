@@ -1,4 +1,3 @@
-from hmac import new
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
 import logging
@@ -62,7 +61,7 @@ class LibraryControl:
 
         try:
             model_index = JSONHandler.read_json(MODEL_INDEX_PATH)
-            logger.debug(f"Successfully read model index file")
+            logger.debug("Successfully read model index file")
 
             model_info = model_index[model_id]
             return model_info
@@ -71,7 +70,7 @@ class LibraryControl:
         except json.JSONDecodeError as e:
             logger.error(f"JSONDecodeError: {e}")
         except KeyError as e:
-            logger.error(f"Model info not found for {model_id}")
+            logger.error(f"Model info not found for {model_id} and {e}")
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
         return None
@@ -166,3 +165,4 @@ class LibraryControl:
         except Exception as e:
             logger.error(f"Error updating model ID from {model_id} to {new_model_id}: {str(e)}")
             return None
+        

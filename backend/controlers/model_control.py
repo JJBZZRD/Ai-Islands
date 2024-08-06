@@ -4,9 +4,10 @@ import logging
 import os
 import time
 import gc
-from backend.settings.settings import get_hardware_preference, set_hardware_preference
+from backend.settings.settings_service import SettingsService
 from backend.controlers.library_control import LibraryControl
 from backend.utils.helpers import install_packages
+from backend.controlers.runtime_control import RuntimeControl
 import torch
 import importlib
 import shutil
@@ -15,12 +16,14 @@ logger = logging.getLogger(__name__)
 
 class ModelControl:
     def __init__(self):
+        settings_service = SettingsService()
         self.models = {}
-        self.hardware_preference = get_hardware_preference()  # Default will be CPU
+        self.hardware_preference = settings_service.get_hardware_preference()  # Default will be CPU
         self.library_control = LibraryControl()
         
     def set_hardware_preference(self, device: str):
-        set_hardware_preference(device)
+        settings_service = SettingsService()
+        settings_service.set_hardware_preference(device)
         self.hardware_preference = device
     
     @staticmethod
@@ -41,7 +44,7 @@ class ModelControl:
         return True
 
     @staticmethod
-    def _load_process(model_class, conn, model_id, device, model_info):
+    def _load_process(model_class, conn, model_id, device, model_info, lock):
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
         model.load(device=device, model_info=model_info)
@@ -51,83 +54,91 @@ class ModelControl:
             if req == "terminate":
                 conn.send("Terminating")
                 break
-            # the first if block is for backward compatibility
-            # i.e. if type(req) == str and req.startswith("predict:")
-            # pls remove this block after all models are updated
-            # pls keep the second if block (req["task"] == "inference":)
-            if type(req) == str and req.startswith("predict:"):
-                payload = json.loads(req.split(":", 1)[1])
-                prediction = model.process_request(payload)
-                conn.send(prediction)
-            elif req["task"] == "inference":
-                print("running control inference")
-                print("req data ", req["data"])
+            lock.acquire()
+
+            if req["task"] == "inference":
+                logger.info(f"Running control inference for model {model_id}")
                 prediction = model.inference(req["data"])
-                print("prediction done")
-                print(prediction)
-                conn.send(prediction)
+                logger.info(f"Prediction done: {prediction}")
             elif req["task"] == "train":
-                print("running control train")
-                print("req data ", req["data"])
+                logger.info(f"Running control train for model {model_id}")
                 prediction = model.train(req["data"])
-                print("prediction done")
-                print(prediction)
-                conn.send(prediction)
+                logger.info(f"Training done: {prediction}")
+            lock.release()    
+            conn.send(prediction)
+
+    def _get_model_info(self, model_id: str, source: str = "library"):
+        if source == "library":
+            model_info = self.library_control.get_model_info_library(model_id)
+        elif source == "index":
+            model_info = self.library_control.get_model_info_index(model_id)
+        else:
+            raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
+
+        if not model_info:
+            logger.error(f"Model info not found for {model_id} in {source}")
+            raise ValueError(f"Model info not found for {model_id} in {source}")
+
+        return model_info
 
     def download_model(self, model_id: str, auth_token: str = None):
-        model_info = self.library_control.get_model_info_index(model_id)
-        if not model_info:
-            logger.error(f"Model info not found for {model_id}")
+        try:
+            model_info = self._get_model_info(model_id, "index")
+            model_info.update({"auth_token": auth_token})
+
+            # Install required packages
+            install_packages(model_info.get('requirements', {}).get('required_packages', []))
+            
+            model_class = self._get_model_class(model_id, "index")
+
+            process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
+            process.start()
+            process.join()
+            
+            # Check if the download was successful
+            return self.library_control.get_model_info_library(model_id) is not None
+        except ValueError as e:
+            logger.error(str(e))
             return False
-        
-
-        model_info.update({"auth_token": auth_token})
-
-        # Install required packages
-        install_packages(model_info.get('requirements', {}).get('required_packages', []))
-        
-        model_class = self._get_model_class(model_id, "index")
-
-        process = multiprocessing.Process(target=self._download_process, args=(model_class, model_id, model_info, self.library_control))
-        process.start()
-        process.join()
-        
-        # Check if the download was successful
-        return self.library_control.get_model_info_library(model_id) is not None
             
     def load_model(self, model_id: str):
-        model_info = self.library_control.get_model_info_library(model_id)
-        if not model_info:
-            logger.error(f"Model info not found for {model_id}")
-            return False
+        try:
+            if self.is_model_loaded(model_id):
+                logger.info(f"Model {model_id} is already loaded")
+                return True
+            
+            model_info = self._get_model_info(model_id)
+            logger.debug(f"Fetched model info: {model_info}")
 
-        logger.debug(f"Fetched model info: {model_info}")
-
-        model_class = self._get_model_class(model_id, "library")
-        model_dir = model_info['dir']
-        is_online = model_info.get('is_online', False)
+            model_class = self._get_model_class(model_id, "library")
+            model_dir = model_info['dir']
+            is_online = model_info.get('is_online', False)
 
 
-        if not os.path.exists(model_dir) and not is_online:
-            logger.error(f"Model directory not found: {model_dir}")
-            return False
+            if not os.path.exists(model_dir) and not is_online:
+                logger.error(f"Model directory not found: {model_dir}")
+                return False
 
-        device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
-        logger.debug(f"Using device: {device}")
+            device = torch.device("cuda" if self.hardware_preference == "gpu" and torch.cuda.is_available() else "cpu")
+            logger.debug(f"Using device: {device}")
 
-        parent_conn, child_conn = multiprocessing.Pipe()
-        process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info))
-        process.start()
+            lock = multiprocessing.Lock()
+            parent_conn, child_conn = multiprocessing.Pipe()
+            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info, lock))
+            process.start()
 
-        response = parent_conn.recv()
-        logger.debug(f"Received response from load process: {response}")
+            response = parent_conn.recv()
+            logger.debug(f"Received response from load process: {response}")
 
-        if response == "Model loaded":
-            self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
-            logger.info(f"Model {model_id} loaded and process started.")
-            return True
-        else:
-            logger.error(f"Failed to load model {model_id}. Response: {response}")
+            if response == "Model loaded":
+                self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
+                logger.info(f"Model {model_id} loaded and process started.")
+                return True
+            else:
+                logger.error(f"Failed to load model {model_id}. Response: {response}")
+                return False
+        except ValueError as e:
+            logger.error(str(e))
             return False
 
     def is_model_loaded(self, model_id: str):
@@ -136,6 +147,12 @@ class ModelControl:
     def unload_model(self, model_id: str):
         try:
             if model_id in self.models:
+                runtime_data = RuntimeControl.get_runtime_data("playground")
+                
+                if runtime_data.get(model_id) and len(runtime_data[model_id]) != 0:
+                    logger.info(f"Model {model_id} is active in a chain. Please stop the chain first.")
+                    return False
+            
                 conn = self.models[model_id]['conn']
                 conn.send("terminate")
                 self.models[model_id]['process'].join()
@@ -145,8 +162,8 @@ class ModelControl:
                 return True
             logger.error(f"Model {model_id} not found in active models.")
             return False
-        except Exception as e:
-            logger.error(f"Error unloading model {model_id}: {e}")
+        except ValueError as e:
+            logger.error(str(e))
             return False
         
     def list_active_models(self):
@@ -163,17 +180,19 @@ class ModelControl:
     def delete_model(self, model_id: str):
         if self.is_model_loaded(model_id):
             self.unload_model(model_id)
-        #use model info to extract dir and then delete model folder and contents from directory. if successfull library controll called to delete model from json
-        model_info = self.library_control.get_model_info_library(model_id)
-        if model_info:
+        try:
+            model_info = self._get_model_info(model_id)
             model_dir = model_info['dir']
             if os.path.exists(model_dir):
                 shutil.rmtree(model_dir)
                 logger.info(f"Model {model_id} directory deleted")
 
-        self.library_control.delete_model(model_id)
-        return {"message": f"Model {model_id} deleted"}
-    
+            self.library_control.delete_model(model_id)
+            return {"message": f"Model {model_id} deleted"}
+        except ValueError as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
     def inference(self, inference_request):
         try:
             print(inference_request)
@@ -225,7 +244,7 @@ class ModelControl:
                 new_model_id = new_model_info["model_id"]
             
                 # Get the original model info
-                original_model_info = self.library_control.get_model_info_library(model_id)
+                original_model_info = self._get_model_info(model_id)
             
                 # Create a new entry by copying the original model info and updating with new info
                 updated_model_info = original_model_info.copy()
@@ -242,56 +261,8 @@ class ModelControl:
         except KeyError:
             return {"error": f"Model {train_request['model_id']} is not loaded. Please load the model first"}
     
-    # def train_model(self, model_id: str, training_params: dict):
-    #     active_model = self.get_active_model(model_id)
-    #     if not active_model:
-    #         raise ValueError(f"Model {model_id} is not loaded")
-        
-    #     conn = active_model['conn']
-    #     conn.send({"task": "train", "data": training_params})
-    #     result = conn.recv()
-
-    #     if "error" not in result:
-    #         new_model_info = result["new_model_info"]
-    #         new_model_id = new_model_info["model_id"]
-            
-    #         # Get the original model info
-    #         original_model_info = self.library_control.get_model_info_library(model_id)
-            
-    #         # Create a new entry by copying the original model info and updating with new info
-    #         updated_model_info = original_model_info.copy()
-    #         updated_model_info.update(new_model_info)
-            
-    #         # Ensure that these fields are correctly set for the new model
-    #         updated_model_info["is_customised"] = True
-    #         updated_model_info["base_model"] = new_model_id  
-            
-    #         # Add the new model to the library
-    #         self.library_control.add_fine_tuned_model(updated_model_info)
-    #         logger.info(f"New fine-tuned model {new_model_id} added to library")
-    
-    #     return result
-
-    # this will be deprecated
-    def predict(self, model_id: str, request_payload: dict):
-        active_model = self.get_active_model(model_id)
-        if not active_model:
-            raise ValueError(f"Model {model_id} is not loaded")
-
-        conn = active_model['conn']
-        conn.send(json.dumps(request_payload))
-        return conn.recv()
-
     def _get_model_class(self, model_id: str, source: str):
-        if source == "library":
-            model_info = self.library_control.get_model_info_library(model_id)
-        elif source == "index":
-            model_info = self.library_control.get_model_info_index(model_id)
-        else:
-            raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
-
-        if not model_info:
-            raise ValueError(f"Model info not found for {model_id} in {source}")
+        model_info = self._get_model_info(model_id, source)
     
         model_class_name = model_info.get('model_class')
         if not model_class_name:
