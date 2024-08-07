@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Dict, Any
 from backend.controlers.library_control import LibraryControl
+import json
 
 class NewModelEntry(BaseModel):
     model_id: str
@@ -27,6 +28,9 @@ class LibraryRouter:
         self.library_control = library_control
 
         # Define routes
+        self.router.add_api_route("/get-full-model-index", self.get_full_model_index, methods=["GET"])
+        self.router.add_api_route("/get-library", self.get_library, methods=["GET"])
+
         self.router.add_api_route("/update", self.update_library, methods=["POST"])
         self.router.add_api_route("/get-model-info", self.get_model_info, methods=["GET"])
         self.router.add_api_route("/get-model-index", self.get_model_index, methods=["GET"])
@@ -35,6 +39,16 @@ class LibraryRouter:
         self.router.add_api_route("/update-model-config", self.update_model_config, methods=["POST"])
         self.router.add_api_route("/save-new-model", self.save_new_model, methods=["POST"])
         self.router.add_api_route("/update-model-id", self.update_model_id, methods=["POST"])
+    
+    async def get_full_model_index(self):
+        with open('data/model_index.json', 'r') as file:
+            full_model_index = json.load(file)
+        return full_model_index
+
+    async def get_library(self):
+        with open('data/library.json', 'r') as file:
+            library = json.load(file)
+        return library
 
     async def update_library(self, model_id: str, new_entry: Dict[str, Any]):
         self.library_control.update_library(model_id, new_entry)
