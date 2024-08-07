@@ -123,7 +123,7 @@ namespace frontend.Views
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = await client.GetAsync("http://127.0.0.1:8000/models?source=library");
+                    var response = await client.GetAsync("http://127.0.0.1:8000/model/get-models?source=library");
                     if (response.IsSuccessStatusCode)
                     {
                         var jsonString = await response.Content.ReadAsStringAsync();
@@ -181,13 +181,13 @@ namespace frontend.Views
             if (model == null) return;
 
             string baseUrl = "http://127.0.0.1:8000";
-            string endpoint = model.IsOnline ? "stop" : "load";
+            string endpoint = model.IsOnline ? "unload" : "load";
 
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = await client.PostAsync($"{baseUrl}/models/{endpoint}?model_id={modelName}", null);
+                    var response = await client.PostAsync($"{baseUrl}/model/{endpoint}?model_id={modelName}", null);
                     if (response.IsSuccessStatusCode)
                     {
                         model.IsOnline = !model.IsOnline;

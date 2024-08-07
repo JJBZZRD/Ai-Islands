@@ -140,7 +140,7 @@ namespace frontend.Views
             {
                 // create HTTP request to client
                 var client = new HttpClient();
-                var response = await client.GetAsync("http://127.0.0.1:8000/models?source=index");
+                var response = await client.GetAsync("http://127.0.0.1:8000/model/get-models?source=index");
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
@@ -202,7 +202,7 @@ namespace frontend.Views
             {
                 // call the API to download the model
                 var client = new HttpClient();
-                var response = await client.PostAsync($"http://127.0.0.1:8000/download-model?model_id={modelName}", null);
+                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={modelName}", null);
 
                 if (response.IsSuccessStatusCode)
                 {
