@@ -52,7 +52,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 # Include routers
-app.include_router(model_router.router, tags=["model"])
+app.include_router(model_router.router, prefix="/model", tags=["model"])
 app.include_router(data_router.router, prefix="/data", tags=["data"])
 app.include_router(library_router.router, prefix="/library", tags=["library"])
 app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
