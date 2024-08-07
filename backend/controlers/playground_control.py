@@ -300,9 +300,12 @@ class PlaygroundControl:
         for model_id in chain:
             if model_id not in playground.models:
                 raise KeyError(f"Model {model_id} not found in playground {playground_id}")
-
+            
             input_type = playground.models.get(model_id).get("input")
             output_type = playground.models.get(model_id).get("output")
+            if model_id != chain[0] and not input_type == 'text':
+                raise ChainNotCompatibleError(f"Model {model_id} is not a text to text model. All intermediate models in the chain must be text to text models.")
+            
             if input_type != prev_output_type and prev_output_type is not None:
                 raise ChainNotCompatibleError(f"Model {model_id}'s input type is not compatible with the previous model's output type")
             prev_output_type = output_type
