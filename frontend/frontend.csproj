@@ -57,13 +57,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\add_icon.png" />
+	  <None Remove="Resources\Images\arrow_icon.png" />
+	  <None Remove="Resources\Images\delete_icon.png" />
+	  <None Remove="Resources\Images\filter_icon.png" />
+	  <None Remove="Resources\Images\run_icon.png" />
+	  <None Remove="Resources\Images\search_icon_2.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Models\" />
 	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
@@ -71,14 +81,92 @@
 	  <Compile Update="Views\Library.xaml.cs">
 	    <DependentUpon>Library.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\AlertPage.xaml.cs">
+	    <DependentUpon>AlertPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelInfoPage.xaml.cs">
+	    <DependentUpon>ModelInfoPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Models.xaml.cs">
+	    <DependentUpon>Models.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelConfig.xaml.cs">
+	    <DependentUpon>ModelConfig.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Chain.xaml.cs">
+	    <DependentUpon>Chain.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ChainAPI.xaml.cs">
+	    <DependentUpon>ChainAPI.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\FilterPopUp.xaml.cs">
+	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\LibraryTabbedPage.xaml.cs">
+	    <DependentUpon>LibraryTabbedPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Inference.xaml.cs">
+	    <DependentUpon>Inference.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\FineTune.xaml.cs">
+	    <DependentUpon>FineTune.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelInfoView.xaml.cs">
+	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\TagsView.xaml.cs">
+	    <DependentUpon>TagsView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\DataRefinery.xaml.cs">
+	    <DependentUpon>DataRefinery.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\Library.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\AlertPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelInfoPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Models.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelConfig.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Chain.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ChainAPI.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FilterPopUp.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\LibraryTabbedPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Inference.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FineTune.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelInfoView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TagsView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Playground.xaml">
 	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\DataRefinery.xaml">
+		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Setting.xaml">
 	    <Generator>MSBuild:Compile</Generator>

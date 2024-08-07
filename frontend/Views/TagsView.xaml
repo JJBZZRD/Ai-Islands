@@ -1,0 +1,25 @@
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.TagsView">
+    <ScrollView Orientation="Horizontal" 
+                HorizontalScrollBarVisibility="Always">
+        <CollectionView ItemsSource="{Binding Tags}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame 
+                        BackgroundColor="LightGray" 
+                        Padding="5"
+                        HeightRequest="30"
+                        CornerRadius="10"
+                        BorderColor="Transparent"
+                        Margin="0,0,5,0">
+                        <Label Text="{Binding .}" TextColor="Black" />
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </ScrollView>
+</ContentView>

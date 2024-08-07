@@ -177,6 +177,7 @@ class TransformerModel(BaseModel):
         try:
             # if the api request contains pipeline_config, it will be passed to the pipeline for single-use only
             pipeline_config = data.get("pipeline_config", {})
+            visualize = data.get("visualize", False)
             print("data payload: ", data["payload"])
 
             # for zero shot tasks, both image and text must be passed
@@ -194,6 +195,11 @@ class TransformerModel(BaseModel):
                         print(f"Pipeline output: {output}")
                         if output is None:
                             raise ValueError("Pipeline output is None")
+                        
+                        # only visualise output if requested
+                        if visualize:
+                            output = process_vision_output(image, output, self.pipeline.task)
+
                 except FileNotFoundError:
                     raise FileNotFoundError(f"Image file not found: {image_path}")
                 except Exception as e:
@@ -203,7 +209,8 @@ class TransformerModel(BaseModel):
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
-                    output = process_vision_output(image, output, self.pipeline.task)
+                    if visualize:
+                        output = process_vision_output(image, output, self.pipeline.task)
             
             # For text-to-speech tasks, if speaker_embedding_config exists in self.config, the model will need speaker embedding to generate speech
             elif self.pipeline.task in ["text-to-audio", "text-to-speech"]:

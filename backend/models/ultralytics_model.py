@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 import torch
 import shutil
+from PIL import Image
+from backend.utils.process_vis_out import process_vision_output
 
 logger = logging.getLogger(__name__)
 
@@ -84,14 +86,36 @@ class UltralyticsModel(BaseModel):
         
         if self.model is None:
             raise ValueError("Model is not loaded")
+        
+        visualize = request_payload.get("visualize", False)
+        result = {}
+
         if "image_path" in request_payload:
             print("Running image inference")
-            return self.predict_image(request_payload["image_path"])
+            image_path = request_payload["image_path"]
+            predictions = self.predict_image(image_path)
+            result["predictions"] = predictions
+
+            if visualize:
+                with Image.open(image_path) as image:
+                    visualization = process_vision_output(image, predictions, "object-detection")
+                result["visualization"] = visualization
+
         elif "video_frame" in request_payload:
             print("Running video inference")
-            return self.predict_video(request_payload["video_frame"])
+            frame = request_payload["video_frame"]
+            predictions = self.predict_video(frame)
+            result["predictions"] = predictions
+
+            if visualize:
+                image = Image.fromarray(frame)
+                visualization = process_vision_output(image, predictions, "object-detection")
+                result["visualization"] = visualization
+
         else:
             return {"error": "Invalid request payload"}
+
+        return result
 
     def predict_image(self, image_path: str):
         try:
@@ -183,7 +207,7 @@ class UltralyticsModel(BaseModel):
             suffix = self.get_next_suffix(self.model_id)
             trained_model_name = f"{self.model_id}_{suffix}.pt"
             
-            # Create a new directory for the trained model
+            # Save thr trained model to the ultralytics folder
             base_dir = os.path.join('data', 'downloads', 'ultralytics')
             trained_model_dir = os.path.join(base_dir, f"{self.model_id}_{suffix}")
             os.makedirs(trained_model_dir, exist_ok=True)
