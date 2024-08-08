@@ -97,6 +97,8 @@ class PlaygroundRouter:
                 return success_response(status_code=204)
         except KeyError as e:
             return error_response(message=str(e), status_code=404)
+        except PlaygroundError as e:
+            return error_response(message=str(e), status_code=409)
         except FileWriteError as e:
             return error_response(message=str(e), status_code=500)
 

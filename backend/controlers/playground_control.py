@@ -226,7 +226,9 @@ class PlaygroundControl:
             logger.info(f"Model {model_id} not in playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
         
-        #TODO: Check if the model is in the chain and return error if it is
+        if model_id in playground.chain:
+            logger.error(f"Model {model_id} is in the chain of playground {playground_id}. Please remove it from the chain before removing it from the playground.")
+            raise PlaygroundError(f"Model {model_id} is in the chain of playground {playground_id}. Please remove it from the chain before removing it from the playground.")
 
         # Remove the model from the playground
         playground.models.pop(model_id)
