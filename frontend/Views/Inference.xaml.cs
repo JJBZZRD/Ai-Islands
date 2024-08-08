@@ -6,7 +6,7 @@ namespace frontend.Views
 {
     public partial class Inference : ContentView
     {
-        private ModelItem _model;
+        private Model _model;
         private string _inputText;
         private string _outputText;
         private string _selectedFilePath;
@@ -37,7 +37,7 @@ namespace frontend.Views
             }
         }
 
-        public Inference(ModelItem model)
+        public Inference(Model model)
         {
             InitializeComponent();
             _model = model;

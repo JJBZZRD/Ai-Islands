@@ -7,7 +7,7 @@ namespace frontend.Views
     {
         private ModelInfoViewModel ViewModel => BindingContext as ModelInfoViewModel;
 
-        public ModelInfoPage(ModelItem model)
+        public ModelInfoPage(Model model)
         {
             InitializeComponent();
             BindingContext = new ModelInfoViewModel(model);

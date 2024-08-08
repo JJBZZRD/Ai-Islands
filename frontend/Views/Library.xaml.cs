@@ -8,14 +8,15 @@ using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using frontend.Services;
 
 namespace frontend.Views
 {
     public class RefreshLibraryMessage { }
     public partial class Library : ContentPage, INotifyPropertyChanged
     {
-        private ObservableCollection<ModelItem> _allModels;
-        public ObservableCollection<ModelItem> AllModels
+        private ObservableCollection<Model> _allModels;
+        public ObservableCollection<Model> AllModels
         {
             get => _allModels;
             set
@@ -25,8 +26,8 @@ namespace frontend.Views
             }
         }
 
-        private ObservableCollection<ModelItem> _models;
-        public ObservableCollection<ModelItem> Models
+        private ObservableCollection<Model> _models;
+        public ObservableCollection<Model> Models
         {
             get => _models;
             set
@@ -42,13 +43,16 @@ namespace frontend.Views
 
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
+        private readonly LibraryService _libraryService;
+
         public Library()
         {
             InitializeComponent();
-            Models = new ObservableCollection<ModelItem>();
-            AllModels = new ObservableCollection<ModelItem>();
+            Models = new ObservableCollection<Model>();
+            AllModels = new ObservableCollection<Model>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
+            _libraryService = new LibraryService();
 
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
@@ -89,7 +93,7 @@ namespace frontend.Views
 
         private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
         {
-            Models = new ObservableCollection<ModelItem>(e.FilteredModels);
+            Models = new ObservableCollection<Model>(e.FilteredModels);
             FilterOnline = FilterPopup.FilterOnline;
             FilterOffline = FilterPopup.FilterOffline;
             FilterPopup.IsVisible = false;
@@ -97,7 +101,7 @@ namespace frontend.Views
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            Models = new ObservableCollection<ModelItem>(AllModels);
+            Models = new ObservableCollection<Model>(AllModels);
             FilterOnline = false;
             FilterOffline = false;
             FilterPopup.IsVisible = false;
@@ -105,7 +109,7 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is ModelItem selectedModel)
+            if (e.Parameter is Model selectedModel)
             {
                 await Navigation.PushAsync(new LibraryTabbedPage(selectedModel));
             }
@@ -121,38 +125,34 @@ namespace frontend.Views
         {
             try
             {
-                using (HttpClient client = new HttpClient())
+                var modelList = await _libraryService.GetLibrary();
+
+                var newModels = new ObservableCollection<Model>();
+
+                foreach (var model in modelList)
                 {
-                    var response = await client.GetAsync("http://127.0.0.1:8000/model/get-models?source=library");
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var jsonString = await response.Content.ReadAsStringAsync();
-                        var libraryModels = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(jsonString);
+                    // Add LoadOrStopCommand to the model
+                    model.LoadOrStopCommand = new Command(() => LoadOrStopModel(model.ModelId));
 
-                        var newModels = new ObservableCollection<ModelItem>(
-                            libraryModels.Select(model => new ModelItem
-                            {
-                                ModelId = model.Key,
-                                PipelineTag = model.Value.PipelineTag ?? model.Value.Type ?? "Unknown",
-                                IsOnline = model.Value.IsOnline,
-                                Description = model.Value.Description ?? "No description available",
-                                Tags = model.Value.Tags ?? new List<string>(),
-                                LoadOrStopCommand = new Command(() => LoadOrStopModel(model.Key))
-                            })
-                        );
-
-                        AllModels = newModels;
-                        Models = new ObservableCollection<ModelItem>(AllModels);
-                        InitializeFilterPopup();
-                    }
-                    else
+                    // Set PipelineTag if it's null or empty
+                    if (string.IsNullOrEmpty(model.PipelineTag))
                     {
-                        await DisplayAlert("Error", "Failed to refresh library models.", "OK");
+                        model.PipelineTag = !string.IsNullOrEmpty(model.ModelClass) ? model.ModelClass : "Unknown";
                     }
+
+                    newModels.Add(model);
+                    System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
                 }
+
+                AllModels = newModels;
+                Models = new ObservableCollection<Model>(AllModels);
+                System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
+
+                InitializeFilterPopup();
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error loading library model data: {ex.Message}");
                 await DisplayAlert("Error", $"Failed to refresh library models: {ex.Message}", "OK");
             }
         }
@@ -161,7 +161,7 @@ namespace frontend.Views
         {
             if (string.IsNullOrWhiteSpace(e.NewTextValue))
             {
-                Models = new ObservableCollection<ModelItem>(AllModels);
+                Models = new ObservableCollection<Model>(AllModels);
             }
             else
             {
@@ -171,7 +171,7 @@ namespace frontend.Views
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
 
-                Models = new ObservableCollection<ModelItem>(filteredModels);
+                Models = new ObservableCollection<Model>(filteredModels);
             }
         }
 
@@ -181,7 +181,7 @@ namespace frontend.Views
             if (model == null) return;
 
             string baseUrl = "http://127.0.0.1:8000";
-            string endpoint = model.IsOnline ? "unload" : "load";
+            string endpoint = model.IsOnline ?? false ? "unload" : "load";
 
             try
             {

@@ -1,67 +1,73 @@
+using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using frontend.Models;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
+using System.Windows.Input;
 
 namespace frontend.Models
 {
     public class Model
     {
-        // Define instance variables with all possible first order keys from library.json
         public string? ModelId { get; set; }
+
+        [JsonPropertyName("base_model")]
         public string? BaseModel { get; set; }
+
+        [JsonPropertyName("dir")]
         public string? Dir { get; set; }
+
+        [JsonPropertyName("is_customised")]
         public bool? IsCustomised { get; set; }
+
+        [JsonPropertyName("is_online")]
         public bool? IsOnline { get; set; }
+
+        public string Status => IsOnline ?? false ? "Online" : "Offline";
+
+        [JsonPropertyName("model_source")]
         public string? ModelSource { get; set; }
+
+        [JsonPropertyName("tags")]
         public List<string>? Tags { get; set; }
-        public List<string>? RequiredClasses { get; set; }
+
+        [JsonPropertyName("model_desc")]
         public string? ModelDesc { get; set; }
+
+        [JsonPropertyName("model_detail")]
         public string? ModelDetail { get; set; }
+
+        [JsonPropertyName("model_class")]
         public string? ModelClass { get; set; }
+
+        [JsonPropertyName("pipeline_tag")]
         public string? PipelineTag { get; set; }
+
+        [JsonPropertyName("model_card_url")]
         public string? ModelCardUrl { get; set; }
-        public JObject? Requirements { get; set; }
-        public JObject? Config { get; set; }
+
+        [JsonPropertyName("requirements")]
+        public Dictionary<string, object>? Requirements { get; set; }
+
+        [JsonPropertyName("config")]
+        public Dictionary<string, object>? Config { get; set; }
+
+        [JsonPropertyName("auth_token")]
         public string? AuthToken { get; set; }
 
-        public Model(JObject json)
-        {
-            ProcessJson(json);
-        }
+        public bool IsInLibrary { get; set; }
 
-        private void ProcessJson(JObject json)
-        {
-            foreach (var pair in json)
-            {
-                string propertyName = ToPascalCase(pair.Key);
-                var property = GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (property != null && pair.Value != null)
-                {
-                    Type propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+        [JsonIgnore]
+        public ICommand? LoadOrStopCommand { get; set; }
 
-                    if (propertyType == typeof(List<string>))
-                    {
-                        property.SetValue(this, pair.Value.ToObject<List<string>>());
-                    }
-                    else if (propertyType == typeof(JObject))
-                    {
-                        property.SetValue(this, pair.Value.ToObject<JObject>());
-                    }
-                    else
-                    {
-                        property.SetValue(this, pair.Value.ToObject(propertyType));
-                    }
-                }
-            }
-        }
+        public string? DatasetFormat { get; set; }
 
-        private static string ToPascalCase(string name)
-        {
-            string camelCase = JsonNamingPolicy.CamelCase.ConvertName(name);
-            return char.ToUpper(camelCase[0]) + camelCase.Substring(1);
-        }
+        [JsonPropertyName("mapping")]
+        public Dictionary<string, object>? Mapping { get; set; }
+
+        [JsonPropertyName("languages")]
+        public List<string>? Languages { get; set; }
+
     }
+
+    
 }

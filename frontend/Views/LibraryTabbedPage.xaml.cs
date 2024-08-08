@@ -9,9 +9,9 @@ namespace frontend.Views
     public partial class LibraryTabbedPage : ContentPage
     {
         public string ModelId { get; set; } = string.Empty;
-        private ModelItem? _model;
+        private Model? _model;
 
-        public LibraryTabbedPage(ModelItem model)
+        public LibraryTabbedPage(Model model)
         {
             InitializeComponent();
             _model = model;
@@ -60,9 +60,9 @@ namespace frontend.Views
         }
 
 
-        // private ModelItem LoadModel(string modelId)
+        // private Model LoadModel(string modelId)
         // {
-        //     return new ModelItem { Name = modelId };
+        //     return new Model { Name = modelId };
         // }
 
         // private async void OnBackClicked(object sender, EventArgs e)
