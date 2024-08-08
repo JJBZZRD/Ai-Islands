@@ -39,40 +39,36 @@
                      Color="Gray" 
                      Margin="0,10"/>
 
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
                 <Label Text="Select a dataset" VerticalOptions="Center" Grid.Column="0" Grid.Row="0"/>
                 <Picker x:Name="DatasetPicker"
                         Grid.Column="1" Grid.Row="0"
                         HorizontalOptions="Start"
-                        WidthRequest="200">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>Dataset1</x:String>
-                            <x:String>Dataset2</x:String>
-                            <x:String>Dataset3</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
-                </Picker>
-                <Label Text="Select Embedding Model" VerticalOptions="Center" Grid.Column="0" Grid.Row="1"/>
-                <Picker x:Name="ModelPicker"
+                        WidthRequest="200"
+                        SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
+                
+                <Label Text="Select Embedding Type" VerticalOptions="Center" Grid.Column="0" Grid.Row="1"/>
+                <Picker x:Name="EmbeddingTypePicker"
                         Grid.Column="1" Grid.Row="1"
                         HorizontalOptions="Start"
-                        WidthRequest="200">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>Sentence Transformer</x:String>
-                            <x:String>Watson Embedder</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
-                </Picker>
+                        WidthRequest="200"
+                        SelectedIndexChanged="OnEmbeddingTypePickerSelectedIndexChanged"/>
+                
+                <Label Text="Select Embedding Model" VerticalOptions="Center" Grid.Column="0" Grid.Row="2"/>
+                <Picker x:Name="ModelPicker"
+                        Grid.Column="1" Grid.Row="2"
+                        HorizontalOptions="Start"
+                        WidthRequest="200"/>
+                
                 <Button Text="Process" 
                         Grid.Column="2"
-                        Grid.RowSpan="2"
+                        Grid.RowSpan="3"
                         VerticalOptions="Center"
                         WidthRequest="100"
                         HeightRequest="50"
                         BackgroundColor="#007AFF"
-                        TextColor="White"/>
+                        TextColor="White"
+                        Clicked="OnProcessClicked"/>
             </Grid>
 
             <Frame BorderColor="Gray" 
@@ -83,9 +79,9 @@
                            FontSize="18" 
                            FontAttributes="Bold"
                            TextColor="Black"/>
-                    <Editor IsReadOnly="True" 
+                    <Editor x:Name="DatasetPreviewEditor"
+                            IsReadOnly="True" 
                             HeightRequest="300" 
-                            Text="Preview of the selected dataset will appear here."
                             TextColor="Black"/>
                 </VerticalStackLayout>
             </Frame>

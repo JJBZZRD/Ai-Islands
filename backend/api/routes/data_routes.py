@@ -22,17 +22,17 @@ class DataRouter:
         self.router = APIRouter()
 
         # Define routes
-        self.router.add_api_route("/upload-dataset/", self.upload_dataset, methods=["POST"])
+        self.router.add_api_route("/upload-dataset", self.upload_dataset, methods=["POST"])
         self.router.add_api_route("/upload-image-dataset/", self.upload_image_dataset, methods=["POST"])
         self.router.add_api_route("/process-dataset", self.process_dataset, methods=["POST"])
         self.router.add_api_route("/list-datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available-models", self.get_available_models, methods=["GET"])
     
-    async def upload_dataset(self, file_path: str):
+    async def upload_dataset(self, request: DatasetProcessRequest):
         try:
-            source_path = Path(file_path)
+            source_path = Path(request.file_path)
             if not source_path.exists():
-                raise FileNotFoundError(f"File not found: {file_path}")
+                raise FileNotFoundError(f"File not found: {request.file_path}")
 
             dataset_name = source_path.stem
             dataset_folder = Path(DATASETS_DIR) / dataset_name
