@@ -38,24 +38,12 @@
 	</FlyoutItem>
 
 	<!-- Playground Page -->
-	<FlyoutItem Title="Playground" Icon="playground.png">
+    <FlyoutItem Title="Playground" Icon="playground.png">
         <ShellContent
-            Title="Models"
-            ContentTemplate="{DataTemplate local:Models}"
-            Route="Models"/>
-        <ShellContent
-            Title="Chain Configuration"
-            ContentTemplate="{DataTemplate local:ModelConfig}"
-            Route="ModelConfig"/>
-        <ShellContent
-            Title="Chain"
-            ContentTemplate="{DataTemplate local:Chain}"
-            Route="Chain"/>   
-        <ShellContent
-            Title="Chain API"
-            ContentTemplate="{DataTemplate local:ChainAPI}"
-            Route="ChainAPI"/>
-	</FlyoutItem>
+            Title="Playground"
+            ContentTemplate="{DataTemplate local:Playground}"
+            Route="Playground"/>
+    </FlyoutItem>
 
     <!-- Data Refinery Page -->
 	<FlyoutItem Title="Data Refinery" Icon="datagrid.png">

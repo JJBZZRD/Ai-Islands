@@ -74,6 +74,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Playground\" />
 	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
@@ -90,8 +91,8 @@
 	  <Compile Update="Views\Models.xaml.cs">
 	    <DependentUpon>Models.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ModelConfig.xaml.cs">
-	    <DependentUpon>ModelConfig.xaml</DependentUpon>
+	  <Compile Update="Views\ChainConfig.xaml.cs">
+	    <DependentUpon>ChainConfig.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\Chain.xaml.cs">
 	    <DependentUpon>Chain.xaml</DependentUpon>
@@ -114,6 +115,12 @@
 	  <Compile Update="Views\ModelInfoView.xaml.cs">
 	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\PlaygroundModelView.xaml.cs">
+	    <DependentUpon>PlaygroundModelView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\PlaygroundTabbedPage.xaml.cs">
+	    <DependentUpon>PlaygroundTabbedPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\TagsView.xaml.cs">
 	    <DependentUpon>TagsView.xaml</DependentUpon>
 	  </Compile>
@@ -135,7 +142,7 @@
 	  <MauiXaml Update="Views\Models.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ModelConfig.xaml">
+	  <MauiXaml Update="Views\ChainConfig.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Chain.xaml">
@@ -157,6 +164,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelInfoView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\PlaygroundModelView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\PlaygroundTabbedPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TagsView.xaml">
