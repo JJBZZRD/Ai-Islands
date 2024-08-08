@@ -6,14 +6,89 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="Data Refinery" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
-                   TextColor="Black"/>
-            <Label Text="Refine and preprocess your data for RAG" 
-                   FontSize="17" 
-                   TextColor="Black"/>
-            <!-- Add more UI elements here -->
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Data Refinery" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="Black"/>
+                    <Label Text="Refine and preprocess your data for RAG" 
+                           FontSize="17" 
+                           TextColor="Black"/>
+                </VerticalStackLayout>
+                <Button Grid.Column="1" 
+                        Text="Find Dataset" 
+                        Clicked="OnFindDatasetClicked"
+                        VerticalOptions="Center">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xf002;" FontFamily="FontAwesomeSolid" />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry x:Name="FilePathEntry" Placeholder="Selected file path" IsReadOnly="True" Grid.Column="0" />
+                <Button Text="Upload to AI Islands" 
+                        Clicked="OnUploadToAIIslandsClicked" 
+                        Grid.Column="1"
+                        WidthRequest="150"
+                        Margin="10,0,0,0" />
+            </Grid>
+
+            <BoxView HeightRequest="1" 
+                     Color="Gray" 
+                     Margin="0,10"/>
+
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                <Label Text="Select a dataset" VerticalOptions="Center" Grid.Column="0" Grid.Row="0"/>
+                <Picker x:Name="DatasetPicker"
+                        Grid.Column="1" Grid.Row="0"
+                        HorizontalOptions="Start"
+                        WidthRequest="200">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Dataset1</x:String>
+                            <x:String>Dataset2</x:String>
+                            <x:String>Dataset3</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+                <Label Text="Select Embedding Model" VerticalOptions="Center" Grid.Column="0" Grid.Row="1"/>
+                <Picker x:Name="ModelPicker"
+                        Grid.Column="1" Grid.Row="1"
+                        HorizontalOptions="Start"
+                        WidthRequest="200">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Sentence Transformer</x:String>
+                            <x:String>Watson Embedder</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+                <Button Text="Process" 
+                        Grid.Column="2"
+                        Grid.RowSpan="2"
+                        VerticalOptions="Center"
+                        WidthRequest="100"
+                        HeightRequest="50"
+                        BackgroundColor="#007AFF"
+                        TextColor="White"/>
+            </Grid>
+
+            <Frame BorderColor="Gray" 
+                   CornerRadius="5" 
+                   Padding="10">
+                <VerticalStackLayout>
+                    <Label Text="Dataset Preview" 
+                           FontSize="18" 
+                           FontAttributes="Bold"
+                           TextColor="Black"/>
+                    <Editor IsReadOnly="True" 
+                            HeightRequest="300" 
+                            Text="Preview of the selected dataset will appear here."
+                            TextColor="Black"/>
+                </VerticalStackLayout>
+            </Frame>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
