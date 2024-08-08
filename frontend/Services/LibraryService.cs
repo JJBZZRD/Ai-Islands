@@ -23,40 +23,65 @@ namespace frontend.Services
         }
 
 
-        public async Task<ObservableCollection<Model>> GetLibrary()
+        public async Task<List<Model>> GetLibrary()
         {
             var response = await _httpClient.GetAsync("library/get-full-library");
             response.EnsureSuccessStatusCode();
             var jsonString = await response.Content.ReadAsStringAsync();
-            
-            // Parse the JSON string into a JObject
-            var libraryJson = JObject.Parse(jsonString);
-            
-            var modelCollection = new ObservableCollection<Model>();
 
-            // Iterate through each key-value pair in the JObject
-            foreach (var pair in libraryJson)
+            var modelList = new List<Model>();
+
+            var options = new JsonSerializerOptions
             {
-                if (pair.Value is JObject modelData)
-                {
-                    // Create a new JObject for each model, including the key as "ModelId"
-                    var modelJson = new JObject(modelData);
-                    modelJson["ModelId"] = pair.Key;
+                PropertyNameCaseInsensitive = true
+            };
+            
+            var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
 
-                    // Create a new Model instance and add it to the collection
-                    var model = new Model(modelJson);
-                    modelCollection.Add(model);
+            if (modelDictionary != null)
+            {
+                foreach (var pair in modelDictionary)
+                {
+                    string modelId = pair.Key;
+                    Model model = pair.Value;
+                    model.ModelId = modelId;
+                    modelList.Add(model);
                 }
             }
 
-            return modelCollection;
+
+            return modelList;
         }
 
-        public async Task<Dictionary<string, Dictionary<string, object>>> GetModelIndex()
+ 
+
+        public async Task<List<Model>> GetModelIndex()
         {
             var response = await _httpClient.GetAsync("library/get-full-model-index");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, object>>>())!;
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            
+            var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+
+            var modelList = new List<Model>();
+
+            if (modelDictionary != null)
+            {
+                foreach (var pair in modelDictionary)
+                {
+                    string modelId = pair.Key;
+                    Model model = pair.Value;
+                    model.ModelId = modelId;
+                    modelList.Add(model);
+                }
+            }
+
+            return modelList;
         }
 
         
