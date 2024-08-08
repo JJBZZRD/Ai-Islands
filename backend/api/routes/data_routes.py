@@ -10,6 +10,7 @@ from backend.utils.dataset_utility import DatasetManagement
 from typing import List
 from pathlib import Path
 import json
+from backend.utils.file_type_manager import FileTypeManager
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class DataRouter:
         self.router.add_api_route("/process-dataset", self.process_dataset, methods=["POST"])
         self.router.add_api_route("/list-datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available-models", self.get_available_models, methods=["GET"])
+        self.router.add_api_route("/preview-dataset", self.preview_dataset, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -91,3 +93,22 @@ class DataRouter:
         except Exception as e:
             logger.error(f"Error getting available models: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error getting available models: {str(e)}")
+
+    async def preview_dataset(self, dataset_name: str):
+        try:
+            dataset_path = Path(DATASETS_DIR) / dataset_name
+            file_type_manager = FileTypeManager()
+            
+            if not dataset_path.exists():
+                raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
+
+            # Find the first file in the dataset directory
+            for file in dataset_path.iterdir():
+                if file.is_file():
+                    preview_content = file_type_manager.read_file(file)
+                    return "\n".join(preview_content[:10])  # Return the first 10 lines/entries for preview
+
+            raise FileNotFoundError(f"No files found in dataset directory: {dataset_path}")
+        except Exception as e:
+            logger.error(f"Error previewing dataset: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))

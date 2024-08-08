@@ -79,8 +79,7 @@ namespace frontend.Views
         {
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
-                string filePath = Path.Combine("Datasets", selectedDataset, $"{selectedDataset}.csv");
-                DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(filePath);
+                DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(selectedDataset);
             }
         }
 

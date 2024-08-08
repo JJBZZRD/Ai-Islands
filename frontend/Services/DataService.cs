@@ -49,18 +49,11 @@ namespace frontend.Services
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
-        public async Task<string> GetDatasetPreview(string filePath)
+        public async Task<string> GetDatasetPreview(string datasetName)
         {
-            if (!File.Exists(filePath))
-            {
-                return "File not found.";
-            }
-
-            using (var reader = new StreamReader(filePath))
-            {
-                var preview = await reader.ReadToEndAsync();
-                return preview.Length > 1000 ? preview.Substring(0, 1000) + "..." : preview;
-            }
+            var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }
