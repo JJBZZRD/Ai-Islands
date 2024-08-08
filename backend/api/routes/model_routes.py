@@ -1,16 +1,11 @@
 import logging
 import cv2
-import os
-import shutil
-import uuid
 import json
-import asyncio
-import torch
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Query, Body, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
-from typing import Annotated, Dict, Any
+from typing import Annotated
 import numpy as np
 from backend.controlers.model_control import ModelControl
 from backend.data_utils.dataset_processor import process_dataset
