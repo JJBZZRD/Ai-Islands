@@ -22,4 +22,4 @@ namespace frontend.Models
     }
 }
 
-Model model = new Model(json);
+//Model model = new Model(json);
