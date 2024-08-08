@@ -1,10 +1,15 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using frontend.Services;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace frontend.Views;
 
 public partial class Setting : ContentPage, INotifyPropertyChanged
 {
+    private readonly SettingsService _settingsService;
+
     private string _apiKey;
     public string ApiKey
     {
@@ -145,69 +150,169 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
         }
     }
 
+    private bool _cudaAvailable;
+    public bool CudaAvailable
+    {
+        get => _cudaAvailable;
+        set
+        {
+            if (_cudaAvailable != value)
+            {
+                _cudaAvailable = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private string _cudaVersion;
+    public string CudaVersion
+    {
+        get => _cudaVersion;
+        set
+        {
+            if (_cudaVersion != value)
+            {
+                _cudaVersion = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private string _cudnnVersion;
+    public string CudnnVersion
+    {
+        get => _cudnnVersion;
+        set
+        {
+            if (_cudnnVersion != value)
+            {
+                _cudnnVersion = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public Setting()
     {
         InitializeComponent();
+        _settingsService = new SettingsService();
         BindingContext = this;
         LoadSettings();
     }
 
     private void LoadSettings()
     {
-        ApiKey = Preferences.Get("ApiKey", "");
-        Location = Preferences.Get("Location", "eu-gb");
-        ProjectId = Preferences.Get("ProjectId", "");
-        UseChunking = Preferences.Get("UseChunking", true);
-        ChunkSize = Preferences.Get("ChunkSize", "1000");
-        ChunkOverlap = Preferences.Get("ChunkOverlap", "0");
-        ChunkMethod = Preferences.Get("ChunkMethod", "fixed_length");
-        RowsPerChunk = Preferences.Get("RowsPerChunk", "1");
-        CsvColumns = Preferences.Get("CsvColumns", "");
-        Device = Preferences.Get("Device", "cpu");
-    }
-
-    private void SaveSettings()
-    {
-        Preferences.Set("ApiKey", ApiKey);
-        Preferences.Set("Location", Location);
-        Preferences.Set("ProjectId", ProjectId);
-        Preferences.Set("UseChunking", UseChunking);
-        Preferences.Set("ChunkSize", ChunkSize);
-        Preferences.Set("ChunkOverlap", ChunkOverlap);
-        Preferences.Set("ChunkMethod", ChunkMethod);
-        Preferences.Set("RowsPerChunk", RowsPerChunk);
-        Preferences.Set("CsvColumns", CsvColumns);
-        Preferences.Set("Device", Device);
-    }
-
-    private async void OnSaveClicked(object sender, EventArgs e)
-    {
-        bool answer = await DisplayAlert("Save Settings", "Are you sure you want to save these settings?", "Yes", "No");
-        if (answer)
+        Task.Run(async () =>
         {
-            SaveSettings();
-            await DisplayAlert("Success", "Settings saved successfully", "OK");
+            await LoadSettingsAsync();
+        });
+    }
+
+    private async Task LoadSettingsAsync()
+    {
+        try
+        {
+            var watsonSettings = await _settingsService.GetWatsonSettings();
+            ApiKey = watsonSettings.TryGetValue("api_key", out var apiKey) ? apiKey?.ToString() : string.Empty;
+            Location = watsonSettings.TryGetValue("location", out var location) ? location?.ToString() : string.Empty;
+            ProjectId = watsonSettings.TryGetValue("project", out var project) ? project?.ToString() : string.Empty;
+
+            var chunkingSettings = await _settingsService.GetChunkingSettings();
+            UseChunking = chunkingSettings.TryGetValue("use_chunking", out var useChunking) && bool.TryParse(useChunking?.ToString(), out var uc) ? uc : false;
+            ChunkSize = chunkingSettings.TryGetValue("chunk_size", out var chunkSize) ? chunkSize?.ToString() : string.Empty;
+            ChunkOverlap = chunkingSettings.TryGetValue("chunk_overlap", out var chunkOverlap) ? chunkOverlap?.ToString() : string.Empty;
+            ChunkMethod = chunkingSettings.TryGetValue("chunk_method", out var chunkMethod) ? chunkMethod?.ToString() : string.Empty;
+            RowsPerChunk = chunkingSettings.TryGetValue("rows_per_chunk", out var rowsPerChunk) ? rowsPerChunk?.ToString() : string.Empty;
+            
+            if (chunkingSettings.TryGetValue("csv_columns", out var csvColumns) && csvColumns is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
+            {
+                CsvColumns = string.Join(",", jsonElement.EnumerateArray().Select(e => e.ToString()));
+            }
+            else
+            {
+                CsvColumns = string.Empty;
+            }
+
+            var hardwareSettings = await _settingsService.GetHardware();
+            Device = hardwareSettings.TryGetValue("hardware", out var hardware) ? hardware?.ToString() : string.Empty;
+
+            var gpuInfo = await _settingsService.CheckGpu();
+            CudaAvailable = gpuInfo.TryGetValue("CUDA available", out var cudaAvailable) && bool.TryParse(cudaAvailable?.ToString(), out var ca) ? ca : false;
+            CudaVersion = gpuInfo.TryGetValue("CUDA version", out var cudaVersion) ? cudaVersion?.ToString() ?? "N/A" : "N/A";
+            CudnnVersion = gpuInfo.TryGetValue("cuDNN version", out var cudnnVersion) ? cudnnVersion?.ToString() ?? "N/A" : "N/A";
+        }
+        catch (Exception ex)
+        {
+            await Dispatcher.DispatchAsync(async () =>
+            {
+                await DisplayAlert("Error", $"Failed to load settings: {ex.Message}", "OK");
+            });
         }
     }
 
-    private async void OnResetClicked(object sender, EventArgs e)
+    private async void OnSaveWatsonCloudClicked(object sender, EventArgs e)
     {
-        bool answer = await DisplayAlert("Reset Settings", "Are you sure you want to reset all settings to default values?", "Yes", "No");
+        bool answer = await DisplayAlert("Save Watson Cloud Settings", "Are you sure you want to save these settings?", "Yes", "No");
         if (answer)
         {
-            ApiKey = "";
-            Location = "eu-gb";
-            ProjectId = "";
-            UseChunking = true;
-            ChunkSize = "1000";
-            ChunkOverlap = "0";
-            ChunkMethod = "fixed_length";
-            RowsPerChunk = "1";
-            CsvColumns = "";
-            Device = "cpu";
+            try
+            {
+                var settings = new Dictionary<string, string>
+                {
+                    ["api_key"] = ApiKey,
+                    ["location"] = Location,
+                    ["project_id"] = ProjectId
+                };
+                await _settingsService.UpdateWatsonSettings(settings);
+                await DisplayAlert("Success", "Watson Cloud settings saved successfully", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to save Watson Cloud settings: {ex.Message}", "OK");
+            }
+        }
+    }
 
-            SaveSettings();
-            await DisplayAlert("Success", "Settings reset to default values", "OK");
+    private async void OnSaveChunkingClicked(object sender, EventArgs e)
+    {
+        bool answer = await DisplayAlert("Save Chunking Settings", "Are you sure you want to save these settings?", "Yes", "No");
+        if (answer)
+        {
+            try
+            {
+                var settings = new Dictionary<string, object>
+                {
+                    ["use_chunking"] = UseChunking,
+                    ["chunk_size"] = int.Parse(ChunkSize),
+                    ["chunk_overlap"] = int.Parse(ChunkOverlap),
+                    ["chunk_method"] = ChunkMethod,
+                    ["rows_per_chunk"] = int.Parse(RowsPerChunk),
+                    ["csv_columns"] = CsvColumns.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                };
+                await _settingsService.UpdateChunkingSettings(settings);
+                await DisplayAlert("Success", "Chunking settings saved successfully", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to save Chunking settings: {ex.Message}", "OK");
+            }
+        }
+    }
+
+    private async void OnSaveHardwareClicked(object sender, EventArgs e)
+    {
+        bool answer = await DisplayAlert("Save Hardware Settings", "Are you sure you want to save these settings?", "Yes", "No");
+        if (answer)
+        {
+            try
+            {
+                await _settingsService.SetHardware(Device);
+                await DisplayAlert("Success", "Hardware settings saved successfully", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to save Hardware settings: {ex.Message}", "OK");
+            }
         }
     }
 
@@ -233,6 +338,11 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
         {
             "APIKeyInfo" => "Your Watson Cloud API Key is used to authenticate your requests.",
             "ChunkSizeInfo" => "Chunk size determines how many tokens are in each text chunk.",
+            "ChunkOverlapInfo" => "Chunk overlap specifies how many tokens should overlap between chunks.",
+            "ChunkMethodInfo" => "Chunk method determines how the text is split into chunks.",
+            "RowsPerChunkInfo" => "Rows per chunk specifies how many CSV rows should be in each chunk.",
+            "CsvColumnsInfo" => "CSV columns to include in the chunking process, comma-separated.",
+            "HardwareInfo" => "Choose between CPU and GPU for processing.",
             _ => "No information available."
         };
         await DisplayAlert("Info", message, "OK");

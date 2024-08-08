@@ -120,6 +120,9 @@
 	  <Compile Update="Views\DataRefinery.xaml.cs">
 	    <DependentUpon>DataRefinery.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\Setting.xaml.cs">
+	    <DependentUpon>Setting.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
