@@ -66,6 +66,7 @@ namespace frontend.Views
             {
                 var result = await _dataService.UploadDataset(FilePathEntry.Text);
                 await DisplayAlert("Success", "Dataset uploaded successfully!", "OK");
+                FilePathEntry.Text = string.Empty; // Clear the file path
                 await LoadDatasets();
             }
             catch (Exception ex)
