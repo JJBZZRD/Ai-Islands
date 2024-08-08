@@ -4,7 +4,7 @@
              xmlns:frontend="clr-namespace:frontend.Views"
              xmlns:converters="clr-namespace:frontend.Converters"
              xmlns:local="clr-namespace:frontend.Views"
-             x:Class="frontend.Views.MainPage"
+             x:Class="frontend.Views.ModelIndex"
              BackgroundColor="#F2F2F2">
 
     <ContentPage.Resources>

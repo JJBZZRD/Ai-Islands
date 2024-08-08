@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace frontend.Views
 {
-    public partial class MainPage : ContentPage, INotifyPropertyChanged //implement inotify for ui updates
+    public partial class ModelIndex : ContentPage, INotifyPropertyChanged //implement inotify for ui updates
     {
         public ObservableCollection<ModelItem> AllModels { get; set; }
         private ObservableCollection<ModelItem> _models;
@@ -40,7 +40,7 @@ namespace frontend.Views
         public bool FilterOffline { get; set; }
 
         // page constructor
-        public MainPage()
+        public ModelIndex()
         {
             InitializeComponent();
             Models = new ObservableCollection<ModelItem>();
