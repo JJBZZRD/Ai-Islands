@@ -62,6 +62,7 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
             {
                 _useChunking = value;
                 OnPropertyChanged();
+                UpdateChunkingFieldsState();
             }
         }
     }
@@ -104,6 +105,7 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
             {
                 _chunkMethod = value;
                 OnPropertyChanged();
+                UpdateChunkingFieldsState();
             }
         }
     }
@@ -192,6 +194,62 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
         }
     }
 
+    private bool _isChunkSizeEnabled;
+    public bool IsChunkSizeEnabled
+    {
+        get => _isChunkSizeEnabled;
+        set
+        {
+            if (_isChunkSizeEnabled != value)
+            {
+                _isChunkSizeEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _isChunkOverlapEnabled;
+    public bool IsChunkOverlapEnabled
+    {
+        get => _isChunkOverlapEnabled;
+        set
+        {
+            if (_isChunkOverlapEnabled != value)
+            {
+                _isChunkOverlapEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _isRowsPerChunkEnabled;
+    public bool IsRowsPerChunkEnabled
+    {
+        get => _isRowsPerChunkEnabled;
+        set
+        {
+            if (_isRowsPerChunkEnabled != value)
+            {
+                _isRowsPerChunkEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _isCsvColumnsEnabled;
+    public bool IsCsvColumnsEnabled
+    {
+        get => _isCsvColumnsEnabled;
+        set
+        {
+            if (_isCsvColumnsEnabled != value)
+            {
+                _isCsvColumnsEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public Setting()
     {
         InitializeComponent();
@@ -240,6 +298,8 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
             CudaAvailable = gpuInfo.TryGetValue("CUDA available", out var cudaAvailable) && bool.TryParse(cudaAvailable?.ToString(), out var ca) ? ca : false;
             CudaVersion = gpuInfo.TryGetValue("CUDA version", out var cudaVersion) ? cudaVersion?.ToString() ?? "N/A" : "N/A";
             CudnnVersion = gpuInfo.TryGetValue("cuDNN version", out var cudnnVersion) ? cudnnVersion?.ToString() ?? "N/A" : "N/A";
+
+            InitializeChunkingFields();
         }
         catch (Exception ex)
         {
@@ -248,6 +308,25 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
                 await DisplayAlert("Error", $"Failed to load settings: {ex.Message}", "OK");
             });
         }
+    }
+
+    private void OnChunkMethodChanged(object sender, EventArgs e)
+    {
+        UpdateChunkingFieldsState();
+    }
+
+    private void UpdateChunkingFieldsState()
+    {
+        bool isCsvRow = ChunkMethod == "csv_row";
+        IsChunkSizeEnabled = !isCsvRow && UseChunking;
+        IsChunkOverlapEnabled = !isCsvRow && UseChunking;
+        IsRowsPerChunkEnabled = isCsvRow && UseChunking;
+        IsCsvColumnsEnabled = isCsvRow && UseChunking;
+    }
+
+    private void InitializeChunkingFields()
+    {
+        UpdateChunkingFieldsState();
     }
 
     private async void OnSaveWatsonCloudClicked(object sender, EventArgs e)
@@ -306,8 +385,18 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
         {
             try
             {
-                await _settingsService.SetHardware(Device);
-                await DisplayAlert("Success", "Hardware settings saved successfully", "OK");
+                var result = await _settingsService.SetHardware(Device);
+                if (result.ContainsKey("detail"))
+                {
+                    // This means there was an error, likely GPU not available
+                    await DisplayAlert("Hardware Settings", result["detail"].ToString(), "OK");
+                    // Optionally, reset the Device selection to CPU
+                    Device = "cpu";
+                }
+                else
+                {
+                    await DisplayAlert("Success", "Hardware settings saved successfully", "OK");
+                }
             }
             catch (Exception ex)
             {
@@ -337,6 +426,7 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
         string message = param switch
         {
             "APIKeyInfo" => "Your Watson Cloud API Key is used to authenticate your requests.",
+            "ProjectIDInfo" => "Your Project ID is the environment used for Watson X Foundation Models and Embedders. If no project ID entered, AI Islands will fetch your latest Watson Studio project from your account.",
             "ChunkSizeInfo" => "Chunk size determines how many tokens are in each text chunk.",
             "ChunkOverlapInfo" => "Chunk overlap specifies how many tokens should overlap between chunks.",
             "ChunkMethodInfo" => "Chunk method determines how the text is split into chunks.",

@@ -42,9 +42,10 @@
                     </Picker>
 
                     <Label Text="Project ID:" FontSize="14" TextColor="Black"/>
-                    <Grid ColumnDefinitions="*, Auto">
+                    <Grid ColumnDefinitions="*, Auto, Auto">
                         <Entry Placeholder="Enter Project ID" Text="{Binding ProjectId}" Grid.Column="0" />
                         <Button Text="Copy" Grid.Column="1" WidthRequest="60" Margin="5,0,0,0" Clicked="OnCopyProjectIdClicked"/>
+                        <Button Text="?" Grid.Column="2" WidthRequest="30" Margin="5,0,0,0" Command="{Binding ShowTooltipCommand}" CommandParameter="ProjectIDInfo"/>
                     </Grid>
 
                     <Label Text="If no project ID entered, AI Islands will automatically find your latest created project using your general API Key." 
@@ -73,21 +74,9 @@
                         <Switch IsToggled="{Binding UseChunking}" Grid.Column="1" HorizontalOptions="Start" />
                     </Grid>
 
-                    <Label Text="Chunk size:" FontSize="14" TextColor="Black"/>
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter chunk size" Text="{Binding ChunkSize}" IsEnabled="{Binding UseChunking}" Grid.Column="0" />
-                        <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkSizeInfo"/>
-                    </Grid>
-
-                    <Label Text="Chunk overlap:" FontSize="14" TextColor="Black"/>
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter chunk overlap" Text="{Binding ChunkOverlap}" IsEnabled="{Binding UseChunking}" Grid.Column="0" />
-                        <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkOverlapInfo"/>
-                    </Grid>
-
                     <Label Text="Chunk method:" FontSize="14" TextColor="Black"/>
                     <Grid ColumnDefinitions="*, Auto">
-                        <Picker SelectedItem="{Binding ChunkMethod}" IsEnabled="{Binding UseChunking}" Grid.Column="0">
+                        <Picker SelectedItem="{Binding ChunkMethod}" IsEnabled="{Binding UseChunking}" Grid.Column="0" SelectedIndexChanged="OnChunkMethodChanged">
                             <Picker.Items>
                                 <x:String>csv_row</x:String>
                                 <x:String>fixed_length</x:String>
@@ -98,15 +87,27 @@
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkMethodInfo"/>
                     </Grid>
 
+                    <Label Text="Chunk size:" FontSize="14" TextColor="Black"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Entry Placeholder="Enter chunk size" Text="{Binding ChunkSize}" IsEnabled="{Binding IsChunkSizeEnabled}" Grid.Column="0" />
+                        <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkSizeInfo"/>
+                    </Grid>
+
+                    <Label Text="Chunk overlap:" FontSize="14" TextColor="Black"/>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Entry Placeholder="Enter chunk overlap" Text="{Binding ChunkOverlap}" IsEnabled="{Binding IsChunkOverlapEnabled}" Grid.Column="0" />
+                        <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkOverlapInfo"/>
+                    </Grid>
+
                     <Label Text="Rows per chunk:" FontSize="14" TextColor="Black"/>
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter rows per chunk" Text="{Binding RowsPerChunk}" IsEnabled="{Binding UseChunking}" Grid.Column="0" />
+                        <Entry Placeholder="Enter rows per chunk" Text="{Binding RowsPerChunk}" IsEnabled="{Binding IsRowsPerChunkEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="RowsPerChunkInfo"/>
                     </Grid>
 
                     <Label Text="CSV columns:" FontSize="14" TextColor="Black"/>
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter CSV columns" Text="{Binding CsvColumns}" IsEnabled="{Binding UseChunking}" Grid.Column="0" />
+                        <Entry Placeholder="Enter CSV columns" Text="{Binding CsvColumns}" IsEnabled="{Binding IsCsvColumnsEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="CsvColumnsInfo"/>
                     </Grid>
 
