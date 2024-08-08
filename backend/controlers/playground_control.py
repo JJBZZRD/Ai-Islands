@@ -226,7 +226,9 @@ class PlaygroundControl:
             logger.info(f"Model {model_id} not in playground {playground_id}")
             return {"playground_id": playground_id, "models": playground.models}
         
-        #TODO: Check if the model is in the chain and return error if it is
+        if model_id in playground.chain:
+            logger.error(f"Model {model_id} is in the chain of playground {playground_id}. Please remove it from the chain before removing it from the playground.")
+            raise PlaygroundError(f"Model {model_id} is in the chain of playground {playground_id}. Please remove it from the chain before removing it from the playground.")
 
         # Remove the model from the playground
         playground.models.pop(model_id)
@@ -300,9 +302,12 @@ class PlaygroundControl:
         for model_id in chain:
             if model_id not in playground.models:
                 raise KeyError(f"Model {model_id} not found in playground {playground_id}")
-
+            
             input_type = playground.models.get(model_id).get("input")
             output_type = playground.models.get(model_id).get("output")
+            if model_id != chain[0] and not input_type == 'text':
+                raise ChainNotCompatibleError(f"Model {model_id} is not a text to text model. All intermediate models in the chain must be text to text models.")
+            
             if input_type != prev_output_type and prev_output_type is not None:
                 raise ChainNotCompatibleError(f"Model {model_id}'s input type is not compatible with the previous model's output type")
             prev_output_type = output_type
@@ -437,11 +442,15 @@ class PlaygroundControl:
         for model_id in playground.chain:
             model_inference_request = {
                 "model_id": model_id,
-                "data": {"payload": str(data)},
+                "data": data,
+                "playground_request": True
             }
             inference_result = self.model_control.inference(model_inference_request)
             print("inference_result", inference_result)
-            data = inference_result
+            data = {
+                "payload": str(inference_result)
+            }
+            
         return inference_result
 
     def _initialise_playground(self, playground_id: str):

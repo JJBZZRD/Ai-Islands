@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.LibraryTabbedPage"
+             Background="White">
+    <StackLayout>
+        <!-- <Label Text="{Binding Name}" FontSize="Large" Margin="10" TextColor="Black"/> -->
+        <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
+            <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White"/>
+            <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" />
+            <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White"/>
+        </HorizontalStackLayout>
+        <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+    </StackLayout>
+    <!-- <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Back" Clicked="OnBackClicked" />
+    </ContentPage.ToolbarItems> -->
+</ContentPage>

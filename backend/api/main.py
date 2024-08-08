@@ -12,7 +12,6 @@ from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.controlers.library_control import LibraryControl
-from backend.api.routes.settings_routes import SettingsRouter
 from backend.api.routes.playground_routes import PlaygroundRouter
 
 # Initialize logging

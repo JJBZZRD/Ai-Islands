@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.DataRefinery"
+             Title="Data Refinery"
+             BackgroundColor="#F2F2F2">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Label Text="Data Refinery" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="Black"/>
+            <Label Text="Refine and preprocess your data for RAG" 
+                   FontSize="17" 
+                   TextColor="Black"/>
+            <!-- Add more UI elements here -->
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

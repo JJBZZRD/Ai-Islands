@@ -17,7 +17,7 @@ def process_dataset(file_path: str, dataset_dir: str, dataset_id: str):
     try:
         file_extension = os.path.splitext(file_path)[1][1:]
 
-        # Extract the dataset if it's a zip file
+        # Extract the dataset from zip file
         if file_extension == 'zip':
             extract_zip(file_path, dataset_dir)
             move_files_from_subdirectory_if_present(dataset_dir)

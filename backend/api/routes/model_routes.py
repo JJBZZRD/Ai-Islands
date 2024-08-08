@@ -1,16 +1,11 @@
 import logging
 import cv2
-import os
-import shutil
-import uuid
 import json
-import asyncio
-import torch
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Query, Body, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
-from typing import Annotated, Dict, Any
+from typing import Annotated
 import numpy as np
 from backend.controlers.model_control import ModelControl
 from backend.data_utils.dataset_processor import process_dataset
@@ -51,9 +46,10 @@ class ModelRouter:
         self.model_control = model_control
 
         # Define routes
-        self.router.add_api_route("/models/active", self.list_active_models, methods=["GET"])
-        self.router.add_api_route("/models/load", self.load_model, methods=["POST"])
-        self.router.add_api_route("/models/unload", self.unload_model, methods=["POST"])
+        self.router.add_api_route("/get-models", self.get_models, methods=["GET"])
+        self.router.add_api_route("/active", self.list_active_models, methods=["GET"])
+        self.router.add_api_route("/load", self.load_model, methods=["POST"])
+        self.router.add_api_route("/unload", self.unload_model, methods=["POST"])
         self.router.add_api_route("/download-model", self.download_model, methods=["POST"])
         self.router.add_api_route("/is-model-loaded", self.is_model_loaded, methods=["GET"])
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
@@ -63,6 +59,19 @@ class ModelRouter:
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
 
+    async def get_models(self, source: str = Query("index", description="Source of models: 'index' or 'library'")):
+        try:
+            if source == "library":
+                with open('data/library.json', 'r') as f:
+                    models = json.load(f)
+            else:  
+                with open('data/model_index.json', 'r') as f:
+                    models = json.load(f)
+            return JSONResponse(content=models)
+        except Exception as e:
+            logger.error(f"Error reading model {source}: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
     async def list_active_models(self):
         try:
             active_models = self.model_control.list_active_models()
