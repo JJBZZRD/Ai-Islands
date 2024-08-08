@@ -11,7 +11,7 @@ namespace frontend.Views
         {
             InitializeComponent();
             BindingContext = new ModelInfoViewModel(model);
-            System.Diagnostics.Debug.WriteLine($"ModelInfoPage constructor called with model: {model?.Name}");
+            System.Diagnostics.Debug.WriteLine($"ModelInfoPage constructor called with model: {model?.ModelId}");
         }
     }
 }

@@ -37,7 +37,7 @@ namespace frontend.Models
 
         public ModelInfoViewModel(ModelItem model)
         {
-            System.Diagnostics.Debug.WriteLine($"ModelInfoViewModel constructor called with model: {model?.Name}");
+            System.Diagnostics.Debug.WriteLine($"ModelInfoViewModel constructor called with model: {model?.ModelId}");
             Model = model;
             System.Diagnostics.Debug.WriteLine($"Tags count after setting Model: {Tags.Count}");
         }

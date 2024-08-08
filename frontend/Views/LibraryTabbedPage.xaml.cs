@@ -17,16 +17,16 @@ namespace frontend.Views
             _model = model;
             BindingContext = _model;
 
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage constructor - Model Name: {_model?.Name}");
+            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage constructor - Model Name: {_model?.ModelId}");
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            Title = _model?.Name;
+            Title = _model?.ModelId;
 
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage OnAppearing - Model Name: {_model?.Name}");
+            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage OnAppearing - Model Name: {_model?.ModelId}");
 
             ShowInfoPage(); //show Info page by default
         }

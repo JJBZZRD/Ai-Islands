@@ -107,7 +107,7 @@ namespace frontend.Views
                 var searchTerm = e.NewTextValue.ToLower();  // converting search term to lowercase for case-sensitive comparison
                 // for each model in all models, check if the search term is present in the model name or pipeline tag
                 var filteredModels = AllModels.Where(m =>
-                    m.Name.ToLower().Contains(searchTerm) ||
+                    m.ModelId.ToLower().Contains(searchTerm) ||
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
                 // filtered result used to create new collection
@@ -130,7 +130,7 @@ namespace frontend.Views
         {
             if (sender is Button button && button.BindingContext is ModelItem model)
             {
-                AddToLibrary(model.Name);
+                AddToLibrary(model.ModelId);
             }
         }
 
@@ -158,7 +158,7 @@ namespace frontend.Views
                         System.Diagnostics.Debug.WriteLine($"  Type: '{model.Value.Type}'");
                         var modelItem = new ModelItem
                         {
-                            Name = model.Key,
+                            ModelId = model.Key,
                             PipelineTag = !string.IsNullOrEmpty(model.Value.PipelineTag) ? model.Value.PipelineTag :
                                         !string.IsNullOrEmpty(model.Value.Type) ? model.Value.Type : "Unknown",
                             IsOnline = model.Value.IsOnline,
@@ -194,15 +194,15 @@ namespace frontend.Views
             InitializeFilterPopup();
         }
 
-        public async void AddToLibrary(string modelName)
+        public async void AddToLibrary(string ModelId)
         {
-            var alertPage = new AlertPage("Download", $"Starting download for {modelName}", true);
+            var alertPage = new AlertPage("Download", $"Starting download for {ModelId}", true);
             await Navigation.PushModalAsync(alertPage);
             try
             {
                 // call the API to download the model
                 var client = new HttpClient();
-                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={modelName}", null);
+                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={ModelId}", null);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -216,10 +216,10 @@ namespace frontend.Views
                     // wait for user to click "OK"
                     await alertPage.CompletionSource.Task;
 
-                    System.Diagnostics.Debug.WriteLine($"Model {modelName} downloaded successfully");
+                    System.Diagnostics.Debug.WriteLine($"Model {ModelId} downloaded successfully");
 
                     // update the local state in the ModelItem
-                    var model = Models.FirstOrDefault(m => m.Name == modelName);
+                    var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
                     if (model != null)
                     {
                         model.IsInLibrary = true;
@@ -231,7 +231,7 @@ namespace frontend.Views
                 }
                 else
                 {
-                    await DisplayAlert("Error", $"Failed to download model {modelName}", "OK");
+                    await DisplayAlert("Error", $"Failed to download model {ModelId}", "OK");
                 }
             }
             catch (Exception ex)

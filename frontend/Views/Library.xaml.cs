@@ -132,7 +132,7 @@ namespace frontend.Views
                         var newModels = new ObservableCollection<ModelItem>(
                             libraryModels.Select(model => new ModelItem
                             {
-                                Name = model.Key,
+                                ModelId = model.Key,
                                 PipelineTag = model.Value.PipelineTag ?? model.Value.Type ?? "Unknown",
                                 IsOnline = model.Value.IsOnline,
                                 Description = model.Value.Description ?? "No description available",
@@ -167,7 +167,7 @@ namespace frontend.Views
             {
                 var searchTerm = e.NewTextValue.ToLower();
                 var filteredModels = AllModels.Where(m =>
-                    m.Name.ToLower().Contains(searchTerm) ||
+                    m.ModelId.ToLower().Contains(searchTerm) ||
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
 
@@ -175,9 +175,9 @@ namespace frontend.Views
             }
         }
 
-        private async void LoadOrStopModel(string modelName)
+        private async void LoadOrStopModel(string ModelId)
         {
-            var model = Models.FirstOrDefault(m => m.Name == modelName);
+            var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
             if (model == null) return;
 
             string baseUrl = "http://127.0.0.1:8000";
@@ -187,21 +187,21 @@ namespace frontend.Views
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    var response = await client.PostAsync($"{baseUrl}/model/{endpoint}?model_id={modelName}", null);
+                    var response = await client.PostAsync($"{baseUrl}/model/{endpoint}?model_id={ModelId}", null);
                     if (response.IsSuccessStatusCode)
                     {
                         model.IsOnline = !model.IsOnline;
-                        await DisplayAlert("Success", $"Model {modelName} {endpoint}ed successfully.", "OK");
+                        await DisplayAlert("Success", $"Model {ModelId} {endpoint}ed successfully.", "OK");
                     }
                     else
                     {
-                        await DisplayAlert("Error", $"Failed to {endpoint} model {modelName}.", "OK");
+                        await DisplayAlert("Error", $"Failed to {endpoint} model {ModelId}.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to {endpoint} model {modelName}: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"Failed to {endpoint} model {ModelId}: {ex.Message}", "OK");
             }
         }
 

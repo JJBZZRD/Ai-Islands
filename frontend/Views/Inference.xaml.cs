@@ -141,11 +141,11 @@ namespace frontend.Views
             // for now, it's just echo the input or file path as a placeholder
             if (!string.IsNullOrEmpty(_selectedFilePath))
             {
-                OutputText = $"Inference result for model {_model.Name} with file: {_selectedFilePath}";
+                OutputText = $"Inference result for model {_model.ModelId} with file: {_selectedFilePath}";
             }
             else
             {
-                OutputText = $"Inference result for model {_model.Name}:\n\n{InputText}";
+                OutputText = $"Inference result for model {_model.ModelId}:\n\n{InputText}";
             }
         }
     }
