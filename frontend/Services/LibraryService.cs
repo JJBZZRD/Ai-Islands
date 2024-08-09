@@ -25,63 +25,88 @@ namespace frontend.Services
 
         public async Task<List<Model>> GetLibrary()
         {
-            var response = await _httpClient.GetAsync("library/get-full-library");
-            response.EnsureSuccessStatusCode();
-            var jsonString = await response.Content.ReadAsStringAsync();
-
-            var modelList = new List<Model>();
-
-            var options = new JsonSerializerOptions
+            System.Diagnostics.Debug.WriteLine("GetLibrary method started");
+            try
             {
-                PropertyNameCaseInsensitive = true
-            };
-            
-            var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                var response = await _httpClient.GetAsync("library/get-full-library");
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Received JSON string of length: {jsonString.Length}");
 
-            if (modelDictionary != null)
-            {
-                foreach (var pair in modelDictionary)
+                var modelList = new List<Model>();
+
+                var options = new JsonSerializerOptions
                 {
-                    string modelId = pair.Key;
-                    Model model = pair.Value;
-                    model.ModelId = modelId;
-                    modelList.Add(model);
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
+
+                if (modelDictionary != null)
+                {
+                    foreach (var pair in modelDictionary)
+                    {
+                        string modelId = pair.Key;
+                        Model model = pair.Value;
+                        model.ModelId = modelId;
+                        modelList.Add(model);
+                        System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                    }
                 }
+
+                System.Diagnostics.Debug.WriteLine($"GetLibrary completed. Returning {modelList.Count} models");
+                return modelList;
             }
-
-
-            return modelList;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetLibrary: {ex.Message}");
+                throw;
+            }
         }
 
  
 
         public async Task<List<Model>> GetModelIndex()
         {
-            var response = await _httpClient.GetAsync("library/get-full-model-index");
-            response.EnsureSuccessStatusCode();
-            var jsonString = await response.Content.ReadAsStringAsync();
-
-            var options = new JsonSerializerOptions
+            System.Diagnostics.Debug.WriteLine("GetModelIndex method started");
+            try
             {
-                PropertyNameCaseInsensitive = true
-            };
-            
-            var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                var response = await _httpClient.GetAsync("library/get-full-model-index");
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Received JSON string of length: {jsonString.Length}");
 
-            var modelList = new List<Model>();
-
-            if (modelDictionary != null)
-            {
-                foreach (var pair in modelDictionary)
+                var options = new JsonSerializerOptions
                 {
-                    string modelId = pair.Key;
-                    Model model = pair.Value;
-                    model.ModelId = modelId;
-                    modelList.Add(model);
-                }
-            }
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
 
-            return modelList;
+                var modelList = new List<Model>();
+
+                if (modelDictionary != null)
+                {
+                    foreach (var pair in modelDictionary)
+                    {
+                        string modelId = pair.Key;
+                        Model model = pair.Value;
+                        model.ModelId = modelId;
+                        modelList.Add(model);
+                        System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"GetModelIndex completed. Returning {modelList.Count} models");
+                return modelList;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetModelIndex: {ex.Message}");
+                throw;
+            }
         }
 
         

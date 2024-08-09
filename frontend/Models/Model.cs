@@ -65,7 +65,7 @@ namespace frontend.Models
         public Dictionary<string, object>? Mapping { get; set; }
 
         [JsonPropertyName("languages")]
-        public List<string>? Languages { get; set; }
+        public Dictionary<string,string>? Languages { get; set; }
 
     }
 
