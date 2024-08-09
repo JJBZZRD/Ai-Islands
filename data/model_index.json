@@ -1211,9 +1211,9 @@
       "Text Classification",
       "Sentiment Analysis"
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "labels": [
       "positive",
       "neutral",
@@ -1238,9 +1238,9 @@
       "Text Classification",
       "Sentiment Analysis"
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "labels": [
       "negative",
       "positive"
@@ -1264,14 +1264,14 @@
       "Text Classification",
       "Product Reviews"
     ],
-    "languages": [
-      "English",
-      "Dutch",
-      "German",
-      "French",
-      "Italian",
-      "Spanish"
-    ],
+    "languages": {
+      "en": "English",
+      "nl": "Dutch",
+      "de": "German",
+      "fr": "French",
+      "it": "Italian",
+      "es": "Spanish"
+    },
     "labels": [
       "5 stars",
       "4 stars",
@@ -1300,9 +1300,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "This model was trained using SentenceTransformers Cross-Encoder class. This model can classify text into custom labels.",
     "model_card_url": "https://huggingface.co/cross-encoder/nli-roberta-base",
@@ -1329,9 +1329,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "This model was trained on the MultiNLI, Fever-NLI and Adversarial-NLI (ANLI) datasets, which comprise 763 913 NLI hypothesis-premise pairs. This base model outperforms almost all large models on the ANLI benchmark. The base model is DeBERTa-v3-base from Microsoft. The v3 variant of DeBERTa substantially outperforms previous versions of the model by including a different pre-training objective, see annex 11 of the original DeBERTa paper. This model can classify text into custom labels.",
     "model_card_url": "https://huggingface.co/facebook/bart-large-mnli",
@@ -1358,9 +1358,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "Yin et al. proposed a method for using pre-trained NLI models as a ready-made zero-shot sequence classifiers. The method works by posing the sequence to be classified as the NLI premise and to construct a hypothesis from each candidate label. ",
     "model_card_url": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
@@ -1386,53 +1386,53 @@
       "Text Reranker",
       "Multilingual"
     ],
-    "languages": [
-      "Arabic",
-      "Bengali",
-      "Bulgarian",
-      "Chinese (Simplified)",
-      "Chinese (Traditional)",
-      "Croatian",
-      "Czech",
-      "Danish",
-      "Dutch",
-      "English",
-      "Estonian",
-      "Finnish",
-      "French",
-      "German",
-      "Greek",
-      "Gujarati",
-      "Hebrew",
-      "Hindi",
-      "Hungarian",
-      "Indonesian",
-      "Italian",
-      "Japanese",
-      "Kannada",
-      "Korean",
-      "Latvian",
-      "Lithuanian",
-      "Malayalam",
-      "Marathi",
-      "Norwegian",
-      "Polish",
-      "Portuguese",
-      "Punjabi",
-      "Romanian",
-      "Russian",
-      "Slovak",
-      "Slovenian",
-      "Spanish",
-      "Swedish",
-      "Tamil",
-      "Telugu",
-      "Thai",
-      "Turkish",
-      "Ukrainian",
-      "Urdu",
-      "Vietnamese"
-    ],
+    "languages": {
+    "ar": "Arabic",
+    "bn": "Bengali",
+    "bg": "Bulgarian",
+    "zh-CN": "Chinese (Simplified)",
+    "zh-TW": "Chinese (Traditional)",
+    "hr": "Croatian",
+    "cs": "Czech",
+    "da": "Danish",
+    "nl": "Dutch",
+    "en": "English",
+    "et": "Estonian",
+    "fi": "Finnish",
+    "fr": "French",
+    "de": "German",
+    "el": "Greek",
+    "gu": "Gujarati",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "kn": "Kannada",
+    "ko": "Korean",
+    "lv": "Latvian",
+    "lt": "Lithuanian",
+    "ml": "Malayalam",
+    "mr": "Marathi",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "pa": "Punjabi",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "es": "Spanish",
+    "sv": "Swedish",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "th": "Thai",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ur": "Urdu",
+    "vi": "Vietnamese"
+    },
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
     "requirements": {
@@ -1465,26 +1465,26 @@
         "Text Reranker",
         "Multilingual"
     ],
-    "languages": [
-      "Arabic",
-      "Bengali",
-      "English",
-      "Spanish",
-      "Persian (Farsi)",
-      "Finnish",
-      "French",
-      "Hindi",
-      "Indonesian",
-      "Japanese",
-      "Korean",
-      "Russian",
-      "Swahili",
-      "Telugu",
-      "Thai",
-      "Chinese",
-      "German",
-      "Yoruba"
-    ],
+    "languages": {
+      "ar": "Arabic",
+      "bn": "Bengali",
+      "en": "English",
+      "es": "Spanish",
+      "fa": "Persian (Farsi)",
+      "fi": "Finnish",
+      "fr": "French",
+      "hi": "Hindi",
+      "id": "Indonesian",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ru": "Russian",
+      "sw": "Swahili",
+      "te": "Telugu",
+      "th": "Thai",
+      "zh": "Chinese",
+      "de": "German",
+      "yo": "Yoruba"
+    },
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
     "requirements": {
