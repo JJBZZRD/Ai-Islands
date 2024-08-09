@@ -19,37 +19,32 @@ namespace frontend.Views
 
         private List<Dictionary<string, object>> CreateExamplePlaygrounds()
         {
-            return new List<Dictionary<string, object>>
+                return new List<Dictionary<string, object>>
+        {
+            new Dictionary<string, object>
             {
-                new Dictionary<string, object>
+                {"Id", "playground_1"},
+                {"Name", "Playground 1"},
+                {"Description", "I am a playground description for Playground 1"},
+                {"Models", new Dictionary<string, object>
                 {
-                    {"Id", "playground_1"},
-                    {"Name", "Playground 1"},
-                    {"Description", "I am a playground description for Playground 1"},
-                    {"Models", new Dictionary<string, object>()},
-                    {"Chain", new List<object>()},
-                    {"ActiveChain", false}
-                },
-                new Dictionary<string, object>
-                {
-                    {"Id", "playground_2"},
-                    {"Name", "Playground 2"},
-                    {"Description", "I am a playground description for Playground 2"},
-                    {"Models", new Dictionary<string, object>()},
-                    {"Chain", new List<object>()},
-                    {"ActiveChain", true}
-                },
-                new Dictionary<string, object>
-                {
-                    {"Id", "playground_3"},
-                    {"Name", "Playground 3"},
-                    {"Description", "I am a playground description for Playground 3"},
-                    {"Models", new Dictionary<string, object>()},
-                    {"Chain", new List<object>()},
-                    {"ActiveChain", false}
-                }
-            };
-        }
+                    {"Model1", new Dictionary<string, object>
+                    {
+                        {"PipelineTag", "NLP"},
+                        {"Status", "Online"}
+                    }},
+                    {"Model2", new Dictionary<string, object>
+                    {
+                        {"PipelineTag", "CV"},
+                        {"Status", "Offline"}
+                    }}
+                }},
+                {"Chain", new List<object>()},
+                {"ActiveChain", false}
+            },
+            // Add similar data for playground_2 and playground_3
+        };
+            }
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
