@@ -80,6 +80,10 @@ namespace frontend.Views
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
                 DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(selectedDataset);
+
+                var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
+                DefaultProcessedLabel.Text = processingStatus["default_processed"] ? "Yes" : "No";
+                ChunkedProcessedLabel.Text = processingStatus["chunked_processed"] ? "Yes" : "No";
             }
         }
 
@@ -102,6 +106,11 @@ namespace frontend.Views
                 {
                     var result = await _dataService.ProcessDataset(filePath, selectedModel);
                     await DisplayAlert("Success", "Dataset processed successfully!", "OK");
+
+                    // Update processing status labels
+                    var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
+                    DefaultProcessedLabel.Text = processingStatus["default_processed"] ? "Yes" : "No";
+                    ChunkedProcessedLabel.Text = processingStatus["chunked_processed"] ? "Yes" : "No";
                 }
                 catch (Exception ex)
                 {

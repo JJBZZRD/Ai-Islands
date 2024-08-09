@@ -46,6 +46,11 @@
                         HorizontalOptions="Start"
                         WidthRequest="200"
                         SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
+                        
+                <Label Text="Default Processed:" Grid.Column="0" Grid.Row="1"/>
+                <Label x:Name="DefaultProcessedLabel" Grid.Column="1" Grid.Row="1"/>
+                <Label Text="Chunked Processed:" Grid.Column="0" Grid.Row="2"/>
+                <Label x:Name="ChunkedProcessedLabel" Grid.Column="1" Grid.Row="2"/>
                 
                 <Label Text="Select Embedding Type" VerticalOptions="Center" Grid.Column="0" Grid.Row="1"/>
                 <Picker x:Name="EmbeddingTypePicker"

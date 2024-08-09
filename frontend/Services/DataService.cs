@@ -55,5 +55,12 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
+
+        public async Task<Dictionary<string, bool>> GetDatasetProcessingStatus(string datasetName)
+        {
+            var response = await _httpClient.GetAsync($"data/dataset-processing-status?dataset_name={datasetName}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, bool>>();
+        }
     }
 }

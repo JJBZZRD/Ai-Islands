@@ -29,6 +29,7 @@ class DataRouter:
         self.router.add_api_route("/list-datasets", self.list_datasets, methods=["GET"])
         self.router.add_api_route("/available-models", self.get_available_models, methods=["GET"])
         self.router.add_api_route("/preview-dataset", self.preview_dataset, methods=["GET"])
+        self.router.add_api_route("/dataset-processing-status", self.get_dataset_processing_status, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -111,4 +112,21 @@ class DataRouter:
             raise FileNotFoundError(f"No files found in dataset directory: {dataset_path}")
         except Exception as e:
             logger.error(f"Error previewing dataset: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    async def get_dataset_processing_status(self, dataset_name: str):
+        try:
+            dataset_path = Path(DATASETS_DIR) / dataset_name
+            if not dataset_path.exists():
+                raise FileNotFoundError(f"Dataset not found: {dataset_name}")
+
+            default_processed = (dataset_path / "default").exists()
+            chunked_processed = (dataset_path / "chunked").exists()
+
+            return {
+                "default_processed": default_processed,
+                "chunked_processed": chunked_processed
+            }
+        except Exception as e:
+            logger.error(f"Error getting dataset processing status: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
