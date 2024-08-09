@@ -46,29 +46,33 @@
                         HorizontalOptions="Fill"
                         SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
                 
-                <Label Text="Default Processed:" Grid.Column="1" Grid.Row="1" HorizontalOptions="Start"/>
-                <Image Grid.Column="2" Grid.Row="1" 
-                       Source="check.png"
-                       IsVisible="{Binding DefaultProcessed}"
-                       HeightRequest="20" 
-                       WidthRequest="20"/>
-                <Image Grid.Column="2" Grid.Row="1" 
-                       Source="cross.png"
-                       IsVisible="{Binding IsNotDefaultProcessed}"
-                       HeightRequest="20" 
-                       WidthRequest="20"/>
+                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                    <Label Text="Default Processed " VerticalOptions="Center"/>
+                    <Image Source="check.png"
+                           IsVisible="{Binding DefaultProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Image Source="cross.png"
+                           IsVisible="{Binding IsNotDefaultProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                </StackLayout>
                 
-                <Label Text="Chunked Processed:" Grid.Column="1" Grid.Row="2" HorizontalOptions="Start"/>
-                <Image Grid.Column="2" Grid.Row="2" 
-                       Source="check.png"
-                       IsVisible="{Binding ChunkedProcessed}"
-                       HeightRequest="20" 
-                       WidthRequest="20"/>
-                <Image Grid.Column="2" Grid.Row="2" 
-                       Source="cross.png"
-                       IsVisible="{Binding IsNotChunkedProcessed}"
-                       HeightRequest="20" 
-                       WidthRequest="20"/>
+                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                    <Label Text="Chunked Processed " VerticalOptions="Center"/>
+                    <Image Source="check.png"
+                           IsVisible="{Binding ChunkedProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Image Source="cross.png"
+                           IsVisible="{Binding IsNotChunkedProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                </StackLayout>
                 
                 <Label Text="Select Embedding Type:" VerticalOptions="Center" Grid.Column="0" Grid.Row="3"/>
                 <Picker x:Name="EmbeddingTypePicker"
