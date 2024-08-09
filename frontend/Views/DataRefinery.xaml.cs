@@ -111,8 +111,19 @@ namespace frontend.Views
         {
             if (EmbeddingTypePicker.SelectedItem is string selectedType)
             {
+                ModelPicker.ItemsSource = null;
+                ModelPicker.SelectedItem = null;
+
                 string key = selectedType == "Sentence Transformer" ? "sentence_transformer" : "watson";
-                ModelPicker.ItemsSource = _availableModels[key];
+                if (_availableModels.ContainsKey(key))
+                {
+                    ModelPicker.ItemsSource = _availableModels[key];
+                }
+                else
+                {
+                    // Handle the case when the key doesn't exist (e.g., for Watson Embedder)
+                    ModelPicker.ItemsSource = new List<string> { "Default Watson Model" };
+                }
             }
         }
 
@@ -157,6 +168,30 @@ namespace frontend.Views
             ChunkedProcessed = false;
             DatasetPreviewEditor.Text = string.Empty;
             ProcessButton.BackgroundColor = Colors.Red;
+        }
+
+        private async void OnRemoveDatasetsClicked(object sender, EventArgs e)
+        {
+            var datasets = await _dataService.ListDatasets();
+            var result = await DisplayActionSheet("Select dataset to delete", "Cancel", null, datasets.ToArray());
+
+            if (result != null && result != "Cancel")
+            {
+                bool confirm = await DisplayAlert("Confirm Deletion", $"Are you sure you want to delete the dataset '{result}'?", "Yes", "No");
+                if (confirm)
+                {
+                    try
+                    {
+                        await _dataService.DeleteDataset(result);
+                        await DisplayAlert("Success", $"Dataset '{result}' deleted successfully", "OK");
+                        await LoadDatasets(); // Refresh the dataset list
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"Failed to delete dataset: {ex.Message}", "OK");
+                    }
+                }
+            }
         }
 
         protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

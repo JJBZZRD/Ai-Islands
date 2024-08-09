@@ -30,6 +30,7 @@ class DataRouter:
         self.router.add_api_route("/available-models", self.get_available_models, methods=["GET"])
         self.router.add_api_route("/preview-dataset", self.preview_dataset, methods=["GET"])
         self.router.add_api_route("/dataset-processing-status", self.get_dataset_processing_status, methods=["GET"])
+        self.router.add_api_route("/delete-dataset", self.delete_dataset, methods=["DELETE"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -129,4 +130,16 @@ class DataRouter:
             }
         except Exception as e:
             logger.error(f"Error getting dataset processing status: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    async def delete_dataset(self, dataset_name: str):
+        try:
+            dataset_path = Path(DATASETS_DIR) / dataset_name
+            if not dataset_path.exists():
+                raise FileNotFoundError(f"Dataset not found: {dataset_name}")
+
+            shutil.rmtree(dataset_path)
+            return {"message": f"Dataset {dataset_name} deleted successfully"}
+        except Exception as e:
+            logger.error(f"Error deleting dataset: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))

@@ -62,5 +62,12 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, bool>>();
         }
+
+        public async Task<Dictionary<string, object>> DeleteDataset(string datasetName)
+        {
+            var response = await _httpClient.DeleteAsync($"data/delete-dataset?dataset_name={datasetName}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        }
     }
 }

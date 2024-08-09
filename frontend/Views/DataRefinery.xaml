@@ -6,7 +6,7 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <VerticalStackLayout Grid.Column="0">
                     <Label Text="Data Refinery" 
                            FontSize="24" 
@@ -19,9 +19,18 @@
                 <Button Grid.Column="1" 
                         Text="Find Dataset" 
                         Clicked="OnFindDatasetClicked"
-                        VerticalOptions="Center">
+                        VerticalOptions="Center"
+                        Margin="0,0,10,0">
                     <Button.ImageSource>
                         <FontImageSource Glyph="&#xf002;" FontFamily="FontAwesomeSolid" />
+                    </Button.ImageSource>
+                </Button>
+                <Button Grid.Column="2" 
+                        Text="Remove Datasets" 
+                        Clicked="OnRemoveDatasetsClicked"
+                        VerticalOptions="Center">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xf2ed;" FontFamily="FontAwesomeSolid" />
                     </Button.ImageSource>
                 </Button>
             </Grid>
