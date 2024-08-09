@@ -8,7 +8,7 @@
     <ScrollView>
         <StackLayout Padding="20">
             <Label Text="{Binding Model.ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
-            <Label Text="{Binding Model.Description}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
+            <Label Text="{Binding Model.ModelDesc}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
             <views:TagsView Tags="{Binding Tags}" />
         </StackLayout>
     </ScrollView>
