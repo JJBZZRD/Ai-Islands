@@ -104,11 +104,17 @@ class DataRouter:
             if not dataset_path.exists():
                 raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
 
-            # Find the first file in the dataset directory
             for file in dataset_path.iterdir():
                 if file.is_file():
                     preview_content = file_type_manager.read_file(file)
-                    return "\n".join(preview_content[:10])  # Return the first 10 lines/entries for preview
+                    file_type = file.suffix.lower()
+                    if file_type == '.csv' and preview_content:
+                        # Preserve CSV formatting without processing
+                        preview_content = preview_content[:10]
+                    return {
+                        "file_type": file_type,
+                        "content": preview_content[:10] if isinstance(preview_content, list) else [preview_content[:1000]]
+                    }
 
             raise FileNotFoundError(f"No files found in dataset directory: {dataset_path}")
         except Exception as e:
