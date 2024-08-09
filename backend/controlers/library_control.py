@@ -176,7 +176,7 @@ class LibraryControl:
             logger.info(f"Library already exists at: {DOWNLOADED_MODELS_PATH}")
             try:
                 data = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-            except FileReadError as e:
+            except FileReadError:
                 data = {}
                 JSONHandler.write_json(DOWNLOADED_MODELS_PATH, data)
                 logger.info("Library was empty, reinitialised successfully")
