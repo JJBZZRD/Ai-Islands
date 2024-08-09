@@ -1,22 +1,42 @@
 using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using frontend.Services;
 
 namespace frontend.Views
 {
-    public partial class DataRefinery : ContentPage
+    public partial class DataRefinery : ContentPage, INotifyPropertyChanged
     {
         private readonly DataService _dataService;
         private Dictionary<string, List<string>> _availableModels;
+
+        private bool _defaultProcessed;
+        public bool DefaultProcessed
+        {
+            get => _defaultProcessed;
+            set => SetProperty(ref _defaultProcessed, value);
+        }
+
+        public bool IsNotDefaultProcessed => !DefaultProcessed;
+
+        private bool _chunkedProcessed;
+        public bool ChunkedProcessed
+        {
+            get => _chunkedProcessed;
+            set => SetProperty(ref _chunkedProcessed, value);
+        }
+
+        public bool IsNotChunkedProcessed => !ChunkedProcessed;
 
         public DataRefinery()
         {
             InitializeComponent();
             _dataService = new DataService();
+            BindingContext = this;
             InitializeAsync();
         }
 
@@ -82,8 +102,8 @@ namespace frontend.Views
                 DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(selectedDataset);
 
                 var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
-                DefaultProcessedLabel.Text = processingStatus["default_processed"] ? "Yes" : "No";
-                ChunkedProcessedLabel.Text = processingStatus["chunked_processed"] ? "Yes" : "No";
+                DefaultProcessed = processingStatus["default_processed"];
+                ChunkedProcessed = processingStatus["chunked_processed"];
             }
         }
 
@@ -107,10 +127,10 @@ namespace frontend.Views
                     var result = await _dataService.ProcessDataset(filePath, selectedModel);
                     await DisplayAlert("Success", "Dataset processed successfully!", "OK");
 
-                    // Update processing status labels
+                    // Update processing status
                     var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
-                    DefaultProcessedLabel.Text = processingStatus["default_processed"] ? "Yes" : "No";
-                    ChunkedProcessedLabel.Text = processingStatus["chunked_processed"] ? "Yes" : "No";
+                    DefaultProcessed = processingStatus["default_processed"];
+                    ChunkedProcessed = processingStatus["chunked_processed"];
                 }
                 catch (Exception ex)
                 {
@@ -133,10 +153,25 @@ namespace frontend.Views
             DatasetPicker.SelectedItem = null;
             EmbeddingTypePicker.SelectedItem = null;
             ModelPicker.SelectedItem = null;
-            DefaultProcessedLabel.Text = string.Empty;
-            ChunkedProcessedLabel.Text = string.Empty;
+            DefaultProcessed = false;
+            ChunkedProcessed = false;
             DatasetPreviewEditor.Text = string.Empty;
             ProcessButton.BackgroundColor = Colors.Red;
+        }
+
+        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+            storage = value;
+            OnPropertyChanged(propertyName);
+            OnPropertyChanged($"IsNot{propertyName}");
+            return true;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
