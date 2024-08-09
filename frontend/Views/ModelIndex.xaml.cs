@@ -53,6 +53,9 @@ namespace frontend.Views
             BindingContext = this;
             _libraryService = new LibraryService();
             LoadModels();
+            AuthTokenPopup.InputSubmitted += OnAuthTokenSubmitted;
+            AuthTokenPopup.InputCancelled += OnAuthTokenCancelled;
+            System.Diagnostics.Debug.WriteLine("AuthTokenPopup initialized and events wired up");
         }
 
         private void OnFilterClicked(object sender, EventArgs e)
@@ -134,94 +137,180 @@ namespace frontend.Views
         {
             if (sender is Button button && button.BindingContext is Model model)
             {
-                AddToLibrary(model.ModelId);
+                System.Diagnostics.Debug.WriteLine($"Add to Library clicked for model: {model.ModelId}");
+                
+                bool requiresAuth = false;
+
+                if (model.Requirements != null && 
+                    model.Requirements.TryGetValue("requires_auth", out JsonElement requiresAuthValue))
+                {
+                    System.Diagnostics.Debug.WriteLine($"requires_auth raw value: {requiresAuthValue}, Type: {requiresAuthValue.ValueKind}");
+                    
+                    switch (requiresAuthValue.ValueKind)
+                    {
+                        case JsonValueKind.True:
+                            requiresAuth = true;
+                            break;
+                        case JsonValueKind.False:
+                            requiresAuth = false;
+                            break;
+                        case JsonValueKind.String:
+                            var stringValue = requiresAuthValue.GetString();
+                            requiresAuth = stringValue?.Equals("True", StringComparison.OrdinalIgnoreCase) ?? false;
+                            break;
+                        default:
+                            System.Diagnostics.Debug.WriteLine($"Unexpected requires_auth value kind: {requiresAuthValue.ValueKind}");
+                            break;
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("requires_auth key not found in Requirements");
+                }
+
+                System.Diagnostics.Debug.WriteLine($"requires_auth parsed as: {requiresAuth}");
+
+                if (requiresAuth)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Model {model.ModelId} requires authentication");
+                    AuthTokenPopup.BindingContext = model;
+                    AuthTokenPopup.IsVisible = true;
+                    System.Diagnostics.Debug.WriteLine("AuthTokenPopup set to visible");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Model {model.ModelId} does not require authentication");
+                    AddToLibrary(model.ModelId);
+                }
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Button BindingContext is not a Model");
+            }
+        }
+
+        private void OnAuthTokenSubmitted(object sender, string authToken)
+        {
+            System.Diagnostics.Debug.WriteLine("Auth token submitted");
+            if (AuthTokenPopup.BindingContext is Model model)
+            {
+                System.Diagnostics.Debug.WriteLine($"Adding model {model.ModelId} to library with auth token");
+                AddToLibrary(model.ModelId, authToken);
+                AuthTokenPopup.IsVisible = false;
+            }
+        }
+
+        private void OnAuthTokenCancelled(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Auth token input cancelled");
+            AuthTokenPopup.IsVisible = false;
         }
 
         private async void LoadModels()
         {
+            System.Diagnostics.Debug.WriteLine("LoadModels method started");
             try
             {
+                System.Diagnostics.Debug.WriteLine("Calling GetModelIndex from LibraryService");
                 var modelList = await _libraryService.GetModelIndex();
+                System.Diagnostics.Debug.WriteLine($"GetModelIndex returned {modelList.Count} models");
 
                 Models.Clear();
+                System.Diagnostics.Debug.WriteLine("Cleared existing Models collection");
 
                 foreach (var model in modelList)
                 {
-                    // Add LoadOrStopCommand to the model
+                    System.Diagnostics.Debug.WriteLine($"Processing model: {model.ModelId}");
+                    
                     model.LoadOrStopCommand = new Command(() => AddToLibrary(model.ModelId));
+                    System.Diagnostics.Debug.WriteLine($"Added LoadOrStopCommand for model: {model.ModelId}");
 
-                    // Set PipelineTag if it's null or empty
                     if (string.IsNullOrEmpty(model.PipelineTag))
                     {
                         model.PipelineTag = !string.IsNullOrEmpty(model.ModelClass) ? model.ModelClass : "Unknown";
+                        System.Diagnostics.Debug.WriteLine($"Set PipelineTag for model {model.ModelId}: {model.PipelineTag}");
                     }
 
                     Models.Add(model);
-                    System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
+                    System.Diagnostics.Debug.WriteLine($"Added model to Models collection: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
                 }
 
                 System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
 
-                // Initialize AllModels with the same data as Models for search functionality
                 AllModels = new ObservableCollection<Model>(Models);
                 System.Diagnostics.Debug.WriteLine($"AllModels initialized with {AllModels.Count} items");
 
-                // Update ModelTypes
+                System.Diagnostics.Debug.WriteLine("Updating ModelTypes");
                 var types = AllModels.Select(m => m.PipelineTag).Where(t => !string.IsNullOrEmpty(t)).Distinct().OrderBy(t => t);
                 ModelTypes.Clear();
                 foreach (var type in types)
                 {
                     ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
+                    System.Diagnostics.Debug.WriteLine($"Added ModelType: {type}");
                 }
+                System.Diagnostics.Debug.WriteLine($"Total ModelTypes: {ModelTypes.Count}");
 
+                System.Diagnostics.Debug.WriteLine("Initializing FilterPopup");
                 InitializeFilterPopup();
+                System.Diagnostics.Debug.WriteLine("FilterPopup initialized");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading model data: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error in LoadModels: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 await DisplayAlert("Error", $"An error occurred while loading models: {ex.Message}", "OK");
             }
+            System.Diagnostics.Debug.WriteLine("LoadModels method completed");
         }
 
-        public async void AddToLibrary(string ModelId)
+        public async void AddToLibrary(string ModelId, string authToken = null)
         {
             var alertPage = new AlertPage("Download", $"Starting download for {ModelId}", true);
             await Navigation.PushModalAsync(alertPage);
             try
             {
-                // call the API to download the model
-                var client = new HttpClient();
-                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={ModelId}", null);
-
-                if (response.IsSuccessStatusCode)
+                // Create a HttpClient with no timeout
+                using (var client = new HttpClient())
                 {
-                    // simulate download progress. I guess this should be modified to reflect actual download progress
-                    for (int i = 0; i <= 100; i++)
+                    client.Timeout = TimeSpan.FromMilliseconds(-1); // Set timeout to infinite
+
+                    var requestUri = $"http://127.0.0.1:8000/model/download-model?model_id={ModelId}";
+                    if (!string.IsNullOrEmpty(authToken))
                     {
-                        alertPage.UpdateProgress(i / 100.0);
-                        await Task.Delay(50); // adjust this delay to control the speed of the simulation
+                        requestUri += $"&auth_token={authToken}";
                     }
 
-                    // wait for user to click "OK"
-                    await alertPage.CompletionSource.Task;
+                    var response = await client.PostAsync(requestUri, null);
 
-                    System.Diagnostics.Debug.WriteLine($"Model {ModelId} downloaded successfully");
-
-                    // update the local state in the Model
-                    var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
-                    if (model != null)
+                    if (response.IsSuccessStatusCode)
                     {
-                        model.IsInLibrary = true;
-                    }
-                    System.Diagnostics.Debug.WriteLine("Sending RefreshLibraryMessage");
+                        // simulate download progress. I guess this should be modified to reflect actual download progress
+                        for (int i = 0; i <= 100; i++)
+                        {
+                            alertPage.UpdateProgress(i / 100.0);
+                            await Task.Delay(50); // adjust this delay to control the speed of the simulation
+                        }
 
-                    // notify the library page to refresh
-                    WeakReferenceMessenger.Default.Send(new RefreshLibraryMessage());
-                }
-                else
-                {
-                    await DisplayAlert("Error", $"Failed to download model {ModelId}", "OK");
+                        // wait for user to click "OK"
+                        await alertPage.CompletionSource.Task;
+
+                        System.Diagnostics.Debug.WriteLine($"Model {ModelId} downloaded successfully");
+
+                        // update the local state in the Model
+                        var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
+                        if (model != null)
+                        {
+                            model.IsInLibrary = true;
+                        }
+                        System.Diagnostics.Debug.WriteLine("Sending RefreshLibraryMessage");
+
+                        // notify the library page to refresh
+                        WeakReferenceMessenger.Default.Send(new RefreshLibraryMessage());
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", $"Failed to download model {ModelId}", "OK");
+                    }
                 }
             }
             catch (Exception ex)

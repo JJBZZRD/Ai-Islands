@@ -2908,7 +2908,7 @@
             "device": "cuda"
         },
         "quantization_config": {
-            "current_mode": "bfloat16"
+            "current_mode": "4-bit"
         },
         "quantization_config_options": {
             "4-bit": {
