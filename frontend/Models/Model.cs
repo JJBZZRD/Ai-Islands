@@ -67,7 +67,6 @@ namespace frontend.Models
         [JsonPropertyName("languages")]
         public Dictionary<string,string>? Languages { get; set; }
 
-    }
-
-    
+    }    
 }
+
