@@ -1,4 +1,4 @@
-@startuml
+@startuml Ai Islands
 skinparam class {
     BackgroundColor Snow
     BorderColor Black
@@ -14,82 +14,141 @@ skinparam linetype ortho
 ' RECTANGLE FastAPI {
 ' }
 
-RECTANGLE LibraryControl {
-    + 
+package "Backend" {
+    RECTANGLE LibraryControl {
+        + 
+    }
+
+    RECTANGLE PlaygroundControl {
+
+        + create_playground(playground_id: str, playground_name: str, 
+        playground_description: str): Playground
+        + delete_playground(playground_id: str): None
+        + update_playground(playground_id: str, playground_name: str, playground_description: str, 
+        playground_models: List[str], playground_chain: List[str]): None
+        + list_playgrounds(): List[str]
+        + run_playground(playground_id: str): None
+        + stop_playground(playground_id: str): None
+        + add_model_to_playground(playground_id: str, model_id: str): None
+        + add_chain_to_playground(playground_id: str, chain_id: str): None
+    }
+
+    RECTANGLE ModelControl {
+        - active_models: List[Dict[str, Any]]
+        - hardware_preference: str
+        - LibraryControl: LibraryControl
+        __init__()
+        + download_model(model_id: str): bool
+        + load_model(model_id: str): bool
+        + unload_model(model_id: str): bool
+        + inference(model_id: str, request_payload: Any): Any
+        + list_active_models(): List[str]
+        + delete_model(model_id: str): bool
+        - _get_model_class(model_source: str): Type
+    }
+
+    RECTANGLE TransformerModel {
+        - model_id: str
+        - model: Any
+        - tokenizer: Any
+        - processor: Any
+        __init__(model_id: str)
+        + download(model_id: str): None
+        + load(model_id: str): None
+        + inference(request_payload: Any): Any
+        + train(data_path: str, epochs: int = 100): Any
+    }
+
+    RECTANGLE UltralyticsModel {
+        - model_id: str
+        - model: Any
+        __init__()
+        + download(model_id: str): None
+        + load(model_id: str): None
+        + inference(image_path: str): Any
+        + train(data_path: str, epochs: int = 100): Any
+    }
+
+    RECTANGLE WatsonModel {
+        - model: Any
+        __init__()
+    }
+
+    RECTANGLE Playground {
+        - playground_id: str
+        - playground_name: str
+        - playground_description: str
+        - playground_models: List[str]
+        - playground_chain: List[str]
+        __init__()
+    }
+
+    RECTANGLE RuntimeControl {
+
+    }
+
+    RECTANGLE ModelRouter {
+
+    }
+
+    RECTANGLE PlaygroundRouter {
+
+    }
+
+    RECTANGLE SettingRouter {
+
+    }
+
+    RECTANGLE DataRouter {
+
+    }
+    RECTANGLE LibraryRouter {
+
+    }
 }
-
-RECTANGLE PlaygroundControl {
-
-    + create_playground(playground_id: str, playground_name: str, 
-    playground_description: str): Playground
-    + delete_playground(playground_id: str): None
-    + update_playground(playground_id: str, playground_name: str, playground_description: str, 
-    playground_models: List[str], playground_chain: List[str]): None
-    + list_playgrounds(): List[str]
-    + run_playground(playground_id: str): None
-    + stop_playground(playground_id: str): None
-    + add_model_to_playground(playground_id: str, model_id: str): None
-    + add_chain_to_playground(playground_id: str, chain_id: str): None
-}
-
-RECTANGLE ModelControl {
-    - active_models: List[Dict[str, Any]]
-    - hardware_preference: str
-    - LibraryControl: LibraryControl
-    __init__()
-    + download_model(model_id: str): bool
-    + load_model(model_id: str): bool
-    + unload_model(model_id: str): bool
-    + inference(model_id: str, request_payload: Any): Any
-    + list_active_models(): List[str]
-    + delete_model(model_id: str): bool
-    - _get_model_class(model_source: str): Type
-}
-
-RECTANGLE TransformerModel {
-    - model_id: str
-    - model: Any
-    - tokenizer: Any
-    - processor: Any
-    __init__(model_id: str)
-    + download(model_id: str): None
-    + load(model_id: str): None
-    + inference(request_payload: Any): Any
-    + train(data_path: str, epochs: int = 100): Any
-}
-
-RECTANGLE UltralyticsModel {
-    - model_id: str
-    - model: Any
-    __init__()
-    + download(model_id: str): None
-    + load(model_id: str): None
-    + inference(image_path: str): Any
-    + train(data_path: str, epochs: int = 100): Any
-}
-
-RECTANGLE WatsonModel {
-    - model: Any
-    __init__()
-}
-
-RECTANGLE Playground {
-    - playground_id: str
-    - playground_name: str
-    - playground_description: str
-    - playground_models: List[str]
-    - playground_chain: List[str]
-    __init__()
-}
-
 
 ModelControl --> TransformerModel : uses
 ModelControl --> UltralyticsModel : uses
 ModelControl --> WatsonModel : uses
 ModelControl --> LibraryControl : uses
+ModelControl --> RuntimeControl : uses
 
 PlaygroundControl --> Playground : uses
 PlaygroundControl --> ModelControl : uses
+PlaygroundControl --> LibraryControl : uses
+PlaygroundControl --> RuntimeControl : uses
+
+ModelRouter --> ModelControl: uses
+PlaygroundRouter --> PlaygroundControl: uses
+LibraryRouter --> LibraryControl: uses
+
+
+package "Frontend" {
+    RECTANGLE LibraryService {
+
+    }
+
+    RECTANGLE PlaygroundService {
+
+    }
+
+    RECTANGLE ModelService {
+
+    }
+    RECTANGLE DataService {
+
+    }
+    RECTANGLE SettingService {
+
+    }
+}
+
+LibraryService --> LibraryRouter : uses
+PlaygroundService --> PlaygroundRouter : uses
+ModelService --> ModelRouter : uses
+DataService --> DataRouter : uses
+SettingService --> SettingRouter : uses
+
 
 
 ' FastAPI --> PlaygroundControl : uses

@@ -1,0 +1,66 @@
+@startuml Ai Islands
+top to bottom direction
+skinparam class {
+    BackgroundColor Snow
+    BorderColor Black
+    FontName Arial
+    FontColor Black
+    FontStyle Normal
+    ArrowThickness 1
+}
+skinparam linetype ortho
+!define RECTANGLE class
+
+skinparam padding 10
+skinparam nodesep 50
+skinparam ranksep 50
+
+package "Frontend" {
+    together {
+    RECTANGLE LibraryService 
+
+    RECTANGLE PlaygroundService 
+
+    RECTANGLE ModelService 
+    RECTANGLE DataService 
+    RECTANGLE SettingService 
+    }
+    together {
+    RECTANGLE Model 
+
+    
+
+    RECTANGLE Playground 
+    }
+
+}
+
+package "Backend" {
+    together {
+    RECTANGLE LibraryRouter 
+
+    RECTANGLE PlaygroundRouter 
+    RECTANGLE ModelRouter 
+
+    }
+
+    RECTANGLE DataRouter 
+
+    RECTANGLE SettingRouter 
+
+    }
+
+
+
+
+LibraryService --> LibraryRouter : uses
+LibraryService --> Model : uses
+
+PlaygroundService --> PlaygroundRouter : uses
+PlaygroundService --> Playground : uses
+
+ModelService --> ModelRouter : uses
+DataService --> DataRouter : uses
+SettingService --> SettingRouter : uses
+
+@enduml

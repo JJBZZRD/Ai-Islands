@@ -25,6 +25,8 @@ model_control = ModelControl()
 library_control = LibraryControl()
 playground_control = PlaygroundControl(model_control)
 
+# Initialise library and runtime data files if they do not exist
+library_control._initialise_library()
 RuntimeControl._initialise_runtime_data()
 
 # Create router instances

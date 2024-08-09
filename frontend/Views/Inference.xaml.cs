@@ -6,7 +6,7 @@ namespace frontend.Views
 {
     public partial class Inference : ContentView
     {
-        private ModelItem _model;
+        private Model _model;
         private string _inputText;
         private string _outputText;
         private string _selectedFilePath;
@@ -37,7 +37,7 @@ namespace frontend.Views
             }
         }
 
-        public Inference(ModelItem model)
+        public Inference(Model model)
         {
             InitializeComponent();
             _model = model;
@@ -201,11 +201,11 @@ namespace frontend.Views
             // for now, it's just echo the input or file path as a placeholder
             if (!string.IsNullOrEmpty(_selectedFilePath))
             {
-                OutputText = $"Inference result for model {_model.Name} with file: {_selectedFilePath}";
+                OutputText = $"Inference result for model {_model.ModelId} with file: {_selectedFilePath}";
             }
             else
             {
-                OutputText = $"Inference result for model {_model.Name}:\n\n{InputText}";
+                OutputText = $"Inference result for model {_model.ModelId}:\n\n{InputText}";
             }
         }
     }
