@@ -122,5 +122,21 @@ namespace frontend.Views
                 await DisplayAlert("Error", "Please select a dataset and a model.", "OK");
             }
         }
+
+        private void OnModelPickerSelectedIndexChanged(object sender, EventArgs e)
+        {
+            ProcessButton.BackgroundColor = ModelPicker.SelectedItem != null ? Colors.Green : Colors.Red;
+        }
+
+        private void OnClearClicked(object sender, EventArgs e)
+        {
+            DatasetPicker.SelectedItem = null;
+            EmbeddingTypePicker.SelectedItem = null;
+            ModelPicker.SelectedItem = null;
+            DefaultProcessedLabel.Text = string.Empty;
+            ChunkedProcessedLabel.Text = string.Empty;
+            DatasetPreviewEditor.Text = string.Empty;
+            ProcessButton.BackgroundColor = Colors.Red;
+        }
     }
 }
