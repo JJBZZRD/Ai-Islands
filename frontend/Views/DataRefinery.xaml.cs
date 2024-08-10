@@ -100,7 +100,8 @@ namespace frontend.Views
         {
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
-                DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(selectedDataset);
+                var previewContent = await _dataService.GetDatasetPreview(selectedDataset);
+                DatasetPreviewEditor.Text = FormatPreviewContent(previewContent);
 
                 var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
                 DefaultProcessed = processingStatus["default_processed"];
@@ -236,6 +237,33 @@ namespace frontend.Views
                 }
             }
             return string.Join("\n", formattedInfo);
+        }
+
+        private string FormatPreviewContent(string content)
+        {
+            try
+            {
+                var previewData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+                if (previewData != null && previewData.TryGetValue("content", out var contentObj))
+                {
+                    if (contentObj is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var formattedContent = jsonElement.EnumerateArray()
+                            .Select(item => item.GetString())
+                            .Where(item => item != null)
+                            .Select(item => item.Replace(": ", ","));
+
+                        return string.Join("\n", formattedContent);
+                    }
+                }
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // If it's not JSON, assume it's raw CSV content
+                return content;
+            }
+
+            return "Error: Unable to format preview content";
         }
 
         protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
