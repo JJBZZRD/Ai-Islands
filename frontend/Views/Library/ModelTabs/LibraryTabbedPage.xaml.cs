@@ -2,7 +2,6 @@ using frontend.Views;
 using frontend.Models;
 using Microsoft.Maui.Controls;
 
-
 namespace frontend.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]

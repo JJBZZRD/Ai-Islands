@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Controls;
 using System.Windows.Input;
+using frontend.Views;
 
 namespace frontend.Views
 {
