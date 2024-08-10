@@ -100,40 +100,12 @@ namespace frontend.Views
         {
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
-                var previewContent = await _dataService.GetDatasetPreview(selectedDataset);
-                DatasetPreviewEditor.Text = FormatPreviewContent(previewContent);
+                DatasetPreviewEditor.Text = await _dataService.GetDatasetPreview(selectedDataset);
 
                 var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
                 DefaultProcessed = processingStatus["default_processed"];
                 ChunkedProcessed = processingStatus["chunked_processed"];
             }
-        }
-
-        private string FormatPreviewContent(string content)
-        {
-            try
-            {
-                var previewData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(content);
-                if (previewData != null && previewData.TryGetValue("content", out var contentObj))
-                {
-                    if (contentObj is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
-                    {
-                        var formattedContent = jsonElement.EnumerateArray()
-                            .Select(item => item.GetString())
-                            .Where(item => item != null)
-                            .Select(item => item.Replace(": ", ","));
-
-                        return string.Join("\n", formattedContent);
-                    }
-                }
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                // If it's not JSON, assume it's raw CSV content
-                return content;
-            }
-
-            return "Error: Unable to format preview content";
         }
 
         private void OnEmbeddingTypePickerSelectedIndexChanged(object sender, EventArgs e)
@@ -221,6 +193,49 @@ namespace frontend.Views
                     }
                 }
             }
+        }
+
+        private async void OnDefaultInfoClicked(object sender, EventArgs e)
+        {
+            if (DatasetPicker.SelectedItem is string selectedDataset)
+            {
+                var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "default");
+                await DisplayAlert("Default Processing Info", FormatProcessingInfo(info), "OK");
+            }
+        }
+
+        private async void OnChunkedInfoClicked(object sender, EventArgs e)
+        {
+            if (DatasetPicker.SelectedItem is string selectedDataset)
+            {
+                var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "chunked");
+                await DisplayAlert("Chunked Processing Info", FormatProcessingInfo(info), "OK");
+            }
+        }
+
+        private string FormatProcessingInfo(Dictionary<string, object> info)
+        {
+            var formattedInfo = new List<string>();
+            foreach (var kvp in info)
+            {
+                if (kvp.Key == "chunking_settings" && kvp.Value is JsonElement jsonElement)
+                {
+                    formattedInfo.Add($"{kvp.Key}:");
+                    foreach (var property in jsonElement.EnumerateObject())
+                    {
+                        formattedInfo.Add($"  {property.Name}: {property.Value}");
+                    }
+                }
+                else if (kvp.Value is JsonElement element)
+                {
+                    formattedInfo.Add($"{kvp.Key}: {JsonSerializer.Serialize(element)}");
+                }
+                else
+                {
+                    formattedInfo.Add($"{kvp.Key}: {kvp.Value}");
+                }
+            }
+            return string.Join("\n", formattedInfo);
         }
 
         protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

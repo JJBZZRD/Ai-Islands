@@ -73,6 +73,15 @@
                            HeightRequest="20" 
                            WidthRequest="20"
                            Margin="5,0,0,0"/>
+                    <Label Text="See Info"
+                           TextColor="Blue"
+                           TextDecorations="Underline"
+                           IsVisible="{Binding DefaultProcessed}"
+                           Margin="10,0,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDefaultInfoClicked"/>
+                        </Label.GestureRecognizers>
+                    </Label>
                 </StackLayout>
                 
                 <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
@@ -87,6 +96,15 @@
                            HeightRequest="20" 
                            WidthRequest="20"
                            Margin="5,0,0,0"/>
+                    <Label Text="See Info"
+                           TextColor="Blue"
+                           TextDecorations="Underline"
+                           IsVisible="{Binding ChunkedProcessed}"
+                           Margin="10,0,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnChunkedInfoClicked"/>
+                        </Label.GestureRecognizers>
+                    </Label>
                 </StackLayout>
                 
                 <Label Text="Select Embedding Type:" VerticalOptions="Center" Grid.Column="0" Grid.Row="3"/>

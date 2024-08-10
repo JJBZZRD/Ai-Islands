@@ -31,6 +31,7 @@ class DataRouter:
         self.router.add_api_route("/preview-dataset", self.preview_dataset, methods=["GET"])
         self.router.add_api_route("/dataset-processing-status", self.get_dataset_processing_status, methods=["GET"])
         self.router.add_api_route("/delete-dataset", self.delete_dataset, methods=["DELETE"])
+        self.router.add_api_route("/dataset-processing-info", self.get_dataset_processing_info, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -148,4 +149,37 @@ class DataRouter:
             return {"message": f"Dataset {dataset_name} deleted successfully"}
         except Exception as e:
             logger.error(f"Error deleting dataset: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    async def get_dataset_processing_info(self, dataset_name: str, processing_type: str):
+        try:
+            dataset_path = Path(DATASETS_DIR) / dataset_name / processing_type
+            info_file = dataset_path / "embedding_model_info.json"
+            
+            if not info_file.exists():
+                raise FileNotFoundError(f"Processing info not found for {dataset_name} ({processing_type})")
+
+            with open(info_file, 'r') as f:
+                info = json.load(f)
+
+            if processing_type == "chunked" and "chunking_settings" in info:
+                chunk_method = info["chunking_settings"].get("chunk_method", "")
+                if chunk_method in ["fixed_length", "sentence", "paragraph"]:
+                    info["chunking_settings"] = {
+                        "use_chunking": True,
+                        "chunk_method": chunk_method,
+                        "chunk_size": info["chunking_settings"].get("chunk_size", 1000),
+                        "chunk_overlap": info["chunking_settings"].get("chunk_overlap", 100),
+                    }
+                elif chunk_method == "csv_row":
+                    info["chunking_settings"] = {
+                        "use_chunking": True,
+                        "chunk_method": "csv_row",
+                        "rows_per_chunk": info["chunking_settings"].get("rows_per_chunk", 1),
+                        "csv_columns": info["chunking_settings"].get("csv_columns", []),
+                    }
+
+            return info
+        except Exception as e:
+            logger.error(f"Error getting dataset processing info: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
