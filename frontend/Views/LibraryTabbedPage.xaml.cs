@@ -9,24 +9,24 @@ namespace frontend.Views
     public partial class LibraryTabbedPage : ContentPage
     {
         public string ModelId { get; set; } = string.Empty;
-        private ModelItem? _model;
+        private Model? _model;
 
-        public LibraryTabbedPage(ModelItem model)
+        public LibraryTabbedPage(Model model)
         {
             InitializeComponent();
             _model = model;
             BindingContext = _model;
 
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage constructor - Model Name: {_model?.Name}");
+            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage constructor - Model Name: {_model?.ModelId}");
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            Title = _model?.Name;
+            Title = _model?.ModelId;
 
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage OnAppearing - Model Name: {_model?.Name}");
+            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage OnAppearing - Model Name: {_model?.ModelId}");
 
             ShowInfoPage(); //show Info page by default
         }
@@ -60,9 +60,9 @@ namespace frontend.Views
         }
 
 
-        // private ModelItem LoadModel(string modelId)
+        // private Model LoadModel(string modelId)
         // {
-        //     return new ModelItem { Name = modelId };
+        //     return new Model { Name = modelId };
         // }
 
         // private async void OnBackClicked(object sender, EventArgs e)

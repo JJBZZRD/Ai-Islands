@@ -1211,9 +1211,9 @@
       "Text Classification",
       "Sentiment Analysis"
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "labels": [
       "positive",
       "neutral",
@@ -1238,9 +1238,9 @@
       "Text Classification",
       "Sentiment Analysis"
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "labels": [
       "negative",
       "positive"
@@ -1264,14 +1264,14 @@
       "Text Classification",
       "Product Reviews"
     ],
-    "languages": [
-      "English",
-      "Dutch",
-      "German",
-      "French",
-      "Italian",
-      "Spanish"
-    ],
+    "languages": {
+      "en": "English",
+      "nl": "Dutch",
+      "de": "German",
+      "fr": "French",
+      "it": "Italian",
+      "es": "Spanish"
+    },
     "labels": [
       "5 stars",
       "4 stars",
@@ -1300,9 +1300,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "This model was trained using SentenceTransformers Cross-Encoder class. This model can classify text into custom labels.",
     "model_card_url": "https://huggingface.co/cross-encoder/nli-roberta-base",
@@ -1329,9 +1329,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "This model was trained on the MultiNLI, Fever-NLI and Adversarial-NLI (ANLI) datasets, which comprise 763 913 NLI hypothesis-premise pairs. This base model outperforms almost all large models on the ANLI benchmark. The base model is DeBERTa-v3-base from Microsoft. The v3 variant of DeBERTa substantially outperforms previous versions of the model by including a different pre-training objective, see annex 11 of the original DeBERTa paper. This model can classify text into custom labels.",
     "model_card_url": "https://huggingface.co/facebook/bart-large-mnli",
@@ -1358,9 +1358,9 @@
       "Custom Labels"
 
     ],
-    "languages": [
-      "English"
-    ],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "zero-shot-classification",
     "model_desc": "Yin et al. proposed a method for using pre-trained NLI models as a ready-made zero-shot sequence classifiers. The method works by posing the sequence to be classified as the NLI premise and to construct a hypothesis from each candidate label. ",
     "model_card_url": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
@@ -1386,53 +1386,53 @@
       "Text Reranker",
       "Multilingual"
     ],
-    "languages": [
-      "Arabic",
-      "Bengali",
-      "Bulgarian",
-      "Chinese (Simplified)",
-      "Chinese (Traditional)",
-      "Croatian",
-      "Czech",
-      "Danish",
-      "Dutch",
-      "English",
-      "Estonian",
-      "Finnish",
-      "French",
-      "German",
-      "Greek",
-      "Gujarati",
-      "Hebrew",
-      "Hindi",
-      "Hungarian",
-      "Indonesian",
-      "Italian",
-      "Japanese",
-      "Kannada",
-      "Korean",
-      "Latvian",
-      "Lithuanian",
-      "Malayalam",
-      "Marathi",
-      "Norwegian",
-      "Polish",
-      "Portuguese",
-      "Punjabi",
-      "Romanian",
-      "Russian",
-      "Slovak",
-      "Slovenian",
-      "Spanish",
-      "Swedish",
-      "Tamil",
-      "Telugu",
-      "Thai",
-      "Turkish",
-      "Ukrainian",
-      "Urdu",
-      "Vietnamese"
-    ],
+    "languages": {
+    "ar": "Arabic",
+    "bn": "Bengali",
+    "bg": "Bulgarian",
+    "zh-CN": "Chinese (Simplified)",
+    "zh-TW": "Chinese (Traditional)",
+    "hr": "Croatian",
+    "cs": "Czech",
+    "da": "Danish",
+    "nl": "Dutch",
+    "en": "English",
+    "et": "Estonian",
+    "fi": "Finnish",
+    "fr": "French",
+    "de": "German",
+    "el": "Greek",
+    "gu": "Gujarati",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "kn": "Kannada",
+    "ko": "Korean",
+    "lv": "Latvian",
+    "lt": "Lithuanian",
+    "ml": "Malayalam",
+    "mr": "Marathi",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "pa": "Punjabi",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "es": "Spanish",
+    "sv": "Swedish",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "th": "Thai",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ur": "Urdu",
+    "vi": "Vietnamese"
+    },
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
     "requirements": {
@@ -1465,26 +1465,26 @@
         "Text Reranker",
         "Multilingual"
     ],
-    "languages": [
-      "Arabic",
-      "Bengali",
-      "English",
-      "Spanish",
-      "Persian (Farsi)",
-      "Finnish",
-      "French",
-      "Hindi",
-      "Indonesian",
-      "Japanese",
-      "Korean",
-      "Russian",
-      "Swahili",
-      "Telugu",
-      "Thai",
-      "Chinese",
-      "German",
-      "Yoruba"
-    ],
+    "languages": {
+      "ar": "Arabic",
+      "bn": "Bengali",
+      "en": "English",
+      "es": "Spanish",
+      "fa": "Persian (Farsi)",
+      "fi": "Finnish",
+      "fr": "French",
+      "hi": "Hindi",
+      "id": "Indonesian",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ru": "Russian",
+      "sw": "Swahili",
+      "te": "Telugu",
+      "th": "Thai",
+      "zh": "Chinese",
+      "de": "German",
+      "yo": "Yoruba"
+    },
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
     "requirements": {
@@ -2778,20 +2778,20 @@
       "Multilingual",
       "nonverbal communications"
     ],
-    "languages": [
-      "English",
-      "German",
-      "Spanish",
-      "French",
-      "Hindi",
-      "Italian",
-      "Japanese",
-      "Korean",
-      "Polish",
-      "Portuguese",
-      "Russian",
-      "Turkish"
-    ],
+    "languages": {
+      "en": "English",
+      "de": "German",
+      "es": "Spanish",
+      "fr": "French",
+      "hi": "Hindi",
+      "it": "Italian",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "pl": "Polish",
+      "pt": "Portuguese",
+      "ru": "Russian",
+      "tr": "Turkish"
+    },
     "pipeline_tag": "text-to-speech",
     "model_desc": "Bark is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio - including music, background noise and simple sound effects. The model can also produce nonverbal communications like laughing, sighing and crying. To support the research community, we are providing access to pretrained model checkpoints ready for inference.",
     "model_card_url": "https://huggingface.co/suno/bark-small",
@@ -2820,7 +2820,9 @@
       "Audio",
       "English"
     ],
-    "languages": ["English"],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "text-to-speech",
     "model_desc": "VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) is an end-to-end speech synthesis model that predicts a speech waveform conditional on an input text sequence. It is a conditional variational autoencoder (VAE) comprised of a posterior encoder, decoder, and conditional prior. A set of spectrogram-based acoustic features are predicted by the flow-based module, which is formed of a Transformer-based text encoder and multiple coupling layers. The spectrogram is decoded using a stack of transposed convolutional layers, much in the same style as the HiFi-GAN vocoder. Motivated by the one-to-many nature of the TTS problem, where the same text input can be spoken in multiple ways, the model also includes a stochastic duration predictor, which allows the model to synthesise speech with different rhythms from the same input text.The model is trained end-to-end with a combination of losses derived from variational lower bound and adversarial training. To improve the expressiveness of the model, normalizing flows are applied to the conditional prior distribution. During inference, the text encodings are up-sampled based on the duration prediction module, and then mapped into the waveform using a cascade of the flow module and HiFi-GAN decoder. Due to the stochastic nature of the duration predictor, the model is non-deterministic, and thus requires a fixed seed to generate the same speech waveform.",
     "model_card_url": "https://huggingface.co/facebook/mms-tts-eng",
@@ -2842,7 +2844,9 @@
       "Audio",
       "English"
     ],
-    "languages": ["English"],
+    "languages": {
+      "en": "English"
+    },
     "pipeline_tag": "text-to-speech",
     "model_desc": "Motivated by the success of T5 (Text-To-Text Transfer Transformer) in pre-trained natural language processing models, we propose a unified-modal SpeechT5 framework that explores the encoder-decoder pre-training for self-supervised speech/text representation learning. The SpeechT5 framework consists of a shared encoder-decoder network and six modal-specific (speech/text) pre/post-nets. After preprocessing the input speech/text through the pre-nets, the shared encoder-decoder network models the sequence-to-sequence transformation, and then the post-nets generate the output in the speech/text modality based on the output of the decoder. Leveraging large-scale unlabeled speech and text data, we pre-train SpeechT5 to learn a unified-modal representation, hoping to improve the modeling capability for both speech and text. To align the textual and speech information into this unified semantic space, we propose a cross-modal vector quantization approach that randomly mixes up speech/text states with latent units as the interface between encoder and decoder.",
     "model_card_url": "https://huggingface.co/microsoft/speecht5_tts",

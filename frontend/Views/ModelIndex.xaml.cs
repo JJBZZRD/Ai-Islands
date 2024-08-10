@@ -8,14 +8,15 @@ using System;
 using frontend.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Linq;
+using frontend.Services;
 
 namespace frontend.Views
 {
-    public partial class MainPage : ContentPage, INotifyPropertyChanged //implement inotify for ui updates
+    public partial class ModelIndex : ContentPage, INotifyPropertyChanged //implement inotify for ui updates
     {
-        public ObservableCollection<ModelItem> AllModels { get; set; }
-        private ObservableCollection<ModelItem> _models;
-        public ObservableCollection<ModelItem> Models
+        public ObservableCollection<Model> AllModels { get; set; }
+        private ObservableCollection<Model> _models;
+        public ObservableCollection<Model> Models
         {
             get => _models;
             set
@@ -39,15 +40,18 @@ namespace frontend.Views
         public bool FilterOnline { get; set; }
         public bool FilterOffline { get; set; }
 
+        private readonly LibraryService _libraryService;
+
         // page constructor
-        public MainPage()
+        public ModelIndex()
         {
             InitializeComponent();
-            Models = new ObservableCollection<ModelItem>();
-            AllModels = new ObservableCollection<ModelItem>();
+            Models = new ObservableCollection<Model>();
+            AllModels = new ObservableCollection<Model>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
             FilterOnline = FilterOffline = false;
             BindingContext = this;
+            _libraryService = new LibraryService();
             LoadModels();
         }
 
@@ -90,7 +94,7 @@ namespace frontend.Views
         private void OnResetFilters(object sender, EventArgs e)
         {
             FilterPopup.IsVisible = false;
-            Models = new ObservableCollection<ModelItem>(AllModels);
+            Models = new ObservableCollection<Model>(AllModels);
         }
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
@@ -100,18 +104,18 @@ namespace frontend.Views
             if (string.IsNullOrWhiteSpace(e.NewTextValue)) // check if search text is emoty
             {
                 // restore the full list back when search is empty
-                Models = new ObservableCollection<ModelItem>(AllModels);
+                Models = new ObservableCollection<Model>(AllModels);
             }
             else
             {
                 var searchTerm = e.NewTextValue.ToLower();  // converting search term to lowercase for case-sensitive comparison
                 // for each model in all models, check if the search term is present in the model name or pipeline tag
                 var filteredModels = AllModels.Where(m =>
-                    m.Name.ToLower().Contains(searchTerm) ||
+                    m.ModelId.ToLower().Contains(searchTerm) ||
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
                 // filtered result used to create new collection
-                Models = new ObservableCollection<ModelItem>(filteredModels);
+                Models = new ObservableCollection<Model>(filteredModels);
             }
 
             System.Diagnostics.Debug.WriteLine($"After filtering: Models count: {Models.Count}");
@@ -120,7 +124,7 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is ModelItem selectedModel)
+            if (e.Parameter is Model selectedModel)
             {
                 await Navigation.PushAsync(new ModelInfoPage(selectedModel));
             }
@@ -128,9 +132,9 @@ namespace frontend.Views
 
         private void OnAddToLibraryClicked(object sender, EventArgs e)
         {
-            if (sender is Button button && button.BindingContext is ModelItem model)
+            if (sender is Button button && button.BindingContext is Model model)
             {
-                AddToLibrary(model.Name);
+                AddToLibrary(model.ModelId);
             }
         }
 
@@ -138,71 +142,57 @@ namespace frontend.Views
         {
             try
             {
-                // create HTTP request to client
-                var client = new HttpClient();
-                var response = await client.GetAsync("http://127.0.0.1:8000/model/get-models?source=index");
-                if (response.IsSuccessStatusCode)
+                var modelList = await _libraryService.GetModelIndex();
+
+                Models.Clear();
+
+                foreach (var model in modelList)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    System.Diagnostics.Debug.WriteLine($"API Response: {content}");
-                    var modelsDict = JsonSerializer.Deserialize<Dictionary<string, ModelInfo>>(content); // deserialise json response into dictionary of modelinfo objects
+                    // Add LoadOrStopCommand to the model
+                    model.LoadOrStopCommand = new Command(() => AddToLibrary(model.ModelId));
 
-                    // clear existing models and populate models collection with new modelitem object
-                    
-                    Models.Clear();
-
-                    foreach (var model in modelsDict)
+                    // Set PipelineTag if it's null or empty
+                    if (string.IsNullOrEmpty(model.PipelineTag))
                     {
-                        System.Diagnostics.Debug.WriteLine($"Model: {model.Key}");
-                        System.Diagnostics.Debug.WriteLine($"  PipelineTag: '{model.Value.PipelineTag}'");
-                        System.Diagnostics.Debug.WriteLine($"  Type: '{model.Value.Type}'");
-                        var modelItem = new ModelItem
-                        {
-                            Name = model.Key,
-                            PipelineTag = !string.IsNullOrEmpty(model.Value.PipelineTag) ? model.Value.PipelineTag :
-                                        !string.IsNullOrEmpty(model.Value.Type) ? model.Value.Type : "Unknown",
-                            IsOnline = model.Value.IsOnline,
-                            Description = model.Value.Description ?? "No description available",
-                            Tags = model.Value.Tags ?? new List<string>(),
-                            LoadOrStopCommand = new Command(() => AddToLibrary(model.Key))
-                        };
-                        System.Diagnostics.Debug.WriteLine($"  ModelItem PipelineTag: '{modelItem.PipelineTag}'");
-                        Models.Add(modelItem);
+                        model.PipelineTag = !string.IsNullOrEmpty(model.ModelClass) ? model.ModelClass : "Unknown";
                     }
-                    System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
 
-                    // initialises AllModels with the same data as Models for search functionality
-                    AllModels = new ObservableCollection<ModelItem>(Models);
-                    System.Diagnostics.Debug.WriteLine($"AllModels initialized with {AllModels.Count} items");
+                    Models.Add(model);
+                    System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
                 }
-                else
+
+                System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
+
+                // Initialize AllModels with the same data as Models for search functionality
+                AllModels = new ObservableCollection<Model>(Models);
+                System.Diagnostics.Debug.WriteLine($"AllModels initialized with {AllModels.Count} items");
+
+                // Update ModelTypes
+                var types = AllModels.Select(m => m.PipelineTag).Where(t => !string.IsNullOrEmpty(t)).Distinct().OrderBy(t => t);
+                ModelTypes.Clear();
+                foreach (var type in types)
                 {
-                    System.Diagnostics.Debug.WriteLine($"API request failed with status code: {response.StatusCode}");
-                    await DisplayAlert("Error", "Failed to load models. Please try again.", "OK");
+                    ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
                 }
+
+                InitializeFilterPopup();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading model data: {ex.Message}");
                 await DisplayAlert("Error", $"An error occurred while loading models: {ex.Message}", "OK");
             }
-            var types = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t);
-            foreach (var type in types)
-            {
-                ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
-            }
-            InitializeFilterPopup();
         }
 
-        public async void AddToLibrary(string modelName)
+        public async void AddToLibrary(string ModelId)
         {
-            var alertPage = new AlertPage("Download", $"Starting download for {modelName}", true);
+            var alertPage = new AlertPage("Download", $"Starting download for {ModelId}", true);
             await Navigation.PushModalAsync(alertPage);
             try
             {
                 // call the API to download the model
                 var client = new HttpClient();
-                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={modelName}", null);
+                var response = await client.PostAsync($"http://127.0.0.1:8000/model/download-model?model_id={ModelId}", null);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -216,10 +206,10 @@ namespace frontend.Views
                     // wait for user to click "OK"
                     await alertPage.CompletionSource.Task;
 
-                    System.Diagnostics.Debug.WriteLine($"Model {modelName} downloaded successfully");
+                    System.Diagnostics.Debug.WriteLine($"Model {ModelId} downloaded successfully");
 
-                    // update the local state in the ModelItem
-                    var model = Models.FirstOrDefault(m => m.Name == modelName);
+                    // update the local state in the Model
+                    var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
                     if (model != null)
                     {
                         model.IsInLibrary = true;
@@ -231,7 +221,7 @@ namespace frontend.Views
                 }
                 else
                 {
-                    await DisplayAlert("Error", $"Failed to download model {modelName}", "OK");
+                    await DisplayAlert("Error", $"Failed to download model {ModelId}", "OK");
                 }
             }
             catch (Exception ex)

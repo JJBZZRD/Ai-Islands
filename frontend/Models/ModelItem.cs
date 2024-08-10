@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 public class ModelItem
 {
-    public string? Name { get; set; }
+    public string? ModelId { get; set; }
     public string? PipelineTag { get; set; }
     public bool IsOnline { get; set; }
     public string Status => IsOnline ? "Online" : "Offline";
