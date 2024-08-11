@@ -2928,7 +2928,8 @@
         "example_conversation": [
           {"role": "user", "content": "How are you?"},
           {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
-        ]
+        ],
+        "chat_history": true
     }
 }
 }
