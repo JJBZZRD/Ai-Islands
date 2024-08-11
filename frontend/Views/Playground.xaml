@@ -64,22 +64,22 @@
                            Margin="10,0,0,0" />
                 </Grid>
 
-                <CollectionView x:Name="PlaygroundList">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
-                    </CollectionView.ItemsLayout>
+                <CollectionView ItemsSource="{Binding PlaygroundList}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Frame BorderColor="LightGray" 
-                               BackgroundColor="White" 
-                               CornerRadius="10" 
-                               Padding="10" 
-                               HasShadow="True"
-                               Margin="0,5">
+                                   BackgroundColor="White" 
+                                   CornerRadius="10" 
+                                   Padding="10" 
+                                   HasShadow="True"
+                                   Margin="0,5">
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnPlaygroundSelected" CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
-                                <Label Text="{Binding [Name]}" FontAttributes="Bold" VerticalOptions="Center" TextColor="Black"/>
+                                <StackLayout>
+                                    <Label Text="{Binding Id}" FontAttributes="Bold" VerticalOptions="Center" TextColor="Black"/>
+                                    <Label Text="{Binding Description}" VerticalOptions="Center" TextColor="Gray"/>
+                                </StackLayout>
                             </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

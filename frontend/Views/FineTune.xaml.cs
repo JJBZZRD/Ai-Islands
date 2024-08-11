@@ -14,7 +14,7 @@ namespace frontend.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         
-        private ModelItem _model;
+        private Model _model;
         private bool _isFineTuningAvailable;
 
         public bool IsFineTuningAvailable
@@ -30,7 +30,7 @@ namespace frontend.Views
             }
         }
 
-        public FineTune(ModelItem model)
+        public FineTune(Model model)
         {
             InitializeComponent();
             _model = model;

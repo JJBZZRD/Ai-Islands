@@ -1,0 +1,64 @@
+@startuml Ai Islands Backend
+skinparam class {
+    BackgroundColor Snow
+    BorderColor Black
+    FontName Arial
+    FontColor Black
+    FontStyle Normal
+    ArrowThickness 1
+}
+skinparam linetype ortho
+!define RECTANGLE class
+
+' Increase padding and spacing
+skinparam padding 10
+skinparam nodesep 50
+skinparam ranksep 50
+
+package "Backend" {
+    together {
+        RECTANGLE LibraryControl 
+        RECTANGLE PlaygroundControl 
+        RECTANGLE ModelControl 
+        RECTANGLE RuntimeControl 
+    }
+
+    together {
+        RECTANGLE TransformerModel 
+        RECTANGLE UltralyticsModel 
+        RECTANGLE WatsonModel 
+    }
+
+    RECTANGLE Playground
+
+    together {
+        RECTANGLE ModelRouter 
+        RECTANGLE PlaygroundRouter 
+        RECTANGLE SettingRouter 
+        RECTANGLE DataRouter 
+        RECTANGLE LibraryRouter 
+    }
+
+    together {
+        RECTANGLE Utilities 
+    }
+}
+
+ModelControl --> TransformerModel : uses
+ModelControl --> UltralyticsModel : uses
+ModelControl --> WatsonModel : uses
+ModelControl --> LibraryControl : uses
+ModelControl --> RuntimeControl : uses
+
+PlaygroundControl --> Playground : uses
+PlaygroundControl --> ModelControl : uses
+PlaygroundControl --> LibraryControl : uses
+PlaygroundControl --> RuntimeControl : uses
+
+ModelRouter --> ModelControl: uses
+PlaygroundRouter --> PlaygroundControl: uses
+LibraryRouter --> LibraryControl: uses
+SettingRouter --> Utilities: uses
+DataRouter --> Utilities: uses
+
+@enduml

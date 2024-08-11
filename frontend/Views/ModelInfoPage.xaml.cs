@@ -7,11 +7,11 @@ namespace frontend.Views
     {
         private ModelInfoViewModel ViewModel => BindingContext as ModelInfoViewModel;
 
-        public ModelInfoPage(ModelItem model)
+        public ModelInfoPage(Model model)
         {
             InitializeComponent();
             BindingContext = new ModelInfoViewModel(model);
-            System.Diagnostics.Debug.WriteLine($"ModelInfoPage constructor called with model: {model?.Name}");
+            System.Diagnostics.Debug.WriteLine($"ModelInfoPage constructor called with model: {model?.ModelId}");
         }
     }
 }

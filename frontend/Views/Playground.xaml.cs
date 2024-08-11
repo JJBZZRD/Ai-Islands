@@ -1,78 +1,79 @@
 using Microsoft.Maui.Controls;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using frontend.Services;
+using frontend.entities;
+using System.Text.Json;
 
 namespace frontend.Views
 {
     public partial class Playground : ContentPage
     {
-        private List<Dictionary<string, object>> allPlaygrounds;
-        private List<Dictionary<string, object>> filteredPlaygrounds;
+        private readonly PlaygroundService _playgroundService;
+        public ObservableCollection<frontend.entities.Playground> PlaygroundList { get; set; }
 
         public Playground()
         {
             InitializeComponent();
-            allPlaygrounds = CreateExamplePlaygrounds();
-            filteredPlaygrounds = new List<Dictionary<string, object>>(allPlaygrounds);
-            PlaygroundList.ItemsSource = filteredPlaygrounds;
+            _playgroundService = new PlaygroundService();
+            PlaygroundList = new ObservableCollection<frontend.entities.Playground>();
+
+            LoadPlaygrounds();
+
+            BindingContext = this; 
         }
 
-        private List<Dictionary<string, object>> CreateExamplePlaygrounds()
+        private async void LoadPlaygrounds()
         {
-                return new List<Dictionary<string, object>>
-        {
-            new Dictionary<string, object>
+            try
             {
-                {"Id", "playground_1"},
-                {"Name", "Playground 1"},
-                {"Description", "I am a playground description for Playground 1"},
-                {"Models", new Dictionary<string, object>
+                var playgroundsData = await _playgroundService.ListPlaygrounds();
+                PlaygroundList.Clear();
+                foreach (var playgroundData in playgroundsData)
                 {
-                    {"Model1", new Dictionary<string, object>
-                    {
-                        {"PipelineTag", "NLP"},
-                        {"Status", "Online"}
-                    }},
-                    {"Model2", new Dictionary<string, object>
-                    {
-                        {"PipelineTag", "CV"},
-                        {"Status", "Offline"}
-                    }}
-                }},
-                {"Chain", new List<object>()},
-                {"ActiveChain", false}
-            },
-            // Add similar data for playground_2 and playground_3
-        };
+                    var playground = playgroundData.Value;
+                    playground.Id = playgroundData.Key; 
+                    PlaygroundList.Add(playground);
+                }
             }
-
-        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine($"Search text changed to: '{e.NewTextValue}'");
-
-            if (string.IsNullOrWhiteSpace(e.NewTextValue))
+            catch (Exception ex)
             {
-                // Restore the full list when search is empty
-                filteredPlaygrounds = new List<Dictionary<string, object>>(allPlaygrounds);
+                System.Diagnostics.Debug.WriteLine($"Error loading playgrounds: {ex.Message}");
+                await DisplayAlert("Error", "An error occurred while loading playgrounds.", "OK");
             }
-            else
-            {
-                var searchTerm = e.NewTextValue.ToLower();
-                filteredPlaygrounds = allPlaygrounds.Where(p =>
-                    (p["Name"] as string)?.ToLower().Contains(searchTerm) == true ||
-                    (p["Description"] as string)?.ToLower().Contains(searchTerm) == true
-                ).ToList();
-            }
-
-            PlaygroundList.ItemsSource = filteredPlaygrounds;
-            System.Diagnostics.Debug.WriteLine($"After filtering: Playgrounds count: {filteredPlaygrounds.Count}");
         }
 
         private async void OnPlaygroundSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is Dictionary<string, object> selectedPlayground)
+            if (e.Parameter is frontend.entities.Playground selectedPlayground)
             {
-                await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground));
+                var playgroundDict = new Dictionary<string, object>
+                {
+                    { "Id", selectedPlayground.Id },
+                    { "Description", selectedPlayground.Description },
+                    { "Models", selectedPlayground.Models },
+                    { "Chain", selectedPlayground.Chain },
+                    { "ActiveChain", selectedPlayground.ActiveChain }
+                };
+                await Navigation.PushAsync(new PlaygroundTabbedPage(playgroundDict));
+            }
+        }
+
+        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var searchText = e.NewTextValue;
+
+            
+            var filteredList = string.IsNullOrWhiteSpace(searchText)
+                ? PlaygroundList
+                : new ObservableCollection<frontend.entities.Playground>(
+                    PlaygroundList.Where(p => p.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                );
+
+            // for updating the CollectionView with the filtered list
+            PlaygroundList.Clear();
+            foreach (var playground in filteredList)
+            {
+                PlaygroundList.Add(playground);
             }
         }
     }

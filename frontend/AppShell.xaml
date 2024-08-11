@@ -25,7 +25,7 @@
 	<FlyoutItem Title="AI Index" Icon="ai_index.png">
 		<ShellContent
             Title="AI Index" 
-            ContentTemplate="{DataTemplate local:MainPage}"
+            ContentTemplate="{DataTemplate local:ModelIndex}"
             Route="AIIndexPage"/>
 	</FlyoutItem>
 

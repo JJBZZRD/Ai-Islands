@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Collections.ObjectModel;
+using Newtonsoft.Json.Linq;
+using frontend.Models;
 
 namespace frontend.Services
 {
@@ -20,18 +23,90 @@ namespace frontend.Services
         }
 
 
-        public async Task<Dictionary<string, Dictionary<string, object>>> GetLibrary()
+        public async Task<List<Model>> GetLibrary()
         {
-            var response = await _httpClient.GetAsync("library/get-full-library");
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, object>>>())!;
+            System.Diagnostics.Debug.WriteLine("GetLibrary method started");
+            try
+            {
+                var response = await _httpClient.GetAsync("library/get-full-library");
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Received JSON string of length: {jsonString.Length}");
+
+                var modelList = new List<Model>();
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
+
+                if (modelDictionary != null)
+                {
+                    foreach (var pair in modelDictionary)
+                    {
+                        string modelId = pair.Key;
+                        Model model = pair.Value;
+                        model.ModelId = modelId;
+                        modelList.Add(model);
+                        System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"GetLibrary completed. Returning {modelList.Count} models");
+                return modelList;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetLibrary: {ex.Message}");
+                throw;
+            }
         }
 
-        public async Task<Dictionary<string, Dictionary<string, object>>> GetModelIndex()
+ 
+
+        public async Task<List<Model>> GetModelIndex()
         {
-            var response = await _httpClient.GetAsync("library/get-full-model-index");
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, object>>>())!;
+            System.Diagnostics.Debug.WriteLine("GetModelIndex method started");
+            try
+            {
+                var response = await _httpClient.GetAsync("library/get-full-model-index");
+                response.EnsureSuccessStatusCode();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Received JSON string of length: {jsonString.Length}");
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
+                System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
+
+                var modelList = new List<Model>();
+
+                if (modelDictionary != null)
+                {
+                    foreach (var pair in modelDictionary)
+                    {
+                        string modelId = pair.Key;
+                        Model model = pair.Value;
+                        model.ModelId = modelId;
+                        modelList.Add(model);
+                        System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"GetModelIndex completed. Returning {modelList.Count} models");
+                return modelList;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetModelIndex: {ex.Message}");
+                throw;
+            }
         }
 
         

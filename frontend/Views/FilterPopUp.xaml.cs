@@ -43,7 +43,7 @@ namespace frontend.Views
             BindableProperty.Create(nameof(FilterOffline), typeof(bool), typeof(FilterPopup), false);
 
         public static readonly BindableProperty AllModelsProperty =
-            BindableProperty.Create(nameof(AllModels), typeof(ObservableCollection<ModelItem>), typeof(FilterPopup), null);
+            BindableProperty.Create(nameof(AllModels), typeof(ObservableCollection<Model>), typeof(FilterPopup), null);
 
         public ObservableCollection<ModelTypeFilter> ModelTypes
         {
@@ -74,9 +74,9 @@ namespace frontend.Views
             set => SetValue(FilterOfflineProperty, value);
         }
 
-        public ObservableCollection<ModelItem> AllModels
+        public ObservableCollection<Model> AllModels
         {
-            get => (ObservableCollection<ModelItem>)GetValue(AllModelsProperty);
+            get => (ObservableCollection<Model>)GetValue(AllModelsProperty);
             set => SetValue(AllModelsProperty, value);
         }
 
@@ -103,7 +103,7 @@ namespace frontend.Views
             ResetFiltersRequested?.Invoke(this, EventArgs.Empty);
         }
 
-        private ObservableCollection<ModelItem> ApplyFilters()
+        private ObservableCollection<Model> ApplyFilters()
         {
             var selectedTypes = ModelTypes.Where(mt => mt.IsSelected).Select(mt => mt.TypeName).ToList();
 
@@ -114,7 +114,7 @@ namespace frontend.Views
                  (FilterOffline && m.Status == "Offline"))
             ).ToList();
 
-            return new ObservableCollection<ModelItem>(filteredModels);
+            return new ObservableCollection<Model>(filteredModels);
         }
 
         private void ResetFilters()
@@ -130,9 +130,9 @@ namespace frontend.Views
 
     public class FilteredModelsEventArgs : EventArgs
     {
-        public ObservableCollection<ModelItem> FilteredModels { get; }
+        public ObservableCollection<Model> FilteredModels { get; }
 
-        public FilteredModelsEventArgs(ObservableCollection<ModelItem> filteredModels)
+        public FilteredModelsEventArgs(ObservableCollection<Model> filteredModels)
         {
             FilteredModels = filteredModels;
         }
