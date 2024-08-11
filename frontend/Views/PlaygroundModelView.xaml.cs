@@ -7,6 +7,9 @@ using frontend.Services;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using frontend.entities;
+using Microsoft.Maui.Layouts;
+using CommunityToolkit.Mvvm.Messaging;
+
 
 namespace frontend.Views
 {
@@ -60,6 +63,13 @@ namespace frontend.Views
             }
 
             BindingContext = this;
+
+            // Register to listen for ModelAddedMessage
+            WeakReferenceMessenger.Default.Register<ModelAddedMessage>(this, (r, m) =>
+            {
+                // Directly add the model to the PlaygroundModels collection
+                PlaygroundModels.Add(m.AddedModel);
+            });
         }
 
         private async Task LoadModels(Dictionary<string, Dictionary<string, object>> models)
@@ -88,6 +98,66 @@ namespace frontend.Views
             }
 
             Debug.WriteLine($"Final PlaygroundModels count: {PlaygroundModels.Count}");
+        }
+
+        private async Task RefreshPlaygroundModels()
+        {
+            try
+            {
+                var playgroundInfo = await _playgroundService.GetPlaygroundInfo(Name);
+                if (playgroundInfo.TryGetValue("models", out var modelsObj) && modelsObj is Dictionary<string, Mapping> models)
+                {
+                    var modelDict = new Dictionary<string, Dictionary<string, object>>();
+
+                    foreach (var model in models)
+                    {
+                        var modelDetails = new Dictionary<string, object>
+                        {
+                            { "input", model.Value.Input ?? "default_input" }, 
+                            { "output", model.Value.Output ?? "default_output" }, 
+                            { "pipeline_tag", model.Value.PipelineTag ?? "Unknown" }, 
+                            { "is_online", model.Value.IsOnline }
+                        };
+                        modelDict[model.Key] = modelDetails;
+                    }
+
+                    PlaygroundModels.Clear();
+                    await LoadModels(modelDict);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error refreshing playground models: {ex.Message}");
+            }
+        }
+
+        private void OnAddModelClicked(object sender, EventArgs e)
+        {
+            var modelSelectionPopup = new ModelSelectionPopup(this)
+            {
+                PlaygroundId = this.Name ?? string.Empty
+            };
+            AbsoluteLayout.SetLayoutFlags(modelSelectionPopup, AbsoluteLayoutFlags.All);
+            AbsoluteLayout.SetLayoutBounds(modelSelectionPopup, new Rect(0, 0, 1, 1));
+            MainLayout.Children.Add(modelSelectionPopup);
+            modelSelectionPopup.IsVisible = true;
+
+            // Unregister any existing handler before registering a new one
+            WeakReferenceMessenger.Default.Unregister<Model, string>(this, "ModelAdded");
+            WeakReferenceMessenger.Default.Register<Model, string>(this, "ModelAdded", async (sender, model) =>
+            {
+                await LoadModels(new Dictionary<string, Dictionary<string, object>>
+                {
+                    { model.ModelId ?? "unknown", new Dictionary<string, object>
+                        {
+                            { "input", model.Mapping?["input"] ?? "unknown" },
+                            { "output", model.Mapping?["output"] ?? "unknown" },
+                            { "pipeline_tag", model.PipelineTag ?? "Unknown" },
+                            { "is_online", false }
+                        }
+                    }
+                });
+            });
         }
     }
 }

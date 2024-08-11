@@ -9,12 +9,19 @@
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
     </ContentView.Resources>
 
-    <Grid>
-        <ScrollView>
+    <AbsoluteLayout x:Name="MainLayout">
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
             <VerticalStackLayout Padding="20" Spacing="10">
                 <Label Text="{Binding Name, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
                 <Label Text="Explore the models available in this playground" 
                        FontSize="17" TextColor="Black" />
+                
+                <ImageButton Source="add_icon.png" 
+                             Clicked="OnAddModelClicked" 
+                             HorizontalOptions="End" 
+                             VerticalOptions="Start" 
+                             WidthRequest="30" 
+                             HeightRequest="30"/>
 
                 <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,20,0,5" HasShadow="True">
                     <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
@@ -61,5 +68,5 @@
                 </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
-    </Grid>
+    </AbsoluteLayout>
 </ContentView>

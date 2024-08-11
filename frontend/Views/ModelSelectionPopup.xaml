@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:frontend.Converters"
+             xmlns:local="clr-namespace:frontend.Views"
+             x:Class="frontend.Views.ModelSelectionPopup"
+             BackgroundColor="#80000000"
+             IsVisible="False">
+    <ContentView.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
+    </ContentView.Resources>
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer Tapped="OnBackgroundTapped"/>
+    </ContentView.GestureRecognizers>
+    <Grid VerticalOptions="Center" HorizontalOptions="Center">
+        <Frame BackgroundColor="White"
+               CornerRadius="10"
+               HasShadow="True"
+               Padding="20"
+               MaximumWidthRequest="500">
+            <Grid RowDefinitions="Auto,Auto,*">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Text="Add Model to Playground" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="Black"
+                           VerticalOptions="Center"/>
+                    <Button Grid.Column="1"
+                            Text="X"
+                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            TextColor="Black"
+                            Clicked="OnCloseClicked"
+                            VerticalOptions="Start"
+                            HorizontalOptions="End"
+                            Padding="0"
+                            WidthRequest="40"
+                            HeightRequest="40"/>
+                </Grid>
+
+                <Frame Grid.Row="1" 
+                       BorderColor="#cccccc" 
+                       BackgroundColor="#cccccc" 
+                       CornerRadius="10" 
+                       Padding="10" 
+                       Margin="0,20,0,10" 
+                       HasShadow="True">
+                    <Grid ColumnDefinitions="3*, 1.5*, 1.4*, Auto">
+                        <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                        <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black"/>
+                        <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                        <Label Text="Action" FontAttributes="Bold" Grid.Column="3" TextColor="Black"/>
+                    </Grid>
+                </Frame>
+
+                <CollectionView Grid.Row="2"
+                                ItemsSource="{Binding LibraryModels}"
+                                HeightRequest="300">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="LightGray" 
+                                   BackgroundColor="White" 
+                                   CornerRadius="10" 
+                                   Padding="10" 
+                                   HasShadow="True"
+                                   Margin="0,0,0,10">
+                                <Grid ColumnDefinitions="3*, 1.5*, 1.4*, Auto">
+                                    <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
+                                           TextColor="Black"/>
+                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                           TextColor="Black"/>
+                                    <Frame Grid.Column="2" 
+                                           BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                           BorderColor="Transparent"
+                                           CornerRadius="18"
+                                           HeightRequest="33"
+                                           WidthRequest="60"
+                                           Padding="5,2"
+                                           HorizontalOptions="Start">
+                                        <Label Text="{Binding Status}"
+                                               TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
+                                               FontAttributes="Bold"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center"/>
+                                    </Frame>
+                                    <Button Grid.Column="3" 
+                                            Text="Add"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:ModelSelectionPopup}}, Path=AddModelCommand}"
+                                            CommandParameter="{Binding}"
+                                            BackgroundColor="#3366FF"
+                                            TextColor="White"
+                                            CornerRadius="5"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Center"
+                                            Padding="10,5"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentView>

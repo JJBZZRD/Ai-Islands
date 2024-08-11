@@ -34,7 +34,8 @@ namespace frontend.Views
 
         private void ShowModelPage()
         {
-            ContentContainer.Content = new PlaygroundModelView(_playground, _playgroundService);
+            var playgroundModelView = new PlaygroundModelView(_playground, _playgroundService);
+            ContentContainer.Content = playgroundModelView;
         }
 
         private void ShowChainPage()

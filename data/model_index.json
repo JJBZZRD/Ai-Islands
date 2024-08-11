@@ -968,7 +968,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": [ "image", "text" ],
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -999,7 +1002,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": [ "image", "text" ],
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -1029,40 +1035,6 @@
     },
     "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
     "model_detail": "https://arxiv.org/abs/2303.05499"
-  },
-  "microsoft/resnet-50": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
-    "tags": [
-      "transformers",
-      "pytorch",
-      "tensorflow",
-      "jax",
-      "safetensors",
-      "vision",
-      "image-classification",
-      "resnet",
-      "imagenet-1k",
-      "en",
-      "license:apache-2.0",
-      "arxiv:1512.03385"
-    ],
-    "pipeline_tag": "image-classification",
-    "model_card_url": "https://huggingface.co/microsoft/resnet-50",
-    "requirements": {
-      "required_classes": {
-        "model": "ResNetForImageClassification",
-        "image_processor": "AutoImageProcessor"
-      }
-    },
-    "config": {
-      "processor_config": {},
-      "pipeline_config": {}
-    },
-    "model_desc": "ResNet-50 v1.5 is a convolutional neural network that democratized the concepts of residual learning and skip connections. This model is pre-trained on ImageNet-1k at resolution 224x224.",
-    "model_detail": "https://arxiv.org/abs/1512.03385"
   },
   "meta-llama/Meta-Llama-3-8B": {
     "is_online": false,
