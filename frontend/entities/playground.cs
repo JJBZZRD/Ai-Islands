@@ -19,6 +19,7 @@ namespace frontend.entities
 
         [JsonPropertyName("id")]
         public string? Id { get; set; }
+
     }
 
     public class Mapping
@@ -28,7 +29,13 @@ namespace frontend.entities
 
         [JsonPropertyName("output")]
         public string? Output { get; set; }
+
+        [JsonPropertyName("pipeline_tag")]
+        public string? PipelineTag { get; set; } 
+
+        [JsonPropertyName("is_online")]
+        public bool IsOnline { get; set; }
+
+        public string Status => IsOnline ? "Online" : "Offline";
     }
 }
-
-

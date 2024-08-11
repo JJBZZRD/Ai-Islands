@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using frontend.Models;
 
 namespace frontend.Services
 {
@@ -80,6 +81,13 @@ namespace frontend.Services
             var response = await _httpClient.PostAsJsonAsync("model/configure", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<object>())!;
+        }
+
+        public async Task<Dictionary<string, Model>> GetModelDetails(List<string> modelIds)
+        {
+            var response = await _httpClient.PostAsJsonAsync("model/details", modelIds);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, Model>>() ?? new Dictionary<string, Model>();
         }
 
         // Note: File upload methods (upload_image, upload_video, upload_dataset) are not included

@@ -35,6 +35,15 @@ namespace frontend.Views
                     PlaygroundList.Add(playground);
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading playgrounds: {ex.Message}");
@@ -48,13 +57,14 @@ namespace frontend.Views
             {
                 var playgroundDict = new Dictionary<string, object>
                 {
-                    { "Id", selectedPlayground.Id },
-                    { "Description", selectedPlayground.Description },
-                    { "Models", selectedPlayground.Models },
-                    { "Chain", selectedPlayground.Chain },
-                    { "ActiveChain", selectedPlayground.ActiveChain }
+                    { "Id", selectedPlayground.Id ?? Guid.NewGuid().ToString() }, 
+                    { "Description", selectedPlayground.Description ?? "No description" }, 
+                    { "Models", selectedPlayground.Models ?? new Dictionary<string, Mapping>() }, 
+                    { "Chain", selectedPlayground.Chain ?? new List<string>() }, 
                 };
-                await Navigation.PushAsync(new PlaygroundTabbedPage(playgroundDict));
+
+                var playgroundService = new PlaygroundService();
+                await Navigation.PushAsync(new PlaygroundTabbedPage(playgroundDict, playgroundService));
             }
         }
 
