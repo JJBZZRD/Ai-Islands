@@ -134,10 +134,9 @@ namespace frontend.Views
             if (DatasetPicker.SelectedItem is string selectedDataset &&
                 ModelPicker.SelectedItem is string selectedModel)
             {
-                string filePath = Path.Combine("Datasets", selectedDataset, $"{selectedDataset}.csv");
                 try
                 {
-                    var result = await _dataService.ProcessDataset(filePath, selectedModel);
+                    var result = await _dataService.ProcessDataset(selectedDataset, selectedModel);
                     await DisplayAlert("Success", "Dataset processed successfully!", "OK");
 
                     // Update processing status

@@ -18,6 +18,8 @@ namespace frontend.Services
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
 
+        // API Call: POST /data/upload-dataset
+        // Request Body: { "file_path": "path/to/file.csv" }
         public async Task<Dictionary<string, object>> UploadDataset(string filePath)
         {
             var request = new { file_path = filePath };
@@ -26,6 +28,8 @@ namespace frontend.Services
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
+        // API Call: GET /data/list-datasets
+        // Response: { "datasets": ["dataset1.csv", "dataset2.csv"] }
         public async Task<List<string>> ListDatasets()
         {
             var response = await _httpClient.GetAsync("data/list-datasets");
@@ -34,6 +38,8 @@ namespace frontend.Services
             return result["datasets"];
         }
 
+        // API Call: GET /data/available-models
+        // Response: { "sentence_transformer": ["model1", "model2"], "watson": ["model3", "model4"] }
         public async Task<Dictionary<string, List<string>>> GetAvailableModels()
         {
             var response = await _httpClient.GetAsync("data/available-models");
@@ -41,37 +47,52 @@ namespace frontend.Services
             return await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
         }
 
-        public async Task<Dictionary<string, object>> ProcessDataset(string filePath, string modelName)
+        // API Call: POST /data/process-dataset
+        // Request Body: { "file_path": "Datasets/dataset_name/dataset_name.extension", "model_name": "model1" }
+        public async Task<Dictionary<string, object>> ProcessDataset(string datasetFileName, string modelName)
         {
-            var request = new { file_path = filePath, model_name = modelName };
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+            var request = new { file_path = $"Datasets/{datasetName}/{datasetFileName}", model_name = modelName };
             var response = await _httpClient.PostAsJsonAsync("data/process-dataset", request);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
-        public async Task<string> GetDatasetPreview(string datasetName)
+        // API Call: GET /data/preview-dataset?dataset_name=dataset
+        // Note: Sends dataset name without extension
+        public async Task<string> GetDatasetPreview(string datasetFileName)
         {
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
             var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<Dictionary<string, bool>> GetDatasetProcessingStatus(string datasetName)
+        // API Call: GET /data/dataset-processing-status?dataset_name=dataset
+        // Note: Sends dataset name without extension
+        public async Task<Dictionary<string, bool>> GetDatasetProcessingStatus(string datasetFileName)
         {
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
             var response = await _httpClient.GetAsync($"data/dataset-processing-status?dataset_name={datasetName}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, bool>>();
         }
 
-        public async Task<Dictionary<string, object>> DeleteDataset(string datasetName)
+        // API Call: DELETE /data/delete-dataset?dataset_name=dataset
+        // Note: Sends dataset name without extension
+        public async Task<Dictionary<string, object>> DeleteDataset(string datasetFileName)
         {
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
             var response = await _httpClient.DeleteAsync($"data/delete-dataset?dataset_name={datasetName}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
-        public async Task<Dictionary<string, object>> GetDatasetProcessingInfo(string datasetName, string processingType)
+        // API Call: GET /data/dataset-processing-info?dataset_name=dataset&processing_type=default
+        // Note: Sends dataset name without extension
+        public async Task<Dictionary<string, object>> GetDatasetProcessingInfo(string datasetFileName, string processingType)
         {
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
             var response = await _httpClient.GetAsync($"data/dataset-processing-info?dataset_name={datasetName}&processing_type={processingType}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
