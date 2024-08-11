@@ -6,7 +6,7 @@ namespace frontend.Views
 {
     public partial class Inference : ContentView
     {
-        private ModelItem _model;
+        private Model _model;
         private string _inputText;
         private string _outputText;
         private string _selectedFilePath;
@@ -37,7 +37,7 @@ namespace frontend.Views
             }
         }
 
-        public Inference(ModelItem model)
+        public Inference(Model model)
         {
             InitializeComponent();
             _model = model;
@@ -56,6 +56,8 @@ namespace frontend.Views
             switch (_model.PipelineTag?.ToLower())
             {
                 case "object-detection":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
+                    break;
                 case "image-segmentation":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
                     break;
@@ -64,9 +66,23 @@ namespace frontend.Views
                     InputContainer.Children.Add(CreateTextInputUI());
                     break;
                 case "text-classification":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "zero-shot-classification":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "translation":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "text-to-speech":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
                 case "token-classification":
                 case "question-answering":
                 case "summarization":
+                case "automatic-speech-recognition":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    break;
                 case "text-generation":
                     InputContainer.Children.Add(CreateTextInputUI());
                     break;
@@ -85,7 +101,14 @@ namespace frontend.Views
                 TextColor = Colors.Black,
                 CornerRadius = 5
             };
-            fileButton.Clicked += OnFileSelectClicked;
+            if (buttonText == "Select Image or Video")
+            {
+                fileButton.Clicked += OnImageSelectClicked;
+            }
+            else if (buttonText == "Select Audio File")
+            {
+                fileButton.Clicked += OnAudioSelectClicked;
+            }
 
             var fileNameLabel = new Label
             {
@@ -110,7 +133,7 @@ namespace frontend.Views
             };
         }
 
-        private async void OnFileSelectClicked(object sender, EventArgs e)
+        private async void OnImageSelectClicked(object sender, EventArgs e)
         {
             try
             {
@@ -135,17 +158,54 @@ namespace frontend.Views
             }
         }
 
+        private async void OnAudioSelectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                // Define a custom file type filter for audio files
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.audio" } }, // For iOS
+                        { DevicePlatform.Android, new[] { "audio/*" } },  // For Android
+                        { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a" } }, // For Windows
+                    });
+
+                PickOptions options = new()
+                {
+                    PickerTitle = "Please select an audio file",
+                    FileTypes = customFileType,
+                };
+
+                // Show the file picker and wait for the user to select a file
+                var result = await FilePicker.Default.PickAsync(options);
+
+                if (result != null)
+                {
+                    _selectedFilePath = result.FullPath;
+                    var stack = (VerticalStackLayout)((Button)sender).Parent;
+                    var label = (Label)stack.Children[1];
+                    label.Text = result.FileName;
+                    label.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
+        }
+
         private void OnRunInferenceClicked(object sender, EventArgs e)
         {
             // we call the inference API here
             // for now, it's just echo the input or file path as a placeholder
             if (!string.IsNullOrEmpty(_selectedFilePath))
             {
-                OutputText = $"Inference result for model {_model.Name} with file: {_selectedFilePath}";
+                OutputText = $"Inference result for model {_model.ModelId} with file: {_selectedFilePath}";
             }
             else
             {
-                OutputText = $"Inference result for model {_model.Name}:\n\n{InputText}";
+                OutputText = $"Inference result for model {_model.ModelId}:\n\n{InputText}";
             }
         }
     }

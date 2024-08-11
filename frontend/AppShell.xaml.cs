@@ -10,7 +10,7 @@ namespace frontend.Views
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute("MainPage", typeof(MainPage));
+            Routing.RegisterRoute("ModelIndex", typeof(ModelIndex));
             libraryPage = new Library();
             Routing.RegisterRoute("Library", typeof(Library));
 

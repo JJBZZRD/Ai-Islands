@@ -3,6 +3,7 @@ from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH
 import logging
 import os
 import json
+from backend.core.exceptions import FileReadError
 
 logger = logging.getLogger(__name__)
 
@@ -165,4 +166,20 @@ class LibraryControl:
         except Exception as e:
             logger.error(f"Error updating model ID from {model_id} to {new_model_id}: {str(e)}")
             return None
-        
+    
+    def _initialise_library(self):
+        if not os.path.exists(DOWNLOADED_MODELS_PATH):
+            logger.info(f"Creating new library at: {DOWNLOADED_MODELS_PATH}")
+            JSONHandler.write_json(DOWNLOADED_MODELS_PATH, {})
+            logger.info("Library initialised successfully")
+        else:
+            logger.info(f"Library already exists at: {DOWNLOADED_MODELS_PATH}")
+            try:
+                data = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+            except FileReadError:
+                data = {}
+                JSONHandler.write_json(DOWNLOADED_MODELS_PATH, data)
+                logger.info("Library was empty, reinitialised successfully")
+            logger.info("Library initialised successfully")
+        return True
+    

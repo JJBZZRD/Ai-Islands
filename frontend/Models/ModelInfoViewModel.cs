@@ -6,8 +6,8 @@ namespace frontend.Models
 {
     public class ModelInfoViewModel : INotifyPropertyChanged
     {
-        private ModelItem _model;
-        public ModelItem Model
+        private Model _model;
+        public Model Model
         {
             get => _model;
             set
@@ -35,9 +35,9 @@ namespace frontend.Models
             }
         }
 
-        public ModelInfoViewModel(ModelItem model)
+        public ModelInfoViewModel(Model model)
         {
-            System.Diagnostics.Debug.WriteLine($"ModelInfoViewModel constructor called with model: {model?.Name}");
+            System.Diagnostics.Debug.WriteLine($"ModelInfoViewModel constructor called with model: {model?.ModelId}");
             Model = model;
             System.Diagnostics.Debug.WriteLine($"Tags count after setting Model: {Tags.Count}");
         }

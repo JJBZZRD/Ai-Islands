@@ -1,16 +1,25 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="frontend.Views.Library"
-             xmlns:local="clr-namespace:frontend.Views"
+             xmlns:frontend="clr-namespace:frontend.Views"
              xmlns:converters="clr-namespace:frontend.Converters"
+             xmlns:local="clr-namespace:frontend.Views"
+             x:Class="frontend.Views.ModelIndex"
              BackgroundColor="#F2F2F2">
 
     <ContentPage.Resources>
+        <Style x:Key="DownloadAlertFrame" TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="HasShadow" Value="True"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="WidthRequest" Value="300"/>
+        </Style>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
     </ContentPage.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,8 +29,8 @@
         </Grid.RowDefinitions>
 
         <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-            <Label Text="Library" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
-            <Label Text="View and manage your pre-downloaded models" 
+            <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
+            <Label Text="Explore the pre-selected AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
                    FontSize="17" TextColor="Black" />
         </VerticalStackLayout>
 
@@ -43,7 +52,7 @@
                    MinimumWidthRequest="350"
                    HasShadow="False"
                    BorderColor="#E0E0E0"
-                   BackgroundColor="White">
+                   BackgroundColor="White"> 
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -76,7 +85,7 @@
                     TextColor="Black" 
                     CornerRadius="10" 
                     Margin="10,0,0,0"
-                    Clicked="OnFilterClicked"/>
+                    Clicked="OnFilterClicked"/>     
         </Grid>
 
         <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
@@ -117,19 +126,19 @@
                                        Padding="5,2"
                                        HorizontalOptions="Start">
                                     <Label Text="{Binding Status}"
-                                           TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
-                                           FontAttributes="Bold"
-                                           FontSize="12"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="Center"/>
+                                       TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
+                                       FontAttributes="Bold"
+                                       FontSize="12"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center"/> 
                                 </Frame>
                                 <Button Grid.Column="3" 
-                                        Text="Load"
+                                        Text="Add to library"
                                         BackgroundColor="#3366FF"
                                         TextColor="White"
                                         CornerRadius="15"
                                         HeightRequest="20"
-                                        Command="{Binding LoadOrStopCommand}"
+                                        Clicked="OnAddToLibraryClicked"
                                         VerticalOptions="Center"
                                         HorizontalOptions="Center"
                                         Padding="10,5"/>
