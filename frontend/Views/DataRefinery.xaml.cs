@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using frontend.Services;
 using System.Text.Json;
+using CommunityToolkit.Maui.Views;
 
 namespace frontend.Views
 {
@@ -200,7 +201,8 @@ namespace frontend.Views
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
                 var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "default");
-                await DisplayAlert("Default Processing Info", FormatProcessingInfo(info), "OK");
+                var popUp = new DataRefineryProcessingInfoPopUp(info, "Default Processing Info");
+                await this.ShowPopupAsync(popUp);
             }
         }
 
@@ -209,7 +211,8 @@ namespace frontend.Views
             if (DatasetPicker.SelectedItem is string selectedDataset)
             {
                 var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "chunked");
-                await DisplayAlert("Chunked Processing Info", FormatProcessingInfo(info), "OK");
+                var popUp = new DataRefineryProcessingInfoPopUp(info, "Chunked Processing Info");
+                await this.ShowPopupAsync(popUp);
             }
         }
 
