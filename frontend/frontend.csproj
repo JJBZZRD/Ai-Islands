@@ -121,6 +121,9 @@
 	  <Compile Update="Views\DataRefinery.xaml.cs">
 	    <DependentUpon>DataRefinery.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Components\InputPopup.xaml.cs">
+	    <DependentUpon>InputPopup.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\DataRefinery.xaml.cs">
 	    <DependentUpon>DataRefineryProcessingInfoPopUp.xaml</DependentUpon>
 	  </Compile>
@@ -176,6 +179,9 @@
 		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Setting.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\InputPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
