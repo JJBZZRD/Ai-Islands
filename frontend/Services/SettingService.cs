@@ -48,8 +48,16 @@ namespace frontend.Services
         public async Task<Dictionary<string, object>> SetHardware(string device)
         {
             var response = await _httpClient.PostAsJsonAsync("settings/set-hardware", new { device });
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>() ?? new Dictionary<string, object>();
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+                return errorContent ?? new Dictionary<string, object> { { "detail", "An unknown error occurred" } };
+            }
         }
 
         public async Task<Dictionary<string, object>> GetHardware()

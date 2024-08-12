@@ -126,6 +126,9 @@
 	  </Compile>
 	  <Compile Update="Views\DataRefinery.xaml.cs">
 	    <DependentUpon>DataRefineryProcessingInfoPopUp.xaml</DependentUpon>
+    </Compile>
+	  <Compile Update="Views\Setting.xaml.cs">
+	    <DependentUpon>Setting.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
