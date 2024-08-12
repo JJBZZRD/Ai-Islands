@@ -17,11 +17,12 @@
                        FontSize="17" TextColor="Black" />
                 
                 <ImageButton Source="add_icon.png" 
+                             HeightRequest="20"
+                             WidthRequest="20"
                              Clicked="OnAddModelClicked" 
                              HorizontalOptions="End" 
                              VerticalOptions="Start" 
-                             WidthRequest="30" 
-                             HeightRequest="30"/>
+                             />
 
                 <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,20,0,5" HasShadow="True">
                     <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
