@@ -57,6 +57,8 @@ namespace frontend.Models
 
         public bool IsInLibrary { get; set; }
 
+        public bool IsLoaded { get; set; }
+
         [JsonIgnore]
         public ICommand? LoadOrStopCommand { get; set; }
 

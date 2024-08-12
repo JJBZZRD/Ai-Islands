@@ -10,6 +10,7 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using frontend.Services;
 
+
 namespace frontend.Views
 {
     public class RefreshLibraryMessage { }
@@ -44,6 +45,7 @@ namespace frontend.Views
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
         private readonly LibraryService _libraryService;
+        private readonly ModelService _modelService;
 
         public Library()
         {
@@ -53,6 +55,7 @@ namespace frontend.Views
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
             _libraryService = new LibraryService();
+            _modelService = new ModelService();
 
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
@@ -125,7 +128,7 @@ namespace frontend.Views
         {
             try
             {
-                var modelList = await _libraryService.GetLibrary();
+                var modelList = await _libraryService.GetLibrary(); // Fetch models from the library
 
                 var newModels = new ObservableCollection<Model>();
 
@@ -140,8 +143,12 @@ namespace frontend.Views
                         model.PipelineTag = !string.IsNullOrEmpty(model.ModelClass) ? model.ModelClass : "Unknown";
                     }
 
+                    // Check if the model is currently loaded e
+                    bool isLoaded = await _modelService.IsModelLoaded(model.ModelId);
+                    model.IsLoaded = isLoaded; 
+                    System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsLoaded: {isLoaded}");
+
                     newModels.Add(model);
-                    System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
                 }
 
                 AllModels = newModels;
@@ -180,28 +187,44 @@ namespace frontend.Views
             var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
             if (model == null) return;
 
-            string baseUrl = "http://127.0.0.1:8000";
-            string endpoint = model.IsOnline ?? false ? "unload" : "load";
+            bool isLoaded = await _modelService.IsModelLoaded(ModelId);
+            string action = isLoaded ? "unload" : "load";
 
             try
             {
-                using (HttpClient client = new HttpClient())
+                var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
+                await Navigation.PushAsync(terminalPage);
+
+                bool success;
+                if (isLoaded)
                 {
-                    var response = await client.PostAsync($"{baseUrl}/model/{endpoint}?model_id={ModelId}", null);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        model.IsOnline = !model.IsOnline;
-                        await DisplayAlert("Success", $"Model {ModelId} {endpoint}ed successfully.", "OK");
-                    }
-                    else
-                    {
-                        await DisplayAlert("Error", $"Failed to {endpoint} model {ModelId}.", "OK");
-                    }
+                    success = await _modelService.UnloadModel(ModelId);
+                    terminalPage.AppendOutput($"Unloading model {ModelId}...");
                 }
+                else
+                {
+                    success = await _modelService.LoadModel(ModelId);
+                    terminalPage.AppendOutput($"Loading model {ModelId}...");
+                }
+
+                if (success)
+                {
+                    model.IsLoaded = !isLoaded; // Update the IsLoaded property
+                    terminalPage.AppendOutput($"Model {ModelId} {action}ed successfully.");
+                }
+                else
+                {
+                    terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
+                }
+
+                await Task.Delay(2000); // Give user time to read the output
+                await Navigation.PopAsync(); // Close the terminal page
+
+                OnPropertyChanged(nameof(Models)); // Notify UI of changes
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to {endpoint} model {ModelId}: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {ex.Message}", "OK");
             }
         }
 

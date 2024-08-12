@@ -55,6 +55,9 @@ namespace frontend.Services
         {
             var response = await _httpClient.GetAsync($"model/is-model-loaded?model_id={modelId}");
             response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"Response for model {modelId}: {content}");
+    
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
             return result?["message"]?.Contains("is loaded") ?? false;
         }

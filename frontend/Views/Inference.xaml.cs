@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Maui.Controls;
 using frontend.Models;
+using System.Text.Json;
+using frontend.Services;
 
 namespace frontend.Views
 {
@@ -10,6 +12,8 @@ namespace frontend.Views
         private string _inputText;
         private string _outputText;
         private string _selectedFilePath;
+        private readonly ModelService _modelService;
+        private string _rawJsonText;
 
         public string InputText
         {
@@ -37,10 +41,24 @@ namespace frontend.Views
             }
         }
 
+        public string RawJsonText
+        {
+            get => _rawJsonText;
+            set
+            {
+                if (_rawJsonText != value)
+                {
+                    _rawJsonText = value;
+                    OnPropertyChanged(nameof(RawJsonText));
+                }
+            }
+        }
+
         public Inference(Model model)
         {
             InitializeComponent();
             _model = model;
+            _modelService = new ModelService();
             BindingContext = this;
             CreateInputUI();
         }
@@ -137,9 +155,17 @@ namespace frontend.Views
         {
             try
             {
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.jpeg", "public.png", "com.compuserve.gif", "public.movie" } },
+                        { DevicePlatform.Android, new[] { "image/jpeg", "image/png", "image/gif", "video/quicktime" } },
+                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png", ".gif", ".mov" } }
+                    });
+
                 var result = await FilePicker.PickAsync(new PickOptions
                 {
-                    FileTypes = FilePickerFileType.Images,
+                    FileTypes = customFileType,
                     PickerTitle = "Select an image or video file"
                 });
 
@@ -195,17 +221,46 @@ namespace frontend.Views
             }
         }
 
-        private void OnRunInferenceClicked(object sender, EventArgs e)
+        private async void OnRunInferenceClicked(object sender, EventArgs e)
         {
-            // we call the inference API here
-            // for now, it's just echo the input or file path as a placeholder
-            if (!string.IsNullOrEmpty(_selectedFilePath))
+            try
             {
-                OutputText = $"Inference result for model {_model.ModelId} with file: {_selectedFilePath}";
+                object data;
+                switch (_model.PipelineTag?.ToLower())
+                {
+                    case "object-detection":
+                    case "image-segmentation":
+                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file.", "OK");
+                            return;
+                        }
+                        data = new { image_path = _selectedFilePath };
+                        break;
+                    case "zero-shot-object-detection":
+                        if (string.IsNullOrEmpty(_selectedFilePath) || string.IsNullOrEmpty(InputText))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file and enter text.", "OK");
+                            return;
+                        }
+                        data = new { image_path = _selectedFilePath, text = InputText };
+                        break;
+
+                    case "text-to-speech":
+                    // Etc..havent added for the other cases
+                    default:
+                        await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
+                        return;
+                }
+
+                var result = await _modelService.Inference(_model.ModelId, data);
+
+                // Will be displayed in the Output tab
+                RawJsonText = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
             }
-            else
+            catch (Exception ex)
             {
-                OutputText = $"Inference result for model {_model.ModelId}:\n\n{InputText}";
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
             }
         }
     }

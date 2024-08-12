@@ -119,6 +119,9 @@
 	  <Compile Update="Views\ModelSelectionPopup.xaml.cs">
 	    <DependentUpon>ModelSelectionPopup.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\TerminalPage.xaml.cs">
+	    <DependentUpon>TerminalPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\PlaygroundModelView.xaml.cs">
 	    <DependentUpon>PlaygroundModelView.xaml</DependentUpon>
 	  </Compile>
@@ -180,6 +183,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelSelectionPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TerminalPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\PlaygroundModelView.xaml">
