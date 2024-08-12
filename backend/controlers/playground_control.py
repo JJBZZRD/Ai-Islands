@@ -9,6 +9,7 @@ from backend.core.exceptions import (
     ChainNotCompatibleError,
     FileReadError,
     FileWriteError,
+    ModelError,
     PlaygroundAlreadyExistsError,
     PlaygroundError,
 )
@@ -421,8 +422,11 @@ class PlaygroundControl:
 
         # Unload the models in the chain with the model control
         for model_id in playground.chain:
-            self.model_control.unload_model(model_id)
-            logger.info(f"Model {model_id} unloaded")
+            try:
+                self.model_control.unload_model(model_id)
+                logger.info(f"Model {model_id} unloaded")
+            except ModelError:
+                logger.info(f"model {model_id} is not unloaded as it is using by another active playground")
 
         # Set the playground's chain status to inactive
         playground.active_chain = False
