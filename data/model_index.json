@@ -3,7 +3,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "code-generation"
@@ -25,7 +28,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -39,7 +42,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "question-answering",
       "summarization",
@@ -65,7 +71,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -79,7 +85,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -106,7 +115,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -120,7 +129,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -147,7 +159,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -161,7 +173,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "summarization",
@@ -188,7 +203,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -202,7 +217,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -228,7 +246,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -242,7 +260,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -268,7 +289,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -282,7 +303,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -309,7 +333,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -323,7 +347,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -350,7 +377,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -364,7 +391,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -392,7 +422,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -406,7 +436,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -434,7 +467,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -448,7 +481,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "question-answering",
@@ -476,7 +512,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -490,7 +526,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-generation",
       "summarization",
@@ -517,7 +556,7 @@
         "min_new_tokens": 1,
         "repetition_penalty": 1.0,
         "random_seed": 42,
-        "stop_sequences": ["Human:", "AI:", "<|endoftext|>"]
+        "stop_sequences": [ "Human:", "AI:", "<|endoftext|>" ]
       },
       "rag_settings": {
         "use_dataset": false,
@@ -531,7 +570,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "text-analysis",
       "sentiment-analysis",
@@ -565,7 +607,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
-    "mapping": {"input":"text", "output":"audio"},
+    "mapping": {
+      "input": "text",
+      "output": "audio"
+    },
     "tags": [
       "text-to-speech",
       "audio-synthesis",
@@ -587,7 +632,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonService",
-    "mapping": {"input":"audio", "output":"text"},
+    "mapping": {
+      "input": "audio",
+      "output": "text"
+    },
     "tags": [
       "speech-to-text",
       "audio-transcription",
@@ -608,7 +656,10 @@
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "embedding",
       "text-embedding",
@@ -623,14 +674,17 @@
     "config": {
       "embedding_dimensions": 384,
       "max_input_tokens": 512,
-      "supported_languages": ["English"]
+      "supported_languages": [ "English" ]
     }
   },
   "ibm/slate-125m-english-rtrvr": {
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "embedding",
       "text-embedding",
@@ -645,14 +699,17 @@
     "config": {
       "embedding_dimensions": 768,
       "max_input_tokens": 512,
-      "supported_languages": ["English"]
+      "supported_languages": [ "English" ]
     }
   },
   "sentence-transformers/all-minilm-l12-v2": {
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "embedding",
       "text-embedding",
@@ -668,14 +725,17 @@
     "config": {
       "embedding_dimensions": 384,
       "max_input_tokens": 256,
-      "supported_languages": ["English"]
+      "supported_languages": [ "English" ]
     }
   },
   "intfloat/multilingual-e5-large": {
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "embedding",
       "text-embedding",
@@ -691,14 +751,17 @@
     "config": {
       "embedding_dimensions": 1024,
       "max_input_tokens": 512,
-      "supported_languages": ["Multilingual (up to 100 languages)"]
+      "supported_languages": [ "Multilingual (up to 100 languages)" ]
     }
   },
   "openai-community/gpt2": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping":{"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -755,7 +818,10 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "yolo",
       "object-detection",
@@ -781,7 +847,10 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "yolo",
       "object-detection",
@@ -806,7 +875,10 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "yolo",
       "object-detection",
@@ -831,7 +903,10 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "yolo",
       "object-detection",
@@ -856,7 +931,10 @@
     "is_online": false,
     "model_source": "ultralytics",
     "model_class": "UltralyticsModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "yolo",
       "object-detection",
@@ -880,7 +958,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -909,7 +990,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -936,7 +1020,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"image", "output":"text"},
+    "mapping": {
+      "input": "image",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -960,9 +1047,7 @@
     },
     "model_desc": "SegFormer (b0-sized) model fine-tuned on ADE20k at resolution 512x512. It uses a hierarchical Transformer encoder and a lightweight all-MLP decode head to achieve great results on semantic segmentation benchmarks.",
     "model_detail": "https://arxiv.org/abs/2105.15203",
-    "config": {
-      "model_config": {}
-    }
+    "config": {}
   },
   "google/owlvit-base-patch32": {
     "is_online": false,
@@ -991,10 +1076,7 @@
         "tokenizer": "CLIPTokenizerFast"
       }
     },
-    "config": {
-      "processor_config": {},
-      "pipeline_config": {}
-    },
+    "config": {},
     "model_desc": "OWL-ViT (Vision Transformer for Open-World Localization) is a zero-shot text-conditioned object detection model that can be used to query an image with one or multiple text queries.",
     "model_detail": "https://arxiv.org/abs/2205.06230"
   },
@@ -1027,12 +1109,7 @@
         "tokenizer": "BertTokenizerFast"
       }
     },
-    "config": {
-      "pipeline_config": {
-        "box_threshold": 0.4,
-        "text_threshold": 0.3
-      }
-    },
+    "config": {},
     "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
     "model_detail": "https://arxiv.org/abs/2303.05499"
   },
@@ -1040,7 +1117,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -1066,50 +1146,68 @@
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
-        "model_config": {
-            "torch_dtype": "bfloat16"
+      "model_config": {
+        "torch_dtype": "bfloat16"
 
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
         },
-        "tokenizer_config": {},
-        "processor_config": {},
-        "pipeline_config": {
-            "max_length": 512,
-            "max_new_tokens": 1000,
-            "num_beams": 2,
-            "use_cache": true
+        "8-bit": {
+          "load_in_8bit": true
         },
-        "device_config": {
-            "device": "cuda"
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "How are you?"
         },
-        "quantization_config": {
-            "current_mode": "bfloat16"
-        },
-        "quantization_config_options": {
-            "4-bit": {
-                "load_in_4bit": true,
-                "bnb_4bit_use_double_quant": true,
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_compute_dtype": "bfloat16"
-            },
-            "8-bit": {
-                "load_in_8bit": true
-            },
-            "bfloat16": {}
-        },
-        "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
-        "user_prompt": {"role": "user", "content": "[USER]"},
-        "assistant_prompt": {"role": "assistant", "content": "[ASSISTANT]"},
-        "example_conversation": [
-            {"role": "user", "content": "How are you?"},
-            {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
-        ]
+        {
+          "role": "assistant",
+          "content": "I'm good, thanks! What can I help you with?"
+        }
+      ]
     }
   },
   "meta-llama/Meta-Llama-3-8B-Instruct": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "transformers",
       "pytorch",
@@ -1135,50 +1233,68 @@
       "requires_auth": true
     },
     "config": {
-        "model_config": {
-            "torch_dtype": "bfloat16"
+      "model_config": {
+        "torch_dtype": "bfloat16"
 
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
         },
-        "tokenizer_config": {},
-        "processor_config": {},
-        "pipeline_config": {
-            "max_length": 512,
-            "max_new_tokens": 1000,
-            "num_beams": 2,
-            "use_cache": true
+        "8-bit": {
+          "load_in_8bit": true
         },
-        "device_config": {
-            "device": "cuda"
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "How are you?"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "I'm good, thanks! What can I help you with?"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "How are you?"
         },
-        "quantization_config": {
-            "current_mode": "bfloat16"
-        },
-        "quantization_config_options": {
-            "4-bit": {
-                "load_in_4bit": true,
-                "bnb_4bit_use_double_quant": true,
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_compute_dtype": "bfloat16"
-            },
-            "8-bit": {
-                "load_in_8bit": true
-            },
-            "bfloat16": {}
-        },
-        "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
-        "user_prompt": {"role": "user", "content": "How are you?"},
-        "assistant_prompt": {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"},
-        "example_conversation": [
-            {"role": "user", "content": "How are you?"},
-            {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
-        ]
+        {
+          "role": "assistant",
+          "content": "I'm good, thanks! What can I help you with?"
+        }
+      ]
     }
   },
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Text Classification",
       "Sentiment Analysis"
@@ -1205,7 +1321,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Text Classification",
       "Sentiment Analysis"
@@ -1231,7 +1350,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Text Classification",
       "Product Reviews"
@@ -1265,7 +1387,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1286,7 +1411,7 @@
     },
     "config": {
       "pipeline_config": {
-        "candidate_labels": ["technology", "sports", "foods"]
+        "candidate_labels": [ "technology", "sports", "foods" ]
       }
     }
   },
@@ -1294,7 +1419,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1315,7 +1443,7 @@
     },
     "config": {
       "pipeline_config": {
-        "candidate_labels": ["technology", "sports", "foods"]
+        "candidate_labels": [ "technology", "sports", "foods" ]
       }
     }
   },
@@ -1323,7 +1451,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Zero Shot Classification",
       "Sentiment Analysis",
@@ -1344,7 +1475,7 @@
     },
     "config": {
       "pipeline_config": {
-        "candidate_labels": ["technology", "sports", "foods"]
+        "candidate_labels": [ "technology", "sports", "foods" ]
       }
     }
   },
@@ -1352,58 +1483,61 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Text Classification",
       "Text Reranker",
       "Multilingual"
     ],
     "languages": {
-    "ar": "Arabic",
-    "bn": "Bengali",
-    "bg": "Bulgarian",
-    "zh-CN": "Chinese (Simplified)",
-    "zh-TW": "Chinese (Traditional)",
-    "hr": "Croatian",
-    "cs": "Czech",
-    "da": "Danish",
-    "nl": "Dutch",
-    "en": "English",
-    "et": "Estonian",
-    "fi": "Finnish",
-    "fr": "French",
-    "de": "German",
-    "el": "Greek",
-    "gu": "Gujarati",
-    "he": "Hebrew",
-    "hi": "Hindi",
-    "hu": "Hungarian",
-    "id": "Indonesian",
-    "it": "Italian",
-    "ja": "Japanese",
-    "kn": "Kannada",
-    "ko": "Korean",
-    "lv": "Latvian",
-    "lt": "Lithuanian",
-    "ml": "Malayalam",
-    "mr": "Marathi",
-    "no": "Norwegian",
-    "pl": "Polish",
-    "pt": "Portuguese",
-    "pa": "Punjabi",
-    "ro": "Romanian",
-    "ru": "Russian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "es": "Spanish",
-    "sv": "Swedish",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "th": "Thai",
-    "tr": "Turkish",
-    "uk": "Ukrainian",
-    "ur": "Urdu",
-    "vi": "Vietnamese"
+      "ar": "Arabic",
+      "bn": "Bengali",
+      "bg": "Bulgarian",
+      "zh-CN": "Chinese (Simplified)",
+      "zh-TW": "Chinese (Traditional)",
+      "hr": "Croatian",
+      "cs": "Czech",
+      "da": "Danish",
+      "nl": "Dutch",
+      "en": "English",
+      "et": "Estonian",
+      "fi": "Finnish",
+      "fr": "French",
+      "de": "German",
+      "el": "Greek",
+      "gu": "Gujarati",
+      "he": "Hebrew",
+      "hi": "Hindi",
+      "hu": "Hungarian",
+      "id": "Indonesian",
+      "it": "Italian",
+      "ja": "Japanese",
+      "kn": "Kannada",
+      "ko": "Korean",
+      "lv": "Latvian",
+      "lt": "Lithuanian",
+      "ml": "Malayalam",
+      "mr": "Marathi",
+      "no": "Norwegian",
+      "pl": "Polish",
+      "pt": "Portuguese",
+      "pa": "Punjabi",
+      "ro": "Romanian",
+      "ru": "Russian",
+      "sk": "Slovak",
+      "sl": "Slovenian",
+      "es": "Spanish",
+      "sv": "Swedish",
+      "ta": "Tamil",
+      "te": "Telugu",
+      "th": "Thai",
+      "tr": "Turkish",
+      "uk": "Ukrainian",
+      "ur": "Urdu",
+      "vi": "Vietnamese"
     },
     "pipeline_tag": "text-classification",
     "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
@@ -1431,11 +1565,14 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
-        "Text Classification",
-        "Text Reranker",
-        "Multilingual"
+      "Text Classification",
+      "Text Reranker",
+      "Multilingual"
     ],
     "languages": {
       "ar": "Arabic",
@@ -1472,7 +1609,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Translation",
       "Multilingual"
@@ -1503,7 +1643,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Translation",
       "Multilingual"
@@ -1941,7 +2084,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Translation",
       "Multilingual"
@@ -2379,7 +2525,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
       "Translation",
       "Multilingual"
@@ -2608,7 +2757,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"audio", "output":"text"},
+    "mapping": {
+      "input": "audio",
+      "output": "text"
+    },
     "tags": [
       "Automatic Speech Recognition",
       "Speech to Text",
@@ -2743,7 +2895,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"audio"},
+    "mapping": {
+      "input": "text",
+      "output": "audio"
+    },
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2786,7 +2941,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"audio"},
+    "mapping": {
+      "input": "text",
+      "output": "audio"
+    },
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2810,7 +2968,10 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"audio"},
+    "mapping": {
+      "input": "text",
+      "output": "audio"
+    },
     "tags": [
       "Text to Speech",
       "Audio",
@@ -2828,7 +2989,7 @@
         "tokenizer": "AutoTokenizer",
         "feature_extractor": "AutoFeatureExtractor"
       },
-      "required_packages": ["sentencepiece"]
+      "required_packages": [ "sentencepiece" ]
     },
     "config": {
       "speaker_embedding_config": "default"
@@ -2838,69 +2999,87 @@
     "is_online": false,
     "model_source": "transformers",
     "model_class": "TransformerModel",
-    "mapping": {"input":"text", "output":"text"},
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
     "tags": [
-        "transformers",
-        "pytorch",
-        "safetensors",
-        "llama",
-        "meta",
-        "llama-3",
-        "text-generation",
-        "text-generation-inference",
-        "en",
-        "license:llama3",
-        "region:us"
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "llama",
+      "meta",
+      "llama-3",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:llama3",
+      "region:us"
     ],
     "pipeline_tag": "text-generation",
     "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct",
     "requirements": {
-        "required_classes": {
-            "model": "AutoModelForCausalLM",
-            "tokenizer": "AutoTokenizer"
-        },
-        "requires_auth": true
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": true
     },
     "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
-        "model_config": {
-            "torch_dtype": "bfloat16"
+      "model_config": {
+        "torch_dtype": "bfloat16"
 
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
         },
-        "tokenizer_config": {},
-        "processor_config": {},
-        "pipeline_config": {
-            "max_length": 512,
-            "max_new_tokens": 1000,
-            "num_beams": 2,
-            "use_cache": true
+        "8-bit": {
+          "load_in_8bit": true
         },
-        "device_config": {
-            "device": "cuda"
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "How are you?"
         },
-        "quantization_config": {
-            "current_mode": "bfloat16"
-        },
-        "quantization_config_options": {
-            "4-bit": {
-                "load_in_4bit": true,
-                "bnb_4bit_use_double_quant": true,
-                "bnb_4bit_quant_type": "nf4",
-                "bnb_4bit_compute_dtype": "bfloat16"
-            },
-            "8-bit": {
-                "load_in_8bit": true
-            },
-            "bfloat16": {}
-        },
-        "system_prompt": {"role": "system", "content": "You are a helpful assistant."},
-        "user_prompt": {"role": "user", "content": "[USER]"},
-        "assistant_prompt": {"role": "assistant", "content": "[ASSISTANT]"},
-        "example_conversation": [
-          {"role": "user", "content": "How are you?"},
-          {"role": "assistant", "content": "I'm good, thanks! What can I help you with?"}
-        ]
+        {
+          "role": "assistant",
+          "content": "I'm good, thanks! What can I help you with?"
+        }
+      ]
     }
-}
+  }
 }

@@ -83,12 +83,12 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
-        public async Task<Dictionary<string, Model>> GetModelDetails(List<string> modelIds)
-        {
-            var response = await _httpClient.PostAsJsonAsync("model/details", modelIds);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Dictionary<string, Model>>() ?? new Dictionary<string, Model>();
-        }
+        // public async Task<Dictionary<string, Model>> GetModelDetails(List<string> modelIds)
+        // {
+        //     var response = await _httpClient.PostAsJsonAsync("model/details", modelIds);
+        //     response.EnsureSuccessStatusCode();
+        //     return await response.Content.ReadFromJsonAsync<Dictionary<string, Model>>() ?? new Dictionary<string, Model>();
+        // }
 
         // Note: File upload methods (upload_image, upload_video, upload_dataset) are not included
         // as they require special handling in C# for file uploads.

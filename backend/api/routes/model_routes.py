@@ -64,11 +64,8 @@ class ModelRouter:
             if source == "library":
                 with open('data/library.json', 'r') as f:
                     models = json.load(f)
-            elif source == "index":  
+            else:  
                 with open('data/model_index.json', 'r') as f:
-                    models = json.load(f)
-            else:
-                with open('data/playground.json', 'r') as f:
                     models = json.load(f)
             return JSONResponse(content=models)
         except Exception as e:
