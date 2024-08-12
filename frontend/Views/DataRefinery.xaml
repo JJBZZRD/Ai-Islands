@@ -6,14 +6,157 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="Data Refinery" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
-                   TextColor="Black"/>
-            <Label Text="Refine and preprocess your data for RAG" 
-                   FontSize="17" 
-                   TextColor="Black"/>
-            <!-- Add more UI elements here -->
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Data Refinery" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="Black"/>
+                    <Label Text="Refine and preprocess your data for RAG" 
+                           FontSize="17" 
+                           TextColor="Black"/>
+                </VerticalStackLayout>
+                <Button Grid.Column="1" 
+                        Text="Find Dataset" 
+                        Clicked="OnFindDatasetClicked"
+                        VerticalOptions="Center"
+                        Margin="0,0,10,0">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xf002;" FontFamily="FontAwesomeFreeSolid" />
+                    </Button.ImageSource>
+                </Button>
+                <Button Grid.Column="2" 
+                        Text="Remove Datasets" 
+                        Clicked="OnRemoveDatasetsClicked"
+                        VerticalOptions="Center"
+                        BackgroundColor="Gray"
+                        TextColor="White">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xf2ed;" FontFamily="FontAwesomeFreeSolid" />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry x:Name="FilePathEntry" Placeholder="Selected file path" IsReadOnly="True" Grid.Column="0" />
+                <Button Text="Upload to AI Islands" 
+                        Clicked="OnUploadToAIIslandsClicked" 
+                        Grid.Column="1"
+                        WidthRequest="230"
+                        Margin="10,0,0,0">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xf382;" FontFamily="FontAwesomeFreeSolid" />
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+
+            <BoxView HeightRequest="1" 
+                     Color="Gray" 
+                     Margin="0,10"/>
+
+            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="10">
+                <Label Text="Select AI Island dataset:" VerticalOptions="Center" Grid.Column="0" Grid.Row="0"/>
+                <Picker x:Name="DatasetPicker"
+                        Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3"
+                        HorizontalOptions="Fill"
+                        SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
+                
+                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                    <Label Text="Default Processed " VerticalOptions="Center"/>
+                    <Image Source="check.png"
+                           IsVisible="{Binding DefaultProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Image Source="cross.png"
+                           IsVisible="{Binding IsNotDefaultProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Label Text="See Info"
+                           TextColor="Blue"
+                           TextDecorations="Underline"
+                           IsVisible="{Binding DefaultProcessed}"
+                           Margin="10,0,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDefaultInfoClicked"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </StackLayout>
+                
+                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                    <Label Text="Chunked Processed " VerticalOptions="Center"/>
+                    <Image Source="check.png"
+                           IsVisible="{Binding ChunkedProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Image Source="cross.png"
+                           IsVisible="{Binding IsNotChunkedProcessed}"
+                           HeightRequest="20" 
+                           WidthRequest="20"
+                           Margin="5,0,0,0"/>
+                    <Label Text="See Info"
+                           TextColor="Blue"
+                           TextDecorations="Underline"
+                           IsVisible="{Binding ChunkedProcessed}"
+                           Margin="10,0,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnChunkedInfoClicked"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </StackLayout>
+                
+                <Label Text="Select Embedding Type:" VerticalOptions="Center" Grid.Column="0" Grid.Row="3"/>
+                <Picker x:Name="EmbeddingTypePicker"
+                        Grid.Column="1" Grid.Row="3"
+                        HorizontalOptions="Fill"
+                        SelectedIndexChanged="OnEmbeddingTypePickerSelectedIndexChanged"/>
+                
+                <Label Text="Select Embedding Model:" VerticalOptions="Center" Grid.Column="2" Grid.Row="3"/>
+                <Picker x:Name="ModelPicker"
+                        Grid.Column="3" Grid.Row="3"
+                        HorizontalOptions="Fill"
+                        SelectedIndexChanged="OnModelPickerSelectedIndexChanged"/>
+                
+                <StackLayout Orientation="Horizontal" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="4" HorizontalOptions="End">
+                    <Button x:Name="ProcessButton"
+                            Text="Process" 
+                            WidthRequest="120"
+                            HeightRequest="50"
+                            BackgroundColor="Red"
+                            TextColor="White"
+                            Clicked="OnProcessClicked">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf021;" FontFamily="FontAwesomeFreeSolid" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button Text="Clear"
+                            WidthRequest="120"
+                            HeightRequest="50"
+                            Margin="10,0,0,0"
+                            Clicked="OnClearClicked">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf12d;" FontFamily="FontAwesomeFreeSolid" />
+                        </Button.ImageSource>
+                    </Button>
+                </StackLayout>
+            </Grid>
+
+            <Frame BorderColor="Gray" 
+                   CornerRadius="5" 
+                   Padding="10">
+                <VerticalStackLayout>
+                    <Label Text="Dataset Preview" 
+                           FontSize="18" 
+                           FontAttributes="Bold"
+                           TextColor="Black"/>
+                    <Editor x:Name="DatasetPreviewEditor"
+                            IsReadOnly="True" 
+                            HeightRequest="300" 
+                            TextColor="Black"/>
+                </VerticalStackLayout>
+            </Frame>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
