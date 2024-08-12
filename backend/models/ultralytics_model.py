@@ -248,8 +248,10 @@ class UltralyticsModel(BaseModel):
 
             return {
                 "message": "Training completed successfully",
-                "trained_model_path": trained_model_path,
-                "new_model_info": new_model_info
+                "data": {
+                    "trained_model_path": trained_model_path,
+                    "new_model_info": new_model_info
+                }
             }
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
