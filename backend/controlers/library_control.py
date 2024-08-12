@@ -34,7 +34,12 @@ class LibraryControl:
         logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         
-        library[model_id].update(new_entry)
+        if model_id not in library:
+            logger.debug(f"Model {model_id} not found in library, adding new entry")
+            library[model_id] = new_entry
+        else:
+            logger.debug(f"Model {model_id} found in library, updating entry")
+            library[model_id].update(new_entry)
         
         logger.debug(f"New library entry: {new_entry}")
         JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
@@ -224,7 +229,7 @@ class LibraryControl:
             logger.error(f"Failed to delete old model {model_id}")
             return None
 
-    # FIXME: What does this method do?
+    # FIXME: ????????
     def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
         for key, value in new_config.items():
             if isinstance(value, dict) and key in original_config:
