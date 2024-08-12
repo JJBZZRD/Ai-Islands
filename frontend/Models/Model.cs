@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Windows.Input;
+using System.Text.Json;
 
 namespace frontend.Models
 {
@@ -46,7 +47,7 @@ namespace frontend.Models
         public string? ModelCardUrl { get; set; }
 
         [JsonPropertyName("requirements")]
-        public Dictionary<string, object>? Requirements { get; set; }
+        public Dictionary<string, JsonElement>? Requirements { get; set; }
 
         [JsonPropertyName("config")]
         public Dictionary<string, object>? Config { get; set; }
