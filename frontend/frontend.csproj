@@ -124,6 +124,9 @@
 	  <Compile Update="Components\InputPopup.xaml.cs">
 	    <DependentUpon>InputPopup.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\Setting.xaml.cs">
+	    <DependentUpon>Setting.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
