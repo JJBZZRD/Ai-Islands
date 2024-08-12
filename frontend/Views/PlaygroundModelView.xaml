@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:frontend.Converters"
+             x:Class="frontend.Views.PlaygroundModelView"
+             BackgroundColor="#F2F2F2">
+    <ContentView.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
+    </ContentView.Resources>
+
+    <AbsoluteLayout x:Name="MainLayout">
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="20" Spacing="10">
+                <Label Text="{Binding Name, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
+                <Label Text="Explore the models available in this playground" 
+                       FontSize="17" TextColor="Black" />
+                
+                <ImageButton Source="add_icon.png" 
+                             HeightRequest="20"
+                             WidthRequest="20"
+                             Clicked="OnAddModelClicked" 
+                             HorizontalOptions="End" 
+                             VerticalOptions="Start" 
+                             />
+
+                <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,20,0,5" HasShadow="True">
+                    <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
+                        <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                        <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
+                        <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                    </Grid>
+                </Frame>
+
+                <CollectionView ItemsSource="{Binding PlaygroundModels}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="LightGray" 
+                                   BackgroundColor="White" 
+                                   CornerRadius="10" 
+                                   Padding="10" 
+                                   HasShadow="True"
+                                   Margin="0,5">
+                                <Grid ColumnDefinitions="3*, 2*, 1.1*">
+                                    <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center" TextColor="Black"/>
+                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center" TextColor="Black" Margin="10,0,0,0"/>
+                                    <Frame Grid.Column="2" 
+                                           BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                           BorderColor="Transparent"
+                                           CornerRadius="18"
+                                           HeightRequest="33"
+                                           WidthRequest="60"
+                                           Padding="5,2"
+                                           HorizontalOptions="Start">
+                                        <Label Text="{Binding Status}" 
+                                               TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
+                                               FontAttributes="Bold"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center"/>
+                                    </Frame>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </AbsoluteLayout>
+</ContentView>
