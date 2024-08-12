@@ -100,7 +100,8 @@ class ModelRouter:
 
     async def inference(self, inferenceRequest: InferenceRequest):
         try:
-            return self.model_control.inference(jsonable_encoder(inferenceRequest))
+            result = self.model_control.inference(jsonable_encoder(inferenceRequest))
+            return success_response(data=result)
         except KeyError as e:
             return error_response(message=str(e), status_code=400)
         except ModelError as e:
@@ -110,7 +111,8 @@ class ModelRouter:
 
     async def train_model(self, trainRequest: TrainRequest):
         try:
-            return self.model_control.train_model(jsonable_encoder(trainRequest))
+            data, message = self.model_control.train_model(jsonable_encoder(trainRequest))
+            return success_response(data=data, message=message)
         except KeyError as e:
             return error_response(message=str(e), status_code=400)
         except Exception as e:
@@ -118,7 +120,8 @@ class ModelRouter:
 
     async def configure_model(self, configureRequest: ConfigureRequest):
         try:
-            return self.model_control.configure_model(jsonable_encoder(configureRequest))
+            response = self.model_control.configure_model(jsonable_encoder(configureRequest))
+            return success_response(message=response)
         except KeyError as e:
             return error_response(message=str(e), status_code=400)
         except Exception as e:
@@ -126,9 +129,8 @@ class ModelRouter:
 
     async def delete_model(self, model_id: str = Query(...)):
         try:
-            result = self.model_control.delete_model(model_id)
-            if result:
-                return {"message": f"Model {model_id} deleted successfully"}
+            response = self.model_control.delete_model(model_id)
+            return success_response(message=response)
         except ModelError as e:
             return error_response(message=str(e), status_code=409)
         except ValueError as e:

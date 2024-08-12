@@ -330,7 +330,7 @@ class ModelControl:
             result = conn.recv()
             
             if "error" not in result:
-                new_model_info = result["new_model_info"]
+                new_model_info = result["data"]["new_model_info"]
                 new_model_id = new_model_info["model_id"]
             
                 # Get the original model info
@@ -347,7 +347,7 @@ class ModelControl:
                 # Add the new model to the library
                 self.library_control.add_fine_tuned_model(updated_model_info)
                 logger.info(f"New fine-tuned model {new_model_id} added to library")
-            return result
+            return result["data"], result["message"]
         except KeyError:
             return {"error": f"Model {train_request['model_id']} is not loaded. Please load the model first"}
     
