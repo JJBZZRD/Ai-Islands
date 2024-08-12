@@ -6,13 +6,10 @@ from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
 import logging
-from huggingface_hub import snapshot_download
-from backend.data_utils.json_handler import JSONHandler
-from backend.core.config import DOWNLOADED_MODELS_PATH
 from backend.data_utils.speaker_embedding_generator import get_speaker_embedding
-import importlib
 from accelerate import Accelerator
 from PIL import Image
+from backend.core.exceptions import ModelError
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +38,7 @@ class TransformerModel(BaseModel):
             
             if requires_auth and not auth_token:
                 logger.error(f"Auth token required for model {model_id} but not provided")
-                return None
+                raise ModelError(f"Auth token required for model {model_id} but not provided")
 
             config = model_info.get('config', {})
 
@@ -63,7 +60,7 @@ class TransformerModel(BaseModel):
                     obj_config['use_auth_token'] = auth_token
                 
                 # download the class object from huggingface transformers library
-                obj = class_.from_pretrained(
+                _obj = class_.from_pretrained(
                     model_id,
                     cache_dir=model_dir,
                     **obj_config
@@ -79,9 +76,9 @@ class TransformerModel(BaseModel):
                 "config": config
             })
             return model_info
-        except Exception as e:
-            logger.error(f"Error downloading model {model_id}: {str(e)}")
-            return None
+        except ModelError as e:
+            logger.error(f"Transformer Model, error downloading model {model_id}: {str(e)}")
+            raise ModelError(f"Transformer Model, error downloading model {model_id}: {str(e)}")
 
     def load(self, device: torch.device, model_info: dict):
         try:
@@ -117,9 +114,6 @@ class TransformerModel(BaseModel):
                 else:
                     model_config["torch_dtype"] = torch.bfloat16
             
-            
-            
-            
             if self.config.get("device_config", {}).get("device"):
                 self.device = self.config["device_config"]["device"]
             else:
@@ -153,7 +147,6 @@ class TransformerModel(BaseModel):
                 self.pipeline_args.update({class_type: obj})
                 logger.info(f"succesfully loaded {class_type} from {model_dir}")
 
-
             self.pipeline_args["model"] = self.accelerator.prepare(self.pipeline_args["model"])
             
             # for those translation models that require pipeline task = "translation_XX_to_YY"
@@ -170,8 +163,8 @@ class TransformerModel(BaseModel):
                 if self.config.get("example_conversation"):
                     self.model_instance_data += self.config.get("example_conversation")
         except Exception as e:
-            logger.error(f"Error loading model from {model_dir}: {str(e)}")
-            raise  # Re-raise the exception to be caught by the caller
+            logger.error(f"Error loading model from {model_info['dir']}: {str(e)}")
+            raise e # Re-raise the exception to be caught by the caller
     
     def inference(self, data: dict):
         try:
@@ -202,8 +195,6 @@ class TransformerModel(BaseModel):
 
                 except FileNotFoundError:
                     raise FileNotFoundError(f"Image file not found: {image_path}")
-                except Exception as e:
-                    raise e
             
             # For image-based tasks, we need to pass the original image, output needs to be processde again into serialised format to avoid error
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
@@ -257,10 +248,10 @@ class TransformerModel(BaseModel):
             return output
         except KeyError as e:
             logger.error(f"{str(e)} has to be provided in the request data")
-            return {"error": f"{str(e)} has to be provided in the request data"}
+            raise KeyError(f"{str(e)} has to be provided in the request data")
         except Exception as e:
             logger.error(f"Error during inference: {str(e)}")
-            return {"error": str(e)}
+            raise ModelError(f"Error during inference: {str(e)}")
 
     def configure(self, data: dict):
         pass
@@ -283,44 +274,4 @@ class TransformerModel(BaseModel):
         
     def _is_languages_supported(self, lang: str):
         return lang in self.languages
-        
-    # def process_request(self, request_payload: dict):
-    #     if self.pipeline:
-    #         if "text" in request_payload:
-    #             return self.pipeline(request_payload["text"])
-    #         elif "image" in request_payload:
-    #             return self.pipeline(request_payload["image"])
-    #     else:
-    #         # Fallback to existing methods if pipeline is not available
-    #         if "prompt" in request_payload:
-    #             return self.generate(request_payload["prompt"])
-    #         elif "image" in request_payload:
-    #             return self.process_image(request_payload["image"])
-        
-    #     return {"error": "Invalid request payload or unsupported operation"}
-
-    # def generate(self, prompt: str, max_length: int = 50):
-    #     try:
-    #         if self.model is None or self.tokenizer is None:
-    #             raise ValueError("Model or tokenizer not loaded. Please load a model first.")
-            
-    #         inputs = self.tokenizer(prompt, return_tensors="pt")
-    #         outputs = self.model.generate(**inputs, max_length=max_length)
-    #         generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-    #         return {"generated_text": generated_text}
-    #     except Exception as e:
-    #         logger.error(f"Error during text generation: {str(e)}")
-    #         return {"error": str(e)}
-
-    # def process_image(self, image_path: str):
-    #     try:
-    #         if self.model is None or self.processor is None:
-    #             raise ValueError("Model or processor not loaded. Please load a model first.")
-            
-    #         # Implement image processing logic here
-    #         # This is a placeholder and should be adapted based on the specific model's requirements
-    #         return {"message": "Image processing not implemented for this model"}
-    #     except Exception as e:
-    #         logger.error(f"Error during image processing: {str(e)}")
-    #         return {"error": str(e)}
         
