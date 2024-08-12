@@ -113,6 +113,9 @@
 	  <Compile Update="Views\FineTune.xaml.cs">
 	    <DependentUpon>FineTune.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\ModelConfig.xaml.cs">
+	    <DependentUpon>ModelConfig.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\ModelInfoView.xaml.cs">
 	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
 	  </Compile>
@@ -174,6 +177,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FineTune.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelConfig.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelInfoView.xaml">
