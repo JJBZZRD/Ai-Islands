@@ -18,6 +18,7 @@ namespace frontend.Services
         {
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
         
         public async Task<List<string>> ListActiveModels()
@@ -75,9 +76,9 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
-        public async Task<object> ConfigureModel(string modelId, object data)
+        public async Task<object> ConfigureModel(string modelId, object payload)
         {
-            var request = new { model_id = modelId, data = data };
+            var request = new { model_id = modelId, data = payload };
             var response = await _httpClient.PostAsJsonAsync("model/configure", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<object>())!;

@@ -4,6 +4,8 @@ using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.Text.Json;
 using frontend.Services;
+using Microsoft.Maui.Graphics;
+using System.Reflection;
 
 namespace frontend.Views
 {
@@ -36,9 +38,22 @@ namespace frontend.Views
             AddConfigSection("Device Config", _model.Config.DeviceConfig);
             AddConfigSection("Translation Config", _model.Config.TranslationConfig);
             AddConfigSection("Quantization Config", _model.Config.QuantizationConfig);
+            AddConfigSection("Quantization Config Options", _model.Config.QuantizationConfigOptions);
             AddConfigSection("System Prompt", _model.Config.SystemPrompt);
             AddConfigSection("User Prompt", _model.Config.UserPrompt);
             AddConfigSection("Assistant Prompt", _model.Config.AssistantPrompt);
+            AddConfigSection("Example Conversation", _model.Config.ExampleConversation);
+            AddConfigSection("Service Name", _model.Config.ServiceName);
+            AddConfigSection("Features", _model.Config.Features);
+            AddConfigSection("Voice", _model.Config.Voice);
+            AddConfigSection("Pitch", _model.Config.Pitch);
+            AddConfigSection("Speed", _model.Config.Speed);
+            AddConfigSection("Model", _model.Config.Model);
+            AddConfigSection("Content Type", _model.Config.ContentType);
+            AddConfigSection("Embedding Dimensions", _model.Config.EmbeddingDimensions);
+            AddConfigSection("Max Input Tokens", _model.Config.MaxInputTokens);
+            AddConfigSection("Supported Languages", _model.Config.SupportedLanguages);
+            AddConfigSection("Speaker Embedding Config", _model.Config.SpeakerEmbeddingConfig);
         }
 
         private void AddConfigSection(string sectionName, object sectionConfig)
@@ -47,10 +62,10 @@ namespace frontend.Views
 
             var sectionLabel = new Label
             {
-                Text = sectionName,
+                Text = char.ToUpper(sectionName[0]) + sectionName.Substring(1).Replace('_', ' '),
                 FontSize = 18,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromHex("#5D5D5D"),
+                TextColor = Color.FromArgb("#5D5D5D"),
                 Margin = new Thickness(0, 10, 0, 5)
             };
             ConfigContainer.Children.Add(sectionLabel);
@@ -68,15 +83,16 @@ namespace frontend.Views
 
         private void AddConfigItemToUI(string sectionName, string key, object value)
         {
+            var displayKey = key.Replace("_", " ");
             var label = new Label
             {
-                Text = char.ToUpper(key[0]) + key.Substring(1).Replace('_', ' '),
+                Text = char.ToUpper(displayKey[0]) + displayKey.Substring(1),
                 FontSize = 14,
-                TextColor = Color.FromHex("#333333")
+                TextColor = Color.FromArgb("#333333")
             };
 
             View inputView;
-            string dictionaryKey = $"{sectionName}.{key}";
+            string dictionaryKey = $"{sectionName}.{key}"; // Keep original key names
 
             if (value is bool boolValue)
             {
@@ -87,7 +103,13 @@ namespace frontend.Views
             else if (value is int || value is double || value is float)
             {
                 var entry = new Entry { Text = value.ToString(), Keyboard = Keyboard.Numeric };
-                entry.TextChanged += (s, e) => _configValues[dictionaryKey] = entry.Text;
+                entry.TextChanged += (s, e) => 
+                {
+                    if (double.TryParse(entry.Text, out double result))
+                    {
+                        _configValues[dictionaryKey] = result;
+                    }
+                };
                 inputView = entry;
             }
             else if (value is string stringValue)
@@ -126,53 +148,35 @@ namespace frontend.Views
         {
             try
             {
-                var updatedConfig = new Dictionary<string, object>();
-
+                // Update the _model.Config object with the new values
                 foreach (var item in _configValues)
                 {
                     var keys = item.Key.Split('.');
-                    var section = keys[0];
-                    var key = string.Join(".", keys.Skip(1));
+                    var sectionName = keys[0];
+                    var propertyName = string.Join(".", keys.Skip(1));
 
-                    if (!updatedConfig.ContainsKey(section))
+                    var sectionProperty = typeof(Config).GetProperty(sectionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (sectionProperty != null)
                     {
-                        updatedConfig[section] = new Dictionary<string, object>();
+                        var sectionObject = sectionProperty.GetValue(_model.Config) ?? Activator.CreateInstance(sectionProperty.PropertyType);
+                        var property = sectionObject.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                        if (property != null)
+                        {
+                            var convertedValue = Convert.ChangeType(item.Value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
+                            property.SetValue(sectionObject, convertedValue);
+                        }
+                        sectionProperty.SetValue(_model.Config, sectionObject);
                     }
-
-                    var sectionDict = (Dictionary<string, object>)updatedConfig[section];
-                    SetNestedValue(sectionDict, key.Split('.'), item.Value);
                 }
 
-                var request = new
-                {
-                    model_id = _model.ModelId,
-                    data = updatedConfig
-                };
-
-                var result = await _modelService.ConfigureModel(_model.ModelId, request);
-
-                // Update the local model configuration
-                _model.Config = JsonSerializer.Deserialize<Config>(JsonSerializer.Serialize(updatedConfig));
-
+                // Send the updated Config object to the server
+                var result = await _modelService.ConfigureModel(_model.ModelId, _model.Config);
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
             }
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save configuration: {ex.Message}", "OK");
             }
-        }
-
-        private void SetNestedValue(Dictionary<string, object> dict, string[] keys, object value)
-        {
-            for (int i = 0; i < keys.Length - 1; i++)
-            {
-                if (!dict.ContainsKey(keys[i]))
-                {
-                    dict[keys[i]] = new Dictionary<string, object>();
-                }
-                dict = (Dictionary<string, object>)dict[keys[i]];
-            }
-            dict[keys[keys.Length - 1]] = value;
         }
     }
 }
