@@ -4,6 +4,8 @@ using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.Text.Json;
 using frontend.Services;
+using System.Diagnostics;
+using System.Linq;
 
 namespace frontend.Views
 {
@@ -28,17 +30,17 @@ namespace frontend.Views
 
             AddConfigSection("Prompt", _model.Config.Prompt);
             AddConfigSection("Parameters", _model.Config.Parameters);
-            AddConfigSection("RAG Settings", _model.Config.RagSettings);
-            AddConfigSection("Model Config", _model.Config.ModelConfig);
-            AddConfigSection("Tokenizer Config", _model.Config.TokenizerConfig);
-            AddConfigSection("Processor Config", _model.Config.ProcessorConfig);
-            AddConfigSection("Pipeline Config", _model.Config.PipelineConfig);
-            AddConfigSection("Device Config", _model.Config.DeviceConfig);
-            AddConfigSection("Translation Config", _model.Config.TranslationConfig);
-            AddConfigSection("Quantization Config", _model.Config.QuantizationConfig);
-            AddConfigSection("System Prompt", _model.Config.SystemPrompt);
-            AddConfigSection("User Prompt", _model.Config.UserPrompt);
-            AddConfigSection("Assistant Prompt", _model.Config.AssistantPrompt);
+            AddConfigSection("RagSettings", _model.Config.RagSettings);
+            AddConfigSection("ModelConfig", _model.Config.ModelConfig);
+            AddConfigSection("TokenizerConfig", _model.Config.TokenizerConfig);
+            AddConfigSection("ProcessorConfig", _model.Config.ProcessorConfig);
+            AddConfigSection("PipelineConfig", _model.Config.PipelineConfig);
+            AddConfigSection("DeviceConfig", _model.Config.DeviceConfig);
+            AddConfigSection("TranslationConfig", _model.Config.TranslationConfig);
+            AddConfigSection("QuantizationConfig", _model.Config.QuantizationConfig);
+            AddConfigSection("SystemPrompt", _model.Config.SystemPrompt);
+            AddConfigSection("UserPrompt", _model.Config.UserPrompt);
+            AddConfigSection("AssistantPrompt", _model.Config.AssistantPrompt);
         }
 
         private void AddConfigSection(string sectionName, object sectionConfig)
@@ -80,7 +82,7 @@ namespace frontend.Views
 
             if (value is bool boolValue)
             {
-                var switchControl = new Switch { IsToggled = boolValue };
+                var switchControl = new Microsoft.Maui.Controls.Switch { IsToggled = boolValue };
                 switchControl.Toggled += (s, e) => _configValues[dictionaryKey] = switchControl.IsToggled;
                 inputView = switchControl;
             }
@@ -124,55 +126,107 @@ namespace frontend.Views
 
         private async void OnSaveConfigClicked(object sender, EventArgs e)
         {
+            Debug.WriteLine("OnSaveConfigClicked started");
             try
             {
-                var updatedConfig = new Dictionary<string, object>();
-
-                foreach (var item in _configValues)
-                {
-                    var keys = item.Key.Split('.');
-                    var section = keys[0];
-                    var key = string.Join(".", keys.Skip(1));
-
-                    if (!updatedConfig.ContainsKey(section))
-                    {
-                        updatedConfig[section] = new Dictionary<string, object>();
-                    }
-
-                    var sectionDict = (Dictionary<string, object>)updatedConfig[section];
-                    SetNestedValue(sectionDict, key.Split('.'), item.Value);
-                }
+                Debug.WriteLine("Updating model config");
+                UpdateModelConfig();
 
                 var request = new
                 {
                     model_id = _model.ModelId,
-                    data = updatedConfig
+                    data = _model.Config
                 };
+
+                Debug.WriteLine($"Sending request to configure model. ModelId: {_model.ModelId}");
+                Debug.WriteLine($"Config data: {JsonSerializer.Serialize(_model.Config)}");
 
                 var result = await _modelService.ConfigureModel(_model.ModelId, request);
 
-                // Update the local model configuration
-                _model.Config = JsonSerializer.Deserialize<Config>(JsonSerializer.Serialize(updatedConfig));
-
+                Debug.WriteLine("Configuration saved successfully");
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Error saving configuration: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save configuration: {ex.Message}", "OK");
             }
         }
 
-        private void SetNestedValue(Dictionary<string, object> dict, string[] keys, object value)
+        private void UpdateModelConfig()
         {
-            for (int i = 0; i < keys.Length - 1; i++)
+            Debug.WriteLine("UpdateModelConfig started");
+            Debug.WriteLine($"Number of config values to update: {_configValues.Count}");
+
+            foreach (var item in _configValues)
             {
-                if (!dict.ContainsKey(keys[i]))
+                Debug.WriteLine($"Updating config item: {item.Key} = {item.Value}");
+
+                var keys = item.Key.Split('.');
+                var section = keys[0];
+                var key = string.Join(".", keys.Skip(1));
+
+                var sectionProperty = typeof(Config).GetProperty(section);
+                if (sectionProperty != null)
                 {
-                    dict[keys[i]] = new Dictionary<string, object>();
+                    Debug.WriteLine($"Found section property: {section}");
+                    var sectionObject = sectionProperty.GetValue(_model.Config);
+                    if (sectionObject == null)
+                    {
+                        Debug.WriteLine($"Creating new instance for section: {section}");
+                        sectionObject = Activator.CreateInstance(sectionProperty.PropertyType);
+                        sectionProperty.SetValue(_model.Config, sectionObject);
+                    }
+                    SetPropertyValue(sectionObject, key.Split('.'), item.Value);
                 }
-                dict = (Dictionary<string, object>)dict[keys[i]];
+                else
+                {
+                    Debug.WriteLine($"Section property not found: {section}");
+                }
             }
-            dict[keys[keys.Length - 1]] = value;
+
+            Debug.WriteLine("UpdateModelConfig completed");
+        }
+
+        private void SetPropertyValue(object obj, string[] propertyPath, object value)
+        {
+            Debug.WriteLine($"SetPropertyValue started. Property path: {string.Join(".", propertyPath)}");
+
+            for (int i = 0; i < propertyPath.Length - 1; i++)
+            {
+                var property = obj.GetType().GetProperty(propertyPath[i]);
+                if (property == null)
+                {
+                    Debug.WriteLine($"Property not found: {propertyPath[i]}");
+                    return;
+                }
+
+                var propertyValue = property.GetValue(obj);
+                if (propertyValue == null)
+                {
+                    Debug.WriteLine($"Creating new instance for property: {propertyPath[i]}");
+                    propertyValue = Activator.CreateInstance(property.PropertyType);
+                    property.SetValue(obj, propertyValue);
+                }
+                obj = propertyValue;
+            }
+
+            var lastProperty = obj.GetType().GetProperty(propertyPath.Last());
+            if (lastProperty != null)
+            {
+                Debug.WriteLine($"Setting value for property: {propertyPath.Last()}");
+                var targetType = Nullable.GetUnderlyingType(lastProperty.PropertyType) ?? lastProperty.PropertyType;
+                var convertedValue = Convert.ChangeType(value, targetType);
+                lastProperty.SetValue(obj, convertedValue);
+                Debug.WriteLine($"Value set successfully: {convertedValue}");
+            }
+            else
+            {
+                Debug.WriteLine($"Last property not found: {propertyPath.Last()}");
+            }
+
+            Debug.WriteLine("SetPropertyValue completed");
         }
     }
 }
