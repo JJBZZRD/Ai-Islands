@@ -62,7 +62,7 @@ namespace frontend.Views
 
             var sectionLabel = new Label
             {
-                Text = char.ToUpper(sectionName[0]) + sectionName.Substring(1).Replace('_', ' '),
+                Text = sectionName,
                 FontSize = 18,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromArgb("#5D5D5D"),
@@ -92,7 +92,7 @@ namespace frontend.Views
             };
 
             View inputView;
-            string dictionaryKey = $"{sectionName}.{key}"; // Keep original key names
+            string dictionaryKey = $"{sectionName}.{key}";
 
             if (value is bool boolValue)
             {
@@ -129,7 +129,6 @@ namespace frontend.Views
             }
             else
             {
-                // For other types, display as read-only text
                 inputView = new Label { Text = value.ToString() };
             }
 
@@ -144,32 +143,78 @@ namespace frontend.Views
             ConfigContainer.Children.Add(itemLayout);
         }
 
+        private string MapSectionNameToPropertyName(string sectionName)
+        {
+            return sectionName.Replace(" ", "") switch
+            {
+                "RAGSettings" => "RagSettings",
+                "QuantizationConfigOptions" => "QuantizationConfigOptions",
+                "SystemPrompt" => "SystemPrompt",
+                "UserPrompt" => "UserPrompt",
+                "AssistantPrompt" => "AssistantPrompt",
+                "ExampleConversation" => "ExampleConversation",
+                "ServiceName" => "ServiceName",
+                "ContentType" => "ContentType",
+                "EmbeddingDimensions" => "EmbeddingDimensions",
+                "MaxInputTokens" => "MaxInputTokens",
+                "SupportedLanguages" => "SupportedLanguages",
+                "SpeakerEmbeddingConfig" => "SpeakerEmbeddingConfig",
+                _ => sectionName
+            };
+        }
+
         private async void OnSaveConfigClicked(object sender, EventArgs e)
         {
             try
             {
-                // Update the _model.Config object with the new values
                 foreach (var item in _configValues)
                 {
                     var keys = item.Key.Split('.');
-                    var sectionName = keys[0];
+                    var sectionName = MapSectionNameToPropertyName(keys[0]);
                     var propertyName = string.Join(".", keys.Skip(1));
 
-                    var sectionProperty = typeof(Config).GetProperty(sectionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var sectionProperty = typeof(Config).GetProperty(sectionName, BindingFlags.Public | BindingFlags.Instance);
                     if (sectionProperty != null)
                     {
                         var sectionObject = sectionProperty.GetValue(_model.Config) ?? Activator.CreateInstance(sectionProperty.PropertyType);
-                        var property = sectionObject.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                        var property = sectionObject.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+                        
                         if (property != null)
                         {
-                            var convertedValue = Convert.ChangeType(item.Value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
+                            object convertedValue;
+                            var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                            if (targetType == typeof(bool))
+                            {
+                                convertedValue = Convert.ToBoolean(item.Value);
+                            }
+                            else if (targetType == typeof(int))
+                            {
+                                convertedValue = Convert.ToInt32(item.Value);
+                            }
+                            else if (targetType == typeof(float))
+                            {
+                                convertedValue = Convert.ToSingle(item.Value);
+                            }
+                            else if (targetType == typeof(double))
+                            {
+                                convertedValue = Convert.ToDouble(item.Value);
+                            }
+                            else if (targetType == typeof(string))
+                            {
+                                convertedValue = Convert.ToString(item.Value);
+                            }
+                            else
+                            {
+                                convertedValue = Convert.ChangeType(item.Value, targetType);
+                            }
+
                             property.SetValue(sectionObject, convertedValue);
                         }
                         sectionProperty.SetValue(_model.Config, sectionObject);
                     }
                 }
 
-                // Send the updated Config object to the server
                 var result = await _modelService.ConfigureModel(_model.ModelId, _model.Config);
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
             }
