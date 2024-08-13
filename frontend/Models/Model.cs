@@ -63,10 +63,19 @@ namespace frontend.Models
         public string? DatasetFormat { get; set; }
 
         [JsonPropertyName("mapping")]
-        public Dictionary<string, object>? Mapping { get; set; }
+        public Mapping? Mapping { get; set; }
 
         [JsonPropertyName("languages")]
         public Dictionary<string,string>? Languages { get; set; }
 
     }    
+    public class Mapping
+    {
+        [JsonPropertyName("input")]
+        public string? Input { get; set; }
+
+        [JsonPropertyName("output")]
+        public string? Output { get; set; }
+
+    }
 }

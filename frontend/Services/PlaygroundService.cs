@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using frontend.entities;
 using System.Text.Json;
+using frontend.Models;
+using frontend.Services;
 
 namespace frontend.Services
 {
@@ -139,6 +141,22 @@ namespace frontend.Services
             var response = await _httpClient.PostAsJsonAsync("playground/inference", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+        }
+
+        public async Task<Dictionary<string, Model>> GetPlaygroundModels(Playground playground)
+        {
+            LibraryService libraryService = new LibraryService();
+            ModelService modelService = new ModelService();
+            var modelList = await libraryService.GetLibrary();
+            var playgroundModels = new Dictionary<string, Model>();
+            foreach (var model in modelList)
+            {
+                if (playground.Models.ContainsKey(model.ModelId))
+                {
+                    playgroundModels[model.ModelId] = model;
+                }
+            }
+            return playgroundModels;
         }
     }
 }

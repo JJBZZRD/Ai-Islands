@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-
+using frontend.entities;
+using frontend.Models;
 namespace frontend.entities
 {
     public class Playground
@@ -9,7 +10,7 @@ namespace frontend.entities
         public string? Description { get; set; }
 
         [JsonPropertyName("models")]
-        public Dictionary<string, Mapping>? Models { get; set; }
+        public Dictionary<string, Model>? Models { get; set; }
 
         [JsonPropertyName("chain")]
         public List<string>? Chain { get; set; }
@@ -22,20 +23,4 @@ namespace frontend.entities
 
     }
 
-    public class Mapping
-    {
-        [JsonPropertyName("input")]
-        public string? Input { get; set; }
-
-        [JsonPropertyName("output")]
-        public string? Output { get; set; }
-
-        [JsonPropertyName("pipeline_tag")]
-        public string? PipelineTag { get; set; } 
-
-        [JsonPropertyName("is_online")]
-        public bool IsOnline { get; set; }
-
-        public string Status => IsOnline ? "Online" : "Offline";
-    }
 }
