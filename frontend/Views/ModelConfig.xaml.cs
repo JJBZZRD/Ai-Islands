@@ -75,12 +75,10 @@ namespace frontend.Views
                     AddConfigItemToUI(sectionName, kvp.Key, kvp.Value);
                 }
             }
-            else if (sectionConfig is IList<object> list)
+            else if (sectionConfig is List<ConversationTurn> list)
             {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    AddConfigItemToUI(sectionName, $"[{i}]", list[i]);
-                }
+                AddExampleConversationToUI(sectionName, list);
+                
             }
             else if (sectionConfig.GetType().IsPrimitive || sectionConfig is string)
             {
@@ -98,6 +96,89 @@ namespace frontend.Views
                     }
                 }
             }
+        }
+
+        private void AddExampleConversationToUI(string sectionName, List<ConversationTurn> conversation)
+        {
+            var conversationLayout = new VerticalStackLayout();
+            for (int i = 0; i < conversation.Count; i++)
+            {
+                var turn = conversation[i];
+                var turnLayout = new VerticalStackLayout
+                {
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+
+                var roleEntry = new Entry
+                {
+                    Text = turn.Role,
+                    Placeholder = "Enter role"
+                };
+                roleEntry.TextChanged += (s, e) => 
+                {
+                    _configValues[$"{sectionName}[{i}].Role"] = roleEntry.Text;
+                };
+
+                var contentEntry = new Entry
+                {
+                    Text = turn.Content,
+                    Placeholder = "Enter content"
+                };
+                contentEntry.TextChanged += (s, e) => 
+                {
+                    _configValues[$"{sectionName}[{i}].Content"] = contentEntry.Text;
+                };
+
+                turnLayout.Children.Add(new Label { Text = "Role:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+                turnLayout.Children.Add(roleEntry);
+                turnLayout.Children.Add(new Label { Text = "Content:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+                turnLayout.Children.Add(contentEntry);
+
+                conversationLayout.Children.Add(turnLayout);
+            }
+
+            // Add a button to add new conversation turns
+            var addButton = new Button
+            {
+                Text = "Add Turn",
+                Command = new Command(() => AddNewConversationTurn(conversationLayout, sectionName, conversation.Count))
+            };
+            conversationLayout.Children.Add(addButton);
+
+            ConfigContainer.Children.Add(conversationLayout);
+        }
+
+        private void AddNewConversationTurn(VerticalStackLayout conversationLayout, string sectionName, int index)
+        {
+            var turnLayout = new VerticalStackLayout
+            {
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+
+            var roleEntry = new Entry
+            {
+                Placeholder = "Enter role"
+            };
+            roleEntry.TextChanged += (s, e) => 
+            {
+                _configValues[$"{sectionName}[{index}].Role"] = roleEntry.Text;
+            };
+
+            var contentEntry = new Entry
+            {
+                Placeholder = "Enter content"
+            };
+            contentEntry.TextChanged += (s, e) => 
+            {
+                _configValues[$"{sectionName}[{index}].Content"] = contentEntry.Text;
+            };
+
+            turnLayout.Children.Add(new Label { Text = "Role:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+            turnLayout.Children.Add(roleEntry);
+            turnLayout.Children.Add(new Label { Text = "Content:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+            turnLayout.Children.Add(contentEntry);
+
+            conversationLayout.Children.Insert(conversationLayout.Children.Count - 1, turnLayout);
         }
 
         private void AddConfigItemToUI(string sectionName, string key, object value)
@@ -192,13 +273,19 @@ namespace frontend.Views
             Debug.WriteLine("UpdateModelConfig started");
             Debug.WriteLine($"Number of config values to update: {_configValues.Count}");
 
+            var exampleConversationUpdates = new Dictionary<int, Dictionary<string, string>>();
+
             foreach (var item in _configValues)
             {
                 Debug.WriteLine($"Updating config item: {item.Key} = {item.Value}");
 
                 var keys = item.Key.Split('.');
                 Debug.WriteLine($"Keys: [{string.Join(", ", keys)}]");
-                if (keys.Distinct().ToArray().Length == 1)
+                if (keys[0].StartsWith("ExampleConversation"))
+                {
+                    UpdateExampleConversationItem(exampleConversationUpdates, keys, item.Value);
+                }
+                else if (keys.Length == 1)
                 {
                     // Handle top-level attributes
                     SetTopLevelPropertyValue(_model.Config, keys[0], item.Value);
@@ -210,7 +297,52 @@ namespace frontend.Views
                 }
             }
 
+            // Apply the updates to the ExampleConversation list
+            if (exampleConversationUpdates.Count > 0)
+            {
+                var exampleConversation = _model.Config.ExampleConversation ?? new List<ConversationTurn>();
+                foreach (var update in exampleConversationUpdates)
+                {
+                    while (exampleConversation.Count <= update.Key)
+                    {
+                        exampleConversation.Add(new ConversationTurn());
+                    }
+
+                    var turn = exampleConversation[update.Key];
+                    if (update.Value.ContainsKey("Role"))
+                    {
+                        turn.Role = update.Value["Role"];
+                    }
+                    if (update.Value.ContainsKey("Content"))
+                    {
+                        turn.Content = update.Value["Content"];
+                    }
+                }
+                _model.Config.ExampleConversation = exampleConversation;
+            }
+
             Debug.WriteLine("UpdateModelConfig completed");
+        }
+
+        private void UpdateExampleConversationItem(Dictionary<int, Dictionary<string, string>> conversationUpdates, string[] keys, object value)
+        {
+            // Extract the index from the keys[0] format "ExampleConversation[i]"
+            var match = System.Text.RegularExpressions.Regex.Match(keys[0], @"ExampleConversation\[(\d+)\]");
+            if (!match.Success)
+            {
+                Debug.WriteLine($"Invalid ExampleConversation key format: {keys[0]}");
+                return;
+            }
+
+            int index = int.Parse(match.Groups[1].Value);
+            string property = keys[1];
+
+            if (!conversationUpdates.ContainsKey(index))
+            {
+                conversationUpdates[index] = new Dictionary<string, string>();
+            }
+
+            conversationUpdates[index][property] = value?.ToString();
         }
 
         private void SetTopLevelPropertyValue(object obj, string propertyName, object value)

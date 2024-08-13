@@ -39,7 +39,7 @@ namespace frontend.Services
                 {
                     PropertyNameCaseInsensitive = true
                 };
-                
+
                 var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
                 System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
 
@@ -53,7 +53,7 @@ namespace frontend.Services
                         modelList.Add(model);
                         System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
                         System.Diagnostics.Debug.WriteLine($"Model: {model}");
-                        
+
                         // Print model config
                         if (model.Config != null)
                         {
@@ -63,6 +63,18 @@ namespace frontend.Services
                             System.Diagnostics.Debug.WriteLine($"  Pipeline Config: {JsonSerializer.Serialize(model.Config.PipelineConfig)}");
                             System.Diagnostics.Debug.WriteLine($"  Device Config: {JsonSerializer.Serialize(model.Config.DeviceConfig)}");
                             System.Diagnostics.Debug.WriteLine($"  Quantization Config: {JsonSerializer.Serialize(model.Config.QuantizationConfig)}");
+                            if (model.Config.ExampleConversation != null && model.Config.ExampleConversation.Any())
+                            {
+                                System.Diagnostics.Debug.WriteLine($"  Example Conversation:");
+                                foreach (var turn in model.Config.ExampleConversation)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"    Role: {turn.Role}, Content: {turn.Content}");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine($"  No Example Conversation available");
+                            }
                         }
                         else
                         {
@@ -81,7 +93,7 @@ namespace frontend.Services
             }
         }
 
- 
+
 
         public async Task<List<Model>> GetModelIndex()
         {
@@ -97,7 +109,7 @@ namespace frontend.Services
                 {
                     PropertyNameCaseInsensitive = true
                 };
-                
+
                 var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, Model>>(jsonString, options);
                 System.Diagnostics.Debug.WriteLine($"Deserialized model dictionary. Count: {modelDictionary?.Count ?? 0}");
 
@@ -125,7 +137,7 @@ namespace frontend.Services
             }
         }
 
-        
+
         public async Task<Dictionary<string, object>> UpdateLibrary(string modelId, Dictionary<string, object> newEntry)
         {
             var response = await _httpClient.PostAsJsonAsync($"library/update?model_id={modelId}", newEntry);

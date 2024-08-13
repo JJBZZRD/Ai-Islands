@@ -114,7 +114,7 @@ namespace frontend.Models
         public AssistantPrompt? AssistantPrompt { get; set; }
 
         [JsonPropertyName("example_conversation")]
-        public List<Dictionary<String, String>>? ExampleConversation { get; set; }
+        public List<ConversationTurn>? ExampleConversation { get; set; }
 
         [JsonPropertyName("service_name")]
         public string? ServiceName { get; set; }
@@ -377,6 +377,15 @@ namespace frontend.Models
         [JsonPropertyName("content")]
         public string? Content { get; set; }
     }
+
+    public class ConversationTurn
+{
+    [JsonPropertyName("role")]
+    public string? Role { get; set; }
+
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
+}
 
     public class Features
     {
