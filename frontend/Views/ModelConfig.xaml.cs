@@ -6,6 +6,8 @@ using System.Text.Json;
 using frontend.Services;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Maui.Graphics;
+using System.Reflection;
 
 namespace frontend.Views
 {
@@ -28,28 +30,37 @@ namespace frontend.Views
         {
             if (_model.Config == null) return;
 
-            AddConfigSection("Prompt", _model.Config.Prompt);
-            AddConfigSection("Parameters", _model.Config.Parameters);
-            AddConfigSection("RagSettings", _model.Config.RagSettings);
-            AddConfigSection("ModelConfig", _model.Config.ModelConfig);
-            AddConfigSection("TokenizerConfig", _model.Config.TokenizerConfig);
-            AddConfigSection("ProcessorConfig", _model.Config.ProcessorConfig);
-            AddConfigSection("PipelineConfig", _model.Config.PipelineConfig);
-            AddConfigSection("DeviceConfig", _model.Config.DeviceConfig);
-            AddConfigSection("TranslationConfig", _model.Config.TranslationConfig);
-            AddConfigSection("QuantizationConfig", _model.Config.QuantizationConfig);
-            AddConfigSection("SystemPrompt", _model.Config.SystemPrompt);
-            AddConfigSection("UserPrompt", _model.Config.UserPrompt);
-            AddConfigSection("AssistantPrompt", _model.Config.AssistantPrompt);
+            // Handle the config as a dictionary, which should work for all models
+            if (_model.Config is IDictionary<string, object> configDict)
+            {
+                foreach (var kvp in configDict)
+                {
+                    AddConfigSection(kvp.Key, kvp.Value);
+                }
+            }
+            else
+            {
+                // Fallback for non-dictionary configs
+                var properties = _model.Config.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(_model.Config);
+                    if (value != null)
+                    {
+                        AddConfigSection(property.Name, value);
+                    }
+                }
+            }
         }
 
         private void AddConfigSection(string sectionName, object sectionConfig)
         {
             if (sectionConfig == null) return;
 
+            var displayName = FormatNameForDisplay(sectionName);
             var sectionLabel = new Label
             {
-                Text = sectionName,
+                Text = displayName,
                 FontSize = 18,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromHex("#5D5D5D"),
@@ -57,22 +68,44 @@ namespace frontend.Views
             };
             ConfigContainer.Children.Add(sectionLabel);
 
-            var properties = sectionConfig.GetType().GetProperties();
-            foreach (var property in properties)
+            if (sectionConfig is IDictionary<string, object> dict)
             {
-                var value = property.GetValue(sectionConfig);
-                if (value != null)
+                foreach (var kvp in dict)
                 {
-                    AddConfigItemToUI(sectionName, property.Name, value);
+                    AddConfigItemToUI(sectionName, kvp.Key, kvp.Value);
+                }
+            }
+            else if (sectionConfig is IList<object> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    AddConfigItemToUI(sectionName, $"[{i}]", list[i]);
+                }
+            }
+            else if (sectionConfig.GetType().IsPrimitive || sectionConfig is string)
+            {
+                AddConfigItemToUI(sectionName, sectionName, sectionConfig);
+            }
+            else
+            {
+                var properties = sectionConfig.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(sectionConfig);
+                    if (value != null)
+                    {
+                        AddConfigItemToUI(sectionName, property.Name, value);
+                    }
                 }
             }
         }
 
         private void AddConfigItemToUI(string sectionName, string key, object value)
         {
+            var displayKey = FormatNameForDisplay(key);
             var label = new Label
             {
-                Text = char.ToUpper(key[0]) + key.Substring(1).Replace('_', ' '),
+                Text = displayKey,
                 FontSize = 14,
                 TextColor = Color.FromHex("#333333")
             };
@@ -124,6 +157,12 @@ namespace frontend.Views
             ConfigContainer.Children.Add(itemLayout);
         }
 
+        private string FormatNameForDisplay(string name)
+        {
+            // Insert a space before each capital letter, except for the first one
+            return System.Text.RegularExpressions.Regex.Replace(name, @"((?<=\p{Ll})\p{Lu}|\p{Lu}(?=\p{Ll}))", " $1");
+        }
+
         private async void OnSaveConfigClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnSaveConfigClicked started");
@@ -158,29 +197,67 @@ namespace frontend.Views
                 Debug.WriteLine($"Updating config item: {item.Key} = {item.Value}");
 
                 var keys = item.Key.Split('.');
-                var section = keys[0];
-                var key = string.Join(".", keys.Skip(1));
-
-                var sectionProperty = typeof(Config).GetProperty(section);
-                if (sectionProperty != null)
+                Debug.WriteLine($"Keys: [{string.Join(", ", keys)}]");
+                if (keys.Distinct().ToArray().Length == 1)
                 {
-                    Debug.WriteLine($"Found section property: {section}");
-                    var sectionObject = sectionProperty.GetValue(_model.Config);
-                    if (sectionObject == null)
-                    {
-                        Debug.WriteLine($"Creating new instance for section: {section}");
-                        sectionObject = Activator.CreateInstance(sectionProperty.PropertyType);
-                        sectionProperty.SetValue(_model.Config, sectionObject);
-                    }
-                    SetPropertyValue(sectionObject, key.Split('.'), item.Value);
+                    // Handle top-level attributes
+                    SetTopLevelPropertyValue(_model.Config, keys[0], item.Value);
                 }
                 else
                 {
-                    Debug.WriteLine($"Section property not found: {section}");
+                    // Handle nested attributes
+                    SetPropertyValue(_model.Config, keys, item.Value);
                 }
             }
 
             Debug.WriteLine("UpdateModelConfig completed");
+        }
+
+        private void SetTopLevelPropertyValue(object obj, string propertyName, object value)
+        {
+            Debug.WriteLine($"SetTopLevelPropertyValue started. Property: {propertyName}");
+
+            var property = obj.GetType().GetProperty(propertyName);
+            if (property != null)
+            {
+                Debug.WriteLine($"Setting value for property: {propertyName}");
+                var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                object convertedValue;
+
+                if (targetType == typeof(bool))
+                {
+                    convertedValue = Convert.ToBoolean(value);
+                }
+                else if (targetType == typeof(int))
+                {
+                    convertedValue = Convert.ToInt32(value);
+                }
+                else if (targetType == typeof(float))
+                {
+                    convertedValue = Convert.ToSingle(value);
+                }
+                else if (targetType == typeof(double))
+                {
+                    convertedValue = Convert.ToDouble(value);
+                }
+                else if (targetType == typeof(string))
+                {
+                    convertedValue = Convert.ToString(value);
+                }
+                else
+                {
+                    convertedValue = Convert.ChangeType(value, targetType);
+                }
+
+                property.SetValue(obj, convertedValue);
+                Debug.WriteLine($"Value set successfully: {convertedValue}");
+            }
+            else
+            {
+                Debug.WriteLine($"Property not found: {propertyName}");
+            }
+
+            Debug.WriteLine("SetTopLevelPropertyValue completed");
         }
 
         private void SetPropertyValue(object obj, string[] propertyPath, object value)
@@ -211,7 +288,33 @@ namespace frontend.Views
             {
                 Debug.WriteLine($"Setting value for property: {propertyPath.Last()}");
                 var targetType = Nullable.GetUnderlyingType(lastProperty.PropertyType) ?? lastProperty.PropertyType;
-                var convertedValue = Convert.ChangeType(value, targetType);
+                object convertedValue;
+
+                if (targetType == typeof(bool))
+                {
+                    convertedValue = Convert.ToBoolean(value);
+                }
+                else if (targetType == typeof(int))
+                {
+                    convertedValue = Convert.ToInt32(value);
+                }
+                else if (targetType == typeof(float))
+                {
+                    convertedValue = Convert.ToSingle(value);
+                }
+                else if (targetType == typeof(double))
+                {
+                    convertedValue = Convert.ToDouble(value);
+                }
+                else if (targetType == typeof(string))
+                {
+                    convertedValue = Convert.ToString(value);
+                }
+                else
+                {
+                    convertedValue = Convert.ChangeType(value, targetType);
+                }
+
                 lastProperty.SetValue(obj, convertedValue);
                 Debug.WriteLine($"Value set successfully: {convertedValue}");
             }
