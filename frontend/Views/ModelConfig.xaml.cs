@@ -28,41 +28,37 @@ namespace frontend.Views
         {
             if (_model.Config == null) return;
 
-            AddConfigSection("Prompt", _model.Config.Prompt);
-            AddConfigSection("Parameters", _model.Config.Parameters);
-            AddConfigSection("RAG Settings", _model.Config.RagSettings);
-            AddConfigSection("Model Config", _model.Config.ModelConfig);
-            AddConfigSection("Tokenizer Config", _model.Config.TokenizerConfig);
-            AddConfigSection("Processor Config", _model.Config.ProcessorConfig);
-            AddConfigSection("Pipeline Config", _model.Config.PipelineConfig);
-            AddConfigSection("Device Config", _model.Config.DeviceConfig);
-            AddConfigSection("Translation Config", _model.Config.TranslationConfig);
-            AddConfigSection("Quantization Config", _model.Config.QuantizationConfig);
-            AddConfigSection("Quantization Config Options", _model.Config.QuantizationConfigOptions);
-            AddConfigSection("System Prompt", _model.Config.SystemPrompt);
-            AddConfigSection("User Prompt", _model.Config.UserPrompt);
-            AddConfigSection("Assistant Prompt", _model.Config.AssistantPrompt);
-            AddConfigSection("Example Conversation", _model.Config.ExampleConversation);
-            AddConfigSection("Service Name", _model.Config.ServiceName);
-            AddConfigSection("Features", _model.Config.Features);
-            AddConfigSection("Voice", _model.Config.Voice);
-            AddConfigSection("Pitch", _model.Config.Pitch);
-            AddConfigSection("Speed", _model.Config.Speed);
-            AddConfigSection("Model", _model.Config.Model);
-            AddConfigSection("Content Type", _model.Config.ContentType);
-            AddConfigSection("Embedding Dimensions", _model.Config.EmbeddingDimensions);
-            AddConfigSection("Max Input Tokens", _model.Config.MaxInputTokens);
-            AddConfigSection("Supported Languages", _model.Config.SupportedLanguages);
-            AddConfigSection("Speaker Embedding Config", _model.Config.SpeakerEmbeddingConfig);
+            // Handle the config as a dictionary, which should work for all models
+            if (_model.Config is IDictionary<string, object> configDict)
+            {
+                foreach (var kvp in configDict)
+                {
+                    AddConfigSection(kvp.Key, kvp.Value);
+                }
+            }
+            else
+            {
+                // Fallback for non-dictionary configs (though this shouldn't be necessary if all configs are standardized)
+                var properties = _model.Config.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(_model.Config);
+                    if (value != null)
+                    {
+                        AddConfigSection(property.Name, value);
+                    }
+                }
+            }
         }
 
         private void AddConfigSection(string sectionName, object sectionConfig)
         {
             if (sectionConfig == null) return;
 
+            var displayName = FormatNameForDisplay(sectionName);
             var sectionLabel = new Label
             {
-                Text = sectionName,
+                Text = displayName,
                 FontSize = 18,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Color.FromArgb("#5D5D5D"),
@@ -70,12 +66,30 @@ namespace frontend.Views
             };
             ConfigContainer.Children.Add(sectionLabel);
 
-            var properties = sectionConfig.GetType().GetProperties();
-            foreach (var property in properties)
+            if (sectionConfig is IDictionary<string, object> dict)
             {
-                var value = property.GetValue(sectionConfig);
-                if (value != null)
+                foreach (var kvp in dict)
                 {
+                    AddConfigItemToUI(sectionName, kvp.Key, kvp.Value);
+                }
+            }
+            else if (sectionConfig is IList<object> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    AddConfigItemToUI(sectionName, $"[{i}]", list[i]);
+                }
+            }
+            else if (sectionConfig.GetType().IsPrimitive || sectionConfig is string)
+            {
+                AddConfigItemToUI(sectionName, sectionName, sectionConfig);
+            }
+            else
+            {
+                var properties = sectionConfig.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(sectionConfig);
                     AddConfigItemToUI(sectionName, property.Name, value);
                 }
             }
@@ -83,10 +97,10 @@ namespace frontend.Views
 
         private void AddConfigItemToUI(string sectionName, string key, object value)
         {
-            var displayKey = key.Replace("_", " ");
+            var displayKey = FormatNameForDisplay(key);
             var label = new Label
             {
-                Text = char.ToUpper(displayKey[0]) + displayKey.Substring(1),
+                Text = displayKey,
                 FontSize = 14,
                 TextColor = Color.FromArgb("#333333")
             };
@@ -118,7 +132,7 @@ namespace frontend.Views
                 entry.TextChanged += (s, e) => _configValues[dictionaryKey] = entry.Text;
                 inputView = entry;
             }
-            else if (value is Dictionary<string, object> dictValue)
+            else if (value is IDictionary<string, object> dictValue)
             {
                 var stackLayout = new VerticalStackLayout();
                 foreach (var kvp in dictValue)
@@ -127,9 +141,18 @@ namespace frontend.Views
                 }
                 inputView = stackLayout;
             }
+            else if (value is IList<object> listValue)
+            {
+                var stackLayout = new VerticalStackLayout();
+                for (int i = 0; i < listValue.Count; i++)
+                {
+                    AddConfigItemToUI($"{sectionName}.{key}", $"[{i}]", listValue[i]);
+                }
+                inputView = stackLayout;
+            }
             else
             {
-                inputView = new Label { Text = value.ToString() };
+                inputView = new Label { Text = value?.ToString() ?? "null" };
             }
 
             _configValues[dictionaryKey] = value;
@@ -143,9 +166,18 @@ namespace frontend.Views
             ConfigContainer.Children.Add(itemLayout);
         }
 
+        private string FormatNameForDisplay(string name)
+        {
+            // Insert a space before each capital letter, except for the first one
+            return System.Text.RegularExpressions.Regex.Replace(name, @"((?<=\p{Ll})\p{Lu}|\p{Lu}(?=\p{Ll}))", " $1");
+        }
+
         private string MapSectionNameToPropertyName(string sectionName)
         {
-            return sectionName.Replace(" ", "") switch
+            // Remove spaces and convert to PascalCase
+            string pascalCase = string.Concat(sectionName.Split(' ').Select(s => char.ToUpper(s[0]) + s.Substring(1)));
+
+            return pascalCase switch
             {
                 "RAGSettings" => "RagSettings",
                 "QuantizationConfigOptions" => "QuantizationConfigOptions",
@@ -159,7 +191,7 @@ namespace frontend.Views
                 "MaxInputTokens" => "MaxInputTokens",
                 "SupportedLanguages" => "SupportedLanguages",
                 "SpeakerEmbeddingConfig" => "SpeakerEmbeddingConfig",
-                _ => sectionName
+                _ => pascalCase
             };
         }
 
@@ -171,7 +203,7 @@ namespace frontend.Views
                 {
                     var keys = item.Key.Split('.');
                     var sectionName = MapSectionNameToPropertyName(keys[0]);
-                    var propertyName = string.Join(".", keys.Skip(1));
+                    var propertyName = string.Join(".", keys.Skip(1).Select(MapSectionNameToPropertyName));
 
                     var sectionProperty = typeof(Config).GetProperty(sectionName, BindingFlags.Public | BindingFlags.Instance);
                     if (sectionProperty != null)
