@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using frontend.Services;
 using frontend.entities;
 using System.Text.Json;
+using frontend.Models;
 
 namespace frontend.Views
 {
@@ -26,12 +27,10 @@ namespace frontend.Views
         {
             try
             {
-                var playgroundsData = await _playgroundService.ListPlaygrounds();
+                var playgrounds = await _playgroundService.ListPlaygrounds();
                 PlaygroundList.Clear();
-                foreach (var playgroundData in playgroundsData)
+                foreach (var playground in playgrounds)
                 {
-                    var playground = playgroundData.Value;
-                    playground.Id = playgroundData.Key; 
                     PlaygroundList.Add(playground);
                 }
             }
@@ -42,7 +41,7 @@ namespace frontend.Views
                 {
                     System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
                 }
-                throw;
+                await DisplayAlert("Error", "An error occurred while loading playgrounds.", "OK");
             }
             catch (Exception ex)
             {
@@ -55,16 +54,8 @@ namespace frontend.Views
         {
             if (e.Parameter is frontend.entities.Playground selectedPlayground)
             {
-                var playgroundDict = new Dictionary<string, object>
-                {
-                    { "Id", selectedPlayground.Id ?? Guid.NewGuid().ToString() }, 
-                    { "Description", selectedPlayground.Description ?? "No description" }, 
-                    { "Models", selectedPlayground.Models ?? new Dictionary<string, Mapping>() }, 
-                    { "Chain", selectedPlayground.Chain ?? new List<string>() }, 
-                };
-
                 var playgroundService = new PlaygroundService();
-                await Navigation.PushAsync(new PlaygroundTabbedPage(playgroundDict, playgroundService));
+                await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, playgroundService));
             }
         }
 
@@ -72,11 +63,10 @@ namespace frontend.Views
         {
             var searchText = e.NewTextValue;
 
-            
             var filteredList = string.IsNullOrWhiteSpace(searchText)
                 ? PlaygroundList
                 : new ObservableCollection<frontend.entities.Playground>(
-                    PlaygroundList.Where(p => p.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    PlaygroundList.Where(p => p.Description != null && p.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                 );
 
             // for updating the CollectionView with the filtered list

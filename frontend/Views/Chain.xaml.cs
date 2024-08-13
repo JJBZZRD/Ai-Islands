@@ -2,7 +2,7 @@ namespace frontend.Views;
 
 public partial class Chain : ContentView
 {
-    public Chain(Dictionary<string, object> playground)
+    public Chain(frontend.entities.Playground playground)
     {
         InitializeComponent();
         BindingContext = playground;

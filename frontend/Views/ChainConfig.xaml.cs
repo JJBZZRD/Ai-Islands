@@ -7,7 +7,7 @@ public partial class ChainConfig: ContentView
 {
     private List<string> _models = new List<string> { "Model 1", "Model 2", "Model 3", "Model 4", "Model 5", "Model 6", "Model 7" };
 
-    public ChainConfig(Dictionary<string, object> playground)
+    public ChainConfig(frontend.entities.Playground playground)
     {
         InitializeComponent();
         BindingContext = playground;

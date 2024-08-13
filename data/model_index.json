@@ -1054,7 +1054,7 @@
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "mapping": {
-      "input": [ "image", "text" ],
+      "input": "image",
       "output": "text"
     },
     "tags": [
@@ -1085,7 +1085,7 @@
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "mapping": {
-      "input": [ "image", "text" ],
+      "input": "image",
       "output": "text"
     },
     "tags": [

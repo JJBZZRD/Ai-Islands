@@ -1,30 +1,51 @@
 using Microsoft.Maui.Controls;
-using System.Collections.Generic;
 using frontend.Models;
 using frontend.Services;
 using frontend.entities;
+using System.Collections.Generic;
+
 namespace frontend.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlaygroundTabbedPage : ContentPage
     {
-        private Dictionary<string, object> _playground;
+        private frontend.entities.Playground _playground;
         private PlaygroundService _playgroundService;
 
-        public PlaygroundTabbedPage(Dictionary<string, object> playground, PlaygroundService playgroundService)
+        public PlaygroundTabbedPage(frontend.entities.Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playground = playground;
             _playgroundService = playgroundService;
             BindingContext = this;
 
-            ShowModelPage(); // show model page when initialised
+            // Ensure Models dictionary is initialized
+            _playground.Models ??= new Dictionary<string, Model>();
+
+            // If ModelIds is not null, populate Models dictionary
+            if (_playground.ModelIds != null)
+            {
+                foreach (var modelKvp in _playground.ModelIds)
+                {
+                    if (!_playground.Models.ContainsKey(modelKvp.Key))
+                    {
+                        // Create a basic Model object if it doesn't exist
+                        _playground.Models[modelKvp.Key] = new Model
+                        {
+                            ModelId = modelKvp.Key,
+                            // You can add more properties here if they're available in modelKvp.Value
+                        };
+                    }
+                }
+            }
+
+            ShowModelPage(); // show model page when initialized
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            Title = _playground["Id"] as string ?? "Playground"; 
+            Title = _playground.PlaygroundId ?? "Playground"; 
         }
 
         private void OnModelClicked(object sender, EventArgs e) => ShowModelPage();

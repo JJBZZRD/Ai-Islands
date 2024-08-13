@@ -10,6 +10,8 @@ namespace frontend.entities
         public string? Description { get; set; }
 
         [JsonPropertyName("models")]
+        public Dictionary<string, object>? ModelIds { get; set; }
+
         public Dictionary<string, Model>? Models { get; set; }
 
         [JsonPropertyName("chain")]
@@ -18,8 +20,8 @@ namespace frontend.entities
         [JsonPropertyName("active_chain")]
         public bool ActiveChain { get; set; }
 
-        [JsonPropertyName("id")]
-        public string? Id { get; set; }
+        [JsonPropertyName("playground_id")]
+        public string? PlaygroundId { get; set; }
 
     }
 

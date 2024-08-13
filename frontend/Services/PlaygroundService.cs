@@ -60,57 +60,157 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        //public async Task<List<Dictionary<string, object>>> ListPlaygrounds()
-        //{
-        // var response = await _httpClient.GetAsync("playground/list");
-        //response.EnsureSuccessStatusCode();
-        //return (await response.Content.ReadFromJsonAsync<List<Dictionary<string, object>>>())!;
-        //}
-           public async Task<Dictionary<string, Playground>> ListPlaygrounds()
-           {
-               try
-               {
-                   var response = await _httpClient.GetAsync("playground/list");
-                   response.EnsureSuccessStatusCode();
-
-                   var content = await response.Content.ReadAsStringAsync();
-                   System.Diagnostics.Debug.WriteLine($"API Response: {content}");
-
-                   // deserialize the response into a dynamic object to check its structure
-                   var jsonResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
-           
-                   if (jsonResponse != null && jsonResponse.ContainsKey("data"))
-                   {
-                       // deserialize the 'data' field into the expected structure
-                       return JsonSerializer.Deserialize<Dictionary<string, Playground>>(jsonResponse["data"].ToString()) ?? new Dictionary<string, Playground>();
-                   }
-                   else
-                   {
-                       throw new JsonException("Unexpected JSON structure: " + content);
-                   }
-               }
-               catch (HttpRequestException ex)
-               {
-                   System.Diagnostics.Debug.WriteLine($"HTTP error in ListPlaygrounds: {ex.Message}");
-                   throw;
-               }
-               catch (JsonException ex)
-               {
-                   System.Diagnostics.Debug.WriteLine($"JSON parsing error in ListPlaygrounds: {ex.Message}");
-                   throw;
-               }
-               catch (Exception ex)
-               {
-                   System.Diagnostics.Debug.WriteLine($"Unexpected error in ListPlaygrounds: {ex.Message}");
-                   throw;
-               }
-           }
-
-        public async Task<Dictionary<string, object>> GetPlaygroundInfo(string playgroundId)
+        public async Task<List<Playground>> ListPlaygrounds()
         {
-            var response = await _httpClient.GetAsync($"playground/info?playground_id={playgroundId}");
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            try
+            {
+                var response = await _httpClient.GetAsync("playground/list");
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"API Response: {content}");
+
+                var jsonResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+
+                if (jsonResponse != null && jsonResponse.ContainsKey("data"))
+                {
+                    var playgroundsDict = JsonSerializer.Deserialize<Dictionary<string, Playground>>(jsonResponse["data"].ToString()) ?? new Dictionary<string, Playground>();
+                    
+                    var libraryService = new LibraryService();
+                    var playgroundList = new List<Playground>();
+
+                    foreach (var kvp in playgroundsDict)
+                    {
+                        var playground = kvp.Value;
+                        playground.PlaygroundId = kvp.Key;
+
+                        // Initialize the Models dictionary if it's null
+                        playground.Models ??= new Dictionary<string, Model>();
+
+                        // Populate the Models dictionary with actual Model objects
+                        if (playground.ModelIds != null)
+                        {
+                            foreach (var modelKvp in playground.ModelIds)
+                            {
+                                try
+                                {
+                                    var modelInfo = await libraryService.GetModelInfoLibrary(modelKvp.Key);
+                                    playground.Models[modelKvp.Key] = modelInfo;
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"Error fetching model info for {modelKvp.Key}: {ex.Message}");
+                                    // If we can't fetch the model info, we'll create a basic Model object with the available information
+                                    playground.Models[modelKvp.Key] = new Model
+                                    {
+                                        ModelId = modelKvp.Key,
+                                        // You can add more properties here if they're available in modelKvp.Value
+                                    };
+                                }
+                            }
+                        }
+
+                        playgroundList.Add(playground);
+                    }
+                    return playgroundList;
+                }
+                else
+                {
+                    throw new JsonException("Unexpected JSON structure: " + content);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP error in ListPlaygrounds: {ex.Message}");
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"JSON parsing error in ListPlaygrounds: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in ListPlaygrounds: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<Playground> GetPlaygroundInfo(string playgroundId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"playground/info?playground_id={playgroundId}");
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"API Response for playground {playgroundId}: {content}");
+
+                var jsonResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+
+                if (jsonResponse != null && jsonResponse.ContainsKey("data"))
+                {
+                    var playgroundData = JsonSerializer.Deserialize<Playground>(jsonResponse["data"].ToString());
+                    
+                    if (playgroundData != null)
+                    {
+                        playgroundData.PlaygroundId = playgroundId;
+
+                        // Initialize the Models dictionary if it's null
+                        playgroundData.Models ??= new Dictionary<string, Model>();
+
+                        var libraryService = new LibraryService();
+
+                        // Populate the Models dictionary with actual Model objects
+                        if (playgroundData.ModelIds != null)
+                        {
+                            foreach (var modelKvp in playgroundData.ModelIds)
+                            {
+                                try
+                                {
+                                    var modelInfo = await libraryService.GetModelInfoLibrary(modelKvp.Key);
+                                    playgroundData.Models[modelKvp.Key] = modelInfo;
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"Error fetching model info for {modelKvp.Key}: {ex.Message}");
+                                    // If we can't fetch the model info, we'll create a basic Model object with the available information
+                                    playgroundData.Models[modelKvp.Key] = new Model
+                                    {
+                                        ModelId = modelKvp.Key,
+                                        // You can add more properties here if they're available in modelKvp.Value
+                                    };
+                                }
+                            }
+                        }
+
+                        return playgroundData;
+                    }
+                    else
+                    {
+                        throw new JsonException($"Failed to deserialize playground data for playground ID: {playgroundId}");
+                    }
+                }
+                else
+                {
+                    throw new JsonException($"Unexpected JSON structure for playground ID: {playgroundId}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP error in GetPlaygroundInfo: {ex.Message}");
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"JSON parsing error in GetPlaygroundInfo: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in GetPlaygroundInfo: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<Dictionary<string, object>> ConfigureChain(string playgroundId, List<string> chain)

@@ -4,12 +4,10 @@ using Microsoft.Maui.Controls;
 using System.Diagnostics;
 using frontend.Models; 
 using frontend.Services;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 using frontend.entities;
 using Microsoft.Maui.Layouts;
 using CommunityToolkit.Mvvm.Messaging;
-
 
 namespace frontend.Views
 {
@@ -18,48 +16,32 @@ namespace frontend.Views
         public ObservableCollection<Model> PlaygroundModels { get; set; } = new ObservableCollection<Model>();
         public string? Name { get; set; }
         private readonly PlaygroundService _playgroundService;
+        private readonly frontend.entities.Playground _playground;
 
-        public PlaygroundModelView(Dictionary<string, object> playground, PlaygroundService playgroundService)
+        public PlaygroundModelView(frontend.entities.Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playgroundService = playgroundService;
+            _playground = playground;
 
             Debug.WriteLine($"Playground Object: {JsonSerializer.Serialize(playground)}");
 
-            if (playground.TryGetValue("Id", out var id) && id is string playgroundId)
+            Name = playground.PlaygroundId;
+            Debug.WriteLine($"PlaygroundModelView constructor called for {Name}");
+
+            if (playground.Models != null && playground.Models.Count > 0)
             {
-                Name = playgroundId;
-                Debug.WriteLine($"PlaygroundModelView constructor called for {Name}");
-
-                if (playground.TryGetValue("Models", out var modelsObj) && 
-                    modelsObj is Dictionary<string, Mapping> models) 
-                {
-                    var modelDict = new Dictionary<string, Dictionary<string, object>>();
-
-                    foreach (var model in models)
-                    {
-                        var modelDetails = new Dictionary<string, object>
-                        {
-                            { "input", model.Value.Input ?? "default_input" }, 
-                            { "output", model.Value.Output ?? "default_output" }, 
-                            { "pipeline_tag", model.Value.PipelineTag ?? "Unknown" }, 
-                            { "is_online", model.Value.IsOnline }
-                        };
-                        modelDict[model.Key] = modelDetails;
-                    }
-
-                    Debug.WriteLine($"Found {modelDict.Count} models in playground");
-                    _ = LoadModels(modelDict); 
-                }
-                else
-                {
-                    Debug.WriteLine("No models found in playground or incorrect format");
-                    Debug.WriteLine($"Models Object: {JsonSerializer.Serialize(modelsObj)}");
-                }
+                Debug.WriteLine($"Found {playground.Models.Count} models in playground");
+                LoadModels(playground.Models);
+            }
+            else if (playground.ModelIds != null && playground.ModelIds.Count > 0)
+            {
+                Debug.WriteLine($"Found {playground.ModelIds.Count} model IDs in playground");
+                LoadModelIds(playground.ModelIds);
             }
             else
             {
-                Debug.WriteLine("Incorrect playground data format");
+                Debug.WriteLine("No models found in playground");
             }
 
             BindingContext = this;
@@ -72,29 +54,51 @@ namespace frontend.Views
             });
         }
 
-        private async Task LoadModels(Dictionary<string, Dictionary<string, object>> models)
+        private void LoadModels(Dictionary<string, Model> models)
         {
             Debug.WriteLine($"LoadModels called with {models.Count} models");
 
             foreach (var modelEntry in models)
             {
                 var modelId = modelEntry.Key;
-                var modelInfo = modelEntry.Value;
+                var model = modelEntry.Value;
+
+                model.ModelId = modelId;
+                PlaygroundModels.Add(model);
+                Debug.WriteLine($"Added Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
+                if (model.Mapping != null)
+                {
+                    Debug.WriteLine($"Model Mapping - Input: {model.Mapping.Input}, Output: {model.Mapping.Output}");
+                }
+            }
+
+            Debug.WriteLine($"Final PlaygroundModels count: {PlaygroundModels.Count}");
+        }
+
+        private void LoadModelIds(Dictionary<string, object> modelIds)
+        {
+            Debug.WriteLine($"LoadModelIds called with {modelIds.Count} model IDs");
+
+            foreach (var modelEntry in modelIds)
+            {
+                var modelId = modelEntry.Key;
+                var modelInfo = modelEntry.Value as Dictionary<string, object>;
 
                 var model = new Model
                 {
                     ModelId = modelId,
-                    PipelineTag = modelInfo.ContainsKey("pipeline_tag") ? modelInfo["pipeline_tag"].ToString() : "Unknown",
-                    IsOnline = modelInfo.ContainsKey("is_online") && (bool)modelInfo["is_online"],
-                    Mapping = new Dictionary<string, object>
+                    PipelineTag = modelInfo?.ContainsKey("pipeline_tag") == true ? modelInfo["pipeline_tag"].ToString() : "Unknown",
+                    IsOnline = modelInfo?.ContainsKey("is_online") == true && (bool)modelInfo["is_online"],
+                    Mapping = new Mapping
                     {
-                        { "input", modelInfo["input"] },
-                        { "output", modelInfo["output"] }
+                        Input = modelInfo?.ContainsKey("input") == true ? modelInfo["input"].ToString() : "default_input",
+                        Output = modelInfo?.ContainsKey("output") == true ? modelInfo["output"].ToString() : "default_output"
                     }
                 };
 
                 PlaygroundModels.Add(model);
                 Debug.WriteLine($"Added Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsOnline: {model.IsOnline}");
+                Debug.WriteLine($"Model Mapping - Input: {model.Mapping.Input}, Output: {model.Mapping.Output}");
             }
 
             Debug.WriteLine($"Final PlaygroundModels count: {PlaygroundModels.Count}");
@@ -104,25 +108,16 @@ namespace frontend.Views
         {
             try
             {
-                var playgroundInfo = await _playgroundService.GetPlaygroundInfo(Name);
-                if (playgroundInfo.TryGetValue("models", out var modelsObj) && modelsObj is Dictionary<string, Mapping> models)
+                var updatedPlayground = await _playgroundService.GetPlaygroundInfo(_playground.PlaygroundId);
+                if (updatedPlayground.Models != null && updatedPlayground.Models.Count > 0)
                 {
-                    var modelDict = new Dictionary<string, Dictionary<string, object>>();
-
-                    foreach (var model in models)
-                    {
-                        var modelDetails = new Dictionary<string, object>
-                        {
-                            { "input", model.Value.Input ?? "default_input" }, 
-                            { "output", model.Value.Output ?? "default_output" }, 
-                            { "pipeline_tag", model.Value.PipelineTag ?? "Unknown" }, 
-                            { "is_online", model.Value.IsOnline }
-                        };
-                        modelDict[model.Key] = modelDetails;
-                    }
-
                     PlaygroundModels.Clear();
-                    await LoadModels(modelDict);
+                    LoadModels(updatedPlayground.Models);
+                }
+                else if (updatedPlayground.ModelIds != null && updatedPlayground.ModelIds.Count > 0)
+                {
+                    PlaygroundModels.Clear();
+                    LoadModelIds(updatedPlayground.ModelIds);
                 }
             }
             catch (Exception ex)
@@ -144,19 +139,14 @@ namespace frontend.Views
 
             // Unregister any existing handler before registering a new one
             WeakReferenceMessenger.Default.Unregister<Model, string>(this, "ModelAdded");
-            WeakReferenceMessenger.Default.Register<Model, string>(this, "ModelAdded", async (sender, model) =>
+            WeakReferenceMessenger.Default.Register<Model, string>(this, "ModelAdded", (sender, model) =>
             {
-                await LoadModels(new Dictionary<string, Dictionary<string, object>>
+                PlaygroundModels.Add(model);
+                if (_playground.Models == null)
                 {
-                    { model.ModelId ?? "unknown", new Dictionary<string, object>
-                        {
-                            { "input", model.Mapping?["input"] ?? "unknown" },
-                            { "output", model.Mapping?["output"] ?? "unknown" },
-                            { "pipeline_tag", model.PipelineTag ?? "Unknown" },
-                            { "is_online", false }
-                        }
-                    }
-                });
+                    _playground.Models = new Dictionary<string, Model>();
+                }
+                _playground.Models[model.ModelId] = model;
             });
         }
     }
