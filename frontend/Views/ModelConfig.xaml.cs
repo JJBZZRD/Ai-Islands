@@ -132,16 +132,10 @@ namespace frontend.Views
                 Debug.WriteLine("Updating model config");
                 UpdateModelConfig();
 
-                var request = new
-                {
-                    model_id = _model.ModelId,
-                    data = _model.Config
-                };
-
                 Debug.WriteLine($"Sending request to configure model. ModelId: {_model.ModelId}");
                 Debug.WriteLine($"Config data: {JsonSerializer.Serialize(_model.Config)}");
 
-                var result = await _modelService.ConfigureModel(_model.ModelId, request);
+                var result = await _modelService.ConfigureModel(_model.ModelId, _model.Config);
 
                 Debug.WriteLine("Configuration saved successfully");
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
