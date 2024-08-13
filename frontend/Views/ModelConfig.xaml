@@ -5,7 +5,14 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="Model Configuration" FontSize="24" FontAttributes="Bold" TextColor="#333333"/>
+            <Label x:Name="ModelIdLabel" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="#333333"/>
+            <Label Text="Model Configuration" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   TextColor="#333333"/>
             <VerticalStackLayout x:Name="ConfigContainer" Spacing="15">
                 <!-- Dynamic content will be added here -->
             </VerticalStackLayout>
