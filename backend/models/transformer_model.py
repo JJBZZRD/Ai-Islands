@@ -13,6 +13,7 @@ from backend.data_utils.speaker_embedding_generator import get_speaker_embedding
 import importlib
 from accelerate import Accelerator
 from PIL import Image
+from backend.utils.process_vis_out import _ensure_json_serializable
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +210,7 @@ class TransformerModel(BaseModel):
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
+                    output = _ensure_json_serializable(output)
                     if visualize:
                         output = process_vision_output(image, output, self.pipeline.task)
             

@@ -142,13 +142,16 @@ namespace frontend.Views
 
         private View CreateTextInputUI()
         {
-            return new Editor
+            var editor = new Editor
             {
                 Placeholder = "Enter your input here...",
                 PlaceholderColor = Colors.Gray,
                 TextColor = Colors.Black,
-                HeightRequest = 150
+                HeightRequest = 150,
+                Text = InputText
             };
+            editor.TextChanged += (sender, e) => InputText = ((Editor)sender)?.Text ?? string.Empty;
+            return editor;
         }
 
         private async void OnImageSelectClicked(object sender, EventArgs e)
@@ -229,7 +232,6 @@ namespace frontend.Views
                 switch (_model.PipelineTag?.ToLower())
                 {
                     case "object-detection":
-                    case "image-segmentation":
                         if (string.IsNullOrEmpty(_selectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file.", "OK");
@@ -237,17 +239,24 @@ namespace frontend.Views
                         }
                         data = new { image_path = _selectedFilePath };
                         break;
+                    case "image-segmentation":
+                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file.", "OK");
+                            return;
+                        }
+                        data = new { payload = _selectedFilePath };
+                        break;
                     case "zero-shot-object-detection":
                         if (string.IsNullOrEmpty(_selectedFilePath) || string.IsNullOrEmpty(InputText))
                         {
-                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file and enter text.", "OK");
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file and enter text.", "OK");
                             return;
                         }
-                        data = new { image_path = _selectedFilePath, text = InputText };
+                        data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
-
                     case "text-to-speech":
-                    // Etc..havent added for the other cases
+                      // for other cases
                     default:
                         await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
                         return;

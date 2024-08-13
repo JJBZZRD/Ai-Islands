@@ -10,6 +10,7 @@ import numpy as np
 from backend.controlers.model_control import ModelControl
 from backend.data_utils.dataset_processor import process_dataset
 from backend.data_utils.training_handler import handle_training_request
+from backend.utils.process_vis_out import process_vision_output
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ class ModelRouter:
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
         self.router.add_api_route("/train", self.train_model, methods=["POST"])
         self.router.add_api_route("/configure", self.configure_model, methods=["POST"])
+        self.router.add_api_route("/process-image", self.process_image, methods=["POST"])
 
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
@@ -133,6 +135,16 @@ class ModelRouter:
     async def configure_model(self, configureRequest: ConfigureRequest):
         try:
             return self.model_control.configure_model(jsonable_encoder(configureRequest))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def process_image(self, request: dict):
+        try:
+            image = request.get('image')
+            output = request.get('output')
+            task = request.get('task')
+            processed_output = process_vision_output(image, output, task)
+            return JSONResponse(content=processed_output)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
