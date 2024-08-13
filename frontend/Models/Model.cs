@@ -71,6 +71,15 @@ namespace frontend.Models
 
     public class Config
     {
+        [JsonPropertyName("prompt")]
+        public PromptConfig? Prompt { get; set; }
+
+        [JsonPropertyName("parameters")]
+        public ParametersConfig? Parameters { get; set; }
+
+        [JsonPropertyName("rag_settings")]
+        public RagSettings? RagSettings { get; set; }
+
         [JsonPropertyName("model_config")]
         public ModelConfig? ModelConfig { get; set; }
 
@@ -86,6 +95,9 @@ namespace frontend.Models
         [JsonPropertyName("device_config")]
         public DeviceConfig? DeviceConfig { get; set; }
 
+        [JsonPropertyName("translation_config")]
+        public TranslationConfig? TranslationConfig { get; set; }
+
         [JsonPropertyName("quantization_config")]
         public QuantizationConfig? QuantizationConfig { get; set; }
 
@@ -93,16 +105,37 @@ namespace frontend.Models
         public QuantizationConfigOptions? QuantizationConfigOptions { get; set; }
 
         [JsonPropertyName("system_prompt")]
-        public Prompt? SystemPrompt { get; set; }
+        public SystemPrompt? SystemPrompt { get; set; }
 
         [JsonPropertyName("user_prompt")]
-        public Prompt? UserPrompt { get; set; }
+        public UserPrompt? UserPrompt { get; set; }
 
         [JsonPropertyName("assistant_prompt")]
-        public Prompt? AssistantPrompt { get; set; }
+        public AssistantPrompt? AssistantPrompt { get; set; }
 
         [JsonPropertyName("example_conversation")]
-        public List<Conversation>? ExampleConversation { get; set; }
+        public List<Dictionary<String, String>>? ExampleConversation { get; set; }
+
+        [JsonPropertyName("service_name")]
+        public string? ServiceName { get; set; }
+
+        [JsonPropertyName("features")]
+        public Features? Features { get; set; }
+
+        [JsonPropertyName("voice")]
+        public string? Voice { get; set; }
+
+        [JsonPropertyName("pitch")]
+        public int? Pitch { get; set; }
+
+        [JsonPropertyName("speed")]
+        public int? Speed { get; set; }
+
+        [JsonPropertyName("model")]
+        public string? Model { get; set; }
+
+        [JsonPropertyName("content_type")]
+        public string? ContentType { get; set; }
 
         [JsonPropertyName("embedding_dimensions")]
         public int? EmbeddingDimensions { get; set; }
@@ -117,13 +150,61 @@ namespace frontend.Models
         public string? SpeakerEmbeddingConfig { get; set; }
     }
 
+    public class PromptConfig
+    {
+        [JsonPropertyName("system_prompt")]
+        public string? SystemPrompt { get; set; }
+
+        [JsonPropertyName("example_conversation")]
+        public string? ExampleConversation { get; set; }
+    }
+
+    public class ParametersConfig
+    {
+        [JsonPropertyName("temperature")]
+        public float? Temperature { get; set; }
+
+        [JsonPropertyName("top_p")]
+        public float? TopP { get; set; }
+
+        [JsonPropertyName("top_k")]
+        public int? TopK { get; set; }
+
+        [JsonPropertyName("max_new_tokens")]
+        public int? MaxNewTokens { get; set; }
+
+        [JsonPropertyName("min_new_tokens")]
+        public int? MinNewTokens { get; set; }
+
+        [JsonPropertyName("repetition_penalty")]
+        public float? RepetitionPenalty { get; set; }
+
+        [JsonPropertyName("random_seed")]
+        public int? RandomSeed { get; set; }
+
+        [JsonPropertyName("stop_sequences")]
+        public List<string>? StopSequences { get; set; }
+    }
+
+    public class RagSettings
+    {
+        [JsonPropertyName("use_dataset")]
+        public bool? UseDataset { get; set; }
+
+        [JsonPropertyName("dataset_name")]
+        public string? DatasetName { get; set; }
+
+        [JsonPropertyName("similarity_threshold")]
+        public float? SimilarityThreshold { get; set; }
+
+        [JsonPropertyName("use_chunking")]
+        public bool? UseChunking { get; set; }
+    }
+
     public class ModelConfig
     {
         [JsonPropertyName("torch_dtype")]
         public string? TorchDtype { get; set; }
-
-        [JsonPropertyName("use_auth_token")]
-        public string? UseAuthToken { get; set; }
 
         [JsonPropertyName("use_cache")]
         public bool? UseCache { get; set; }
@@ -134,9 +215,6 @@ namespace frontend.Models
 
     public class TokenizerConfig
     {
-        [JsonPropertyName("use_auth_token")]
-        public string? UseAuthToken { get; set; }
-
         [JsonPropertyName("do_lower_case")]
         public bool? DoLowerCase { get; set; }
 
@@ -168,12 +246,64 @@ namespace frontend.Models
 
         [JsonPropertyName("use_cache")]
         public bool? UseCache { get; set; }
+
+        [JsonPropertyName("src_lang")]
+        public string? SrcLang { get; set; }
+
+        [JsonPropertyName("tgt_lang")]
+        public string? TgtLang { get; set; }
+
+        [JsonPropertyName("chunk_length_s")]
+        public int? ChunkLengthS { get; set; }
+
+        [JsonPropertyName("batch_size")]
+        public int? BatchSize { get; set; }
+
+        [JsonPropertyName("return_timestamps")]
+        public bool? ReturnTimestamps { get; set; }
+
+        [JsonPropertyName("candidate_labels")]
+        public List<string>? CandidateLabels { get; set; }
+
+        [JsonPropertyName("trust_remote_code")]
+        public bool? TrustRemoteCode { get; set; }
+
+        [JsonPropertyName("generate_kwargs")]
+        public GenerateKwargs? GenerateKwargs { get; set; }
+
+        [JsonPropertyName("forward_params")]
+        public ForwardParams? ForwardParams { get; set; }
+    }
+
+    public class GenerateKwargs
+    {
+        [JsonPropertyName("language")]
+        public string? Language { get; set; }
+
+        [JsonPropertyName("task")]
+        public string? Task { get; set; }
+    }
+
+    public class ForwardParams
+    {
+        [JsonPropertyName("do_sample")]
+        public bool? DoSample { get; set; }
     }
 
     public class DeviceConfig
     {
         [JsonPropertyName("device")]
         public string? Device { get; set; }
+    }
+
+    public class TranslationConfig
+    {
+        [JsonPropertyName("src_lang")]
+        public string? SrcLang { get; set; }
+
+        [JsonPropertyName("tgt_lang")]
+        public string? TgtLang { get; set; }
+
     }
 
     public class QuantizationConfig
@@ -220,7 +350,17 @@ namespace frontend.Models
         // Add properties as needed
     }
 
-    public class Prompt
+    public class SystemPrompt
+    {
+        [JsonPropertyName("role")]
+        public string? Role { get; set; }
+
+        [JsonPropertyName("content")]
+        public string? Content { get; set; }
+
+    }
+
+    public class UserPrompt
     {
         [JsonPropertyName("role")]
         public string? Role { get; set; }
@@ -229,12 +369,39 @@ namespace frontend.Models
         public string? Content { get; set; }
     }
 
-    public class Conversation
+    public class AssistantPrompt
     {
         [JsonPropertyName("role")]
         public string? Role { get; set; }
 
         [JsonPropertyName("content")]
         public string? Content { get; set; }
+    }
+
+    public class Features
+    {
+        [JsonPropertyName("sentiment")]
+        public bool? Sentiment { get; set; }
+
+        [JsonPropertyName("emotion")]
+        public bool? Emotion { get; set; }
+
+        [JsonPropertyName("entities")]
+        public bool? Entities { get; set; }
+
+        [JsonPropertyName("keywords")]
+        public bool? Keywords { get; set; }
+
+        [JsonPropertyName("categories")]
+        public bool? Categories { get; set; }
+
+        [JsonPropertyName("concepts")]
+        public bool? Concepts { get; set; }
+
+        [JsonPropertyName("relations")]
+        public bool? Relations { get; set; }
+
+        [JsonPropertyName("semantic_roles")]
+        public bool? SemanticRoles { get; set; }
     }
 }
