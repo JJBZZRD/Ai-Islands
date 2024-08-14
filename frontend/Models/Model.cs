@@ -114,7 +114,7 @@ namespace frontend.Models
         public AssistantPrompt? AssistantPrompt { get; set; }
 
         [JsonPropertyName("example_conversation")]
-        public List<Dictionary<String, String>>? ExampleConversation { get; set; }
+        public List<Dictionary<string, string>>? ExampleConversation { get; set; }
 
         [JsonPropertyName("service_name")]
         public string? ServiceName { get; set; }

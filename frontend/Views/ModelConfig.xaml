@@ -14,7 +14,7 @@
                    FontAttributes="Bold" 
                    TextColor="#333333"/>
             <VerticalStackLayout x:Name="ConfigContainer" Spacing="15">
-                <!-- Dynamic content will be added here -->
+                
             </VerticalStackLayout>
             <Button Text="Save Configuration"
                     Clicked="OnSaveConfigClicked"
