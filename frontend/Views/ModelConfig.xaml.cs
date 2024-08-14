@@ -16,23 +16,26 @@ namespace frontend.Views
         private Model _model;
         private ModelService _modelService;
         private ConfigViewModel _configViewModel;
+        private bool _isExampleConversationNull;
+        private bool _isCandidateLabelsNull;
+        private bool _isStopSequencesNull;
+
         public ModelConfig(Model model)
         {
             InitializeComponent();
             _model = model;
             _configViewModel = new ConfigViewModel { Config = model.Config };
+            _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
+            _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
+            _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
             _modelService = new ModelService();
+
+
             ModelIdLabel.Text = $"Model: {_model.ModelId}";
             Debug.WriteLine("===============watch me==============");
-            Debug.WriteLine(_configViewModel.Config.ExampleConversation == null);
-            if (_configViewModel.Config.PipelineConfig != null)
-            {
-                Debug.WriteLine(_configViewModel.Config.PipelineConfig.CandidateLabels == null);
-            }
-            if (_configViewModel.Config.Parameters != null)
-            {   
-            Debug.WriteLine(_configViewModel.Config.Parameters.StopSequences == null);
-            }
+            Debug.WriteLine(_isExampleConversationNull);
+            Debug.WriteLine(_isCandidateLabelsNull);
+            Debug.WriteLine(_isStopSequencesNull);
             BindingContext = _configViewModel; // Set the BindingContext
         }
 
@@ -40,17 +43,23 @@ namespace frontend.Views
         {
 
             // Update the _model's Config with the current ConfigViewModel's Config
-            if (_configViewModel.ExampleConversation.Count != 0)
+            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
             {
                 _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            } else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull) {
+                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
             }
-            if (_configViewModel.CandidateLabels.Count != 0)
+            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
             {
                 _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            } else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull) {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
             }
-            if (_configViewModel.StopSequences.Count != 0)
+            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
             {
                 _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+            } else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull) {
+                _configViewModel.Config.Parameters.StopSequences = new List<string>();
             }
             _model.Config = _configViewModel.Config;
 
