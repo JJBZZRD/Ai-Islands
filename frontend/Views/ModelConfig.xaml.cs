@@ -181,7 +181,7 @@ namespace frontend.Views
             conversationLayout.Children.Insert(conversationLayout.Children.Count - 1, turnLayout);
         }
 
-        private void AddConfigItemToUI(string sectionName, string key, object value)
+        private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0)
         {
             var displayKey = FormatNameForDisplay(key);
             var label = new Label
@@ -212,19 +212,34 @@ namespace frontend.Views
                 entry.TextChanged += (s, e) => _configValues[dictionaryKey] = entry.Text;
                 inputView = entry;
             }
+            else if (value is IEnumerable<string> stringList)
+            {
+                var entry = new Entry
+                {
+                    Text = string.Join(", ", stringList),
+                    Placeholder = "Enter comma-separated values"
+                };
+                entry.TextChanged += (s, e) => 
+                {
+                    _configValues[dictionaryKey] = entry.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                        .Select(s => s.Trim())
+                                                        .ToList();
+                };
+                inputView = entry;
+            }
             else if (value is Dictionary<string, object> dictValue)
             {
                 var stackLayout = new VerticalStackLayout();
                 foreach (var kvp in dictValue)
                 {
-                    AddConfigItemToUI($"{sectionName}.{key}", kvp.Key, kvp.Value);
+                    AddConfigItemToUI($"{sectionName}.{key}", kvp.Key, kvp.Value, depth + 1);
                 }
                 inputView = stackLayout;
             }
             else
             {
                 // For other types, display as read-only text
-                inputView = new Label { Text = value.ToString() };
+                inputView = new Label { Text = value?.ToString() ?? "null" };
             }
 
             _configValues[dictionaryKey] = value;
@@ -232,7 +247,7 @@ namespace frontend.Views
             var itemLayout = new VerticalStackLayout
             {
                 Children = { label, inputView },
-                Margin = new Thickness(0, 0, 0, 10)
+                Margin = new Thickness(depth * 10, 0, 0, 10)
             };
 
             ConfigContainer.Children.Add(itemLayout);
@@ -376,6 +391,23 @@ namespace frontend.Views
                 {
                     convertedValue = Convert.ToString(value);
                 }
+                else if (targetType == typeof(List<string>) || targetType == typeof(string[]))
+                {
+                    if (value is IEnumerable<string> stringList)
+                    {
+                        convertedValue = stringList.ToList();
+                    }
+                    else if (value is string stringValue)
+                    {
+                        convertedValue = stringValue.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(s => s.Trim())
+                                                    .ToList();
+                    }
+                    else
+                    {
+                        convertedValue = new List<string>();
+                    }
+                }
                 else
                 {
                     convertedValue = Convert.ChangeType(value, targetType);
@@ -441,6 +473,23 @@ namespace frontend.Views
                 else if (targetType == typeof(string))
                 {
                     convertedValue = Convert.ToString(value);
+                }
+                else if (targetType == typeof(List<string>) || targetType == typeof(string[]))
+                {
+                    if (value is IEnumerable<string> stringList)
+                    {
+                        convertedValue = stringList.ToList();
+                    }
+                    else if (value is string stringValue)
+                    {
+                        convertedValue = stringValue.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(s => s.Trim())
+                                                    .ToList();
+                    }
+                    else
+                    {
+                        convertedValue = new List<string>();
+                    }
                 }
                 else
                 {
