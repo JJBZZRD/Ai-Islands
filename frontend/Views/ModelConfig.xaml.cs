@@ -24,8 +24,15 @@ namespace frontend.Views
             _modelService = new ModelService();
             ModelIdLabel.Text = $"Model: {_model.ModelId}";
             Debug.WriteLine("===============watch me==============");
-            Debug.WriteLine(_configViewModel.Config.ExampleConversation);
             Debug.WriteLine(_configViewModel.Config.ExampleConversation == null);
+            if (_configViewModel.Config.PipelineConfig != null)
+            {
+                Debug.WriteLine(_configViewModel.Config.PipelineConfig.CandidateLabels == null);
+            }
+            if (_configViewModel.Config.Parameters != null)
+            {   
+            Debug.WriteLine(_configViewModel.Config.Parameters.StopSequences == null);
+            }
             BindingContext = _configViewModel; // Set the BindingContext
         }
 
@@ -33,7 +40,10 @@ namespace frontend.Views
         {
 
             // Update the _model's Config with the current ConfigViewModel's Config
-            _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            if (_configViewModel.ExampleConversation.Count != 0)
+            {
+                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            }
             if (_configViewModel.CandidateLabels.Count != 0)
             {
                 _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();

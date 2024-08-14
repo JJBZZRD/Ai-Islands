@@ -124,11 +124,13 @@ class LibraryControl:
 
     def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
         for key, value in new_config.items():
-            if isinstance(value, dict) and key in original_config:
-                original_config[key] = self._merge_configs(original_config[key], value)
-            else:
-                original_config[key] = value
+            if value is not None:  # Skip None values
+                if isinstance(value, dict) and key in original_config:
+                    original_config[key] = self._merge_configs(original_config[key], value)
+                else:
+                    original_config[key] = value
         return original_config
+
 
     def save_new_model(self, model_id: str, new_model_id: str, new_config: dict):
         logger.info(f"Attempting to save new model {new_model_id} based on {model_id}")
