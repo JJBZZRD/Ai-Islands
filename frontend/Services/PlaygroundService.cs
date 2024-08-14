@@ -29,6 +29,14 @@ namespace frontend.Services
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(playgroundId))
+                {
+                    throw new ArgumentException("Playground name cannot be empty", nameof(playgroundId));
+                }
+
+                // Ensure description is not null
+                description ??= string.Empty;
+
                 var request = new { playground_id = playgroundId, description = description };
                 var response = await _httpClient.PostAsJsonAsync("playground/create", request);
                 

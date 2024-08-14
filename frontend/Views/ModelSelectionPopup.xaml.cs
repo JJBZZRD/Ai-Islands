@@ -4,6 +4,8 @@ using System.Windows.Input;
 using frontend.Models;
 using frontend.Services;
 using CommunityToolkit.Mvvm.Messaging;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace frontend.Views
 {
@@ -12,6 +14,7 @@ namespace frontend.Views
         public ObservableCollection<Model> LibraryModels { get; set; }
         public ICommand AddModelCommand { get; }
         private readonly LibraryService _libraryService;
+        private readonly PlaygroundService _playgroundService;
         public required string PlaygroundId { get; set; }
         private readonly PlaygroundModelView _playgroundModelView;
 
@@ -22,6 +25,7 @@ namespace frontend.Views
             LibraryModels = new ObservableCollection<Model>();
             AddModelCommand = new Command<Model>(OnAddModel);
             _libraryService = new LibraryService();
+            _playgroundService = new PlaygroundService();
             BindingContext = this;
             LoadLibraryModels();
         }
@@ -53,22 +57,30 @@ namespace frontend.Views
         {
             try
             {
-                var playgroundService = new PlaygroundService();
-                var result = await playgroundService.AddModelToPlayground(PlaygroundId, model.ModelId);
+                var result = await _playgroundService.AddModelToPlayground(PlaygroundId, model.ModelId);
+                System.Diagnostics.Debug.WriteLine($"AddModel result: {result}");
                 
-                // Notify the parent view (the playground model view) that a model has been added
-                WeakReferenceMessenger.Default.Send(new ModelAddedMessage(model));
-                
-                // Directly add the model to the PlaygroundModels collection
-                _playgroundModelView.PlaygroundModels.Add(model);
+                foreach (var kvp in result)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Key: {kvp.Key}, Value: {kvp.Value}");
+                }
+
+                // If we've reached this point, it means the operation was successful
+                Debug.WriteLine($"Model {model.ModelId} added successfully. Sending refresh message.");
+                // Notify the PlaygroundModelView to refresh its models
+                WeakReferenceMessenger.Default.Send(new RefreshPlaygroundModelsMessage(PlaygroundId));
                 
                 await (Application.Current?.MainPage?.DisplayAlert("Success", $"Model {model.ModelId} has been added to the playground.", "OK") ?? Task.CompletedTask);
-                
-                
                 ClosePopup();
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"HTTP Request Exception in OnAddModel: {ex.Message}");
+                await (Application.Current?.MainPage?.DisplayAlert("Error", $"Failed to add model: {ex.Message}", "OK") ?? Task.CompletedTask);
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Exception in OnAddModel: {ex.Message}");
                 await (Application.Current?.MainPage?.DisplayAlert("Error", $"Failed to add model: {ex.Message}", "OK") ?? Task.CompletedTask);
             }
         }
@@ -90,9 +102,9 @@ namespace frontend.Views
         }
     }
 
-    public class ModelAddedMessage
+    public class RefreshPlaygroundModelsMessage
     {
-        public Model AddedModel { get; }
-        public ModelAddedMessage(Model model) => AddedModel = model;
+        public string PlaygroundId { get; }
+        public RefreshPlaygroundModelsMessage(string playgroundId) => PlaygroundId = playgroundId;
     }
 }

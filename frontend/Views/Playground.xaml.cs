@@ -91,8 +91,7 @@ namespace frontend.Views
         {
             if (e.Parameter is frontend.entities.Playground selectedPlayground)
             {
-                var playgroundService = new PlaygroundService();
-                await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, playgroundService));
+                await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService));
             }
         }
 
@@ -123,45 +122,15 @@ namespace frontend.Views
 
         private void OnAddPlaygroundClicked(object sender, EventArgs e)
         {
+            // Initialize the properties explicitly
+            NewPlaygroundName = string.Empty;
+            NewPlaygroundDescription = string.Empty;
+
             IsPopupVisible = true;
             PopupOverlay.IsVisible = true;
-        }
 
-        private async void OnCreatePlaygroundClicked(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(NewPlaygroundName))
-            {
-                await DisplayAlert("Error", "Playground name is required.", "OK");
-                return;
-            }
-
-            try
-            {
-                await _playgroundService.CreatePlayground(NewPlaygroundName, NewPlaygroundDescription);
-                await LoadPlaygrounds();
-                
-                IsPopupVisible = false;
-                PopupOverlay.IsVisible = false;
-                
-                NewPlaygroundName = string.Empty;
-                NewPlaygroundDescription = string.Empty;
-                
-                await DisplayAlert("Success", "New playground created successfully", "OK");
-            }
-            catch (HttpRequestException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                }
-                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Unexpected error in OnCreatePlaygroundClicked: {ex.Message}");
-                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
-            }
+            // Add debug output
+            System.Diagnostics.Debug.WriteLine($"Popup opened. Name: '{NewPlaygroundName}', Description: '{NewPlaygroundDescription}'");
         }
 
         private void OnCancelClicked(object sender, EventArgs e)
@@ -203,6 +172,48 @@ namespace frontend.Views
                         await DisplayAlert("Error", $"Failed to delete playground: {ex.Message}", "OK");
                     }
                 }
+            }
+        }
+
+        private async void OnCreatePlaygroundClicked(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Create clicked. Name: '{NewPlaygroundName}', Description: '{NewPlaygroundDescription}'");
+
+            if (string.IsNullOrWhiteSpace(NewPlaygroundName))
+            {
+                await DisplayAlert("Error", "Playground name is required.", "OK");
+                return;
+            }
+
+            try
+            {
+                // Ensure description is not null
+                string description = NewPlaygroundDescription ?? string.Empty;
+
+                await _playgroundService.CreatePlayground(NewPlaygroundName, description);
+                await LoadPlaygrounds();
+                
+                IsPopupVisible = false;
+                PopupOverlay.IsVisible = false;
+                
+                NewPlaygroundName = string.Empty;
+                NewPlaygroundDescription = string.Empty;
+                
+                await DisplayAlert("Success", "New playground created successfully", "OK");
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in OnCreatePlaygroundClicked: {ex.Message}");
+                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
             }
         }
     }
