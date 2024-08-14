@@ -69,6 +69,9 @@
                 </Grid>
 
                 <CollectionView ItemsSource="{Binding PlaygroundList}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Frame BorderColor="LightGray" 
@@ -77,13 +80,37 @@
                                    Padding="10" 
                                    HasShadow="True"
                                    Margin="0,5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackLayout Grid.Column="0">
+                                        <Label Text="{Binding PlaygroundId}" 
+                                               FontAttributes="Bold" 
+                                               VerticalOptions="Center" 
+                                               TextColor="Black"/>
+                                        <Label Text="{Binding Description}" 
+                                               VerticalOptions="Center" 
+                                               TextColor="Gray"/>
+                                    </StackLayout>
+                                    <Image Source="delete_icon.png"
+                                           HeightRequest="20"
+                                           WidthRequest="20"
+                                           Grid.Column="1"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="End"
+                                           Margin="10,0,0,0">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnDeletePlaygroundClicked" 
+                                                                  CommandParameter="{Binding .}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </Grid>
                                 <Frame.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnPlaygroundSelected" CommandParameter="{Binding .}"/>
+                                    <TapGestureRecognizer Tapped="OnPlaygroundSelected" 
+                                                          CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
-                                <StackLayout>
-                                    <Label Text="{Binding PlaygroundId}" FontAttributes="Bold" VerticalOptions="Center" TextColor="Black"/>
-                                    <Label Text="{Binding Description}" VerticalOptions="Center" TextColor="Gray"/>
-                                </StackLayout>
                             </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -91,14 +118,59 @@
             </VerticalStackLayout>
     </ScrollView>
     <Grid IsVisible="{Binding IsPopupVisible}" BackgroundColor="#80000000">
-        <Frame BackgroundColor="White" VerticalOptions="Center" HorizontalOptions="Center" Padding="20">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="Create New Playground" FontSize="20" FontAttributes="Bold"/>
-                <Entry Placeholder="Playground Name" Text="{Binding NewPlaygroundName}"/>
-                <Entry Placeholder="Description (Optional)" Text="{Binding NewPlaygroundDescription}"/>
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
-                    <Button Text="Create" Clicked="OnCreatePlaygroundClicked"/>
-                    <Button Text="Cancel" Clicked="OnCancelClicked"/>
+        <Frame BackgroundColor="White" 
+               VerticalOptions="Center" 
+               HorizontalOptions="Center" 
+               Padding="20"
+               WidthRequest="400"
+               HeightRequest="450"
+               CornerRadius="10">
+            <VerticalStackLayout Spacing="15" VerticalOptions="FillAndExpand">
+                <Label Text="Create New Playground" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       TextColor="Black"
+                       HorizontalOptions="Center"/>
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Playground Name:" 
+                           TextColor="Black" 
+                           FontSize="16"/>
+                    <Frame Padding="0" BorderColor="#444444" HasShadow="False" BackgroundColor="#F5F5F5">
+                        <Entry Placeholder="Enter playground name" 
+                               Text="{Binding NewPlaygroundName}"
+                               TextColor="Black"
+                               PlaceholderColor="Gray"
+                               BackgroundColor="#F5F5F5"
+                               HeightRequest="40"/>
+                    </Frame>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Description (Optional):" 
+                           TextColor="Black" 
+                           FontSize="16"/>
+                    <Frame Padding="0" BorderColor="#444444" HasShadow="False" BackgroundColor="#F5F5F5">
+                        <Editor Placeholder="Enter description" 
+                                Text="{Binding NewPlaygroundDescription}"
+                                TextColor="Black"
+                                PlaceholderColor="Gray"
+                                BackgroundColor="#F5F5F5"
+                                HeightRequest="150"/>
+                    </Frame>
+                </VerticalStackLayout>
+                <StackLayout Orientation="Horizontal" 
+                             HorizontalOptions="Center" 
+                             Spacing="20"
+                             VerticalOptions="EndAndExpand">
+                    <Button Text="Create" 
+                            Clicked="OnCreatePlaygroundClicked"
+                            WidthRequest="120"
+                            HeightRequest="40"
+                            BackgroundColor="#B19CD9"/>
+                    <Button Text="Cancel" 
+                            Clicked="OnCancelClicked"
+                            WidthRequest="120"
+                            HeightRequest="40"
+                            BackgroundColor="#B19CD9"/>
                 </StackLayout>
             </VerticalStackLayout>
         </Frame>

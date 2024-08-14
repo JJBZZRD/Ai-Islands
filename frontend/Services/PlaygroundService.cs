@@ -37,11 +37,11 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<Dictionary<string, object>> DeletePlayground(string playgroundId)
+        public async Task DeletePlayground(string playgroundId)
         {
-            var response = await _httpClient.DeleteAsync($"playground/delete?playground_id={playgroundId}");
+            var response = await _httpClient.DeleteAsync($"playground/delete?playground_id={Uri.EscapeDataString(playgroundId)}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            // No need to return anything for a successful delete
         }
 
         public async Task<Dictionary<string, object>> AddModelToPlayground(string playgroundId, string modelId)
