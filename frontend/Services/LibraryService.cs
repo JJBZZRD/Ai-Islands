@@ -121,7 +121,9 @@ namespace frontend.Services
         {
             var response = await _httpClient.GetAsync($"library/get-model-info-library?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Model>())!;
+            var model = await response.Content.ReadFromJsonAsync<Model>();
+            model.ModelId = modelId;
+            return model!;
         }
 
         public async Task<Model> GetModelInfoIndex(string modelId)
