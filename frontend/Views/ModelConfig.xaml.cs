@@ -31,10 +31,19 @@ namespace frontend.Views
 
         private async void OnSaveConfigClicked(object sender, EventArgs e)
         {
+
             // Update the _model's Config with the current ConfigViewModel's Config
             _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-            _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            if (_configViewModel.CandidateLabels.Count != 0)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            }
+            if (_configViewModel.StopSequences.Count != 0)
+            {
+                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+            }
             _model.Config = _configViewModel.Config;
+
             await _modelService.ConfigureModel(_model.ModelId, _model.Config);
         }
 
@@ -97,6 +106,36 @@ namespace frontend.Views
             if (label != null)
             {
                 _configViewModel.CandidateLabels.Remove(label);
+            }
+        }
+
+        private void OnAddStopSequenceClicked(object sender, EventArgs e)
+        {
+            // Get the new stop sequence from the UI
+            string newStopSequence = NewStopSequence.Text;
+
+            // Validate input
+            if (string.IsNullOrWhiteSpace(newStopSequence))
+            {
+                // Show an error message or handle the validation as needed
+                return;
+            }
+
+            // Add the new stop sequence to the ObservableCollection
+            _configViewModel.StopSequences.Add(new StopSequence(newStopSequence));
+
+            // Clear the input field
+            NewStopSequence.Text = string.Empty;
+        }
+
+        private void OnDeleteStopSequenceClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var stopSequence = button?.BindingContext as StopSequence;
+
+            if (stopSequence != null)
+            {
+                _configViewModel.StopSequences.Remove(stopSequence);
             }
         }
     }

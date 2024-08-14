@@ -15,11 +15,13 @@ namespace frontend.Models.ViewModels
 
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
+        public ObservableCollection<StopSequence> StopSequences { get; }
 
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();
             CandidateLabels = new ObservableCollection<CandidateLabel>();
+            StopSequences = new ObservableCollection<StopSequence>();
 
             if (config?.ExampleConversation != null)
             {
@@ -34,6 +36,14 @@ namespace frontend.Models.ViewModels
                 foreach (var label in config.PipelineConfig.CandidateLabels)
                 {
                     CandidateLabels.Add(new CandidateLabel(label));
+                }
+            }
+
+            if (config?.Parameters?.StopSequences != null)
+            {
+                foreach (var sequence in config.Parameters.StopSequences)
+                {
+                    StopSequences.Add(new StopSequence(sequence));
                 }
             }
         }
@@ -57,21 +67,37 @@ namespace frontend.Models.ViewModels
                     CandidateLabels.Add(new CandidateLabel(label));
                 }
             }
+
+            StopSequences.Clear();
+            if (newValue?.Parameters?.StopSequences != null)
+            {
+                foreach (var sequence in newValue.Parameters.StopSequences)
+                {
+                    StopSequences.Add(new StopSequence(sequence));
+                }
+            }
         }
     }
 
-    public class CandidateLabel : ObservableObject
+    public partial class CandidateLabel : ObservableObject
     {
-        private string _value;
-        public string Value
-        {
-            get => _value;
-            set => SetProperty(ref _value, value);
-        }
+        [ObservableProperty]
+        private string value;
 
         public CandidateLabel(string value)
         {
-            _value = value;
+            Value = value;
+        }
+    }
+
+    public partial class StopSequence : ObservableObject
+    {
+        [ObservableProperty]
+        private string value;
+
+        public StopSequence(string value)
+        {
+            Value = value;
         }
     }
 }
