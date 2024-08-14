@@ -23,6 +23,9 @@ namespace frontend.Views
             _configViewModel = new ConfigViewModel { Config = model.Config };
             _modelService = new ModelService();
             ModelIdLabel.Text = $"Model: {_model.ModelId}";
+            Debug.WriteLine("===============watch me==============");
+            Debug.WriteLine(_configViewModel.Config.ExampleConversation);
+            Debug.WriteLine(_configViewModel.Config.ExampleConversation == null);
             BindingContext = _configViewModel; // Set the BindingContext
         }
 
