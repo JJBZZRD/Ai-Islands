@@ -98,19 +98,26 @@ namespace frontend.Views
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            var searchText = e.NewTextValue;
+            var searchText = e.NewTextValue?.Trim().ToLower() ?? string.Empty;
 
-            var filteredList = string.IsNullOrWhiteSpace(searchText)
-                ? PlaygroundList
-                : new ObservableCollection<frontend.entities.Playground>(
-                    PlaygroundList.Where(p => p.Description != null && p.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                // If search is cleared, reload all playgrounds
+                MainThread.BeginInvokeOnMainThread(async () => await LoadPlaygrounds());
+            }
+            else
+            {
+                var filteredList = new ObservableCollection<frontend.entities.Playground>(
+                    PlaygroundList.Where(p => 
+                        (p.PlaygroundId?.ToLower().Contains(searchText) ?? false) || 
+                        (p.Description?.ToLower().Contains(searchText) ?? false))
                 );
 
-            // for updating the CollectionView with the filtered list
-            PlaygroundList.Clear();
-            foreach (var playground in filteredList)
-            {
-                PlaygroundList.Add(playground);
+                PlaygroundList.Clear();
+                foreach (var playground in filteredList)
+                {
+                    PlaygroundList.Add(playground);
+                }
             }
         }
 
