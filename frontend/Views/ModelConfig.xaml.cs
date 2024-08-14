@@ -92,6 +92,17 @@ namespace frontend.Views
         {
             if (_model.Config == null) return;
 
+            // Initialize _configValues with existing example conversation
+            if (_model.Config.ExampleConversation != null)
+            {
+                for (int i = 0; i < _model.Config.ExampleConversation.Count; i++)
+                {
+                    var turn = _model.Config.ExampleConversation[i];
+                    _configValues[$"ExampleConversation[{i}].Role"] = turn.Role;
+                    _configValues[$"ExampleConversation[{i}].Content"] = turn.Content;
+                }
+            }
+
             // Handle the config as a dictionary, which should work for all models
             if (_model.Config is IDictionary<string, object> configDict)
             {
@@ -252,6 +263,10 @@ namespace frontend.Views
         {
             turnsLayout.Children.RemoveAt(index);
 
+            // Remove the deleted turn from _configValues
+            _configValues.Remove($"{sectionName}[{index}].Role");
+            _configValues.Remove($"{sectionName}[{index}].Content");
+
             // Update the indices for the remaining turns
             for (int i = index; i < turnsLayout.Children.Count; i++)
             {
@@ -272,11 +287,16 @@ namespace frontend.Views
                 {
                     _configValues[$"{sectionName}[{newIndex}].Content"] = contentEntry.Text;
                 };
+
+                // Update the existing values with the new index
+                _configValues[$"{sectionName}[{i}].Role"] = roleEntry.Text;
+                _configValues[$"{sectionName}[{i}].Content"] = contentEntry.Text;
             }
 
-            // Remove the deleted turn from _configValues
-            _configValues.Remove($"{sectionName}[{index}].Role");
-            _configValues.Remove($"{sectionName}[{index}].Content");
+            // Remove any leftover entries
+            int lastIndex = turnsLayout.Children.Count;
+            _configValues.Remove($"{sectionName}[{lastIndex}].Role");
+            _configValues.Remove($"{sectionName}[{lastIndex}].Content");
         }
 
         private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0, VerticalStackLayout parentLayout = null)
@@ -478,7 +498,7 @@ namespace frontend.Views
             Debug.WriteLine("UpdateModelConfig started");
             Debug.WriteLine($"Number of config values to update: {_configValues.Count}");
 
-            var exampleConversationUpdates = new Dictionary<int, Dictionary<string, string>>();
+            var exampleConversationUpdates = new Dictionary<int, ConversationTurn>();
 
             foreach (var item in _configValues)
             {
@@ -505,31 +525,20 @@ namespace frontend.Views
             // Apply the updates to the ExampleConversation list
             if (exampleConversationUpdates.Count > 0)
             {
-                var exampleConversation = _model.Config.ExampleConversation ?? new List<ConversationTurn>();
-                foreach (var update in exampleConversationUpdates)
-                {
-                    while (exampleConversation.Count <= update.Key)
-                    {
-                        exampleConversation.Add(new ConversationTurn());
-                    }
-
-                    var turn = exampleConversation[update.Key];
-                    if (update.Value.ContainsKey("Role"))
-                    {
-                        turn.Role = update.Value["Role"];
-                    }
-                    if (update.Value.ContainsKey("Content"))
-                    {
-                        turn.Content = update.Value["Content"];
-                    }
-                }
-                _model.Config.ExampleConversation = exampleConversation;
+                _model.Config.ExampleConversation = exampleConversationUpdates.OrderBy(kv => kv.Key)
+                                                                              .Select(kv => kv.Value)
+                                                                              .Where(turn => !string.IsNullOrEmpty(turn.Role) || !string.IsNullOrEmpty(turn.Content))
+                                                                              .ToList();
+            }
+            else
+            {
+                _model.Config.ExampleConversation = new List<ConversationTurn>();
             }
 
             Debug.WriteLine("UpdateModelConfig completed");
         }
 
-        private void UpdateExampleConversationItem(Dictionary<int, Dictionary<string, string>> conversationUpdates, string[] keys, object value)
+        private void UpdateExampleConversationItem(Dictionary<int, ConversationTurn> conversationUpdates, string[] keys, object value)
         {
             // Extract the index from the keys[0] format "ExampleConversation[i]"
             var match = System.Text.RegularExpressions.Regex.Match(keys[0], @"ExampleConversation\[(\d+)\]");
@@ -544,10 +553,17 @@ namespace frontend.Views
 
             if (!conversationUpdates.ContainsKey(index))
             {
-                conversationUpdates[index] = new Dictionary<string, string>();
+                conversationUpdates[index] = new ConversationTurn();
             }
 
-            conversationUpdates[index][property] = value?.ToString();
+            if (property == "Role")
+            {
+                conversationUpdates[index].Role = value?.ToString();
+            }
+            else if (property == "Content")
+            {
+                conversationUpdates[index].Content = value?.ToString();
+            }
         }
 
         private void SetTopLevelPropertyValue(object obj, string propertyName, object value)
