@@ -243,7 +243,7 @@ namespace frontend.Views
             conversationLayout.Children.Insert(conversationLayout.Children.Count - 1, turnLayout);
         }
 
-        private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0)
+        private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0, VerticalStackLayout parentLayout = null)
         {
             var displayKey = FormatNameForDisplay(key);
             string dictionaryKey = $"{sectionName}.{key}";
@@ -307,7 +307,7 @@ namespace frontend.Views
                 var stackLayout = new VerticalStackLayout();
                 foreach (var kvp in dictValue)
                 {
-                    AddConfigItemToUI($"{dictionaryKey}", kvp.Key, kvp.Value, depth + 1);
+                    AddConfigItemToUI($"{dictionaryKey}", kvp.Key, kvp.Value, depth + 1, stackLayout);
                 }
                 inputView = stackLayout;
             }
@@ -319,7 +319,7 @@ namespace frontend.Views
                     var propValue = prop.GetValue(value);
                     if (propValue != null)
                     {
-                        AddConfigItemToUI(dictionaryKey, prop.Name, propValue, depth + 1);
+                        AddConfigItemToUI(dictionaryKey, prop.Name, propValue, depth + 1, stackLayout);
                     }
                 }
                 inputView = stackLayout;
@@ -355,7 +355,7 @@ namespace frontend.Views
                 };
             }
 
-            ConfigContainer.Children.Add(itemLayout);
+            (parentLayout ?? ConfigContainer).Children.Add(itemLayout);
         }
 
         private void AddQuantizationConfigOptions(Dictionary<string, object> options, int depth)
@@ -386,9 +386,15 @@ namespace frontend.Views
 
                 if (kvp.Value is Dictionary<string, object> subOptions)
                 {
+                    var subStackLayout = new VerticalStackLayout
+                    {
+                        Margin = new Thickness((depth + 2) * 10, 0, 0, 10)
+                    };
+                    ConfigContainer.Children.Add(subStackLayout);
+
                     foreach (var subKvp in subOptions)
                     {
-                        AddConfigItemToUI($"quantization_config_options.{kvp.Key}", subKvp.Key, subKvp.Value, depth + 2);
+                        AddConfigItemToUI($"quantization_config_options.{kvp.Key}", subKvp.Key, subKvp.Value, depth + 2, subStackLayout);
                     }
                 }
             }
