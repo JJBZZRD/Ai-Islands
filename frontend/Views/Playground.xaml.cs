@@ -18,8 +18,11 @@ namespace frontend.Views
             get => _isPopupVisible;
             set
             {
-                _isPopupVisible = value;
-                OnPropertyChanged(nameof(IsPopupVisible));
+                if (_isPopupVisible != value)
+                {
+                    _isPopupVisible = value;
+                    OnPropertyChanged(nameof(IsPopupVisible));
+                }
             }
         }
 
@@ -51,9 +54,10 @@ namespace frontend.Views
             _playgroundService = new PlaygroundService();
             PlaygroundList = new ObservableCollection<frontend.entities.Playground>();
 
-            LoadPlaygrounds();
+            BindingContext = this;
 
-            BindingContext = this; 
+            // Use MainThread to ensure UI is ready before loading playgrounds
+            MainThread.InvokeOnMainThreadAsync(async () => await LoadPlaygrounds());
         }
 
         private async Task LoadPlaygrounds()
@@ -113,6 +117,7 @@ namespace frontend.Views
         private void OnAddPlaygroundClicked(object sender, EventArgs e)
         {
             IsPopupVisible = true;
+            PopupOverlay.IsVisible = true;
         }
 
         private async void OnCreatePlaygroundClicked(object sender, EventArgs e)
@@ -127,12 +132,27 @@ namespace frontend.Views
             {
                 await _playgroundService.CreatePlayground(NewPlaygroundName, NewPlaygroundDescription);
                 await LoadPlaygrounds();
+                
                 IsPopupVisible = false;
+                PopupOverlay.IsVisible = false;
+                
                 NewPlaygroundName = string.Empty;
                 NewPlaygroundDescription = string.Empty;
+                
+                await DisplayAlert("Success", "New playground created successfully", "OK");
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in OnCreatePlaygroundClicked: {ex.Message}");
                 await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
             }
         }
@@ -140,6 +160,16 @@ namespace frontend.Views
         private void OnCancelClicked(object sender, EventArgs e)
         {
             IsPopupVisible = false;
+            PopupOverlay.IsVisible = false;
+            NewPlaygroundName = string.Empty;
+            NewPlaygroundDescription = string.Empty;
+        }
+
+        private void OnPopupOverlayTapped(object sender, EventArgs e)
+        {
+            // Close the popup when tapping outside
+            IsPopupVisible = false;
+            PopupOverlay.IsVisible = false;
             NewPlaygroundName = string.Empty;
             NewPlaygroundDescription = string.Empty;
         }

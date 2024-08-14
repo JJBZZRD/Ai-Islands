@@ -17,16 +17,48 @@ namespace frontend.Services
 
         public PlaygroundService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task<Dictionary<string, object>> CreatePlayground(string? playgroundId = null, string? description = null)
         {
-            var request = new { playground_id = playgroundId, description = description };
-            var response = await _httpClient.PostAsJsonAsync("playground/create", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            try
+            {
+                var request = new { playground_id = playgroundId, description = description };
+                var response = await _httpClient.PostAsJsonAsync("playground/create", request);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Error creating playground. Status: {response.StatusCode}, Content: {errorContent}");
+                }
+                
+                var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+                
+                // Log the result for debugging
+                System.Diagnostics.Debug.WriteLine($"Create Playground Result: {JsonSerializer.Serialize(result)}");
+                
+                return result!;
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in CreatePlayground: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<Dictionary<string, object>> UpdatePlayground(string playgroundId, string? newPlaygroundId = null, string? description = null)
