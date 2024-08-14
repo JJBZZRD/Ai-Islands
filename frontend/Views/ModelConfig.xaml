@@ -22,19 +22,24 @@
                                  Spacing="15">
                 <!-- Prompt Config -->
                 <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Prompt Config"
+                    <Label Text="Prompt Settings"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
+                           TextColor="#333333"
+                           Margin="0,0,0,10"/>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="System Prompt"
-                               TextColor="#333333"/>
+                               TextColor="#333333"
+                               Margin="0,0,0,5"/>
                         <Entry Text="{Binding Config.Prompt.SystemPrompt}"
-                               Placeholder="System Prompt"/>
+                               Placeholder="System Prompt"
+                               HeightRequest="100"
+                               VerticalTextAlignment="Start"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Example Conversation"
-                               TextColor="#333333"/>
+                               TextColor="#333333"
+                               Margin="0,0,0,5"/>
                         <Entry Text="{Binding Config.Prompt.ExampleConversation}"
                                Placeholder="Example Conversation"/>
                     </VerticalStackLayout>
@@ -42,7 +47,7 @@
 
                 <!-- Parameters Config -->
                 <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Parameters Config"
+                    <Label Text="Parameter Settings"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
@@ -50,7 +55,6 @@
                         <Label Text="Temperature"
                                TextColor="#333333"/>
                         <Picker SelectedItem="{Binding Config.Parameters.Temperature, Mode=TwoWay}"
-                                Title="Select Temperature"
                                 WidthRequest="200"
                                 HorizontalOptions="Start">
                             <Picker.ItemsSource>
