@@ -274,7 +274,7 @@
                                 <DataTemplate>
                                     <Grid Padding="10"
                                           ColumnDefinitions="*,Auto">
-                                        <Entry Text="{Binding ., Mode=TwoWay}"
+                                        <Entry Text="{Binding Value, Mode=TwoWay}"
                                                Placeholder="Label"/>
                                         <Button Text="Delete"
                                                 Clicked="OnDeleteCandidateLabelClicked"

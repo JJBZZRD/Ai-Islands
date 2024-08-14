@@ -33,7 +33,7 @@ namespace frontend.Views
         {
             // Update the _model's Config with the current ConfigViewModel's Config
             _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-            _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.ToList();
+            _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
             _model.Config = _configViewModel.Config;
             await _modelService.ConfigureModel(_model.ModelId, _model.Config);
         }
@@ -83,7 +83,7 @@ namespace frontend.Views
             }
 
             // Add the new label to the ObservableCollection
-            _configViewModel.CandidateLabels.Add(newLabel);
+            _configViewModel.CandidateLabels.Add(new CandidateLabel(newLabel));
 
             // Clear the input field
             NewCandidateLabel.Text = string.Empty;
@@ -92,7 +92,7 @@ namespace frontend.Views
         private void OnDeleteCandidateLabelClicked(object sender, EventArgs e)
         {
             var button = sender as Button;
-            var label = button?.BindingContext as string;
+            var label = button?.BindingContext as CandidateLabel;
 
             if (label != null)
             {

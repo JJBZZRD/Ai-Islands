@@ -14,12 +14,12 @@ namespace frontend.Models.ViewModels
         private Config? config;
 
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
-        public ObservableCollection<string> CandidateLabels { get; }
+        public ObservableCollection<CandidateLabel> CandidateLabels { get; }
 
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();
-            CandidateLabels = new ObservableCollection<string>();
+            CandidateLabels = new ObservableCollection<CandidateLabel>();
 
             if (config?.ExampleConversation != null)
             {
@@ -33,7 +33,7 @@ namespace frontend.Models.ViewModels
             {
                 foreach (var label in config.PipelineConfig.CandidateLabels)
                 {
-                    CandidateLabels.Add(label);
+                    CandidateLabels.Add(new CandidateLabel(label));
                 }
             }
         }
@@ -54,9 +54,24 @@ namespace frontend.Models.ViewModels
             {
                 foreach (var label in newValue.PipelineConfig.CandidateLabels)
                 {
-                    CandidateLabels.Add(label);
+                    CandidateLabels.Add(new CandidateLabel(label));
                 }
             }
+        }
+    }
+
+    public class CandidateLabel : ObservableObject
+    {
+        private string _value;
+        public string Value
+        {
+            get => _value;
+            set => SetProperty(ref _value, value);
+        }
+
+        public CandidateLabel(string value)
+        {
+            _value = value;
         }
     }
 }
