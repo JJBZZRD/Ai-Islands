@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:frontend.Converters"
              x:Class="frontend.Views.ModelConfig"
              BackgroundColor="#F2F2F2">
+    <ContentView.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </ContentView.Resources>
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
             <Label x:Name="ModelIdLabel" 
@@ -14,7 +18,371 @@
                    FontAttributes="Bold" 
                    TextColor="#333333"/>
             <VerticalStackLayout x:Name="ConfigContainer" Spacing="15">
-                
+                <!-- Prompt Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Prompt Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.Prompt.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="System Prompt" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Prompt.SystemPrompt}" Placeholder="System Prompt"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Prompt.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Example Conversation" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Prompt.ExampleConversation}" Placeholder="Example Conversation"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Parameters Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Parameters Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Temperature" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.Temperature}" Placeholder="Temperature"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopP, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Top P" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.TopP}" Placeholder="Top P"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopK, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Top K" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.TopK}" Placeholder="Top K"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Max New Tokens" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.MaxNewTokens}" Placeholder="Max New Tokens"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Min New Tokens" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.MinNewTokens}" Placeholder="Min New Tokens"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.RepetitionPenalty, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Repetition Penalty" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.RepetitionPenalty}" Placeholder="Repetition Penalty"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.Parameters.RandomSeed, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Random Seed" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.Parameters.RandomSeed}" Placeholder="Random Seed"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- RAG Settings -->
+                <VerticalStackLayout IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="RAG Settings" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <HorizontalStackLayout Spacing="10" 
+                                           IsVisible="{Binding Config.RagSettings.UseDataset, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.RagSettings.UseDataset}"/>
+                        <Label Text="Use Dataset" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.RagSettings.DatasetName, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Dataset Name" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.RagSettings.DatasetName}" Placeholder="Dataset Name"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.RagSettings.SimilarityThreshold, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Similarity Threshold" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.RagSettings.SimilarityThreshold}" Placeholder="Similarity Threshold"/>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.RagSettings.UseChunking, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.RagSettings.UseChunking}"/>
+                        <Label Text="Use Chunking" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Model Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Model Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.ModelConfig.TorchDtype, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Torch Dtype" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.ModelConfig.TorchDtype}" Placeholder="Torch Dtype"/>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.ModelConfig.UseCache, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.ModelConfig.UseCache}"/>
+                        <Label Text="Use Cache" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.ModelConfig.TrustRemoteCode, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.ModelConfig.TrustRemoteCode}"/>
+                        <Label Text="Trust Remote Code" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Tokenizer Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Tokenizer Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.TokenizerConfig.DoLowerCase, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.TokenizerConfig.DoLowerCase}"/>
+                        <Label Text="Do Lower Case" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig.EosToken, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="EOS Token" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.TokenizerConfig.EosToken}" Placeholder="EOS Token"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig.UnkToken, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="UNK Token" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.TokenizerConfig.UnkToken}" Placeholder="UNK Token"/>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.TokenizerConfig.TrustRemoteCode, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.TokenizerConfig.TrustRemoteCode}"/>
+                        <Label Text="Trust Remote Code" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Pipeline Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Pipeline Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxLength, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Max Length" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.MaxLength}" Placeholder="Max Length"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Max New Tokens" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.MaxNewTokens}" Placeholder="Max New Tokens"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeams, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Num Beams" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.NumBeams}" Placeholder="Num Beams"/>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.PipelineConfig.UseCache, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.PipelineConfig.UseCache}"/>
+                        <Label Text="Use Cache" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Source Language" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.SrcLang}" Placeholder="Source Language"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Target Language" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.TgtLang}" Placeholder="Target Language"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ChunkLengthS, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Chunk Length (s)" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.ChunkLengthS}" Placeholder="Chunk Length (s)"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BatchSize, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Batch Size" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.PipelineConfig.BatchSize}" Placeholder="Batch Size"/>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.PipelineConfig.ReturnTimestamps, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.PipelineConfig.ReturnTimestamps}"/>
+                        <Label Text="Return Timestamps" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.PipelineConfig.TrustRemoteCode, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.PipelineConfig.TrustRemoteCode}"/>
+                        <Label Text="Trust Remote Code" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Device Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Device Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig.Device, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Device" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.DeviceConfig.Device}" Placeholder="Device"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Translation Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Translation Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Source Language" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.TranslationConfig.SrcLang}" Placeholder="Source Language"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Target Language" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.TranslationConfig.TgtLang}" Placeholder="Target Language"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Quantization Config -->
+                <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Quantization Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig.CurrentMode, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Current Mode" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.QuantizationConfig.CurrentMode}" Placeholder="Current Mode"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Quantization Config Options -->
+                <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Quantization Config Options" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    
+                    <!-- 4-bit Config -->
+                    <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="4-bit Config" FontSize="16" FontAttributes="Bold" TextColor="#333333"/>
+                        <HorizontalStackLayout Spacing="10"
+                                               IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit, Converter={StaticResource NullToVisibilityConverter}}">
+                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit}"/>
+                            <Label Text="Load in 4-bit" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="10"
+                                               IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitUseDoubleQuant, Converter={StaticResource NullToVisibilityConverter}}">
+                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitUseDoubleQuant}"/>
+                            <Label Text="BNB 4-bit Use Double Quant" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitQuantType, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Label Text="BNB 4-bit Quant Type" TextColor="#333333"/>
+                            <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitQuantType}" Placeholder="BNB 4-bit Quant Type"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Label Text="BNB 4-bit Compute Dtype" TextColor="#333333"/>
+                            <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype}" Placeholder="BNB 4-bit Compute Dtype"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- 8-bit Config -->
+                    <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.EightBit, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="8-bit Config" FontSize="16" FontAttributes="Bold" TextColor="#333333"/>
+                        <HorizontalStackLayout Spacing="10"
+                                               IsVisible="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit, Converter={StaticResource NullToVisibilityConverter}}">
+                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit}"/>
+                            <Label Text="Load in 8-bit" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Bfloat16 Config -->
+                    <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.Bfloat16, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Bfloat16 Config" FontSize="16" FontAttributes="Bold" TextColor="#333333"/>
+                        <!-- Add properties for Bfloat16Config if needed -->
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- System Prompt -->
+                <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="System Prompt" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Role" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.SystemPrompt.Role}" Placeholder="Role"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Content" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.SystemPrompt.Content}" Placeholder="Content"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- User Prompt -->
+                <VerticalStackLayout IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="User Prompt" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.UserPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Role" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.UserPrompt.Role}" Placeholder="Role"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.UserPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Content" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.UserPrompt.Content}" Placeholder="Content"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Assistant Prompt -->
+                <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Assistant Prompt" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Role" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.AssistantPrompt.Role}" Placeholder="Role"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Content" TextColor="#333333"/>
+                        <Entry Text="{Binding Config.AssistantPrompt.Content}" Placeholder="Content"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Features -->
+                <VerticalStackLayout IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Features" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Sentiment, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Sentiment}"/>
+                        <Label Text="Sentiment" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Emotion, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Emotion}"/>
+                        <Label Text="Emotion" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Entities, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Entities}"/>
+                        <Label Text="Entities" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Keywords, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Keywords}"/>
+                        <Label Text="Keywords" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Categories, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Categories}"/>
+                        <Label Text="Categories" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Concepts, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Concepts}"/>
+                        <Label Text="Concepts" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.Relations, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.Relations}"/>
+                        <Label Text="Relations" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="10"
+                                           IsVisible="{Binding Config.Features.SemanticRoles, Converter={StaticResource NullToVisibilityConverter}}">
+                        <CheckBox IsChecked="{Binding Config.Features.SemanticRoles}"/>
+                        <Label Text="Semantic Roles" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Other Config Properties -->
+                <Label Text="Other Config" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                <VerticalStackLayout IsVisible="{Binding Config.ServiceName, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Service Name" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.ServiceName}" Placeholder="Service Name"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.Voice, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Voice" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.Voice}" Placeholder="Voice"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.Pitch, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Pitch" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.Pitch}" Placeholder="Pitch"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.Speed, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Speed" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.Speed}" Placeholder="Speed"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.Model, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Model" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.Model}" Placeholder="Model"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.ContentType, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Content Type" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.ContentType}" Placeholder="Content Type"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.EmbeddingDimensions, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Embedding Dimensions" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.EmbeddingDimensions}" Placeholder="Embedding Dimensions"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.MaxInputTokens, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Max Input Tokens" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.MaxInputTokens}" Placeholder="Max Input Tokens"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Config.SpeakerEmbeddingConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Speaker Embedding Config" TextColor="#333333"/>
+                    <Entry Text="{Binding Config.SpeakerEmbeddingConfig}" Placeholder="Speaker Embedding Config"/>
+                </VerticalStackLayout>
+
+                <!-- Example Conversation -->
+                <VerticalStackLayout IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Example Conversation" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                    <Editor Text="{Binding Config.ExampleConversation}" 
+                            HeightRequest="100" 
+                            Placeholder="Enter example conversation JSON"/>
+                </VerticalStackLayout>
+
             </VerticalStackLayout>
             <Button Text="Save Configuration"
                     Clicked="OnSaveConfigClicked"
