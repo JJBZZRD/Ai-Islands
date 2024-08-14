@@ -27,6 +27,7 @@ class DataRouter:
         self.router.add_api_route("/upload-image-dataset/", self.upload_image_dataset, methods=["POST"])
         self.router.add_api_route("/process-dataset", self.process_dataset, methods=["POST"])
         self.router.add_api_route("/list-datasets", self.list_datasets, methods=["GET"])
+        self.router.add_api_route("/list-datasets-names", self.list_datasets_names, methods=["GET"])
         self.router.add_api_route("/available-models", self.get_available_models, methods=["GET"])
         self.router.add_api_route("/preview-dataset", self.preview_dataset, methods=["GET"])
         self.router.add_api_route("/dataset-processing-status", self.get_dataset_processing_status, methods=["GET"])
@@ -86,6 +87,14 @@ class DataRouter:
         try:
             dataset_manager = DatasetManagement()
             return dataset_manager.list_datasets()
+        except Exception as e:
+            logger.error(f"Error listing datasets: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Error listing datasets: {str(e)}")
+    
+    async def list_datasets_names(self):
+        try:
+            dataset_manager = DatasetManagement()
+            return dataset_manager.list_datasets_names()
         except Exception as e:
             logger.error(f"Error listing datasets: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Error listing datasets: {str(e)}")

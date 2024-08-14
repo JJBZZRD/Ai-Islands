@@ -16,12 +16,15 @@ namespace frontend.Views
         private Model _model;
         private ModelService _modelService;
         private ConfigViewModel _configViewModel;
+        private DataService _dataService;
+
         public ModelConfig(Model model)
         {
             InitializeComponent();
             _model = model;
             _configViewModel = new ConfigViewModel { Config = model.Config };
             _modelService = new ModelService();
+            _dataService = new DataService();
             ModelIdLabel.Text = $"Model: {_model.ModelId}";
             Debug.WriteLine("===============watch me==============");
             Debug.WriteLine(_configViewModel.Config.ExampleConversation == null);
@@ -34,6 +37,23 @@ namespace frontend.Views
             Debug.WriteLine(_configViewModel.Config.Parameters.StopSequences == null);
             }
             BindingContext = _configViewModel; // Set the BindingContext
+
+            LoadDatasetNames();
+        }
+
+        private async void LoadDatasetNames()
+        {
+            try
+            {
+                var datasetNames = await _dataService.ListDatasetsNames();
+                _configViewModel.DatasetNames = new List<string>(datasetNames);
+                OnPropertyChanged(nameof(_configViewModel.DatasetNames));
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors, e.g., show an alert to the user
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load dataset names: {ex.Message}", "OK");
+            }
         }
 
         private async void OnSaveConfigClicked(object sender, EventArgs e)

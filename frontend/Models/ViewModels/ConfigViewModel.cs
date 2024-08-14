@@ -17,6 +17,20 @@ namespace frontend.Models.ViewModels
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
         public ObservableCollection<StopSequence> StopSequences { get; }
 
+        private List<string> _datasetNames;
+        public List<string> DatasetNames
+        {
+            get => _datasetNames;
+            set
+            {
+                if (_datasetNames != value)
+                {
+                    _datasetNames = value;
+                    OnPropertyChanged(nameof(DatasetNames));
+                }
+            }
+        }
+
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();

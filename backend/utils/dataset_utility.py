@@ -350,15 +350,15 @@ class DatasetManagement:
         paragraphs = text.split('\n\n')
         return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
-    # def list_datasets(self):
-    #     try:
-    #         datasets_dir = Path("Datasets")
-    #         datasets = [d.name for d in datasets_dir.iterdir() if d.is_dir()]
-    #         logger.info(f"Found {len(datasets)} datasets")
-    #         return {"datasets": datasets}
-    #     except Exception as e:
-    #         logger.error(f"Error listing datasets: {e}")
-    #         return {"datasets": []}
+    def list_datasets_names(self):
+        try:
+            datasets_dir = Path("Datasets")
+            datasets = [d.name for d in datasets_dir.iterdir() if d.is_dir()]
+            logger.info(f"Found {len(datasets)} datasets")
+            return {"datasets": datasets}
+        except Exception as e:
+            logger.error(f"Error listing datasets: {e}")
+            return {"datasets": []}
 
     def list_datasets(self):
         try:
