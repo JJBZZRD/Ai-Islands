@@ -248,6 +248,12 @@ namespace frontend.Views
             var displayKey = FormatNameForDisplay(key);
             string dictionaryKey = $"{sectionName}.{key}";
 
+            if (key == "quantization_config_options")
+            {
+                AddQuantizationConfigOptions(value as Dictionary<string, object>, depth);
+                return;
+            }
+
             View inputView;
             bool isDropdown = false;
 
@@ -350,6 +356,42 @@ namespace frontend.Views
             }
 
             ConfigContainer.Children.Add(itemLayout);
+        }
+
+        private void AddQuantizationConfigOptions(Dictionary<string, object> options, int depth)
+        {
+            if (options == null) return;
+
+            var label = new Label
+            {
+                Text = "Quantization Config Options",
+                FontSize = 18,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromHex("#5D5D5D"),
+                Margin = new Thickness(depth * 10, 10, 0, 5)
+            };
+            ConfigContainer.Children.Add(label);
+
+            foreach (var kvp in options)
+            {
+                var subLabel = new Label
+                {
+                    Text = FormatNameForDisplay(kvp.Key),
+                    FontSize = 16,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromHex("#333333"),
+                    Margin = new Thickness((depth + 1) * 10, 5, 0, 5)
+                };
+                ConfigContainer.Children.Add(subLabel);
+
+                if (kvp.Value is Dictionary<string, object> subOptions)
+                {
+                    foreach (var subKvp in subOptions)
+                    {
+                        AddConfigItemToUI($"quantization_config_options.{kvp.Key}", subKvp.Key, subKvp.Value, depth + 2);
+                    }
+                }
+            }
         }
 
         private string FormatNameForDisplay(string name)
