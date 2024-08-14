@@ -8,6 +8,7 @@ using System.Text.Json;
 using frontend.entities;
 using Microsoft.Maui.Layouts;
 using CommunityToolkit.Mvvm.Messaging;
+using System.Windows.Input;
 
 namespace frontend.Views
 {
@@ -17,6 +18,7 @@ namespace frontend.Views
         public string? Name { get; set; }
         private frontend.entities.Playground _playground;
         private readonly PlaygroundService _playgroundService;
+        public ICommand DeleteModelCommand { get; private set; }
 
         public PlaygroundModelView(frontend.entities.Playground playground, PlaygroundService playgroundService)
         {
@@ -30,6 +32,7 @@ namespace frontend.Views
             LoadPlaygroundModels();
 
             BindingContext = this;
+            DeleteModelCommand = new Command<Model>(OnDeleteModel);
 
             // Register to listen for RefreshPlaygroundModelsMessage
             WeakReferenceMessenger.Default.Register<RefreshPlaygroundModelsMessage>(this, (r, m) =>
@@ -82,6 +85,51 @@ namespace frontend.Views
             AbsoluteLayout.SetLayoutBounds(modelSelectionPopup, new Rect(0, 0, 1, 1));
             MainLayout.Children.Add(modelSelectionPopup);
             modelSelectionPopup.IsVisible = true;
+        }
+
+        private async void OnDeleteModel(Model model)
+        {
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                "Confirm Deletion", 
+                $"Are you sure you want to remove {model.ModelId} from this playground?", 
+                "Yes", "No");
+
+            if (confirm)
+            {
+                try
+                {
+                    var result = await _playgroundService.RemoveModelFromPlayground(_playground.PlaygroundId, model.ModelId);
+                    System.Diagnostics.Debug.WriteLine($"RemoveModel result: {JsonSerializer.Serialize(result)}");
+
+                    if (result.ContainsKey("message"))
+                    {
+                        if (result["message"].ToString() == "Success")
+                        {
+                            await RefreshPlaygroundModels();
+                            await Application.Current.MainPage.DisplayAlert("Success", $"{model.ModelId} has been removed from the playground.", "OK");
+                        }
+                        else
+                        {
+                            string errorMessage = result.ContainsKey("error") ? result["error"].ToString() : "Unknown error occurred";
+                            await Application.Current.MainPage.DisplayAlert("Error", $"Failed to remove model: {errorMessage}", "OK");
+                        }
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "Unexpected response from server", "OK");
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"HTTP Request Exception in OnDeleteModel: {ex.Message}");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to remove model: {ex.Message}", "OK");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Exception in OnDeleteModel: {ex.Message}");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to remove model: {ex.Message}", "OK");
+                }
+            }
         }
     }
 }

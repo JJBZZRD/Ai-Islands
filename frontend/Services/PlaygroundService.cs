@@ -94,10 +94,38 @@ namespace frontend.Services
 
         public async Task<Dictionary<string, object>> RemoveModelFromPlayground(string playgroundId, string modelId)
         {
-            var request = new { playground_id = playgroundId, model_id = modelId };
-            var response = await _httpClient.PostAsJsonAsync("playground/remove-model", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            try
+            {
+                var request = new { playground_id = playgroundId, model_id = modelId };
+                var response = await _httpClient.PostAsJsonAsync("playground/remove-model", request);
+                response.EnsureSuccessStatusCode();
+                
+                var content = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"RemoveModelFromPlayground raw response: {content}");
+
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    return new Dictionary<string, object> { { "message", "Success" } };
+                }
+
+                return JsonSerializer.Deserialize<Dictionary<string, object>>(content) ?? 
+                       new Dictionary<string, object> { { "message", "Success" } };
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Exception in RemoveModelFromPlayground: {ex.Message}");
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"JSON parsing error in RemoveModelFromPlayground: {ex.Message}");
+                return new Dictionary<string, object> { { "message", "Error" }, { "error", "Unable to parse response" } };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in RemoveModelFromPlayground: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<List<Playground>> ListPlaygrounds()
