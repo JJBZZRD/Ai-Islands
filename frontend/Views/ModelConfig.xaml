@@ -49,8 +49,26 @@
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Temperature"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.Temperature}"
-                               Placeholder="Temperature"/>
+                        <Picker SelectedItem="{Binding Config.Parameters.Temperature, Mode=TwoWay}"
+                                Title="Select Temperature"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:Single}">
+                                   <x:Single>0.0</x:Single>
+                                   <x:Single>0.1</x:Single>
+                                   <x:Single>0.2</x:Single>
+                                   <x:Single>0.3</x:Single>
+                                   <x:Single>0.4</x:Single>
+                                   <x:Single>0.5</x:Single>
+                                   <x:Single>0.6</x:Single>
+                                   <x:Single>0.7</x:Single>
+                                   <x:Single>0.8</x:Single>
+                                   <x:Single>0.9</x:Single>
+                                   <x:Single>1.0</x:Single>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopP, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Top P"
