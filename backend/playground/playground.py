@@ -14,23 +14,23 @@ class Playground:
     def __init__(
         self,
         playground_id: str,
-        description: str = "",
-        models: dict = {},
-        chain: list = [],
+        description: str = None,
+        models: dict = None,
+        chain: list = None,
     ):
         """
         Initializes a new instance of the Playground class.
 
         Args:
             playground_id (str): The unique identifier for the playground.
-            description (str, optional): A description of the playground. Defaults to an empty string.
+            description (str, optional): A description of the playground. Defaults to None.
             models (dict, optional): A dictionary of models added to the playground. Defaults to an empty dictionary.
             chain (list, optional): A list representing the chain of models to be executed. Defaults to an empty list.
         """
         self.playground_id = playground_id
         self.description = description
-        self.models = models
-        self.chain = chain
+        self.models = models if models is not None else {}
+        self.chain = chain if chain is not None else []
         self.active_chain = False
 
     def to_dict(self):
