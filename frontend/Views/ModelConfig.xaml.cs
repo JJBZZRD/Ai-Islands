@@ -163,62 +163,50 @@ namespace frontend.Views
         private void AddExampleConversationToUI(string sectionName, List<ConversationTurn> conversation)
         {
             var conversationLayout = new VerticalStackLayout();
-            for (int i = 0; i < conversation.Count; i++)
+            
+            var label = new Label
             {
-                var turn = conversation[i];
-                var turnLayout = new VerticalStackLayout
-                {
-                    Margin = new Thickness(0, 0, 0, 10)
-                };
+                Text = "Example Conversation",
+                FontSize = 18,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromHex("#5D5D5D"),
+                Margin = new Thickness(0, 10, 0, 5)
+            };
+            conversationLayout.Children.Add(label);
 
-                var roleEntry = new Entry
-                {
-                    Text = turn.Role,
-                    Placeholder = "Enter role"
-                };
-                roleEntry.TextChanged += (s, e) => 
-                {
-                    _configValues[$"{sectionName}[{i}].Role"] = roleEntry.Text;
-                };
+            var turnsLayout = new VerticalStackLayout();
+            conversationLayout.Children.Add(turnsLayout);
 
-                var contentEntry = new Entry
+            if (conversation != null)
+            {
+                for (int i = 0; i < conversation.Count; i++)
                 {
-                    Text = turn.Content,
-                    Placeholder = "Enter content"
-                };
-                contentEntry.TextChanged += (s, e) => 
-                {
-                    _configValues[$"{sectionName}[{i}].Content"] = contentEntry.Text;
-                };
-
-                turnLayout.Children.Add(new Label { Text = "Role:", FontSize = 14, TextColor = Color.FromHex("#333333") });
-                turnLayout.Children.Add(roleEntry);
-                turnLayout.Children.Add(new Label { Text = "Content:", FontSize = 14, TextColor = Color.FromHex("#333333") });
-                turnLayout.Children.Add(contentEntry);
-
-                conversationLayout.Children.Add(turnLayout);
+                    AddConversationTurnToUI(sectionName, conversation[i], i, turnsLayout);
+                }
             }
 
-            // Add a button to add new conversation turns
             var addButton = new Button
             {
                 Text = "Add Turn",
-                Command = new Command(() => AddNewConversationTurn(conversationLayout, sectionName, conversation.Count))
+                Command = new Command(() => AddNewConversationTurn(sectionName, turnsLayout))
             };
             conversationLayout.Children.Add(addButton);
 
             ConfigContainer.Children.Add(conversationLayout);
         }
 
-        private void AddNewConversationTurn(VerticalStackLayout conversationLayout, string sectionName, int index)
+        private void AddConversationTurnToUI(string sectionName, ConversationTurn turn, int index, VerticalStackLayout turnsLayout)
         {
-            var turnLayout = new VerticalStackLayout
+            var turnLayout = new HorizontalStackLayout
             {
                 Margin = new Thickness(0, 0, 0, 10)
             };
 
+            var inputsLayout = new VerticalStackLayout();
+
             var roleEntry = new Entry
             {
+                Text = turn.Role,
                 Placeholder = "Enter role"
             };
             roleEntry.TextChanged += (s, e) => 
@@ -228,6 +216,7 @@ namespace frontend.Views
 
             var contentEntry = new Entry
             {
+                Text = turn.Content,
                 Placeholder = "Enter content"
             };
             contentEntry.TextChanged += (s, e) => 
@@ -235,12 +224,59 @@ namespace frontend.Views
                 _configValues[$"{sectionName}[{index}].Content"] = contentEntry.Text;
             };
 
-            turnLayout.Children.Add(new Label { Text = "Role:", FontSize = 14, TextColor = Color.FromHex("#333333") });
-            turnLayout.Children.Add(roleEntry);
-            turnLayout.Children.Add(new Label { Text = "Content:", FontSize = 14, TextColor = Color.FromHex("#333333") });
-            turnLayout.Children.Add(contentEntry);
+            inputsLayout.Children.Add(new Label { Text = "Role:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+            inputsLayout.Children.Add(roleEntry);
+            inputsLayout.Children.Add(new Label { Text = "Content:", FontSize = 14, TextColor = Color.FromHex("#333333") });
+            inputsLayout.Children.Add(contentEntry);
 
-            conversationLayout.Children.Insert(conversationLayout.Children.Count - 1, turnLayout);
+            turnLayout.Children.Add(inputsLayout);
+
+            var deleteButton = new Button
+            {
+                Text = "Delete",
+                Command = new Command(() => DeleteConversationTurn(sectionName, index, turnsLayout))
+            };
+            turnLayout.Children.Add(deleteButton);
+
+            turnsLayout.Children.Add(turnLayout);
+        }
+
+        private void AddNewConversationTurn(string sectionName, VerticalStackLayout turnsLayout)
+        {
+            int newIndex = turnsLayout.Children.Count;
+            var newTurn = new ConversationTurn();
+            AddConversationTurnToUI(sectionName, newTurn, newIndex, turnsLayout);
+        }
+
+        private void DeleteConversationTurn(string sectionName, int index, VerticalStackLayout turnsLayout)
+        {
+            turnsLayout.Children.RemoveAt(index);
+
+            // Update the indices for the remaining turns
+            for (int i = index; i < turnsLayout.Children.Count; i++)
+            {
+                var turnLayout = (HorizontalStackLayout)turnsLayout.Children[i];
+                var inputsLayout = (VerticalStackLayout)turnLayout.Children[0];
+                var roleEntry = (Entry)inputsLayout.Children[1];
+                var contentEntry = (Entry)inputsLayout.Children[3];
+
+                roleEntry.TextChanged -= (s, e) => { };
+                contentEntry.TextChanged -= (s, e) => { };
+
+                int newIndex = i;
+                roleEntry.TextChanged += (s, e) => 
+                {
+                    _configValues[$"{sectionName}[{newIndex}].Role"] = roleEntry.Text;
+                };
+                contentEntry.TextChanged += (s, e) => 
+                {
+                    _configValues[$"{sectionName}[{newIndex}].Content"] = contentEntry.Text;
+                };
+            }
+
+            // Remove the deleted turn from _configValues
+            _configValues.Remove($"{sectionName}[{index}].Role");
+            _configValues.Remove($"{sectionName}[{index}].Content");
         }
 
         private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0, VerticalStackLayout parentLayout = null)
@@ -355,7 +391,14 @@ namespace frontend.Views
                 };
             }
 
-            (parentLayout ?? ConfigContainer).Children.Add(itemLayout);
+            if (parentLayout != null)
+            {
+                parentLayout.Children.Add(itemLayout);
+            }
+            else
+            {
+                ConfigContainer.Children.Add(itemLayout);
+            }
         }
 
         private void AddQuantizationConfigOptions(Dictionary<string, object> options, int depth)
