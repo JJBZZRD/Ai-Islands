@@ -61,7 +61,11 @@
                            Grid.Column="1"
                            HorizontalOptions="End"
                            VerticalOptions="Center"
-                           Margin="10,0,0,0" />
+                           Margin="10,0,0,0">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddPlaygroundClicked"/>
+                        </Image.GestureRecognizers>
+                    </Image>
                 </Grid>
 
                 <CollectionView ItemsSource="{Binding PlaygroundList}">
@@ -86,5 +90,18 @@
                 </CollectionView>
             </VerticalStackLayout>
     </ScrollView>
+    <Grid IsVisible="{Binding IsPopupVisible}" BackgroundColor="#80000000">
+        <Frame BackgroundColor="White" VerticalOptions="Center" HorizontalOptions="Center" Padding="20">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Create New Playground" FontSize="20" FontAttributes="Bold"/>
+                <Entry Placeholder="Playground Name" Text="{Binding NewPlaygroundName}"/>
+                <Entry Placeholder="Description (Optional)" Text="{Binding NewPlaygroundDescription}"/>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="10">
+                    <Button Text="Create" Clicked="OnCreatePlaygroundClicked"/>
+                    <Button Text="Cancel" Clicked="OnCancelClicked"/>
+                </StackLayout>
+            </VerticalStackLayout>
+        </Frame>
+    </Grid>
     </Grid>
 </ContentPage>

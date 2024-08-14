@@ -12,6 +12,39 @@ namespace frontend.Views
         private readonly PlaygroundService _playgroundService;
         public ObservableCollection<frontend.entities.Playground> PlaygroundList { get; set; }
 
+        private bool _isPopupVisible;
+        public bool IsPopupVisible
+        {
+            get => _isPopupVisible;
+            set
+            {
+                _isPopupVisible = value;
+                OnPropertyChanged(nameof(IsPopupVisible));
+            }
+        }
+
+        private string _newPlaygroundName;
+        public string NewPlaygroundName
+        {
+            get => _newPlaygroundName;
+            set
+            {
+                _newPlaygroundName = value;
+                OnPropertyChanged(nameof(NewPlaygroundName));
+            }
+        }
+
+        private string _newPlaygroundDescription;
+        public string NewPlaygroundDescription
+        {
+            get => _newPlaygroundDescription;
+            set
+            {
+                _newPlaygroundDescription = value;
+                OnPropertyChanged(nameof(NewPlaygroundDescription));
+            }
+        }
+
         public Playground()
         {
             InitializeComponent();
@@ -23,7 +56,7 @@ namespace frontend.Views
             BindingContext = this; 
         }
 
-        private async void LoadPlaygrounds()
+        private async Task LoadPlaygrounds()
         {
             try
             {
@@ -75,6 +108,40 @@ namespace frontend.Views
             {
                 PlaygroundList.Add(playground);
             }
+        }
+
+        private void OnAddPlaygroundClicked(object sender, EventArgs e)
+        {
+            IsPopupVisible = true;
+        }
+
+        private async void OnCreatePlaygroundClicked(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(NewPlaygroundName))
+            {
+                await DisplayAlert("Error", "Playground name is required.", "OK");
+                return;
+            }
+
+            try
+            {
+                await _playgroundService.CreatePlayground(NewPlaygroundName, NewPlaygroundDescription);
+                await LoadPlaygrounds();
+                IsPopupVisible = false;
+                NewPlaygroundName = string.Empty;
+                NewPlaygroundDescription = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
+            }
+        }
+
+        private void OnCancelClicked(object sender, EventArgs e)
+        {
+            IsPopupVisible = false;
+            NewPlaygroundName = string.Empty;
+            NewPlaygroundDescription = string.Empty;
         }
     }
 }
