@@ -47,7 +47,17 @@ namespace frontend.Views
             {
                 var datasetNames = await _dataService.ListDatasetsNames();
                 _configViewModel.DatasetNames = new List<string>(datasetNames);
-                OnPropertyChanged(nameof(_configViewModel.DatasetNames));
+
+                // Set the selected dataset name after populating the list
+                if (_configViewModel.Config.RagSettings != null && 
+                    !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName) &&
+                    datasetNames.Contains(_configViewModel.Config.RagSettings.DatasetName))
+                {
+                    _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
+                }
+
+                // Manually trigger UI update
+                OnPropertyChanged(nameof(_configViewModel.SelectedDatasetName));
             }
             catch (Exception ex)
             {

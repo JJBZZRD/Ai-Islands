@@ -31,6 +31,24 @@ namespace frontend.Models.ViewModels
             }
         }
 
+        private string _selectedDatasetName;
+        public string SelectedDatasetName
+        {
+            get => _selectedDatasetName;
+            set
+            {
+                if (_selectedDatasetName != value)
+                {
+                    _selectedDatasetName = value;
+                    if (config?.RagSettings != null)
+                    {
+                        config.RagSettings.DatasetName = value;
+                    }
+                    OnPropertyChanged(nameof(SelectedDatasetName));
+                }
+            }
+        }
+
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();

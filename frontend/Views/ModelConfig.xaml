@@ -168,12 +168,10 @@
                     <VerticalStackLayout IsVisible="{Binding Config.RagSettings.DatasetName, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Dataset Name"
                                TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.RagSettings.DatasetName}"
-                               Placeholder="Dataset Name"/> -->
                         <Picker x:Name="DatasetNamePicker"
                                ItemsSource="{Binding DatasetNames}"
-                               SelectedItem="{Binding Config.RagSettings.DatasetName}"
-                               Title="Select a dataset"/>
+                               SelectedItem="{Binding SelectedDatasetName, Mode=TwoWay}"
+                               />
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.RagSettings.SimilarityThreshold, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Similarity Threshold"
