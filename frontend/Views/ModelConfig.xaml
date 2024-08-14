@@ -246,6 +246,72 @@
                         <Label Text="Trust Remote Code"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Generate Kwargs"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#333333"/>
+                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Label Text="Language"
+                                   TextColor="#333333"/>
+                            <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Language}"
+                                   Placeholder="Language"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Label Text="Task"
+                                   TextColor="#333333"/>
+                            <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Task}"
+                                   Placeholder="Task"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.CandidateLabels, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Candidate Labels"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#333333"/>
+                        <CollectionView ItemsSource="{Binding CandidateLabels}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="10"
+                                          ColumnDefinitions="*,Auto">
+                                        <Entry Text="{Binding ., Mode=TwoWay}"
+                                               Placeholder="Label"/>
+                                        <Button Text="Delete"
+                                                Clicked="OnDeleteCandidateLabelClicked"
+                                                Grid.Column="1"
+                                                BackgroundColor="Red"
+                                                TextColor="White"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Label Text="New Label"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#333333"
+                               Margin="0,10,0,0"/>
+                        <Entry x:Name="NewCandidateLabel"
+                               Placeholder="Label"/>
+                        <Button Text="Add Label"
+                                Clicked="OnAddCandidateLabelClicked"
+                                BackgroundColor="#3366FF"
+                                TextColor="White"
+                                CornerRadius="5"
+                                Padding="10,5"
+                                Margin="0,10,0,0"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ForwardParams, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Forward Params"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#333333"/>
+                        <HorizontalStackLayout Spacing="10"
+                                               IsVisible="{Binding Config.PipelineConfig.ForwardParams.DoSample, Converter={StaticResource NullToVisibilityConverter}}">
+                            <CheckBox IsChecked="{Binding Config.PipelineConfig.ForwardParams.DoSample}"/>
+                            <Label Text="Do Sample"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
 
                 <!-- Device Config -->

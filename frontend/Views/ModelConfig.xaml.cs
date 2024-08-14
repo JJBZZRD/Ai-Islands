@@ -33,6 +33,7 @@ namespace frontend.Views
         {
             // Update the _model's Config with the current ConfigViewModel's Config
             _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.ToList();
             _model.Config = _configViewModel.Config;
             await _modelService.ConfigureModel(_model.ModelId, _model.Config);
         }
@@ -43,12 +44,12 @@ namespace frontend.Views
             string role = NewMessageRole.Text;
             string content = NewMessageContent.Text;
 
-            // // Validate inputs
-            // if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(content))
-            // {
-            //     // Show an error message or handle the validation as needed
-            //     return;
-            // }
+            // Validate inputs
+            if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(content))
+            {
+                // Show an error message or handle the validation as needed
+                return;
+            }
 
             // Add the new message to the ObservableCollection
             _configViewModel.ExampleConversation.Add(new ConversationMessage { Role = role, Content = content });
@@ -66,6 +67,36 @@ namespace frontend.Views
             if (message != null)
             {
                 _configViewModel.ExampleConversation.Remove(message);
+            }
+        }
+
+        private void OnAddCandidateLabelClicked(object sender, EventArgs e)
+        {
+            // Get the new label from the UI
+            string newLabel = NewCandidateLabel.Text;
+
+            // Validate input
+            if (string.IsNullOrWhiteSpace(newLabel))
+            {
+                // Show an error message or handle the validation as needed
+                return;
+            }
+
+            // Add the new label to the ObservableCollection
+            _configViewModel.CandidateLabels.Add(newLabel);
+
+            // Clear the input field
+            NewCandidateLabel.Text = string.Empty;
+        }
+
+        private void OnDeleteCandidateLabelClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var label = button?.BindingContext as string;
+
+            if (label != null)
+            {
+                _configViewModel.CandidateLabels.Remove(label);
             }
         }
     }
