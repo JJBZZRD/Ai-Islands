@@ -11,29 +11,42 @@
     </ContentView.Resources>
 
     <AbsoluteLayout x:Name="MainLayout">
-        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
-            <VerticalStackLayout Padding="20" Spacing="10">
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
                 <Label Text="{Binding Name, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
                 <Label Text="Explore the models available in this playground" 
                        FontSize="17" TextColor="Black" />
-                
-                <ImageButton Source="add_icon.png" 
-                             HeightRequest="20"
-                             WidthRequest="20"
-                             Clicked="OnAddModelClicked" 
-                             HorizontalOptions="End" 
-                             VerticalOptions="Start" 
-                             />
+            </VerticalStackLayout>
 
-                <Frame BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="0,20,0,5" HasShadow="True">
-                    <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
-                        <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                        <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
-                        <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
-                    </Grid>
-                </Frame>
+            <Image Grid.Row="1" 
+                   Source="add_icon.png" 
+                   HeightRequest="30"
+                   WidthRequest="30"
+                   HorizontalOptions="End" 
+                   VerticalOptions="Start" 
+                   Margin="0,20,20,20">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAddModelClicked"/>
+                </Image.GestureRecognizers>
+            </Image>
 
-                <CollectionView ItemsSource="{Binding PlaygroundModels}">
+            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
+                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                </Grid>
+            </Frame>
+
+            <ScrollView Grid.Row="3">
+                <CollectionView ItemsSource="{Binding PlaygroundModels}" Margin="20,10,20,20">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
                     </CollectionView.ItemsLayout>
@@ -76,7 +89,7 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+            </ScrollView>
+        </Grid>
     </AbsoluteLayout>
 </ContentView>
