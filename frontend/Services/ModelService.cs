@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using frontend.Models;
+using System.Diagnostics;
 
 namespace frontend.Services
 {
@@ -79,6 +80,11 @@ namespace frontend.Services
         public async Task<object> ConfigureModel(string modelId, object payload)
         {
             var request = new { model_id = modelId, data = payload };
+
+            // Serialize the request to JSON for debugging
+            string jsonPayload = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+            Debug.WriteLine("Config Payload: " + jsonPayload);
+
             var response = await _httpClient.PostAsJsonAsync("model/configure", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<object>())!;
