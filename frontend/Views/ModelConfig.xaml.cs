@@ -441,7 +441,7 @@ namespace frontend.Views
                 {
                     UpdateExampleConversationItem(exampleConversationUpdates, keys, item.Value);
                 }
-                else if (keys.Length == 1)
+                else if (keys.Distinct().ToArray().Length == 1)
                 {
                     // Handle top-level attributes
                     SetTopLevelPropertyValue(_model.Config, keys[0], item.Value);
