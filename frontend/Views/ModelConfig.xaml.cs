@@ -17,6 +17,68 @@ namespace frontend.Views
         private Dictionary<string, object> _configValues = new Dictionary<string, object>();
         private ModelService _modelService;
 
+        private Dictionary<string, List<string>> _dropdownOptions = new Dictionary<string, List<string>>
+        {
+            // ParametersConfig
+            { "Parameters.Temperature", new List<string> { "0.1", "0.5", "0.7", "1.0" } },
+            { "Parameters.TopP", new List<string> { "0.1", "0.5", "0.9", "1.0" } },
+            { "Parameters.TopK", new List<string> { "10", "20", "50", "100" } },
+            { "Parameters.MaxNewTokens", new List<string> { "100", "200", "500", "1000" } },
+            { "Parameters.MinNewTokens", new List<string> { "10", "20", "50", "100" } },
+            { "Parameters.RepetitionPenalty", new List<string> { "1.0", "1.1", "1.2", "1.3" } },
+
+            // RagSettings
+            { "RagSettings.SimilarityThreshold", new List<string> { "0.5", "0.6", "0.7", "0.8" } },
+
+            // ModelConfig
+            { "ModelConfig.TorchDtype", new List<string> { "float16", "float32", "bfloat16" } },
+
+            // TokenizerConfig
+            { "TokenizerConfig.EosToken", new List<string> { " ", "<|endoftext|>", "[EOS]" } },
+            { "TokenizerConfig.UnkToken", new List<string> { " ", "[UNK]", "?" } },
+
+            // PipelineConfig
+            { "PipelineConfig.MaxLength", new List<string> { "512", "1024", "2048" } },
+            { "PipelineConfig.MaxNewTokens", new List<string> { "100", "200", "500" } },
+            { "PipelineConfig.NumBeams", new List<string> { "1", "2", "4", "8" } },
+            { "PipelineConfig.SrcLang", new List<string> { "en", "fr", "de", "es" } },
+            { "PipelineConfig.TgtLang", new List<string> { "en", "fr", "de", "es" } },
+            { "PipelineConfig.ChunkLengthS", new List<string> { "10", "20", "30" } },
+            { "PipelineConfig.BatchSize", new List<string> { "1", "2", "4", "8" } },
+
+            // GenerateKwargs
+            { "PipelineConfig.GenerateKwargs.Language", new List<string> { "English", "French", "German", "Spanish" } },
+            { "PipelineConfig.GenerateKwargs.Task", new List<string> { "summarization", "translation", "question-answering" } },
+
+            // DeviceConfig
+            { "DeviceConfig.Device", new List<string> { "cpu", "cuda", "mps" } },
+
+            // TranslationConfig
+            { "TranslationConfig.SrcLang", new List<string> { "en", "fr", "de", "es" } },
+            { "TranslationConfig.TgtLang", new List<string> { "en", "fr", "de", "es" } },
+
+            // QuantizationConfig
+            { "QuantizationConfig.CurrentMode", new List<string> { "4-bit", "8-bit", "bfloat16" } },
+
+            // FourBitConfig
+            { "QuantizationConfigOptions.4-bit.Bnb4BitQuantType", new List<string> { "fp4", "nf4" } },
+            { "QuantizationConfigOptions.4-bit.Bnb4BitComputeDtype", new List<string> { "float16", "bfloat16" } },
+
+            // SystemPrompt, UserPrompt, AssistantPrompt
+            { "SystemPrompt.Role", new List<string> { "system", "assistant", "user" } },
+            { "UserPrompt.Role", new List<string> { "user", "human" } },
+            { "AssistantPrompt.Role", new List<string> { "assistant", "ai" } },
+
+            // Other Config properties
+            { "Voice", new List<string> { "male", "female", "neutral" } },
+            { "Pitch", new List<string> { "-10", "-5", "0", "5", "10" } },
+            { "Speed", new List<string> { "0.5", "0.75", "1.0", "1.25", "1.5" } },
+            { "ContentType", new List<string> { "text", "audio", "image" } },
+            { "EmbeddingDimensions", new List<string> { "128", "256", "512", "1024" } },
+            { "MaxInputTokens", new List<string> { "512", "1024", "2048", "4096" } },
+            { "SpeakerEmbeddingConfig", new List<string> { "default", "custom" } }
+        };
+
         public ModelConfig(Model model)
         {
             InitializeComponent();
@@ -184,17 +246,24 @@ namespace frontend.Views
         private void AddConfigItemToUI(string sectionName, string key, object value, int depth = 0)
         {
             var displayKey = FormatNameForDisplay(key);
-            var label = new Label
-            {
-                Text = displayKey,
-                FontSize = 14,
-                TextColor = Color.FromHex("#333333")
-            };
-
-            View inputView;
             string dictionaryKey = $"{sectionName}.{key}";
 
-            if (value is bool boolValue)
+            View inputView;
+            bool isDropdown = false;
+
+            if (_dropdownOptions.ContainsKey(dictionaryKey))
+            {
+                var picker = new Picker { Title = displayKey };
+                foreach (var option in _dropdownOptions[dictionaryKey])
+                {
+                    picker.Items.Add(option);
+                }
+                picker.SelectedItem = value?.ToString();
+                picker.SelectedIndexChanged += (s, e) => _configValues[dictionaryKey] = picker.SelectedItem;
+                inputView = picker;
+                isDropdown = true;
+            }
+            else if (value is bool boolValue)
             {
                 var switchControl = new Microsoft.Maui.Controls.Switch { IsToggled = boolValue };
                 switchControl.Toggled += (s, e) => _configValues[dictionaryKey] = switchControl.IsToggled;
@@ -232,23 +301,53 @@ namespace frontend.Views
                 var stackLayout = new VerticalStackLayout();
                 foreach (var kvp in dictValue)
                 {
-                    AddConfigItemToUI($"{sectionName}.{key}", kvp.Key, kvp.Value, depth + 1);
+                    AddConfigItemToUI($"{dictionaryKey}", kvp.Key, kvp.Value, depth + 1);
+                }
+                inputView = stackLayout;
+            }
+            else if (value != null && value.GetType().IsClass)
+            {
+                var stackLayout = new VerticalStackLayout();
+                foreach (var prop in value.GetType().GetProperties())
+                {
+                    var propValue = prop.GetValue(value);
+                    if (propValue != null)
+                    {
+                        AddConfigItemToUI(dictionaryKey, prop.Name, propValue, depth + 1);
+                    }
                 }
                 inputView = stackLayout;
             }
             else
             {
-                // For other types, display as read-only text
                 inputView = new Label { Text = value?.ToString() ?? "null" };
             }
 
             _configValues[dictionaryKey] = value;
 
-            var itemLayout = new VerticalStackLayout
+            VerticalStackLayout itemLayout;
+            if (isDropdown)
             {
-                Children = { label, inputView },
-                Margin = new Thickness(depth * 10, 0, 0, 10)
-            };
+                itemLayout = new VerticalStackLayout
+                {
+                    Children = { inputView },
+                    Margin = new Thickness(depth * 10, 0, 0, 10)
+                };
+            }
+            else
+            {
+                var label = new Label
+                {
+                    Text = displayKey,
+                    FontSize = 14,
+                    TextColor = Color.FromHex("#333333")
+                };
+                itemLayout = new VerticalStackLayout
+                {
+                    Children = { label, inputView },
+                    Margin = new Thickness(depth * 10, 0, 0, 10)
+                };
+            }
 
             ConfigContainer.Children.Add(itemLayout);
         }
