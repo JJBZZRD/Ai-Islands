@@ -75,6 +75,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Entities\" />
 	  <Folder Include="Playground\" />
 	  <Folder Include="ViewModels\" />
 	</ItemGroup>
@@ -118,6 +119,9 @@
 	  </Compile>
 	  <Compile Update="Views\ModelSelectionPopup.xaml.cs">
 	    <DependentUpon>ModelSelectionPopup.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\PlaygroundPage.xaml.cs">
+	    <DependentUpon>PlaygroundPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\PlaygroundModelView.xaml.cs">
 	    <DependentUpon>PlaygroundModelView.xaml</DependentUpon>
@@ -191,7 +195,7 @@
 	  <MauiXaml Update="Views\TagsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Playground.xaml">
+	  <MauiXaml Update="Views\PlaygroundPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\DataRefinery.xaml">

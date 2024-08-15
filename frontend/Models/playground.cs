@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using frontend.entities;
-using frontend.Models;
-namespace frontend.entities
+
+namespace frontend.Models
 {
     public class Playground
     {

@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using frontend.entities;
+using frontend.Models;
 using System.Text.Json;
 using frontend.Models;
 using frontend.Services;

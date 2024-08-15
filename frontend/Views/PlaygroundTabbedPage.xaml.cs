@@ -1,7 +1,7 @@
 using Microsoft.Maui.Controls;
 using frontend.Models;
 using frontend.Services;
-using frontend.entities;
+using frontend.Models;
 using System.Collections.Generic;
 
 namespace frontend.Views
@@ -9,10 +9,10 @@ namespace frontend.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlaygroundTabbedPage : ContentPage
     {
-        private frontend.entities.Playground _playground;
+        private Playground _playground;
         private PlaygroundService _playgroundService;
 
-        public PlaygroundTabbedPage(frontend.entities.Playground playground, PlaygroundService playgroundService)
+        public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playground = playground;

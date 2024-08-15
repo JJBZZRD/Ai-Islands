@@ -1,16 +1,16 @@
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using frontend.Services;
-using frontend.entities;
+using frontend.Models;
 using System.Text.Json;
 using frontend.Models;
 
 namespace frontend.Views
 {
-    public partial class Playground : ContentPage
+    public partial class PlaygroundPage : ContentPage
     {
         private readonly PlaygroundService _playgroundService;
-        public ObservableCollection<frontend.entities.Playground> PlaygroundList { get; set; }
+        public ObservableCollection<Playground> PlaygroundList { get; set; }
 
         private bool _isPopupVisible;
         public bool IsPopupVisible
@@ -48,11 +48,11 @@ namespace frontend.Views
             }
         }
 
-        public Playground()
+        public PlaygroundPage()
         {
             InitializeComponent();
             _playgroundService = new PlaygroundService();
-            PlaygroundList = new ObservableCollection<frontend.entities.Playground>();
+            PlaygroundList = new ObservableCollection<Playground>();
 
             BindingContext = this;
 
@@ -89,7 +89,7 @@ namespace frontend.Views
 
         private async void OnPlaygroundSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is frontend.entities.Playground selectedPlayground)
+            if (e.Parameter is Playground selectedPlayground)
             {
                 await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService));
             }
@@ -106,9 +106,9 @@ namespace frontend.Views
             }
             else
             {
-                var filteredList = new ObservableCollection<frontend.entities.Playground>(
-                    PlaygroundList.Where(p => 
-                        (p.PlaygroundId?.ToLower().Contains(searchText) ?? false) || 
+                var filteredList = new ObservableCollection<Playground>(
+                    PlaygroundList.Where(p =>
+                        (p.PlaygroundId?.ToLower().Contains(searchText) ?? false) ||
                         (p.Description?.ToLower().Contains(searchText) ?? false))
                 );
 
@@ -152,12 +152,12 @@ namespace frontend.Views
 
         private async void OnDeletePlaygroundClicked(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is frontend.entities.Playground selectedPlayground)
+            if (e.Parameter is Playground selectedPlayground)
             {
-                bool answer = await DisplayAlert("Confirm Delete", 
-                    $"Are you sure you want to delete the playground '{selectedPlayground.PlaygroundId}'?", 
+                bool answer = await DisplayAlert("Confirm Delete",
+                    $"Are you sure you want to delete the playground '{selectedPlayground.PlaygroundId}'?",
                     "Yes", "No");
-                
+
                 if (answer)
                 {
                     try
@@ -192,13 +192,13 @@ namespace frontend.Views
 
                 await _playgroundService.CreatePlayground(NewPlaygroundName, description);
                 await LoadPlaygrounds();
-                
+
                 IsPopupVisible = false;
                 PopupOverlay.IsVisible = false;
-                
+
                 NewPlaygroundName = string.Empty;
                 NewPlaygroundDescription = string.Empty;
-                
+
                 await DisplayAlert("Success", "New playground created successfully", "OK");
             }
             catch (HttpRequestException ex)

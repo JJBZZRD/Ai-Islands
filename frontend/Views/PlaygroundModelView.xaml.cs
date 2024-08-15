@@ -5,7 +5,7 @@ using System.Diagnostics;
 using frontend.Models; 
 using frontend.Services;
 using System.Text.Json;
-using frontend.entities;
+using frontend.Models;
 using Microsoft.Maui.Layouts;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Windows.Input;
@@ -16,11 +16,11 @@ namespace frontend.Views
     {
         public ObservableCollection<Model> PlaygroundModels { get; set; } = new ObservableCollection<Model>();
         public string? Name { get; set; }
-        private frontend.entities.Playground _playground;
+        private Playground _playground;
         private readonly PlaygroundService _playgroundService;
         public ICommand DeleteModelCommand { get; private set; }
 
-        public PlaygroundModelView(frontend.entities.Playground playground, PlaygroundService playgroundService)
+        public PlaygroundModelView(Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playgroundService = playgroundService;
