@@ -1,17 +1,20 @@
-import os
-from tempfile import TemporaryDirectory
-from ultralytics import YOLO
-from backend.core.config import ROOT_DIR, DOWNLOADED_MODELS_PATH, UPLOAD_DATASET_DIR
-from backend.data_utils.file_utils import verify_file
-from backend.data_utils.json_handler import JSONHandler
-from .base_model import BaseModel
 import logging
+import os
+import shutil
+
 import cv2
 import numpy as np
 import torch
-import shutil
 from PIL import Image
+from ultralytics import YOLO
+
+from backend.core.config import DOWNLOADED_MODELS_PATH, ROOT_DIR, UPLOAD_DATASET_DIR
+from backend.core.exceptions import ModelError
+from backend.data_utils.file_utils import verify_file
+from backend.data_utils.json_handler import JSONHandler
 from backend.utils.process_vis_out import process_vision_output
+
+from .base_model import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,6 @@ class UltralyticsModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.model = None
-        #self.library_control = LibraryControl()
     
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -36,7 +38,8 @@ class UltralyticsModel(BaseModel):
                 model = YOLO(model_id)
                 model.save(model_path)
             else:
-                raise ValueError(f"Unsupported model type: {model_type}")
+                logger.error(f"Unsupported model type: {model_type}")
+                raise ModelError(f"Unsupported model type: {model_type}")
 
             print(f"Model {model_id} downloaded and saved to {model_path}")
 
@@ -54,7 +57,7 @@ class UltralyticsModel(BaseModel):
             return model_info
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
-            return None
+            raise ModelError(f"Error downloading model {model_id}: {str(e)}")
             
     def load(self, device: torch.device, model_info: dict):
         try:
@@ -181,7 +184,7 @@ class UltralyticsModel(BaseModel):
                 raise FileNotFoundError(f"Dataset path not found: {data_path}")
         
             self.model.train(data=data_path, epochs=epochs, imgsz=imgsz, lr0=learning_rate, batch=batch_size)
-            logger.info(f"Training completed")
+            logger.info("Training completed")
 
             # Finding the best.pt file in the runs/detect/train folder
             runs_folder = os.path.join('runs', 'detect', 'train')
@@ -235,8 +238,10 @@ class UltralyticsModel(BaseModel):
 
             return {
                 "message": "Training completed successfully",
-                "trained_model_path": trained_model_path,
-                "new_model_info": new_model_info
+                "data": {
+                    "trained_model_path": trained_model_path,
+                    "new_model_info": new_model_info
+                }
             }
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")

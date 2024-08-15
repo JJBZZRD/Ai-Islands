@@ -10,6 +10,12 @@ class FileWriteError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class ModelError(Exception):
+    """Exception raised when there is an error with a model."""
+    def __init__(self, message="Error with model"):
+        self.message = message
+        super().__init__(self.message)
+
 class PlaygroundError(Exception):
     """Exception raised when there is an error with the playground."""
     def __init__(self, message="Error with playground"):
