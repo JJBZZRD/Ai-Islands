@@ -282,7 +282,7 @@ namespace frontend.Views
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
                     case "text-to-speech":
-                      // for other cases
+                      // etc..
                     default:
                         await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
                         return;
@@ -290,8 +290,22 @@ namespace frontend.Views
 
                 var result = await _modelService.Inference(_model.ModelId, data);
 
-                // Will be displayed in the Output tab
                 RawJsonText = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+                
+                // Deserialize RawJsonText to a dictionary
+                var resultDict = JsonSerializer.Deserialize<Dictionary<string, object>>(RawJsonText);
+
+                // Extracting the value of "data"
+                if (resultDict != null && resultDict.TryGetValue("data", out var dataValue))
+                {
+                    // Storing the value of "data" in RawJsonText, modifying previous RawJsonText
+                    RawJsonText = JsonSerializer.Serialize(dataValue, new JsonSerializerOptions { WriteIndented = true });
+                    System.Diagnostics.Debug.WriteLine($"Extracted data: {RawJsonText}");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
+                }
             }
             catch (Exception ex)
             {
