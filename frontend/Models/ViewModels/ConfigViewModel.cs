@@ -54,30 +54,6 @@ namespace frontend.Models.ViewModels
             ExampleConversation = new ObservableCollection<ConversationMessage>();
             CandidateLabels = new ObservableCollection<CandidateLabel>();
             StopSequences = new ObservableCollection<StopSequence>();
-
-            if (config?.ExampleConversation != null)
-            {
-                foreach (var message in config.ExampleConversation)
-                {
-                    ExampleConversation.Add(new ConversationMessage { Role = message.Role, Content = message.Content });
-                }
-            }
-
-            if (config?.PipelineConfig?.CandidateLabels != null)
-            {
-                foreach (var label in config.PipelineConfig.CandidateLabels)
-                {
-                    CandidateLabels.Add(new CandidateLabel(label));
-                }
-            }
-
-            if (config?.Parameters?.StopSequences != null)
-            {
-                foreach (var sequence in config.Parameters.StopSequences)
-                {
-                    StopSequences.Add(new StopSequence(sequence));
-                }
-            }
         }
 
         partial void OnConfigChanged(Config? oldValue, Config? newValue)
