@@ -55,6 +55,7 @@ class ModelRouter:
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
         self.router.add_api_route("/train", self.train_model, methods=["POST"])
         self.router.add_api_route("/configure", self.configure_model, methods=["POST"])
+        self.router.add_api_route("/hardware-usage", self.get_model_hardware_usage, methods=["GET"])
 
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
@@ -181,4 +182,14 @@ class ModelRouter:
             else:
                 raise HTTPException(status_code=404, detail=f"Model {model_id} not found or could not be deleted")
         except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_model_hardware_usage(self, model_id: str = Query(...)):
+        try:
+            usage = self.model_control.get_model_hardware_usage(model_id)
+            if usage is None:
+                raise HTTPException(status_code=404, detail=f"Model {model_id} not found or not active")
+            return JSONResponse(content=usage)
+        except Exception as e:
+            logger.error(f"Error getting hardware usage for model {model_id}: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))

@@ -83,7 +83,7 @@ namespace frontend.Views
             };
             AbsoluteLayout.SetLayoutFlags(modelSelectionPopup, AbsoluteLayoutFlags.All);
             AbsoluteLayout.SetLayoutBounds(modelSelectionPopup, new Rect(0, 0, 1, 1));
-            MainLayout.Children.Add(modelSelectionPopup);
+            MainLayout.Children.Add(modelSelectionPopup); 
             modelSelectionPopup.IsVisible = true;
         }
 
