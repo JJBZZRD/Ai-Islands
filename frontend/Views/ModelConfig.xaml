@@ -697,41 +697,208 @@
                 <!-- Other Config Properties -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
                 <VerticalStackLayout Spacing="10">
-                <VerticalStackLayout IsVisible="{Binding Config.ServiceName, Converter={StaticResource NullToVisibilityConverter}}">
+                <!-- <VerticalStackLayout IsVisible="{Binding Config.ServiceName, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Service Name"
                            TextColor="#333333"/>
                     <Entry Text="{Binding Config.ServiceName}"
                            Placeholder="Service Name"/>
-                </VerticalStackLayout>
+                </VerticalStackLayout> -->
                 <VerticalStackLayout IsVisible="{Binding Config.Voice, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Voice"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.Voice}"
-                           Placeholder="Voice"/>
+                    <!-- <Entry Text="{Binding Config.Voice}"
+                           Placeholder="Voice"/> -->
+                         <Picker SelectedItem="{Binding Config.Voice, Mode=TwoWay}"
+                            WidthRequest="300"
+                            HorizontalOptions="Start">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                   <x:String>en-US_EmmaExpressive</x:String>
+                                   <x:String>es-LA_DanielaExpressive</x:String>
+                                   <x:String>en-US_MichaelVoice</x:String>
+                                   <x:String>en-GB_KateVoice</x:String>
+                                   <x:String>en-AU_HeidiExpressive</x:String>
+                                   <x:String>fr-FR_ReneeVoice</x:String>
+                                   <x:String>de-DE_DieterVoice</x:String>
+                                   <x:String>ko-KR_JinV3Voice</x:String>
+                                   <x:String>en-US_MichaelExpressive</x:String>
+                                   <x:String>en-US_AllisonExpressive</x:String>
+                                   <x:String>en-AU_JackExpressive</x:String>
+                                   <x:String>en-US_AllisonVoice</x:String>
+                                   <x:String>de-DE_BirgitVoice</x:String>
+                                   <x:String>en-US_LisaExpressive</x:String>
+                                   <x:String>pt-BR_IsabelaVoice</x:String>
+                                   <x:String>en-GB_CharlotteV3Voice</x:String>
+                                   <x:String>de-DE_BirgitV3Voice</x:String>
+                                   <x:String>es-ES_EnriqueV3Voice</x:String>
+                                   <x:String>en-US_MichaelV3Voice</x:String>
+                                   <x:String>en-US_AllisonV3Voice</x:String>
+                                   <x:String>it-IT_FrancescaV2Voice</x:String>
+                                   <x:String>es-US_SofiaV3Voice</x:String>
+                                   <x:String>pt-BR_IsabelaV3Voice</x:String>
+                                   <x:String>en-US_KevinV3Voice</x:String>
+                                   <x:String>it-IT_FrancescaVoice</x:String>
+                                   <x:String>nl-NL_MerelV3Voice</x:String>
+                                   <x:String>es-ES_LauraV3Voice</x:String>
+                                   <x:String>de-DE_DieterV3Voice</x:String>
+                                   <x:String>es-LA_SofiaV3Voice</x:String>
+                                   <x:String>en-US_MichaelV2Voice</x:String>
+                                   <x:String>es-ES_LauraVoice</x:String>
+                                   <x:String>en-US_OliviaV3Voice</x:String>
+                                   <x:String>es-LA_SofiaVoice</x:String>
+                                   <x:String>en-US_HenryV3Voice</x:String>
+                                   <x:String>en-GB_JamesV3Voice</x:String>
+                                   <x:String>en-US_LisaV3Voice</x:String>
+                                   <x:String>ja-JP_EmiV3Voice</x:String>
+                                   <x:String>fr-CA_LouiseV3Voice</x:String>
+                                   <x:String>de-DE_DieterV2Voice</x:String>
+                                   <x:String>de-DE_ErikaV3Voice</x:String>
+                                   <x:String>it-IT_FrancescaV3Voice</x:String>
+                                   <x:String>en-GB_KateV3Voice</x:String>
+                                   <x:String>en-US_LisaV2Voice</x:String>
+                                   <x:String>en-US_LisaVoice</x:String>
+                                   <x:String>fr-FR_NicolasV3Voice</x:String>
+                                   <x:String>en-US_EmilyV3Voice</x:String>
+                                   <x:String>ja-JP_EmiVoice</x:String>
+                                   <x:String>es-US_SofiaVoice</x:String>
+                                   <x:String>de-DE_BirgitV2Voice</x:String>
+                                   <x:String>en-US_AllisonV2Voice</x:String>
+                                   <x:String>es-ES_EnriqueVoice</x:String>
+                                   <x:String>fr-FR_ReneeV3Voice</x:String>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                     </Picker>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Pitch, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Pitch"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.Pitch}"
-                           Placeholder="Pitch"/>
+                    <!-- <Entry Text="{Binding Config.Pitch}"
+                           Placeholder="Pitch"/> -->
+                     <controls:OptimizedSlider Minimum="-100"
+                                                 Maximum="100"
+                                                 OptimizedValue="0"
+                                                 Value="{Binding Config.Pitch, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Speed, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Speed"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.Speed}"
-                           Placeholder="Speed"/>
+                    <!-- <Entry Text="{Binding Config.Speed}"
+                           Placeholder="Speed"/> -->
+                     <controls:OptimizedSlider Minimum="-100"
+                                                 Maximum="100"
+                                                 OptimizedValue="0"
+                                                 Value="{Binding Config.Speed, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Model, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Model"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.Model}"
-                           Placeholder="Model"/>
+                    <!-- <Entry Text="{Binding Config.Model}"
+                           Placeholder="Model"/> -->
+                     <Picker SelectedItem="{Binding Config.Model, Mode=TwoWay}"
+                             WidthRequest="300"
+                             HorizontalOptions="Start">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                   <x:String>ja-JP_BroadbandModel</x:String>
+                                   <x:String>pt-BR_BroadbandModel</x:String>
+                                   <x:String>es-MX_BroadbandModel</x:String>
+                                   <x:String>es-CL_BroadbandModel</x:String>
+                                   <x:String>es-ES_BroadbandModel</x:String>
+                                   <x:String>zh-CN_BroadbandModel</x:String>
+                                   <x:String>es-PE_BroadbandModel</x:String>
+                                   <x:String>es-CO_BroadbandModel</x:String>
+                                   <x:String>es-AR_BroadbandModel</x:String>
+                                   <x:String>en-US_BroadbandModel</x:String>
+                                   <x:String>en-IN</x:String>
+                                   <x:String>ko-KR_NarrowbandModel</x:String>
+                                   <x:String>en-AU_Multimedia</x:String>
+                                   <x:String>fr-FR_NarrowbandModel</x:String>
+                                   <x:String>ko-KR_BroadbandModel</x:String>
+                                   <x:String>ja-JP_NarrowbandModel</x:String>
+                                   <x:String>en-US_NarrowbandModel</x:String>
+                                   <x:String>es-CO_NarrowbandModel</x:String>
+                                   <x:String>en-US_Multimedia</x:String>
+                                   <x:String>it-IT_NarrowbandModel</x:String>
+                                   <x:String>en-GB_Multimedia</x:String>
+                                   <x:String>pt-BR</x:String>
+                                   <x:String>es-MX_NarrowbandModel</x:String>
+                                   <x:String>fr-CA</x:String>
+                                   <x:String>es-PE</x:String>
+                                   <x:String>en-AU</x:String>
+                                   <x:String>nl-BE_Telephony</x:String>
+                                   <x:String>es-ES</x:String>
+                                   <x:String>en-AU_BroadbandModel</x:String>
+                                   <x:String>fr-CA_BroadbandModel</x:String>
+                                   <x:String>fr-FR_Telephony</x:String>
+                                   <x:String>pt-BR_NarrowbandModel</x:String>
+                                   <x:String>pt-PT</x:String>
+                                   <x:String>ja-JP</x:String>
+                                   <x:String>fr-CA_NarrowbandModel</x:String>
+                                   <x:String>es-PE_NarrowbandModel</x:String>
+                                   <x:String>it-IT_Multimedia</x:String>
+                                   <x:String>fr-FR</x:String>
+                                   <x:String>pt-BR_Multimedia</x:String>
+                                   <x:String>nl-NL_BroadbandModel</x:String>
+                                   <x:String>ar-MS_Telephony</x:String>
+                                   <x:String>en-IN_Telephony</x:String>
+                                   <x:String>es-MX</x:String>
+                                   <x:String>en-AU_Telephony</x:String>
+                                   <x:String>nl-NL_Telephony</x:String>
+                                   <x:String>es-CL_NarrowbandModel</x:String>
+                                   <x:String>hi-IN_Telephony</x:String>
+                                   <x:String>en-US_Telephony</x:String>
+                                   <x:String>es-AR</x:String>
+                                   <x:String>en-GB</x:String>
+                                   <x:String>de-DE_Telephony</x:String>
+                                   <x:String>de-DE_BroadbandModel</x:String>
+                                   <x:String>sv-SE_Telephony</x:String>
+                                   <x:String>zh-CN_NarrowbandModel</x:String>
+                                   <x:String>ar-MS_BroadbandModel</x:String>
+                                   <x:String>en-AU_NarrowbandModel</x:String>
+                                   <x:String>fr-FR_BroadbandModel</x:String>
+                                   <x:String>fr-CA_Telephony</x:String>
+                                   <x:String>es-LA_Telephony</x:String>
+                                   <x:String>de-DE_Multimedia</x:String>
+                                   <x:String>it-IT_BroadbandModel</x:String>
+                                   <x:String>en-US_ShortForm_NarrowbandModel</x:String>
+                                   <x:String>en-GB_BroadbandModel</x:String>
+                                   <x:String>en-US</x:String>
+                                   <x:String>es-AR_NarrowbandModel</x:String>
+                                   <x:String>cs-CZ_Telephony</x:String>
+                                   <x:String>es-ES_Multimedia</x:String>
+                                   <x:String>es-CL</x:String>
+                                   <x:String>it-IT_Telephony</x:String>
+                                   <x:String>ko-KR_Multimedia</x:String>
+                                   <x:String>es-ES_Telephony</x:String>
+                                   <x:String>ko-KR_Telephony</x:String>
+                                   <x:String>pt-BR_Telephony</x:String>
+                                   <x:String>de-DE_NarrowbandModel</x:String>
+                                   <x:String>en-GB_Telephony</x:String>
+                                   <x:String>fr-FR_Multimedia</x:String>
+                                   <x:String>nl-NL_Multimedia</x:String>
+                                   <x:String>zh-CN_Telephony</x:String>
+                                   <x:String>en-WW_Medical_Telephony</x:String>
+                                   <x:String>ja-JP_Multimedia</x:String>
+                                   <x:String>fr-CA_Multimedia</x:String>
+                                   <x:String>en-GB_NarrowbandModel</x:String>
+                                   <x:String>ja-JP_Telephony</x:String>
+                                   <x:String>es-ES_NarrowbandModel</x:String>
+                                   <x:String>es-CO</x:String>
+                                   <x:String>nl-NL_NarrowbandModel</x:String>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                     </Picker>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.ContentType, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Content Type"
                            TextColor="#333333"/>
                     <Entry Text="{Binding Config.ContentType}"
-                           Placeholder="Content Type"/>
+                           Placeholder="Content Type"
+                           IsEnabled="False" BackgroundColor="Transparent"
+                           WidthRequest="300"
+                           HorizontalOptions="Start"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.EmbeddingDimensions, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Embedding Dimensions"
