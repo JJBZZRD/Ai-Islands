@@ -133,7 +133,8 @@ namespace frontend.Controls
             {
                 MainSlider.Minimum = 0;
                 MainSlider.Maximum = FixedValues.Count - 1;
-                MainSlider.Value = FixedValues.IndexOf(FormatValueAsFloat(Value));
+                int index = FindClosestFixedValueIndex(Value);
+                MainSlider.Value = index;
             }
             else
             {
@@ -146,6 +147,18 @@ namespace frontend.Controls
             UpdateValueLabel();
             UpdateOptimizedLabel();
             UpdateOptimizedIndicator();
+        }
+
+        private int FindClosestFixedValueIndex(float value)
+        {
+            if (FixedValues == null || FixedValues.Count == 0)
+                return -1;
+
+            return FixedValues
+                .Select((v, i) => new { Value = v, Index = i })
+                .OrderBy(x => Math.Abs(x.Value - value))
+                .First()
+                .Index;
         }
 
         private void UpdateLabels()
