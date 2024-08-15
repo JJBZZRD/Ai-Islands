@@ -903,14 +903,24 @@
                 <VerticalStackLayout IsVisible="{Binding Config.EmbeddingDimensions, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Embedding Dimensions"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.EmbeddingDimensions}"
-                           Placeholder="Embedding Dimensions"/>
+                    <!-- <Entry Text="{Binding Config.EmbeddingDimensions}"
+                           Placeholder="Embedding Dimensions"/> -->
+                     <controls:OptimizedSlider Minimum="64"
+                                                 Maximum="2048"
+                                                 OptimizedValue="768"
+                                                 Value="{Binding Config.EmbeddingDimensions, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.MaxInputTokens, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Max Input Tokens"
                            TextColor="#333333"/>
-                    <Entry Text="{Binding Config.MaxInputTokens}"
-                           Placeholder="Max Input Tokens"/>
+                    <!-- <Entry Text="{Binding Config.MaxInputTokens}"
+                           Placeholder="Max Input Tokens"/> -->
+                     <controls:OptimizedSlider Minimum="64"
+                                                 Maximum="2048"
+                                                 OptimizedValue="512"
+                                                 Value="{Binding Config.MaxInputTokens, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.SpeakerEmbeddingConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Speaker Embedding Config"
