@@ -209,8 +209,15 @@
                     <VerticalStackLayout IsVisible="{Binding Config.ModelConfig.TorchDtype, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Torch Dtype"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.ModelConfig.TorchDtype}"
-                               Placeholder="Torch Dtype"/>
+                            <Picker SelectedItem="{Binding Config.ModelConfig.TorchDtype, Mode=TwoWay}">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                   <x:String>bfloat16</x:String>
+                                   <x:String>float16</x:String>
+                                   <x:String>float32</x:String>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                            </Picker>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.ModelConfig.UseCache, Converter={StaticResource NullToVisibilityConverter}}">
@@ -271,20 +278,35 @@
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxLength, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Max Length"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.PipelineConfig.MaxLength}"
-                               Placeholder="Max Length"/>
+                        <controls:OptimizedSlider Minimum="1"
+                                                 Maximum="4096"
+                                                 OptimizedValue="512"
+                                                 Value="{Binding Config.PipelineConfig.MaxLength, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Max New Tokens"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.PipelineConfig.MaxNewTokens}"
-                               Placeholder="Max New Tokens"/>
+                        <controls:OptimizedSlider Minimum="1"
+                                                 Maximum="4096"
+                                                 OptimizedValue="1000"
+                                                 Value="{Binding Config.PipelineConfig.MaxNewTokens, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeams, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Num Beams"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.PipelineConfig.NumBeams}"
-                               Placeholder="Num Beams"/>
+                        <Picker SelectedItem="{Binding Config.PipelineConfig.NumBeams, Mode=TwoWay}">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:Int32}">
+                                   <x:Int32>1</x:Int32>
+                                   <x:Int32>2</x:Int32>
+                                   <x:Int32>3</x:Int32>
+                                   <x:Int32>4</x:Int32>
+                                   <x:Int32>5</x:Int32>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.PipelineConfig.UseCache, Converter={StaticResource NullToVisibilityConverter}}">
@@ -407,8 +429,17 @@
                     <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig.Device, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Device"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.DeviceConfig.Device}"
-                               Placeholder="Device"/>
+                        <!-- <Entry Text="{Binding Config.DeviceConfig.Device}"
+                               Placeholder="Device"/> -->
+                        <Picker SelectedItem="{Binding Config.DeviceConfig.Device, Mode=TwoWay}">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                   <x:String>cuda</x:String>
+                                   <x:String>cpu</x:String>
+                                   <x:String>mps</x:String>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
                 </Frame>
@@ -445,8 +476,17 @@
                     <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig.CurrentMode, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Current Mode"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.QuantizationConfig.CurrentMode}"
-                               Placeholder="Current Mode"/>
+                        <!-- <Entry Text="{Binding Config.QuantizationConfig.CurrentMode}"
+                               Placeholder="Current Mode"/> -->
+                        <Picker SelectedItem="{Binding Config.QuantizationConfig.CurrentMode, Mode=TwoWay}">
+                            <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                   <x:String>4-bit</x:String>
+                                   <x:String>8-bit</x:String>
+                                   <x:String>bfloat16</x:String>
+                            </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
                 </Frame>
