@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.PlaygroundTabbedPage"
+             Background="White">
+    <StackLayout>
+        <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
+            <Button Text="Models" Clicked="OnModelClicked" BackgroundColor="White"/>
+            <Button Text="Chain Config" Clicked="OnConfigClicked" BackgroundColor="White"/>
+            <Button Text="Run Chain" Clicked="OnChainClicked" BackgroundColor="White" />
+            <Button Text="API Access" Clicked="OnAPIClicked" BackgroundColor="White"/>
+        </HorizontalStackLayout>
+        <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+    </StackLayout>
+</ContentPage>

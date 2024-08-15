@@ -4,6 +4,7 @@
              xmlns:frontend="clr-namespace:frontend.Views"
              xmlns:converters="clr-namespace:frontend.Converters"
              xmlns:local="clr-namespace:frontend.Views"
+             xmlns:components="clr-namespace:frontend.Components"
              x:Class="frontend.Views.ModelIndex"
              BackgroundColor="#F2F2F2">
 
@@ -139,6 +140,8 @@
                                         CornerRadius="15"
                                         HeightRequest="20"
                                         Clicked="OnAddToLibraryClicked"
+                                        BindingContext="{Binding .}"
+                                        CommandParameter="{Binding .}"
                                         VerticalOptions="Center"
                                         HorizontalOptions="Center"
                                         Padding="10,5"/>
@@ -150,9 +153,9 @@
         </ScrollView>
 
         <BoxView x:Name="Overlay"
-             IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
-             BackgroundColor="#80000000"
-             InputTransparent="False">
+                 IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
+                 BackgroundColor="#80000000"
+                 InputTransparent="False">
             <BoxView.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnOverlayTapped"/>
             </BoxView.GestureRecognizers>
@@ -166,5 +169,11 @@
                    CloseRequested="OnCloseFilterPopup"
                    ApplyFiltersRequested="OnApplyFilters"
                    ResetFiltersRequested="OnResetFilters"/>
+
+        <components:InputPopup x:Name="AuthTokenPopup" 
+                               IsVisible="false"
+                               Title="Authentication Required"
+                               FieldLabel="Enter Auth Token"
+                               IsPassword="True" />
     </Grid>
 </ContentPage>

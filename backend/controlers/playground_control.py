@@ -188,7 +188,14 @@ class PlaygroundControl:
 
         # Add the model to the playground where the model ID is the key and 
         # the model input and output types are the sub-dictionary
-        playground.models[model_id] = self.library_control.get_model_info_library(model_id).get("mapping")
+        # playground.models[model_id] = self.library_control.get_model_info_library(model_id).get("mapping")
+        
+        model_info = self.library_control.get_model_info_library(model_id)
+        playground.models[model_id] = {
+            **model_info.get("mapping", {}),
+            "pipeline_tag": model_info.get("pipeline_tag", "Unknown"),
+            "is_online": False
+        }
 
         # Write the updated playground data to the JSON file
         try:

@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using frontend.entities;
+using System.Text.Json;
 
 namespace frontend.Services
 {
@@ -56,12 +58,51 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<List<Dictionary<string, object>>> ListPlaygrounds()
-        {
-            var response = await _httpClient.GetAsync("playground/list");
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<List<Dictionary<string, object>>>())!;
-        }
+        //public async Task<List<Dictionary<string, object>>> ListPlaygrounds()
+        //{
+        // var response = await _httpClient.GetAsync("playground/list");
+        //response.EnsureSuccessStatusCode();
+        //return (await response.Content.ReadFromJsonAsync<List<Dictionary<string, object>>>())!;
+        //}
+           public async Task<Dictionary<string, Playground>> ListPlaygrounds()
+           {
+               try
+               {
+                   var response = await _httpClient.GetAsync("playground/list");
+                   response.EnsureSuccessStatusCode();
+
+                   var content = await response.Content.ReadAsStringAsync();
+                   System.Diagnostics.Debug.WriteLine($"API Response: {content}");
+
+                   // deserialize the response into a dynamic object to check its structure
+                   var jsonResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+           
+                   if (jsonResponse != null && jsonResponse.ContainsKey("data"))
+                   {
+                       // deserialize the 'data' field into the expected structure
+                       return JsonSerializer.Deserialize<Dictionary<string, Playground>>(jsonResponse["data"].ToString()) ?? new Dictionary<string, Playground>();
+                   }
+                   else
+                   {
+                       throw new JsonException("Unexpected JSON structure: " + content);
+                   }
+               }
+               catch (HttpRequestException ex)
+               {
+                   System.Diagnostics.Debug.WriteLine($"HTTP error in ListPlaygrounds: {ex.Message}");
+                   throw;
+               }
+               catch (JsonException ex)
+               {
+                   System.Diagnostics.Debug.WriteLine($"JSON parsing error in ListPlaygrounds: {ex.Message}");
+                   throw;
+               }
+               catch (Exception ex)
+               {
+                   System.Diagnostics.Debug.WriteLine($"Unexpected error in ListPlaygrounds: {ex.Message}");
+                   throw;
+               }
+           }
 
         public async Task<Dictionary<string, object>> GetPlaygroundInfo(string playgroundId)
         {
