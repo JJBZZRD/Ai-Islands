@@ -73,6 +73,12 @@ namespace frontend.Controls
         {
             InitializeComponent();
             MainSlider.ValueChanged += OnSliderValueChanged;
+            SizeChanged += OnSizeChanged;
+            Loaded += (s, e) => 
+            {
+                UpdateOptimizedIndicator();
+                UpdateSliderBackground();
+            };
         }
 
         private static void OnRangeChanged(BindableObject bindable, object oldValue, object newValue)
@@ -91,6 +97,7 @@ namespace frontend.Controls
         {
             var slider = (OptimizedSlider)bindable;
             slider.UpdateOptimizedLabel();
+            slider.UpdateOptimizedIndicator();
         }
 
         private static void OnIsIntegerChanged(BindableObject bindable, object oldValue, object newValue)
@@ -118,6 +125,7 @@ namespace frontend.Controls
                 Value = IsInteger ? (int)Math.Round(newValue) : newValue;
             }
             UpdateValueLabel();
+            UpdateOptimizedIndicator();
         }
 
         private void UpdateSlider()
@@ -143,29 +151,32 @@ namespace frontend.Controls
 
             UpdateValueLabel();
             UpdateOptimizedLabel();
+            UpdateOptimizedIndicator();
         }
 
         private void UpdateValueLabel()
         {
+            string valueText;
             if (IsInteger)
             {
-                ValueLabel.Text = Value.ToString();
+                valueText = Value.ToString();
             }
             else
             {
                 if (Value is float floatValue)
                 {
-                    ValueLabel.Text = floatValue.ToString("F1");
+                    valueText = floatValue.ToString("F1");
                 }
                 else if (Value is double doubleValue)
                 {
-                    ValueLabel.Text = doubleValue.ToString("F1");
+                    valueText = doubleValue.ToString("F1");
                 }
                 else
                 {
-                    ValueLabel.Text = Value.ToString();
+                    valueText = Value.ToString();
                 }
             }
+            ValueLabel.Text = $"Current Value: {valueText}";
         }
 
         private void UpdateOptimizedLabel()
@@ -178,6 +189,46 @@ namespace frontend.Controls
             {
                 OptimizedLabel.Text = OptimizedValue.ToString("F1");
             }
+        }
+
+        private void UpdateOptimizedIndicator()
+        {
+            if (Maximum > Minimum && MainSlider != null && OptimizedIndicator != null && OptimizedLabel != null)
+            {
+                double proportion = (OptimizedValue - Minimum) / (Maximum - Minimum);
+                double sliderWidth = MainSlider.Width;
+
+                OptimizedIndicator.TranslationX = proportion * sliderWidth;
+                OptimizedLabel.TranslationX = proportion * sliderWidth - OptimizedLabel.Width / 2;
+                OptimizedLabel.TranslationY = -OptimizedLabel.Height - 5; // Move label above the slider
+
+                // Ensure min and max indicators are visible
+                MinIndicator.IsVisible = true;
+                MaxIndicator.IsVisible = true;
+
+                // Adjust MainSlider to not overlap with indicators
+                MainSlider.Margin = new Thickness(0, 0, 0, 0);
+            }
+        }
+
+        private void UpdateSliderBackground()
+        {
+            if (MainSlider != null)
+            {
+                MainSlider.MinimumTrackColor = Color.FromArgb("#3366FF");
+                MainSlider.MaximumTrackColor = Color.FromArgb("#CCCCCC");
+            }
+        }
+
+        private void OnSizeChanged(object sender, EventArgs e)
+        {
+            UpdateOptimizedIndicator();
+        }
+
+        protected override void OnSizeAllocated(double width, double height)
+        {
+            base.OnSizeAllocated(width, height);
+            UpdateOptimizedIndicator();
         }
     }
 }
