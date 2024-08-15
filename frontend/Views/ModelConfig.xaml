@@ -116,8 +116,6 @@
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.StopSequences, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Stop Sequences"
-                               FontSize="18"
-                               FontAttributes="Bold"
                                TextColor="#333333"/>
                         <CollectionView ItemsSource="{Binding StopSequences}">
                             <CollectionView.ItemTemplate>
@@ -135,9 +133,7 @@
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
-                        <Label Text="New Stop Sequence"
-                               FontSize="16"
-                               FontAttributes="Bold"
+                        <Label Text="Add a new stop sequence..."
                                TextColor="#333333"
                                Margin="0,10,0,0"/>
                         <Entry x:Name="NewStopSequence"
@@ -718,9 +714,7 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                    <Label Text="New Message"
-                           FontSize="18"
-                           FontAttributes="Bold"
+                    <Label Text="Add a new example conversation..."
                            TextColor="#333333"
                            Margin="0,10,0,0"/>
                     <Entry x:Name="NewMessageRole"
