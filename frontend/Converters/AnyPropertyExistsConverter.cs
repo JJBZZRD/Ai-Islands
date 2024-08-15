@@ -11,8 +11,7 @@ namespace frontend.Converters
         {
             if (value is Config config)
             {
-                return !string.IsNullOrEmpty(config.ServiceName) ||
-                       !string.IsNullOrEmpty(config.Voice) ||
+                return !string.IsNullOrEmpty(config.Voice) ||
                        config.Pitch.HasValue ||
                        config.Speed.HasValue ||
                        !string.IsNullOrEmpty(config.Model) ||
