@@ -7,53 +7,56 @@ namespace frontend.Controls
     public partial class OptimizedSlider : ContentView
     {
         public static readonly BindableProperty MinimumProperty =
-            BindableProperty.Create(nameof(Minimum), typeof(double), typeof(OptimizedSlider), 0.0, propertyChanged: OnRangeChanged);
+            BindableProperty.Create(nameof(Minimum), typeof(float), typeof(OptimizedSlider), 0f, propertyChanged: OnRangeChanged);
 
         public static readonly BindableProperty MaximumProperty =
-            BindableProperty.Create(nameof(Maximum), typeof(double), typeof(OptimizedSlider), 1.0, propertyChanged: OnRangeChanged);
+            BindableProperty.Create(nameof(Maximum), typeof(float), typeof(OptimizedSlider), 1f, propertyChanged: OnRangeChanged);
 
         public static readonly BindableProperty ValueProperty =
-            BindableProperty.Create(nameof(Value), typeof(object), typeof(OptimizedSlider), 0.0, BindingMode.TwoWay, propertyChanged: OnValueChanged);
+            BindableProperty.Create(nameof(Value), typeof(float), typeof(OptimizedSlider), 0f, BindingMode.TwoWay, propertyChanged: OnValueChanged);
 
         public static readonly BindableProperty StepProperty =
-            BindableProperty.Create(nameof(Step), typeof(double), typeof(OptimizedSlider), 0.1);
+            BindableProperty.Create(nameof(Step), typeof(float), typeof(OptimizedSlider), 0.1f);
 
         public static readonly BindableProperty OptimizedValueProperty =
-            BindableProperty.Create(nameof(OptimizedValue), typeof(double), typeof(OptimizedSlider), 0.0, propertyChanged: OnOptimizedValueChanged);
+            BindableProperty.Create(nameof(OptimizedValue), typeof(float), typeof(OptimizedSlider), 0f, propertyChanged: OnOptimizedValueChanged);
 
         public static readonly BindableProperty IsIntegerProperty =
             BindableProperty.Create(nameof(IsInteger), typeof(bool), typeof(OptimizedSlider), false, propertyChanged: OnIsIntegerChanged);
 
         public static readonly BindableProperty FixedValuesProperty =
-            BindableProperty.Create(nameof(FixedValues), typeof(List<object>), typeof(OptimizedSlider), null, propertyChanged: OnFixedValuesChanged);
+            BindableProperty.Create(nameof(FixedValues), typeof(IList<float>), typeof(OptimizedSlider), null, propertyChanged: OnFixedValuesChanged);
 
-        public double Minimum
+        public static readonly BindableProperty FloatPlacesProperty =
+            BindableProperty.Create(nameof(FloatPlaces), typeof(int), typeof(OptimizedSlider), 2, propertyChanged: OnFloatPlacesChanged);
+
+        public float Minimum
         {
-            get => (double)GetValue(MinimumProperty);
+            get => (float)GetValue(MinimumProperty);
             set => SetValue(MinimumProperty, value);
         }
 
-        public double Maximum
+        public float Maximum
         {
-            get => (double)GetValue(MaximumProperty);
+            get => (float)GetValue(MaximumProperty);
             set => SetValue(MaximumProperty, value);
         }
 
-        public object Value
+        public float Value
         {
-            get => GetValue(ValueProperty);
+            get => (float)GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
 
-        public double Step
+        public float Step
         {
-            get => (double)GetValue(StepProperty);
+            get => (float)GetValue(StepProperty);
             set => SetValue(StepProperty, value);
         }
 
-        public double OptimizedValue
+        public float OptimizedValue
         {
-            get => (double)GetValue(OptimizedValueProperty);
+            get => (float)GetValue(OptimizedValueProperty);
             set => SetValue(OptimizedValueProperty, value);
         }
 
@@ -63,10 +66,16 @@ namespace frontend.Controls
             set => SetValue(IsIntegerProperty, value);
         }
 
-        public List<object> FixedValues
+        public IList<float> FixedValues
         {
-            get => (List<object>)GetValue(FixedValuesProperty);
+            get => (IList<float>)GetValue(FixedValuesProperty);
             set => SetValue(FixedValuesProperty, value);
+        }
+
+        public int FloatPlaces
+        {
+            get => (int)GetValue(FloatPlacesProperty);
+            set => SetValue(FloatPlacesProperty, value);
         }
 
         public OptimizedSlider()
@@ -76,8 +85,8 @@ namespace frontend.Controls
             SizeChanged += OnSizeChanged;
             Loaded += (s, e) => 
             {
+                UpdateSlider();
                 UpdateOptimizedIndicator();
-                UpdateSliderBackground();
             };
         }
 
@@ -96,8 +105,8 @@ namespace frontend.Controls
         private static void OnOptimizedValueChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var slider = (OptimizedSlider)bindable;
-            slider.UpdateOptimizedLabel();
             slider.UpdateOptimizedIndicator();
+            slider.UpdateOptimizedLabel();
         }
 
         private static void OnIsIntegerChanged(BindableObject bindable, object oldValue, object newValue)
@@ -112,20 +121,10 @@ namespace frontend.Controls
             slider.UpdateSlider();
         }
 
-        private void OnSliderValueChanged(object sender, ValueChangedEventArgs e)
+        private static void OnFloatPlacesChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (FixedValues != null && FixedValues.Count > 0)
-            {
-                int index = (int)Math.Round(e.NewValue);
-                Value = FixedValues[index];
-            }
-            else
-            {
-                double newValue = Math.Round(e.NewValue / Step) * Step;
-                Value = IsInteger ? (int)Math.Round(newValue) : newValue;
-            }
-            UpdateValueLabel();
-            UpdateOptimizedIndicator();
+            var slider = (OptimizedSlider)bindable;
+            slider.UpdateSlider();
         }
 
         private void UpdateSlider()
@@ -134,90 +133,65 @@ namespace frontend.Controls
             {
                 MainSlider.Minimum = 0;
                 MainSlider.Maximum = FixedValues.Count - 1;
-                MainSlider.Value = FixedValues.IndexOf(Value);
-
-                MinLabel.Text = FixedValues[0].ToString();
-                MaxLabel.Text = FixedValues[FixedValues.Count - 1].ToString();
+                MainSlider.Value = FixedValues.IndexOf(FormatValueAsFloat(Value));
             }
             else
             {
                 MainSlider.Minimum = Minimum;
                 MainSlider.Maximum = Maximum;
-                MainSlider.Value = Convert.ToDouble(Value);
-
-                MinLabel.Text = IsInteger ? ((int)Minimum).ToString() : Minimum.ToString("F1");
-                MaxLabel.Text = IsInteger ? ((int)Maximum).ToString() : Maximum.ToString("F1");
+                MainSlider.Value = Value;
             }
 
+            UpdateLabels();
             UpdateValueLabel();
             UpdateOptimizedLabel();
             UpdateOptimizedIndicator();
         }
 
+        private void UpdateLabels()
+        {
+            MinLabel.Text = FormatValue(Minimum);
+            MaxLabel.Text = FormatValue(Maximum);
+        }
+
         private void UpdateValueLabel()
         {
-            string valueText;
-            if (IsInteger)
-            {
-                valueText = Value.ToString();
-            }
-            else
-            {
-                if (Value is float floatValue)
-                {
-                    valueText = floatValue.ToString("F1");
-                }
-                else if (Value is double doubleValue)
-                {
-                    valueText = doubleValue.ToString("F1");
-                }
-                else
-                {
-                    valueText = Value.ToString();
-                }
-            }
-            ValueLabel.Text = $"Current Value: {valueText}";
+            ValueLabel.Text = $"Current Value: {FormatValue(Value)}";
         }
 
         private void UpdateOptimizedLabel()
         {
-            if (IsInteger)
-            {
-                OptimizedLabel.Text = ((int)OptimizedValue).ToString();
-            }
-            else
-            {
-                OptimizedLabel.Text = OptimizedValue.ToString("F1");
-            }
+            OptimizedLabel.Text = FormatValue(OptimizedValue);
         }
 
         private void UpdateOptimizedIndicator()
         {
             if (Maximum > Minimum && MainSlider != null && OptimizedIndicator != null && OptimizedLabel != null)
             {
-                double proportion = (OptimizedValue - Minimum) / (Maximum - Minimum);
+                float proportion = (OptimizedValue - Minimum) / (Maximum - Minimum);
                 double sliderWidth = MainSlider.Width;
 
                 OptimizedIndicator.TranslationX = proportion * sliderWidth;
                 OptimizedLabel.TranslationX = proportion * sliderWidth - OptimizedLabel.Width / 2;
-                OptimizedLabel.TranslationY = -OptimizedLabel.Height - 5; // Move label above the slider
-
-                // Ensure min and max indicators are visible
-                MinIndicator.IsVisible = true;
-                MaxIndicator.IsVisible = true;
-
-                // Adjust MainSlider to not overlap with indicators
-                MainSlider.Margin = new Thickness(0, 0, 0, 0);
+                OptimizedLabel.TranslationY = -OptimizedLabel.Height - 5;
             }
         }
 
-        private void UpdateSliderBackground()
+        private void OnSliderValueChanged(object sender, ValueChangedEventArgs e)
         {
-            if (MainSlider != null)
+            float newValue;
+            if (FixedValues != null && FixedValues.Count > 0)
             {
-                MainSlider.MinimumTrackColor = Color.FromArgb("#3366FF");
-                MainSlider.MaximumTrackColor = Color.FromArgb("#CCCCCC");
+                int index = (int)Math.Round(e.NewValue);
+                newValue = FixedValues[index];
             }
+            else
+            {
+                newValue = (float)e.NewValue;
+            }
+
+            Value = FormatValueAsFloat(newValue);
+            UpdateValueLabel();
         }
 
         private void OnSizeChanged(object sender, EventArgs e)
@@ -225,10 +199,14 @@ namespace frontend.Controls
             UpdateOptimizedIndicator();
         }
 
-        protected override void OnSizeAllocated(double width, double height)
+        private string FormatValue(float value)
         {
-            base.OnSizeAllocated(width, height);
-            UpdateOptimizedIndicator();
+            return IsInteger ? value.ToString("F0") : value.ToString($"F{FloatPlaces}");
+        }
+
+        private float FormatValueAsFloat(float value)
+        {
+            return IsInteger ? (float)Math.Round(value) : (float)Math.Round(value, FloatPlaces);
         }
     }
 }
