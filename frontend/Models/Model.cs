@@ -177,7 +177,7 @@ namespace frontend.Models
         public float? TopP { get; set; }
 
         [JsonPropertyName("top_k")]
-        public int? TopK { get; set; }
+        public float? TopK { get; set; }
 
         [JsonPropertyName("max_new_tokens")]
         public int? MaxNewTokens { get; set; }
