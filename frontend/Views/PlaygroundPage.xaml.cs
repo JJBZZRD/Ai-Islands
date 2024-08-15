@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using frontend.Services;
 using frontend.Models;
 using System.Text.Json;
-using frontend.Models;
 
 namespace frontend.Views
 {

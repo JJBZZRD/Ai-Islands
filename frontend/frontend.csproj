@@ -57,6 +57,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Playground\**" />
+	  <AndroidResource Remove="ViewModels\**" />
+	  <Compile Remove="Playground\**" />
+	  <Compile Remove="ViewModels\**" />
+	  <EmbeddedResource Remove="Playground\**" />
+	  <EmbeddedResource Remove="ViewModels\**" />
+	  <MauiCss Remove="Playground\**" />
+	  <MauiCss Remove="ViewModels\**" />
+	  <MauiXaml Remove="Playground\**" />
+	  <MauiXaml Remove="ViewModels\**" />
+	  <None Remove="Playground\**" />
+	  <None Remove="ViewModels\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\add_icon.png" />
 	  <None Remove="Resources\Images\arrow_icon.png" />
 	  <None Remove="Resources\Images\delete_icon.png" />
@@ -72,12 +87,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Entities\" />
-	  <Folder Include="Playground\" />
-	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
 	<ItemGroup>

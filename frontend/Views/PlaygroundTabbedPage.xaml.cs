@@ -1,8 +1,6 @@
 using Microsoft.Maui.Controls;
 using frontend.Models;
 using frontend.Services;
-using frontend.Models;
-using System.Collections.Generic;
 
 namespace frontend.Views
 {
