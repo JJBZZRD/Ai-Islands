@@ -36,15 +36,9 @@ namespace frontend.Views
 
             ModelIdLabel.Text = $"Model: {_model.ModelId}";
             Debug.WriteLine("===============watch me==============");
-            Debug.WriteLine(_configViewModel.Config.ExampleConversation == null);
-            if (_configViewModel.Config.PipelineConfig != null)
-            {
-                Debug.WriteLine(_configViewModel.Config.PipelineConfig.CandidateLabels == null);
-            }
-            if (_configViewModel.Config.Parameters != null)
-            {   
-            Debug.WriteLine(_configViewModel.Config.Parameters.StopSequences == null);
-            }
+            Debug.WriteLine(_isExampleConversationNull);
+            Debug.WriteLine(_isCandidateLabelsNull);
+            Debug.WriteLine(_isStopSequencesNull);
             BindingContext = _configViewModel; // Set the BindingContext
 
             LoadDatasetNames();
