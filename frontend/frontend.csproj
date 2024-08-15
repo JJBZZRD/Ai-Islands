@@ -213,4 +213,14 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<!-- Controls -->
+	<ItemGroup>
+	<MauiXaml Update="Controls\OptimizedSlider.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<Compile Update="Controls\OptimizedSlider.xaml.cs">
+		<DependentUpon>OptimizedSlider.xaml</DependentUpon>
+	</Compile>
+	</ItemGroup>
+
 </Project>
