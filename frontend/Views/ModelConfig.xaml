@@ -209,7 +209,9 @@
                     <VerticalStackLayout IsVisible="{Binding Config.ModelConfig.TorchDtype, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Torch Dtype"
                                TextColor="#333333"/>
-                            <Picker SelectedItem="{Binding Config.ModelConfig.TorchDtype, Mode=TwoWay}">
+                            <Picker SelectedItem="{Binding Config.ModelConfig.TorchDtype, Mode=TwoWay}"
+                                    WidthRequest="200"
+                                    HorizontalOptions="Start">
                             <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                    <x:String>bfloat16</x:String>
@@ -296,7 +298,9 @@
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeams, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Num Beams"
                                TextColor="#333333"/>
-                        <Picker SelectedItem="{Binding Config.PipelineConfig.NumBeams, Mode=TwoWay}">
+                        <Picker SelectedItem="{Binding Config.PipelineConfig.NumBeams, Mode=TwoWay}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
                             <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:Int32}">
                                    <x:Int32>1</x:Int32>
@@ -431,7 +435,9 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.DeviceConfig.Device}"
                                Placeholder="Device"/> -->
-                        <Picker SelectedItem="{Binding Config.DeviceConfig.Device, Mode=TwoWay}">
+                        <Picker SelectedItem="{Binding Config.DeviceConfig.Device, Mode=TwoWay}"
+                                    WidthRequest="200"
+                                    HorizontalOptions="Start">
                             <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                    <x:String>cuda</x:String>
@@ -478,7 +484,9 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.QuantizationConfig.CurrentMode}"
                                Placeholder="Current Mode"/> -->
-                        <Picker SelectedItem="{Binding Config.QuantizationConfig.CurrentMode, Mode=TwoWay}">
+                        <Picker SelectedItem="{Binding Config.QuantizationConfig.CurrentMode, Mode=TwoWay}"
+                                    WidthRequest="200"
+                                    HorizontalOptions="Start">
                             <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                    <x:String>4-bit</x:String>
@@ -492,9 +500,9 @@
                 </Frame>
 
                 <!-- Quantization Config Options -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Quantization Config Options"
+                    <Label Text="Quantization Config Options (Read-only)"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
@@ -507,13 +515,13 @@
                                TextColor="#333333"/>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit, Converter={StaticResource NullToVisibilityConverter}}">
-                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit}"/>
+                            <CheckBox IsEnabled="False" IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit}"/>
                             <Label Text="Load in 4-bit"
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitUseDoubleQuant, Converter={StaticResource NullToVisibilityConverter}}">
-                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitUseDoubleQuant}"/>
+                            <CheckBox IsEnabled="False" IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitUseDoubleQuant}"/>
                             <Label Text="BNB 4-bit Use Double Quant"
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
@@ -521,13 +529,19 @@
                             <Label Text="BNB 4-bit Quant Type"
                                    TextColor="#333333"/>
                             <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitQuantType}"
-                                   Placeholder="BNB 4-bit Quant Type"/>
+                                   Placeholder="BNB 4-bit Quant Type"
+                                   WidthRequest="200"
+                                   HorizontalOptions="Start"
+                                   IsEnabled="False" BackgroundColor="Transparent"/>
                         </VerticalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype, Converter={StaticResource NullToVisibilityConverter}}">
                             <Label Text="BNB 4-bit Compute Dtype"
                                    TextColor="#333333"/>
                             <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype}"
-                                   Placeholder="BNB 4-bit Compute Dtype"/>
+                                   Placeholder="BNB 4-bit Compute Dtype"
+                                   WidthRequest="200"
+                                   HorizontalOptions="Start"
+                                   IsEnabled="False" BackgroundColor="Transparent"/>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
 
@@ -539,7 +553,7 @@
                                TextColor="#333333"/>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit, Converter={StaticResource NullToVisibilityConverter}}">
-                            <CheckBox IsChecked="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit}"/>
+                            <CheckBox IsEnabled="False" IsChecked="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit}"/>
                             <Label Text="Load in 8-bit"
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
