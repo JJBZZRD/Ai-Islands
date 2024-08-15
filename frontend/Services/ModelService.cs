@@ -20,7 +20,7 @@ namespace frontend.Services
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
-        
+
         public async Task<List<string>> ListActiveModels()
         {
             var response = await _httpClient.GetAsync("model/active");
@@ -56,11 +56,19 @@ namespace frontend.Services
         {
             var response = await _httpClient.GetAsync($"model/is-model-loaded?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine($"Response for model {modelId}: {content}");
-    
-            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            return result?["message"]?.Contains("is loaded") ?? false;
+
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+            if (result != null && result.TryGetValue("data", out var dataObj))
+            {
+                if (dataObj is JsonElement dataElement &&
+                    dataElement.TryGetProperty("isloaded", out JsonElement isLoadedElement))
+                {
+                    return isLoadedElement.GetBoolean();
+                }
+            }
+
+            return false;
         }
 
         public async Task<object> Inference(string modelId, object data)
@@ -72,46 +80,46 @@ namespace frontend.Services
         }
 
         public async Task<string> ProcessImage(string imagePath, string rawJson, string task)
-    {
-        var url = $"{BaseUrl}/model/process-image";
-        var outputData = JsonSerializer.Deserialize<JsonElement>(rawJson);
-        object formattedOutput;
-
-        if (outputData.ValueKind == JsonValueKind.Array)
         {
-            // zero-shot object detection and image segmentation
-            formattedOutput = new Dictionary<string, object>
+            var url = $"{BaseUrl}/model/process-image";
+            var outputData = JsonSerializer.Deserialize<JsonElement>(rawJson);
+            object formattedOutput;
+
+            if (outputData.ValueKind == JsonValueKind.Array)
+            {
+                // zero-shot object detection and image segmentation
+                formattedOutput = new Dictionary<string, object>
             {
                 { "predictions", outputData.EnumerateArray().ToList() }
             };
-        }
-        else
-        {
-            // object detection
-            formattedOutput = outputData.Deserialize<Dictionary<string, object>>();
-        }
+            }
+            else
+            {
+                // object detection
+                formattedOutput = outputData.Deserialize<Dictionary<string, object>>();
+            }
 
-        var data = new
-        {
-            image_path = imagePath,
-            output = formattedOutput,
-            task = task
-        };
+            var data = new
+            {
+                image_path = imagePath,
+                output = formattedOutput,
+                task = task
+            };
 
-        var jsonContent = JsonSerializer.Serialize(data);
-        System.Diagnostics.Debug.WriteLine($"Sending data to backend: {jsonContent}");
-        
-        var response = await _httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine($"Error response from backend: {errorContent}");
-            throw new HttpRequestException($"Error processing image. Status code: {response.StatusCode}, Content: {errorContent}");
+            var jsonContent = JsonSerializer.Serialize(data);
+            System.Diagnostics.Debug.WriteLine($"Sending data to backend: {jsonContent}");
+
+            var response = await _httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Error response from backend: {errorContent}");
+                throw new HttpRequestException($"Error processing image. Status code: {response.StatusCode}, Content: {errorContent}");
+            }
+
+            return await response.Content.ReadAsStringAsync();
         }
-        
-        return await response.Content.ReadAsStringAsync();
-    }
 
         public async Task<object> TrainModel(string modelId, object data)
         {

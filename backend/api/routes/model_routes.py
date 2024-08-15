@@ -103,9 +103,9 @@ class ModelRouter:
     async def is_model_loaded(self, model_id: str = Query(...)):
         is_loaded = self.model_control.is_model_loaded(model_id)
         if is_loaded:
-            return success_response(message=f"Model {model_id} is loaded")
+            return success_response(message=f"Model {model_id} is loaded", data= {"isloaded": True})
         else:
-            return success_response(message=f"Model {model_id} is not loaded")
+            return success_response(message=f"Model {model_id} is not loaded", data= {"isloaded": False})
     
     async def list_active_models(self):
         active_models = self.model_control.list_active_models()
