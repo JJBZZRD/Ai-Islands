@@ -9,12 +9,18 @@
                 <Label x:Name="MaxLabel" Text="1.0" HorizontalOptions="End" Grid.Column="2" />
             </Grid>
             <Grid Grid.Row="1" HeightRequest="30" ColumnDefinitions="Auto,*,Auto">
-                <BoxView BackgroundColor="#E0E0E0" CornerRadius="2" Grid.ColumnSpan="3"/>
+                <BoxView x:Name="SliderBackground"
+                         BackgroundColor="#E0E0E0" 
+                         CornerRadius="2" 
+                         Grid.ColumnSpan="3"
+                         HeightRequest="15"
+                         VerticalOptions="Center"/>
                 <BoxView x:Name="MinIndicator" 
                          WidthRequest="2" 
+                         HeightRequest="15"
                          BackgroundColor="Black" 
                          HorizontalOptions="Start" 
-                         VerticalOptions="Fill"/>
+                         VerticalOptions="Center"/>
                 <Slider x:Name="MainSlider" 
                         Grid.Column="1"
                         MinimumTrackColor="#3366FF"
@@ -23,15 +29,17 @@
                 <BoxView x:Name="MaxIndicator" 
                          Grid.Column="2"
                          WidthRequest="2" 
+                         HeightRequest="15"
                          BackgroundColor="Black" 
                          HorizontalOptions="End" 
-                         VerticalOptions="Fill"/>
+                         VerticalOptions="Center"/>
                 <BoxView x:Name="OptimizedIndicator"
                          Grid.Column="1"
                          WidthRequest="2"
+                         HeightRequest="15"
                          BackgroundColor="Green"
                          HorizontalOptions="Start"
-                         VerticalOptions="Fill" />
+                         VerticalOptions="Center" />
             </Grid>
             <Label x:Name="ValueLabel"
                    HorizontalOptions="Center"
