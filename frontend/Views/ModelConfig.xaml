@@ -6,6 +6,7 @@
              BackgroundColor="#F2F2F2">
     <ContentView.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:AnyPropertyExistsConverter x:Key="AnyPropertyExistsConverter"/>
     </ContentView.Resources>
     <ScrollView>
         <VerticalStackLayout Padding="20"
@@ -48,7 +49,7 @@
                 </Frame>
 
                 <!-- Parameters Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Parameter Settings"
                            FontSize="18"
@@ -153,7 +154,7 @@
                 </Frame>
 
                 <!-- RAG Settings -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="RAG Settings"
                            FontSize="18"
@@ -189,6 +190,7 @@
                 </Frame>
 
                 <!-- Model Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Model Config"
                            FontSize="18"
@@ -213,8 +215,10 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Tokenizer Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Tokenizer Config"
                            FontSize="18"
@@ -245,8 +249,10 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Pipeline Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Pipeline Config"
                            FontSize="18"
@@ -379,8 +385,10 @@
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Device Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Device Config"
                            FontSize="18"
@@ -393,8 +401,10 @@
                                Placeholder="Device"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Translation Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Translation Config"
                            FontSize="18"
@@ -413,8 +423,10 @@
                                Placeholder="Target Language"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Quantization Config -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Quantization Config"
                            FontSize="18"
@@ -427,8 +439,10 @@
                                Placeholder="Current Mode"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Quantization Config Options -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Quantization Config Options"
                            FontSize="18"
@@ -490,8 +504,10 @@
                         <!-- Add properties for Bfloat16Config if needed -->
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- System Prompt -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="System Prompt"
                            FontSize="18"
@@ -510,8 +526,10 @@
                                Placeholder="Content"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- User Prompt -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="User Prompt"
                            FontSize="18"
@@ -530,8 +548,10 @@
                                Placeholder="Content"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Assistant Prompt -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Assistant Prompt"
                            FontSize="18"
@@ -550,8 +570,10 @@
                                Placeholder="Content"/>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Features -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Features"
                            FontSize="18"
@@ -606,8 +628,11 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
+                </Frame>
 
                 <!-- Other Config Properties -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
+                <VerticalStackLayout Spacing="10">
                 <VerticalStackLayout IsVisible="{Binding Config.ServiceName, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Service Name"
                            TextColor="#333333"/>
@@ -662,8 +687,11 @@
                     <Entry Text="{Binding Config.SpeakerEmbeddingConfig}"
                            Placeholder="Speaker Embedding Config"/>
                 </VerticalStackLayout>
+                </VerticalStackLayout>
+                </Frame>
 
                 <!-- Example Conversation -->
+                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Example Conversation"
                            FontSize="18"
@@ -707,6 +735,7 @@
                             Padding="10,5"
                             Margin="0,10,0,0"/>
                 </VerticalStackLayout>
+                </Frame>
 
             </VerticalStackLayout>
             <Button Text="Save Configuration"
