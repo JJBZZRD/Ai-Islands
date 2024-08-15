@@ -2,6 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:frontend.Converters"
+             xmlns:controls="clr-namespace:frontend.Controls"
              x:Class="frontend.Views.ModelConfig"
              BackgroundColor="#F2F2F2">
     <ContentView.Resources>
@@ -56,63 +57,72 @@
                            FontAttributes="Bold"
                            TextColor="#333333"/>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Temperature"
-                               TextColor="#333333"/>
-                        <Picker SelectedItem="{Binding Config.Parameters.Temperature, Mode=TwoWay}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                            <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:Single}">
-                                   <x:Single>0.0</x:Single>
-                                   <x:Single>0.1</x:Single>
-                                   <x:Single>0.2</x:Single>
-                                   <x:Single>0.3</x:Single>
-                                   <x:Single>0.4</x:Single>
-                                   <x:Single>0.5</x:Single>
-                                   <x:Single>0.6</x:Single>
-                                   <x:Single>0.7</x:Single>
-                                   <x:Single>0.8</x:Single>
-                                   <x:Single>0.9</x:Single>
-                                   <x:Single>1.0</x:Single>
-                            </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
+                            <Label Text="Temperature"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="0.0"
+                                                        Maximum="2.0"
+                                                        Step="0.1"
+                                                        OptimizedValue="0.7"
+                                                        FloatPlaces="1"
+                                                        Value="{Binding Config.Parameters.Temperature, Mode=TwoWay}"
+                                                        IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopP, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Top P"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.TopP}"
-                               Placeholder="Top P"/>
+                            <Label Text="Top P"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="0.0"
+                                                 Maximum="1.0"
+                                                 Step="0.1"
+                                                 OptimizedValue="0.9"
+                                                 FloatPlaces="1"
+                                                 Value="{Binding Config.Parameters.TopP, Mode=TwoWay}"
+                                                 IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopK, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Top K"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.TopK}"
-                               Placeholder="Top K"/>
+                            <Label Text="Top K" TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="1"
+                                                 Maximum="100"
+                                                 Step="1"
+                                                 OptimizedValue="40"
+                                                 FloatPlaces="0"
+                                                 Value="{Binding Config.Parameters.TopK, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Max New Tokens"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.MaxNewTokens}"
-                               Placeholder="Max New Tokens"/>
+                            <Label Text="Max New Tokens"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="0"
+                                                 Maximum="2048"
+                                                 OptimizedValue="1000"
+                                                 Value="{Binding Config.Parameters.MaxNewTokens, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Min New Tokens"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.MinNewTokens}"
-                               Placeholder="Min New Tokens"/>
+                            <Label Text="Min New Tokens"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="0"
+                                                 Maximum="2048"
+                                                 OptimizedValue="20"
+                                                 Value="{Binding Config.Parameters.MinNewTokens, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.RepetitionPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Repetition Penalty"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.RepetitionPenalty}"
-                               Placeholder="Repetition Penalty"/>
+                            <Label Text="Repetition Penalty"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="1.0"
+                                                 Maximum="2.0"
+                                                 OptimizedValue="1.2"
+                                                 FloatPlaces="1"
+                                                 Value="{Binding Config.Parameters.RepetitionPenalty, Mode=TwoWay}"
+                                                 IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.RandomSeed, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Random Seed"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.Parameters.RandomSeed}"
-                               Placeholder="Random Seed"/>
+                            <Label Text="Random Seed"
+                                   TextColor="#333333"/>
+                            <Entry Text="{Binding Config.Parameters.RandomSeed, Mode=TwoWay}"
+                                   Placeholder="Enter seed (0-2147483647)"
+                                   Keyboard="Numeric"
+                                   TextChanged="OnRandomSeedTextChanged"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.StopSequences, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Stop Sequences"
@@ -171,10 +181,14 @@
                                />
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.RagSettings.SimilarityThreshold, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Similarity Threshold"
-                               TextColor="#333333"/>
-                        <Entry Text="{Binding Config.RagSettings.SimilarityThreshold}"
-                               Placeholder="Similarity Threshold"/>
+                            <Label Text="Similarity Threshold"
+                                   TextColor="#333333"/>
+                            <controls:OptimizedSlider Minimum="0.0"
+                                                 Maximum="1.0"
+                                                 OptimizedValue="0.7"
+                                                 FloatPlaces="1"
+                                                 Value="{Binding Config.RagSettings.SimilarityThreshold, Mode=TwoWay}"
+                                                 IsInteger="False"/>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.RagSettings.UseChunking, Converter={StaticResource NullToVisibilityConverter}}">

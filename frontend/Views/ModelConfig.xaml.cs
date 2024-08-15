@@ -187,5 +187,30 @@ namespace frontend.Views
                 _configViewModel.StopSequences.Remove(stopSequence);
             }
         }
+        private void OnRandomSeedTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is Entry entry)
+            {
+                if (int.TryParse(e.NewTextValue, out int result))
+                {
+                    if (result >= 0 && result <= 2147483647)
+                    {
+                        entry.TextColor = Colors.Black;
+                    }
+                    else
+                    {
+                        entry.TextColor = Colors.Red;
+                    }
+                }
+                else if (!string.IsNullOrEmpty(e.NewTextValue))
+                {
+                    entry.TextColor = Colors.Red;
+                }
+                else
+                {
+                    entry.TextColor = Colors.Black;
+                }
+            }
+        }
     }
 }
