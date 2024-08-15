@@ -3,9 +3,16 @@ using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.Text.Json;
 using frontend.Services;
+using Microsoft.Maui.Layouts;
+using System.Text.Json.Serialization;
 
 namespace frontend.Views
 {
+    public class ProcessedImageResult
+    {
+        [JsonPropertyName("image_url")]
+        public string ImageUrl { get; set; }
+    }
     public partial class Inference : ContentView
     {
         private Model _model;
@@ -14,6 +21,7 @@ namespace frontend.Views
         private string _selectedFilePath;
         private readonly ModelService _modelService;
         private string _rawJsonText;
+        private ImagePopupView _imagePopup;
 
         public string InputText
         {
@@ -71,17 +79,22 @@ namespace frontend.Views
                 return;
             }
 
+            // var viewImageOutputButton = CreateViewImageOutputButton();
+
             switch (_model.PipelineTag?.ToLower())
             {
                 case "object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
+                    InputContainer.Children.Add(CreateViewImageOutputButton());
                     break;
                 case "image-segmentation":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
+                    InputContainer.Children.Add(CreateViewImageOutputButton());
                     break;
                 case "zero-shot-object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
                     InputContainer.Children.Add(CreateTextInputUI());
+                    InputContainer.Children.Add(CreateViewImageOutputButton());
                     break;
                 case "text-classification":
                     InputContainer.Children.Add(CreateTextInputUI());
@@ -152,6 +165,19 @@ namespace frontend.Views
             };
             editor.TextChanged += (sender, e) => InputText = ((Editor)sender)?.Text ?? string.Empty;
             return editor;
+        }
+
+        private View CreateViewImageOutputButton()
+        {
+            var button = new Button
+            {
+                Text = "View Image Output",
+                BackgroundColor = Colors.LightBlue,
+                TextColor = Colors.Black,
+                CornerRadius = 5
+            };
+            button.Clicked += OnViewImageOutputClicked;
+            return button;
         }
 
         private async void OnImageSelectClicked(object sender, EventArgs e)
@@ -270,6 +296,60 @@ namespace frontend.Views
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
+            }
+        }
+
+        private async void OnViewImageOutputClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(RawJsonText) || string.IsNullOrEmpty(_selectedFilePath))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please run inference first.", "OK");
+                    return;
+                }
+
+                var task = _model.PipelineTag?.ToLower();
+                System.Diagnostics.Debug.WriteLine($"Processing image with task: {task}");
+                System.Diagnostics.Debug.WriteLine($"RawJsonText: {RawJsonText}");
+
+                var result = await _modelService.ProcessImage(_selectedFilePath, RawJsonText, task);
+                System.Diagnostics.Debug.WriteLine($"ProcessImage result: {result}");
+                
+                var processedImageResult = JsonSerializer.Deserialize<ProcessedImageResult>(result);
+
+                if (processedImageResult?.ImageUrl == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to process image. The ImageUrl is null.", "OK");
+                    return;
+                }
+
+                // Using full path returned from the backend
+                string imageFullPath = processedImageResult.ImageUrl;
+
+                if (!File.Exists(imageFullPath))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Image file not found: {imageFullPath}", "OK");
+                    return;
+                }
+
+                var imageSource = ImageSource.FromFile(imageFullPath);
+
+                if (_imagePopup == null)
+                {
+                    _imagePopup = new ImagePopupView();
+                    AbsoluteLayout.SetLayoutFlags(_imagePopup, AbsoluteLayoutFlags.All);
+                    AbsoluteLayout.SetLayoutBounds(_imagePopup, new Rect(0, 0, 1, 1));
+                    ((AbsoluteLayout)Content).Children.Add(_imagePopup);
+                }
+
+                _imagePopup.SetImage(imageSource);
+                _imagePopup.IsVisible = true;
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Detailed error: {ex}");
             }
         }
     }

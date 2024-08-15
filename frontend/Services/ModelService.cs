@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using frontend.Models;
+using System.Text;
 
 namespace frontend.Services
 {
@@ -69,6 +70,48 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<object>())!;
         }
+
+        public async Task<string> ProcessImage(string imagePath, string rawJson, string task)
+    {
+        var url = $"{BaseUrl}/model/process-image";
+        var outputData = JsonSerializer.Deserialize<JsonElement>(rawJson);
+        object formattedOutput;
+
+        if (outputData.ValueKind == JsonValueKind.Array)
+        {
+            // zero-shot object detection and image segmentation
+            formattedOutput = new Dictionary<string, object>
+            {
+                { "predictions", outputData.EnumerateArray().ToList() }
+            };
+        }
+        else
+        {
+            // object detection
+            formattedOutput = outputData.Deserialize<Dictionary<string, object>>();
+        }
+
+        var data = new
+        {
+            image_path = imagePath,
+            output = formattedOutput,
+            task = task
+        };
+
+        var jsonContent = JsonSerializer.Serialize(data);
+        System.Diagnostics.Debug.WriteLine($"Sending data to backend: {jsonContent}");
+        
+        var response = await _httpClient.PostAsync(url, new StringContent(jsonContent, Encoding.UTF8, "application/json"));
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"Error response from backend: {errorContent}");
+            throw new HttpRequestException($"Error processing image. Status code: {response.StatusCode}, Content: {errorContent}");
+        }
+        
+        return await response.Content.ReadAsStringAsync();
+    }
 
         public async Task<object> TrainModel(string modelId, object data)
         {

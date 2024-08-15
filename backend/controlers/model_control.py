@@ -11,6 +11,9 @@ from backend.controlers.runtime_control import RuntimeControl
 import torch
 import importlib
 import shutil
+from backend.utils.process_vis_out import process_vision_output
+from PIL import Image
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +209,27 @@ class ModelControl:
             return conn.recv()
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
+        
+    def process_image(self, image_path, output, task):
+        try:
+            logger.info(f"Image path: {image_path}")
+            logger.info(f"Output type: {type(output)}")
+            logger.info(f"Output content: {output}")
+            logger.info(f"Task: {task}")
+
+            if not isinstance(output, (dict, list)):
+                raise ValueError(f"Expected output to be dict or list, got {type(output)}")
+
+            with Image.open(image_path) as img:
+                processed_output = process_vision_output(img, output, task)
+            
+            return processed_output
+        except Exception as e:
+            logger.error(f"Error in process_image: {str(e)}")
+            logger.error(f"Image path: {image_path}")
+            logger.error(f"Output: {output}")
+            logger.error(f"Task: {task}")
+            raise ValueError(f"Error processing image: {str(e)}")
         
     def configure_model(self, configure_request):
         try:

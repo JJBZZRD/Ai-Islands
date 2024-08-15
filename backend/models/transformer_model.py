@@ -197,22 +197,18 @@ class TransformerModel(BaseModel):
                         if output is None:
                             raise ValueError("Pipeline output is None")
                         
-                        # only visualise output if requested
-                        if visualize:
-                            output = process_vision_output(image, output, self.pipeline.task)
 
                 except FileNotFoundError:
                     raise FileNotFoundError(f"Image file not found: {image_path}")
                 except Exception as e:
                     raise e
             
-            # For image-based tasks, we need to pass the original image, output needs to be processde again into serialised format to avoid error
+            
             elif self.pipeline.task in ['image-segmentation', 'object-detection', 'instance-segmentation']:
                 with Image.open(data["payload"]) as image:
                     output = self.pipeline(data["payload"], **pipeline_config)
                     output = _ensure_json_serializable(output)
-                    if visualize:
-                        output = process_vision_output(image, output, self.pipeline.task)
+                    
             
             # For text-to-speech tasks, if speaker_embedding_config exists in self.config, the model will need speaker embedding to generate speech
             elif self.pipeline.task in ["text-to-audio", "text-to-speech"]:

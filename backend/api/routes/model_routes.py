@@ -10,7 +10,10 @@ import numpy as np
 from backend.controlers.model_control import ModelControl
 from backend.data_utils.dataset_processor import process_dataset
 from backend.data_utils.training_handler import handle_training_request
-from backend.utils.process_vis_out import process_vision_output
+from backend.utils.process_vis_out import process_vision_output, _ensure_json_serializable
+from PIL import Image
+from io import BytesIO
+import base64
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +27,11 @@ class InferenceRequest(BaseModel):
                         title="Data to be used for inference", 
                         description="Example: For sentiment analysis, it will be a sentence. For image classification, it will be an image path"
                     )]
+    
+class ProcessImageOutputRequest(BaseModel):
+    image_path: str
+    output: dict
+    task: str
 
 class TrainRequest(BaseModel):
     model_id: str
@@ -56,7 +64,7 @@ class ModelRouter:
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
         self.router.add_api_route("/train", self.train_model, methods=["POST"])
         self.router.add_api_route("/configure", self.configure_model, methods=["POST"])
-        self.router.add_api_route("/process-image", self.process_image, methods=["POST"])
+        self.router.add_api_route("/process-image", self.process_image, methods=["POST"], response_model=dict)
 
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
@@ -137,16 +145,21 @@ class ModelRouter:
             return self.model_control.configure_model(jsonable_encoder(configureRequest))
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
-    async def process_image(self, request: dict):
+        
+    async def process_image(self, request: ProcessImageOutputRequest):
         try:
-            image = request.get('image')
-            output = request.get('output')
-            task = request.get('task')
-            processed_output = process_vision_output(image, output, task)
-            return JSONResponse(content=processed_output)
+            output = request.output
+            if isinstance(output, list):
+                output = {"predictions": output}
+            processed_output = self.model_control.process_image(request.image_path, output, request.task)
+            return processed_output
+        except ValueError as e:
+            logger.error(f"Error in process_image: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
+            logger.error(f"Error in process_image: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
+
 
     async def predict_live(self, websocket: WebSocket, model_id: str):
         await websocket.accept()

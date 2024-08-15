@@ -96,21 +96,11 @@ class UltralyticsModel(BaseModel):
             predictions = self.predict_image(image_path)
             result["predictions"] = predictions
 
-            if visualize:
-                with Image.open(image_path) as image:
-                    visualization = process_vision_output(image, predictions, "object-detection")
-                result["visualization"] = visualization
-
         elif "video_frame" in request_payload:
             print("Running video inference")
             frame = request_payload["video_frame"]
             predictions = self.predict_video(frame)
             result["predictions"] = predictions
-
-            if visualize:
-                image = Image.fromarray(frame)
-                visualization = process_vision_output(image, predictions, "object-detection")
-                result["visualization"] = visualization
 
         else:
             return {"error": "Invalid request payload"}

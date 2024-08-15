@@ -119,6 +119,9 @@
 	  <Compile Update="Views\ModelSelectionPopup.xaml.cs">
 	    <DependentUpon>ModelSelectionPopup.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\ImagePopupView.xaml.cs">
+	    <DependentUpon>ImagePopupView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\TerminalPage.xaml.cs">
 	    <DependentUpon>TerminalPage.xaml</DependentUpon>
 	  </Compile>
@@ -183,6 +186,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelSelectionPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ImagePopupView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TerminalPage.xaml">
