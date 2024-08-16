@@ -90,7 +90,24 @@ namespace frontend.Views
         {
             if (e.Parameter is Playground selectedPlayground)
             {
-                await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService));
+                var libraryService = new LibraryService();
+
+                // Initialize the Models dictionary if it's null
+                selectedPlayground.Models ??= new Dictionary<string, Model>();
+
+                // Populate the Models dictionary with actual Model objects
+                if (selectedPlayground.ModelIds != null)
+                {
+                    foreach (var modelKvp in selectedPlayground.ModelIds)
+                    {
+                        var modelInfo = await libraryService.GetModelInfoLibrary(modelKvp.Key);
+                        System.Diagnostics.Debug.WriteLine($"Adding Model info {modelKvp.Key}: {JsonSerializer.Serialize(modelInfo)}");
+                        selectedPlayground.Models[modelKvp.Key] = modelInfo;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(selectedPlayground.Models));
+                    await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService));
+                }
             }
         }
 

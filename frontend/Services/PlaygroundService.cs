@@ -144,39 +144,12 @@ namespace frontend.Services
                 {
                     var playgroundsDict = JsonSerializer.Deserialize<Dictionary<string, Playground>>(jsonResponse["data"].ToString()) ?? new Dictionary<string, Playground>();
                     
-                    var libraryService = new LibraryService();
                     var playgroundList = new List<Playground>();
 
                     foreach (var kvp in playgroundsDict)
                     {
                         var playground = kvp.Value;
                         playground.PlaygroundId = kvp.Key;
-
-                        // Initialize the Models dictionary if it's null
-                        playground.Models ??= new Dictionary<string, Model>();
-
-                        // Populate the Models dictionary with actual Model objects
-                        if (playground.ModelIds != null)
-                        {
-                            foreach (var modelKvp in playground.ModelIds)
-                            {
-                                try
-                                {
-                                    var modelInfo = await libraryService.GetModelInfoLibrary(modelKvp.Key);
-                                    playground.Models[modelKvp.Key] = modelInfo;
-                                }
-                                catch (Exception ex)
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"Error fetching model info for {modelKvp.Key}: {ex.Message}");
-                                    // If we can't fetch the model info, we'll create a basic Model object with the available information
-                                    playground.Models[modelKvp.Key] = new Model
-                                    {
-                                        ModelId = modelKvp.Key,
-                                        // You can add more properties here if they're available in modelKvp.Value
-                                    };
-                                }
-                            }
-                        }
 
                         playgroundList.Add(playground);
                     }

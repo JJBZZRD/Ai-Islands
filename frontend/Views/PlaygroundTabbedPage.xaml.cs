@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using frontend.Models;
+using frontend.Models.ViewModels;
 using frontend.Services;
 
 namespace frontend.Views
@@ -7,35 +8,21 @@ namespace frontend.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlaygroundTabbedPage : ContentPage
     {
-        private Playground _playground;
         private PlaygroundService _playgroundService;
+        private PlaygroundViewModel _playgroundViewModel;
 
         public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
-            _playground = playground;
+
+            System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(playground.Models));
+
+            _playgroundViewModel = new PlaygroundViewModel{ Playground = playground};
             _playgroundService = playgroundService;
-            BindingContext = this;
+            BindingContext = _playgroundViewModel;
 
             // Ensure Models dictionary is initialized
-            _playground.Models ??= new Dictionary<string, Model>();
-
-            // If ModelIds is not null, populate Models dictionary
-            if (_playground.ModelIds != null)
-            {
-                foreach (var modelKvp in _playground.ModelIds)
-                {
-                    if (!_playground.Models.ContainsKey(modelKvp.Key))
-                    {
-                        // Create a basic Model object if it doesn't exist
-                        _playground.Models[modelKvp.Key] = new Model
-                        {
-                            ModelId = modelKvp.Key,
-                            // You can add more properties here if they're available in modelKvp.Value
-                        };
-                    }
-                }
-            }
+            _playgroundViewModel.Playground.Models ??= new Dictionary<string, Model>();
 
             ShowModelPage(); // show model page when initialized
         }
@@ -43,7 +30,7 @@ namespace frontend.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            Title = _playground.PlaygroundId ?? "Playground"; 
+            Title = _playgroundViewModel.Playground?.PlaygroundId ?? "Playground"; 
         }
 
         private void OnModelClicked(object sender, EventArgs e) => ShowModelPage();
@@ -53,23 +40,26 @@ namespace frontend.Views
 
         private void ShowModelPage()
         {
-            var playgroundModelView = new PlaygroundModelView(_playground, _playgroundService);
+            var playgroundModelView = new PlaygroundModelView(_playgroundViewModel, _playgroundService);
             ContentContainer.Content = playgroundModelView;
         }
 
         private void ShowChainPage()
         {
-            ContentContainer.Content = new Chain(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new Chain(_playgroundViewModel.Playground);
         }
 
         private void ShowConfigPage()
         {
-            ContentContainer.Content = new ChainConfig(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new ChainConfig(_playgroundViewModel.Playground);
         }
 
         private void ShowAPIPage()
         {
-            ContentContainer.Content = new ChainAPI(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new ChainAPI(_playgroundViewModel.Playground);
         }
     }
 }

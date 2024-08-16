@@ -4,6 +4,9 @@ namespace frontend.Models
 {
     public class Playground
     {
+        [JsonPropertyName("playground_id")]
+        public string? PlaygroundId { get; set; }
+
         [JsonPropertyName("description")]
         public string? Description { get; set; }
 
@@ -17,9 +20,6 @@ namespace frontend.Models
 
         [JsonPropertyName("active_chain")]
         public bool ActiveChain { get; set; }
-
-        [JsonPropertyName("playground_id")]
-        public string? PlaygroundId { get; set; }
 
     }
 

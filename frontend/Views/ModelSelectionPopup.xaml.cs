@@ -6,23 +6,24 @@ using frontend.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Diagnostics;
 using System.Text.Json;
+using frontend.Models.ViewModels;
 
 namespace frontend.Views
 {
     public partial class ModelSelectionPopup : ContentView
     {
         public ObservableCollection<Model> LibraryModels { get; set; }
+        internal PlaygroundViewModel PlaygroundViewModel { get; set; }
         public ICommand AddModelCommand { get; }
         private readonly LibraryService _libraryService;
         private readonly PlaygroundService _playgroundService;
         public required string PlaygroundId { get; set; }
-        private readonly PlaygroundModelView _playgroundModelView;
 
-        public ModelSelectionPopup(PlaygroundModelView playgroundModelView)
+        public ModelSelectionPopup()
         {
             InitializeComponent();
-            _playgroundModelView = playgroundModelView;
             LibraryModels = new ObservableCollection<Model>();
+
             AddModelCommand = new Command<Model>(OnAddModel);
             _libraryService = new LibraryService();
             _playgroundService = new PlaygroundService();
@@ -65,11 +66,15 @@ namespace frontend.Views
                     System.Diagnostics.Debug.WriteLine($"Key: {kvp.Key}, Value: {kvp.Value}");
                 }
 
+                // Fetch the model using the model ID
+                var addedModel = await _libraryService.GetModelInfoLibrary(model.ModelId);
+                
+                // Add the model to the PlaygroundViewModel
+                PlaygroundViewModel.PlaygroundModels.Add(addedModel);
+
                 // If we've reached this point, it means the operation was successful
                 Debug.WriteLine($"Model {model.ModelId} added successfully. Sending refresh message.");
-                // Notify the PlaygroundModelView to refresh its models
-                WeakReferenceMessenger.Default.Send(new RefreshPlaygroundModelsMessage(PlaygroundId));
-                
+
                 await (Application.Current?.MainPage?.DisplayAlert("Success", $"Model {model.ModelId} has been added to the playground.", "OK") ?? Task.CompletedTask);
                 ClosePopup();
             }
