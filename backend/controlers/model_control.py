@@ -211,11 +211,14 @@ class ModelControl:
         
     def reset_model_config(self, model_id: str):
         try:
-            configure_request = {
-                'model_id': model_id,
-                'data': self.library_control.get_model_info_index(model_id).get('config', {})
-            }
-            return self.configure_model(configure_request)
+            reset_config = self.library_control.reset_model_config(model_id)
+
+            if reset_config:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                    self.load_model(model_id)
+
+            return {"message": f"Model {model_id} configuration reset in library"}
         except KeyError:
             return {"error": f"Model {model_id} not found in library"}
 
