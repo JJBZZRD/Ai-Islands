@@ -56,8 +56,8 @@
                                 FontSize="12"
                                 TextColor="Black"
                                 BackgroundColor="#F5F5F5"
-                                HorizontalOptions="FillAndExpand"
-                                VerticalOptions="FillAndExpand"/>
+                                AutoSize="TextChanges"
+                                />
                     </ScrollView>
                 </Frame>
             </VerticalStackLayout>
