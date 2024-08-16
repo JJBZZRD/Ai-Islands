@@ -59,6 +59,12 @@ namespace frontend.Views
             MainThread.InvokeOnMainThreadAsync(async () => await LoadPlaygrounds());
         }
 
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadPlaygrounds();
+        }
+
         private async Task LoadPlaygrounds()
         {
             try
