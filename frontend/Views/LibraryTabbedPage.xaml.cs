@@ -1,13 +1,14 @@
 using frontend.Views;
 using frontend.Models;
+using frontend.ViewModels;
 using Microsoft.Maui.Controls;
-
 
 namespace frontend.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class LibraryTabbedPage : ContentPage
     {
+        private ButtonViewModel ViewModel => BindingContext as ButtonViewModel;
         public string ModelId { get; set; } = string.Empty;
         private Model? _model;
 
@@ -15,25 +16,32 @@ namespace frontend.Views
         {
             InitializeComponent();
             _model = model;
-            BindingContext = _model;
-
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage constructor - Model Name: {_model?.ModelId}");
+            var viewModel = new ButtonViewModel { Model = _model };
+            BindingContext = viewModel;
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
             Title = _model?.ModelId;
-
-            // System.Diagnostics.Debug.WriteLine($"LibraryTabbedPage OnAppearing - Model Name: {_model?.ModelId}");
-
-            ShowInfoPage(); //show Info page by default
+            ShowInfoPage(); // show Info page by default
         }
 
-        private void OnInfoClicked(object sender, EventArgs e) => ShowInfoPage();
-        private void OnInferenceClicked(object sender, EventArgs e) => ShowInferencePage();
-        private void OnFineTuneClicked(object sender, EventArgs e) => ShowFineTunePage();
+        private void OnInfoClicked(object sender, EventArgs e)
+        {
+            ViewModel.SelectedTab = "Info";
+            ShowInfoPage();
+        }
+        private void OnInferenceClicked(object sender, EventArgs e)
+        {
+            ViewModel.SelectedTab = "Inference";
+            ShowInferencePage();
+        }
+        private void OnFineTuneClicked(object sender, EventArgs e)
+        {
+            ViewModel.SelectedTab = "FineTune";
+            ShowFineTunePage();
+        }
 
         private void ShowInfoPage()
         {
@@ -58,16 +66,5 @@ namespace frontend.Views
                 ContentContainer.Content = new FineTune(_model);
             }
         }
-
-
-        // private Model LoadModel(string modelId)
-        // {
-        //     return new Model { Name = modelId };
-        // }
-
-        // private async void OnBackClicked(object sender, EventArgs e)
-        // {
-        //     await Shell.Current.GoToAsync("..");
-        // }
     }
 }

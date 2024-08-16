@@ -21,7 +21,21 @@ namespace frontend.Views
         private string _selectedFilePath;
         private readonly ModelService _modelService;
         private string _rawJsonText;
-        private ImagePopupView _imagePopup;
+        private ImagePopupView _imagePopUp;
+
+        private bool _isViewImageOutputButtonVisible;
+        public bool IsViewImageOutputButtonVisible
+        {
+            get => _isViewImageOutputButtonVisible;
+            set
+            {
+                if (_isViewImageOutputButtonVisible != value)
+                {
+                    _isViewImageOutputButtonVisible = value;
+                    OnPropertyChanged(nameof(IsViewImageOutputButtonVisible));
+                }
+            }
+        }
 
         public string InputText
         {
@@ -85,16 +99,16 @@ namespace frontend.Views
             {
                 case "object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
-                    InputContainer.Children.Add(CreateViewImageOutputButton());
+                    IsViewImageOutputButtonVisible = true;
                     break;
                 case "image-segmentation":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
-                    InputContainer.Children.Add(CreateViewImageOutputButton());
+                    IsViewImageOutputButtonVisible = true;
                     break;
                 case "zero-shot-object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
                     InputContainer.Children.Add(CreateTextInputUI());
-                    InputContainer.Children.Add(CreateViewImageOutputButton());
+                    IsViewImageOutputButtonVisible = true;
                     break;
                 case "text-classification":
                     InputContainer.Children.Add(CreateTextInputUI());
@@ -349,16 +363,16 @@ namespace frontend.Views
 
                 var imageSource = ImageSource.FromFile(imageFullPath);
 
-                if (_imagePopup == null)
+                if (_imagePopUp == null)
                 {
-                    _imagePopup = new ImagePopupView();
-                    AbsoluteLayout.SetLayoutFlags(_imagePopup, AbsoluteLayoutFlags.All);
-                    AbsoluteLayout.SetLayoutBounds(_imagePopup, new Rect(0, 0, 1, 1));
-                    ((AbsoluteLayout)Content).Children.Add(_imagePopup);
+                    _imagePopUp = new ImagePopupView();
+                    Grid.SetRowSpan(_imagePopUp, 2);
+                    Grid.SetColumnSpan(_imagePopUp, 2);
+                    ((Grid)Content).Children.Add(_imagePopUp);
                 }
 
-                _imagePopup.SetImage(imageSource);
-                _imagePopup.IsVisible = true;
+                _imagePopUp.SetImage(imageSource);
+                _imagePopUp.IsVisible = true;
             }
             catch (Exception ex)
             {
