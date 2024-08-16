@@ -10,20 +10,28 @@
                  AbsoluteLayout.LayoutFlags="All" />
         <Frame BackgroundColor="White" 
                CornerRadius="10" 
-               Margin="20" 
                Padding="10"
                AbsoluteLayout.LayoutBounds="0.5,0.5,0.9,0.9"
                AbsoluteLayout.LayoutFlags="All">
-            <VerticalStackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button Text="X" 
+                        FontAttributes="Bold"
+                        Clicked="OnCloseButtonClicked"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start"
+                        BackgroundColor="Transparent"
+                        TextColor="Black"
+                        Margin="0,0,0,10"/>
                 <Image x:Name="PopupImage" 
+                       Grid.Row="1"
                        Aspect="AspectFit" 
-                       HeightRequest="300" 
-                       WidthRequest="300"/>
-                <Button Text="Close" 
-                        Clicked="OnCloseButtonClicked" 
-                        HorizontalOptions="Center" 
-                        Margin="0,10,0,0"/>
-            </VerticalStackLayout>
+                       HorizontalOptions="FillAndExpand"
+                       VerticalOptions="FillAndExpand"/>
+            </Grid>
         </Frame>
     </AbsoluteLayout>
 </ContentView>
