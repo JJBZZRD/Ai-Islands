@@ -282,6 +282,97 @@ namespace frontend.Models
 
         [JsonPropertyName("forward_params")]
         public ForwardParams? ForwardParams { get; set; }
+
+        // New properties based on the provided JSON
+        [JsonPropertyName("min_new_tokens")]
+        public int? MinNewTokens { get; set; }
+
+        [JsonPropertyName("num_beam_groups")]
+        public int? NumBeamGroups { get; set; }
+
+        [JsonPropertyName("diversity_penalty")]
+        public float? DiversityPenalty { get; set; }
+
+        [JsonPropertyName("temperature")]
+        public float? Temperature { get; set; }
+
+        [JsonPropertyName("top_k")]
+        public int? TopK { get; set; }
+
+        [JsonPropertyName("top_p")]
+        public float? TopP { get; set; }
+
+        [JsonPropertyName("repetition_penalty")]
+        public float? RepetitionPenalty { get; set; }
+
+        [JsonPropertyName("length_penalty")]
+        public float? LengthPenalty { get; set; }
+
+        [JsonPropertyName("no_repeat_ngram_size")]
+        public int? NoRepeatNgramSize { get; set; }
+
+        [JsonPropertyName("early_stopping")]
+        public bool? EarlyStopping { get; set; }
+
+        [JsonPropertyName("typical_p")]
+        public float? TypicalP { get; set; }
+
+        [JsonPropertyName("epsilon_cutoff")]
+        public float? EpsilonCutoff { get; set; }
+
+        [JsonPropertyName("eta_cutoff")]
+        public float? EtaCutoff { get; set; }
+
+        [JsonPropertyName("do_sample")]
+        public bool? DoSample { get; set; }
+
+        [JsonPropertyName("renormalize_logits")]
+        public bool? RenormalizeLogits { get; set; }
+
+        [JsonPropertyName("exponential_decay_length_penalty")]
+        public float? ExponentialDecayLengthPenalty { get; set; }
+
+        [JsonPropertyName("suppress_tokens")]
+        public List<int>? SuppressTokens { get; set; }
+
+        [JsonPropertyName("begin_suppress_tokens")]
+        public List<int>? BeginSuppressTokens { get; set; }
+
+        [JsonPropertyName("forced_bos_token_id")]
+        public int? ForcedBosTokenId { get; set; }
+
+        [JsonPropertyName("forced_eos_token_id")]
+        public int? ForcedEosTokenId { get; set; }
+
+        [JsonPropertyName("remove_invalid_values")]
+        public bool? RemoveInvalidValues { get; set; }
+
+        [JsonPropertyName("num_return_sequences")]
+        public int? NumReturnSequences { get; set; }
+
+        [JsonPropertyName("output_attentions")]
+        public bool? OutputAttentions { get; set; }
+
+        [JsonPropertyName("output_hidden_states")]
+        public bool? OutputHiddenStates { get; set; }
+
+        [JsonPropertyName("output_scores")]
+        public bool? OutputScores { get; set; }
+
+        [JsonPropertyName("pad_token_id")]
+        public int? PadTokenId { get; set; }
+
+        [JsonPropertyName("bos_token_id")]
+        public int? BosTokenId { get; set; }
+
+        [JsonPropertyName("eos_token_id")]
+        public int? EosTokenId { get; set; }
+
+        [JsonPropertyName("encoder_no_repeat_ngram_size")]
+        public int? EncoderNoRepeatNgramSize { get; set; }
+
+        [JsonPropertyName("decoder_start_token_id")]
+        public int? DecoderStartTokenId { get; set; }
     }
 
     public class GenerateKwargs
