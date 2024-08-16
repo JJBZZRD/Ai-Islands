@@ -297,6 +297,10 @@
                                                  Value="{Binding Config.PipelineConfig.MaxNewTokens, Mode=TwoWay}"
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Min New Tokens" TextColor="#333333"/>
+                        <controls:OptimizedSlider Minimum="1" Maximum="2048" Step="1" OptimizedValue="20" Value="{Binding Config.PipelineConfig.MinNewTokens, Mode=TwoWay}" IsInteger="True"/>
+                    </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeams, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Num Beams"
                                TextColor="#333333"/>
@@ -314,25 +318,16 @@
                             </Picker.ItemsSource>
                         </Picker>
                     </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeamGroups, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Num Beam Groups" TextColor="#333333"/>
+                        <controls:OptimizedSlider Minimum="1" Maximum="10" Step="1" OptimizedValue="2" Value="{Binding Config.PipelineConfig.NumBeamGroups, Mode=TwoWay}" IsInteger="True"/>
+                    </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.PipelineConfig.UseCache, Converter={StaticResource NullToVisibilityConverter}}">
                         <CheckBox IsChecked="{Binding Config.PipelineConfig.UseCache}"/>
                         <Label Text="Use Cache"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
-                    <!-- start of new additions for offline llm -->
-                    <!-- START -->
-
-
-                    
-                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Min New Tokens" TextColor="#333333"/>
-                        <controls:OptimizedSlider Minimum="1" Maximum="2048" Step="1" OptimizedValue="20" Value="{Binding Config.PipelineConfig.MinNewTokens, Mode=TwoWay}" IsInteger="True"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeamGroups, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Num Beam Groups" TextColor="#333333"/>
-                        <controls:OptimizedSlider Minimum="1" Maximum="10" Step="1" OptimizedValue="2" Value="{Binding Config.PipelineConfig.NumBeamGroups, Mode=TwoWay}" IsInteger="True"/>
-                    </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.DiversityPenalty, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Diversity Penalty" TextColor="#333333"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="1.0" Step="0.1" OptimizedValue="0.1" Value="{Binding Config.PipelineConfig.DiversityPenalty, Mode=TwoWay}" IsInteger="False"/>
@@ -389,25 +384,6 @@
                         <Label Text="Exponential Decay Length Penalty" TextColor="#333333"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="2.0" Step="0.1" OptimizedValue="1.0" Value="{Binding Config.PipelineConfig.ExponentialDecayLengthPenalty, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Suppress Tokens" TextColor="#333333"/>
@@ -470,9 +446,6 @@
                         <Entry Text="{Binding Config.PipelineConfig.DecoderStartTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
 
-
-                    <!-- end of new additions for offline llm -->
-                    <!-- END -->
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Source Language"
                                TextColor="#333333"/>
