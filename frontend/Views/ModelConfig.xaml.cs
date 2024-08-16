@@ -8,6 +8,7 @@ using Microsoft.Maui.Graphics;
 using System.Reflection;
 using frontend.Models.ViewModels;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace frontend.Views
 {
@@ -26,7 +27,19 @@ namespace frontend.Views
         {
             InitializeComponent();
             _model = model;
-            _configViewModel = new ConfigViewModel { Config = model.Config };
+            _configViewModel = new ConfigViewModel 
+            { 
+                Config = model.Config, 
+                Languages = model.Languages ?? new Dictionary<string, string>()
+            };
+            
+            // Add debug logging
+            System.Diagnostics.Debug.WriteLine($"Languages count: {_configViewModel.Languages.Count}");
+            foreach (var lang in _configViewModel.Languages)
+            {
+                System.Diagnostics.Debug.WriteLine($"Language: {lang.Key} - {lang.Value}");
+            }
+
             _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
             _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
             _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;

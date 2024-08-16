@@ -16,6 +16,7 @@ namespace frontend.Models.ViewModels
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
         public ObservableCollection<StopSequence> StopSequences { get; }
+        public Dictionary<string, string> Languages { get; set; } = new Dictionary<string, string>();
 
         private List<string> _datasetNames;
         public List<string> DatasetNames
@@ -48,6 +49,8 @@ namespace frontend.Models.ViewModels
                 }
             }
         }
+
+        public IEnumerable<KeyValuePair<string, string>> LanguageList => Languages?.ToList() ?? new List<KeyValuePair<string, string>>();
 
         public ConfigViewModel()
         {
