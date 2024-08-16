@@ -92,14 +92,14 @@
 	  <Compile Update="Views\Models.xaml.cs">
 	    <DependentUpon>Models.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ChainConfig.xaml.cs">
-	    <DependentUpon>ChainConfig.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundConfigView.xaml.cs">
+	    <DependentUpon>PlaygroundConfigView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\Chain.xaml.cs">
-	    <DependentUpon>Chain.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundInferenceView.xaml.cs">
+	    <DependentUpon>PlaygroundInferenceView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ChainAPI.xaml.cs">
-	    <DependentUpon>ChainAPI.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundAPIView.xaml.cs">
+	    <DependentUpon>PlaygroundAPIView.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\FilterPopUp.xaml.cs">
 	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
@@ -161,13 +161,13 @@
 	  <MauiXaml Update="Views\Models.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ChainConfig.xaml">
+	  <MauiXaml Update="Views\PlaygroundConfigView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Chain.xaml">
+	  <MauiXaml Update="Views\PlaygroundInferenceView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ChainAPI.xaml">
+	  <MauiXaml Update="Views\PlaygroundAPIView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FilterPopUp.xaml">

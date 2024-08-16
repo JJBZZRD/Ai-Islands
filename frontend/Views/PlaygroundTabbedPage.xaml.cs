@@ -47,19 +47,19 @@ namespace frontend.Views
         private void ShowChainPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new Chain(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground);
         }
 
         private void ShowConfigPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new ChainConfig(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel.Playground);
         }
 
         private void ShowAPIPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new ChainAPI(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundAPIView(_playgroundViewModel.Playground);
         }
     }
 }

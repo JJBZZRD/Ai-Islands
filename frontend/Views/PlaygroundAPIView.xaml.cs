@@ -2,9 +2,9 @@ using frontend.Models;
 
 namespace frontend.Views;
 
-public partial class ChainAPI : ContentView
+public partial class PlaygroundAPIView : ContentView
 {
-    public ChainAPI(Playground playground)
+    public PlaygroundAPIView(Playground playground)
     {
         InitializeComponent();
         BindingContext = playground;

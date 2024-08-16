@@ -1,12 +1,11 @@
 using frontend.Models;
-using frontend.Models;
 
 
 namespace frontend.Views;
 
-public partial class Chain : ContentView
+public partial class PlaygroundInferenceView : ContentView
 {
-    public Chain(Playground playground)
+    public PlaygroundInferenceView(Playground playground)
     {
         InitializeComponent();
         BindingContext = playground;

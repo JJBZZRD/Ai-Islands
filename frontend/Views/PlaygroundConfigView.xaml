@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:frontend.Views"
-             x:Class="frontend.Views.ChainConfig"
+             x:Class="frontend.Views.PlaygroundConfigView"
              BackgroundColor="#F2F2F2">
 
     <VerticalStackLayout Margin="40">
