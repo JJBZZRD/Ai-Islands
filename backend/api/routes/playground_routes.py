@@ -19,6 +19,7 @@ class UpdatePlaygroundRequest(BaseModel):
     description: str = None
 
 class ChainConfigureRequest(BaseModel):
+    playground_id: str = ...
     chain: List[str]
     
 class InferenceRequest(BaseModel):
@@ -110,9 +111,9 @@ class PlaygroundRouter:
         result = self.playground_control.get_playground_info(playground_id)
         return success_response(data=result, status_code=200)
 
-    async def configure_chain(self, playground_id: str = Query(...), request: ChainConfigureRequest = ...):
+    async def configure_chain(self, request: ChainConfigureRequest = ...):
         try:
-            result = self.playground_control.configure_chain(playground_id, request.chain)
+            result = self.playground_control.configure_chain(request.playground_id, request.chain)
             return success_response(message="Chain configured successfully", data=result, status_code=200)
         except KeyError as e:
             return error_response(message=str(e), status_code=404)

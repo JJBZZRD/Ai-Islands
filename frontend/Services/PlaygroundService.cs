@@ -254,12 +254,11 @@ namespace frontend.Services
             }
         }
 
-        public async Task<Dictionary<string, object>> ConfigureChain(string playgroundId, List<string> chain)
+        public async Task<HttpResponseMessage> ConfigureChain(string playgroundId, List<string> chain)
         {
             var request = new { playground_id = playgroundId, chain = chain };
             var response = await _httpClient.PostAsJsonAsync("playground/configure-chain", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            return response;
         }
 
         public async Task<Dictionary<string, object>> LoadPlaygroundChain(string playgroundId)

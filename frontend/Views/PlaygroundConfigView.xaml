@@ -5,122 +5,93 @@
              x:Class="frontend.Views.PlaygroundConfigView"
              BackgroundColor="#F2F2F2">
 
-    <VerticalStackLayout Margin="40">
-        <Label Text="AI Island creation" 
-               FontSize="24" 
-               FontAttributes="Bold" 
-               TextColor="Black"
-               Margin="0,0,0,20"/>
+    <AbsoluteLayout x:Name="MainLayout">
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Label Text="Build and customise your own AI model chain. Utilise various AI models, such as NLP, CV, GenAI chatbot models to construct a model chain tailored to your unique needs."
-               FontSize="17"
-               TextColor="Black"
-               Margin="0,0,0,20"/>
+            <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
+                <Label Text="AI Island creation" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       TextColor="Black"/>
+                <Label Text="Build and customise your own AI model chain. Utilise various AI models, such as NLP, CV, GenAI chatbot models to construct a model chain tailored to your unique needs."
+                       FontSize="17"
+                       TextColor="Black"/>
+            </VerticalStackLayout>
 
-        <Grid HeightRequest="30" Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <Image Source="add_icon.png"
-               HeightRequest="25"
-               WidthRequest="25"
-               Grid.Column="1"
-               HorizontalOptions="End"
-               VerticalOptions="Center">
+            <Image Grid.Row="1" 
+                   Source="add_icon.png" 
+                   HeightRequest="30"
+                   WidthRequest="30"
+                   HorizontalOptions="End" 
+                   VerticalOptions="Start" 
+                   Margin="0,20,20,20">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAddModelClicked"/>
+                </Image.GestureRecognizers>
             </Image>
 
-            <Image Source="delete_icon.png"
-               HeightRequest="25"
-               WidthRequest="25"
-               Grid.Column="2"
-               HorizontalOptions="End"
-               VerticalOptions="Center"
-               Margin="10,0,0,0">   
-            </Image>
-        </Grid>
-
-        <Frame Padding="0"
-               VerticalOptions="FillAndExpand"
-               HorizontalOptions="FillAndExpand"
-               CornerRadius="10"
-               HasShadow="False"
-               BorderColor="#E0E0E0"
-               BackgroundColor="White">
-            <VerticalStackLayout Spacing="0">
-                <Grid ColumnDefinitions="2*, 2*, *" BackgroundColor="#3366FF" Padding="20,10">
-                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="White"/>
-                    <Label Text="Input" FontAttributes="Bold" Grid.Column="1" TextColor="White"/>
-                    <Label Text="Output" FontAttributes="Bold" Grid.Column="2" TextColor="White"/>
+            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
+                <Grid ColumnDefinitions="2*, 2*, *, Auto">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                    <Label Text="Input" FontAttributes="Bold" Grid.Column="1" TextColor="Black"/>
+                    <Label Text="Output" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                    <Label Text="Actions" FontAttributes="Bold" Grid.Column="3" TextColor="Black"/>
                 </Grid>
-                <VerticalStackLayout x:Name="ModelRows" Spacing="10" Padding="20">
-                    <Grid ColumnDefinitions="2*, 2*, *">
-                        <Grid Grid.Column="0" RowDefinitions="Auto,Auto">
-                            <Frame Padding="0" 
-                                   BorderColor="LightGray"
-                                   CornerRadius="5"
-                                   HorizontalOptions="Start"
-                                   HeightRequest="40"
-                                   WidthRequest="200"
-                                   MaximumWidthRequest="300"
-                                   HasShadow="False"
-                                   BackgroundColor="White"> 
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Entry x:Name="ModelEntry"
-                                               Placeholder="Select a model"
-                                               IsReadOnly="True"
-                                               VerticalOptions="Center"
-                                               Margin="10,0,0,0"
-                                               BackgroundColor="White"
-                                               TextColor="Gray"/>
-                                    <Button Grid.Column="1"
-                                            Text="▼"
-                                            FontSize="12"
-                                            WidthRequest="40"
-                                            HeightRequest="40"
-                                            Padding="0"
-                                            Clicked="OnDropdownClicked"
-                                            BackgroundColor="White"/>
+            </Frame>
+
+            <ScrollView Grid.Row="3">
+                <CollectionView ItemsSource="{Binding PlaygroundChain}" Margin="20,10,20,20">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="LightGray" 
+                                   BackgroundColor="White" 
+                                   CornerRadius="10" 
+                                   Padding="10" 
+                                   HasShadow="True"
+                                   Margin="0,5">
+                                <Grid ColumnDefinitions="2*, 2*, *, Auto">
+                                    <Entry Grid.Column="0" 
+                                           Text="{Binding ModelId}"
+                                           TextColor="Black"
+                                           BackgroundColor="White"
+                                           FontSize="16"/>
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding Mapping.Input}" 
+                                           VerticalOptions="Center" TextColor="Black"/>
+                                    <Label Grid.Column="2" 
+                                           Text="{Binding Mapping.Output}" 
+                                           VerticalOptions="Center" TextColor="Black"/>
+                                    <ImageButton Grid.Column="3"
+                                                 Source="delete_icon.png"
+                                                 HeightRequest="20"
+                                                 WidthRequest="20"
+                                                 HorizontalOptions="End"
+                                                 VerticalOptions="Center"
+                                                 Clicked="OnDeleteModelClicked"
+                                                 CommandParameter="{Binding .}"/>
                                 </Grid>
                             </Frame>
-        
-                            <Frame x:Name="DropdownPopup"
-                                   Grid.Row="1"
-                                   IsVisible="false"
-                                   BorderColor="LightGray"
-                                   CornerRadius="5"
-                                   Padding="0"
-                                   BackgroundColor="White"
-                                   HeightRequest="150"
-                                   WidthRequest="200"
-                                   MaximumWidthRequest="300"
-                                   VerticalOptions="Start"
-                                   HorizontalOptions="Start"
-                                   Margin="0,5,0,0">
-                                   <ScrollView HeightRequest="120"
-                                        VerticalScrollBarVisibility="Always">
-                                        <CollectionView x:Name="ModelList"
-                                             SelectionMode="Single"
-                                             SelectionChanged="OnModelSelected">             
-                                             <CollectionView.ItemTemplate>
-                                                    <DataTemplate>
-                                                         <Label Text="{Binding .}"
-                                                         Padding="10"
-                                                         FontSize="14"
-                                                         TextColor="Black"/>      
-                                                    </DataTemplate>
-                                             </CollectionView.ItemTemplate>
-                                        </CollectionView>
-                                   </ScrollView>
-                            </Frame>
-                        </Grid>
-                        <Label Grid.Column="1" Text="pass" TextColor="Gray"/>
-                        <Label Grid.Column="2" Text="pass" TextColor="Gray"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </VerticalStackLayout>
-        </Frame>
-    </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+
+            <Button Grid.Row="4" 
+                    Text="Save Config" 
+                    VerticalOptions="End" 
+                    HorizontalOptions="Center" 
+                    Clicked="OnSaveConfigClicked"
+                    Margin="0,20,0,20"/>
+        </Grid>
+    </AbsoluteLayout>
 </ContentView>

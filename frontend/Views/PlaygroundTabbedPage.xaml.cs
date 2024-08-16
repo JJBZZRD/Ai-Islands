@@ -53,7 +53,7 @@ namespace frontend.Views
         private void ShowConfigPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel, _playgroundService);
         }
 
         private void ShowAPIPage()
