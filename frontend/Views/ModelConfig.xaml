@@ -753,14 +753,24 @@
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ChunkLengthS, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Chunk Length (s)"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.PipelineConfig.ChunkLengthS}"
-                               Placeholder="Chunk Length (s)"/>
+                        <!-- <Entry Text="{Binding Config.PipelineConfig.ChunkLengthS}"
+                               Placeholder="Chunk Length (s)"/> -->
+                        <controls:OptimizedSlider Minimum="5"
+                                                 Maximum="60"
+                                                 OptimizedValue="30"
+                                                 Value="{Binding Config.PipelineConfig.ChunkLengthS, Mode=TwoWay}"
+                                                 IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BatchSize, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Batch Size"
                                TextColor="#333333"/>
-                        <Entry Text="{Binding Config.PipelineConfig.BatchSize}"
-                               Placeholder="Batch Size"/>
+                        <!-- <Entry Text="{Binding Config.PipelineConfig.BatchSize}"
+                               Placeholder="Batch Size"/> -->
+                        <controls:OptimizedSlider Minimum="1"
+                                                 Maximum="64"
+                                                 OptimizedValue="16"
+                                                 Value="{Binding Config.PipelineConfig.BatchSize, Mode=TwoWay}"
+                                                 IsInteger="True"/>                     
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.PipelineConfig.ReturnTimestamps, Converter={StaticResource NullToVisibilityConverter}}">
@@ -782,14 +792,133 @@
                         <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
                             <Label Text="Language"
                                    TextColor="#333333"/>
-                            <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Language}"
-                                   Placeholder="Language"/>
+                            <!-- <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Language}"
+                                   Placeholder="Language"/> -->
+                            <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Language, Mode=TwoWay}"
+                                    WidthRequest="200"
+                                    HorizontalOptions="Start">
+                                   <Picker.ItemsSource>
+                                          <x:Array Type="{x:Type x:String}">
+                                                 <x:String>null</x:String>
+                                                 <x:String>en</x:String>
+                                                 <x:String>zh</x:String>
+                                                 <x:String>de</x:String>
+                                                 <x:String>es</x:String>
+                                                 <x:String>ru</x:String>
+                                                 <x:String>ko</x:String>
+                                                 <x:String>fr</x:String>
+                                                 <x:String>ja</x:String>
+                                                 <x:String>pt</x:String>
+                                                 <x:String>tr</x:String>
+                                                 <x:String>pl</x:String>
+                                                 <x:String>ca</x:String>
+                                                 <x:String>nl</x:String>
+                                                 <x:String>ar</x:String>
+                                                 <x:String>sv</x:String>
+                                                 <x:String>it</x:String>
+                                                 <x:String>id</x:String>
+                                                 <x:String>hi</x:String>
+                                                 <x:String>fi</x:String>
+                                                 <x:String>vi</x:String>
+                                                 <x:String>he</x:String>
+                                                 <x:String>uk</x:String>
+                                                 <x:String>el</x:String>
+                                                 <x:String>ms</x:String>
+                                                 <x:String>cs</x:String>
+                                                 <x:String>ro</x:String>
+                                                 <x:String>da</x:String>
+                                                 <x:String>hu</x:String>
+                                                 <x:String>ta</x:String>
+                                                 <x:String>no</x:String>
+                                                 <x:String>th</x:String>
+                                                 <x:String>ur</x:String>
+                                                 <x:String>hr</x:String>
+                                                 <x:String>bg</x:String>
+                                                 <x:String>lt</x:String>
+                                                 <x:String>la</x:String>
+                                                 <x:String>mi</x:String>
+                                                 <x:String>ml</x:String>
+                                                 <x:String>cy</x:String>
+                                                 <x:String>sk</x:String>
+                                                 <x:String>te</x:String>
+                                                 <x:String>fa</x:String>
+                                                 <x:String>lv</x:String>
+                                                 <x:String>bn</x:String>
+                                                 <x:String>sr</x:String>
+                                                 <x:String>az</x:String>
+                                                 <x:String>sl</x:String>
+                                                 <x:String>kn</x:String>
+                                                 <x:String>et</x:String>
+                                                 <x:String>mk</x:String>
+                                                 <x:String>br</x:String>
+                                                 <x:String>eu</x:String>
+                                                 <x:String>is</x:String>
+                                                 <x:String>hy</x:String>
+                                                 <x:String>ne</x:String>
+                                                 <x:String>mn</x:String>
+                                                 <x:String>bs</x:String>
+                                                 <x:String>kk</x:String>
+                                                 <x:String>sq</x:String>
+                                                 <x:String>sw</x:String>
+                                                 <x:String>gl</x:String>
+                                                 <x:String>mr</x:String>
+                                                 <x:String>pa</x:String>
+                                                 <x:String>si</x:String>
+                                                 <x:String>km</x:String>
+                                                 <x:String>sn</x:String>
+                                                 <x:String>yo</x:String>
+                                                 <x:String>so</x:String>
+                                                 <x:String>af</x:String>
+                                                 <x:String>oc</x:String>
+                                                 <x:String>ka</x:String>
+                                                 <x:String>be</x:String>
+                                                 <x:String>tg</x:String>
+                                                 <x:String>sd</x:String>
+                                                 <x:String>gu</x:String>
+                                                 <x:String>am</x:String>
+                                                 <x:String>yi</x:String>
+                                                 <x:String>lo</x:String>
+                                                 <x:String>uz</x:String>
+                                                 <x:String>fo</x:String>
+                                                 <x:String>ht</x:String>
+                                                 <x:String>ps</x:String>
+                                                 <x:String>tk</x:String>
+                                                 <x:String>nn</x:String>
+                                                 <x:String>mt</x:String>
+                                                 <x:String>sa</x:String>
+                                                 <x:String>lb</x:String>
+                                                 <x:String>my</x:String>
+                                                 <x:String>bo</x:String>
+                                                 <x:String>tl</x:String>
+                                                 <x:String>mg</x:String>
+                                                 <x:String>as</x:String>
+                                                 <x:String>tt</x:String>
+                                                 <x:String>haw</x:String>
+                                                 <x:String>ln</x:String>
+                                                 <x:String>ha</x:String>
+                                                 <x:String>ba</x:String>
+                                                 <x:String>jw</x:String>
+                                                 <x:String>su</x:String>
+                                          </x:Array>
+                                   </Picker.ItemsSource>
+                            </Picker>
                         </VerticalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task, Converter={StaticResource NullToVisibilityConverter}}">
                             <Label Text="Task"
                                    TextColor="#333333"/>
-                            <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Task}"
-                                   Placeholder="Task"/>
+                            <!-- <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Task}"
+                                   Placeholder="Task"/> -->
+                            <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Task, Mode=TwoWay}"
+                                    WidthRequest="200"
+                                    HorizontalOptions="Start">
+                                   <Picker.ItemsSource>
+                                          <x:Array Type="{x:Type x:String}">
+                                                 <x:String>null</x:String>
+                                                 <x:String>transcribe</x:String>
+                                                 <x:String>translate</x:String>
+                                          </x:Array>
+                                   </Picker.ItemsSource>
+                            </Picker>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.CandidateLabels, Converter={StaticResource NullToVisibilityConverter}}">
