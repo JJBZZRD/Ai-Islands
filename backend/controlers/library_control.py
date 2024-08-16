@@ -124,7 +124,7 @@ class LibraryControl:
 
     def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
         for key, value in new_config.items():
-            # if value is not None:  # Skip None values
+            if value is not None:  # Skip None values
                 if isinstance(value, dict) and key in original_config:
                     original_config[key] = self._merge_configs(original_config[key], value)
                 else:
