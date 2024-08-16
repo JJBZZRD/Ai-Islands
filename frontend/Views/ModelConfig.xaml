@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:converters="clr-namespace:frontend.Converters"
              xmlns:controls="clr-namespace:frontend.Controls"
              x:Class="frontend.Views.ModelConfig"
@@ -24,14 +25,23 @@
                    TextColor="#333333"/>
             <VerticalStackLayout x:Name="ConfigContainer"
                                  Spacing="15">
+
                 <!-- Prompt Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Prompt Settings"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"
                            Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="System Prompt"
                                TextColor="#333333"
@@ -48,8 +58,12 @@
                         <Entry Text="{Binding Config.Prompt.ExampleConversation}"
                                Placeholder="Example Conversation"/>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
+                
 
                 <!-- Parameters Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
