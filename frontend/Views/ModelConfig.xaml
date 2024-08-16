@@ -374,8 +374,6 @@
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.CandidateLabels, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Candidate Labels"
-                               FontSize="16"
-                               FontAttributes="Bold"
                                TextColor="#333333"/>
                         <CollectionView ItemsSource="{Binding CandidateLabels}">
                             <CollectionView.ItemTemplate>
@@ -394,12 +392,10 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                         <Label Text="New Label"
-                               FontSize="16"
-                               FontAttributes="Bold"
                                TextColor="#333333"
                                Margin="0,10,0,0"/>
                         <Entry x:Name="NewCandidateLabel"
-                               Placeholder="Label"/>
+                               Placeholder="Enter label here..."/>
                         <Button Text="Add Label"
                                 Clicked="OnAddCandidateLabelClicked"
                                 BackgroundColor="#3366FF"
