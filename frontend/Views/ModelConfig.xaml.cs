@@ -288,50 +288,59 @@ namespace frontend.Views
         // Add this method to the ModelConfig class
         private async void OnResetDefaultsClicked(object sender, EventArgs e)
         {
-            // Disable both buttons to prevent multiple clicks
+            // Disable the button to prevent multiple clicks
             ResetDefaultsButton.IsEnabled = false;
-            SaveConfigButton.IsEnabled = false;
 
             try 
             {
-                await _modelService.ResetDefaultConfig(_model.ModelId);
-                
-                // Show success popup
-                await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
-                
-                // Fetch the updated library data
-                var libraryService = new LibraryService();
-                var updatedModels = await libraryService.GetLibrary();
-                
-                // Find the updated model in the list
-                var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
-                
-                if (updatedModel != null)
+                // Show confirmation popup
+                bool shouldRestore = await Application.Current.MainPage.DisplayAlert(
+                    "Warning",
+                    "Are you sure you want to restore default configurations from library?",
+                    "Restore",
+                    "Abort");
+
+                if (shouldRestore)
                 {
-                    // Update the local model
-                    _model = updatedModel;
+                    await _modelService.ResetDefaultConfig(_model.ModelId);
+                    
+                    // Show success popup
+                    await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
+                    
+                    // Fetch the updated library data
+                    var libraryService = new LibraryService();
+                    var updatedModels = await libraryService.GetLibrary();
+                    
+                    // Find the updated model in the list
+                    var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
+                    
+                    if (updatedModel != null)
+                    {
+                        // Update the local model
+                        _model = updatedModel;
 
-                    // Create a new ConfigViewModel with the updated data
-                    _configViewModel = new ConfigViewModel 
-                    { 
-                        Config = _model.Config, 
-                        Languages = _model.Languages ?? new Dictionary<string, string>()
-                    };
+                        // Create a new ConfigViewModel with the updated data
+                        _configViewModel = new ConfigViewModel 
+                        { 
+                            Config = _model.Config, 
+                            Languages = _model.Languages ?? new Dictionary<string, string>()
+                        };
 
-                    // Reinitialize other properties
-                    _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
-                    _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
-                    _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+                        // Reinitialize other properties
+                        _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
+                        _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
+                        _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
-                    // Update the BindingContext to refresh the UI
-                    BindingContext = _configViewModel;
+                        // Update the BindingContext to refresh the UI
+                        BindingContext = _configViewModel;
 
-                    // Manually trigger UI update for properties that might not be directly bound
-                    OnPropertyChanged(nameof(_configViewModel));
-                }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to find updated model data", "OK");
+                        // Manually trigger UI update for properties that might not be directly bound
+                        OnPropertyChanged(nameof(_configViewModel));
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "Failed to find updated model data", "OK");
+                    }
                 }
             }
             catch (Exception ex)
@@ -341,9 +350,8 @@ namespace frontend.Views
             }
             finally
             {
-                // Re-enable both buttons
+                // Re-enable the button
                 ResetDefaultsButton.IsEnabled = true;
-                SaveConfigButton.IsEnabled = true;
             }
         }
 
