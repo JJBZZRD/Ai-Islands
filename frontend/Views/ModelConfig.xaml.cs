@@ -479,5 +479,85 @@ namespace frontend.Views
             }
             _model.Config = _configViewModel.Config;
         }
+
+        // Add this method to the ModelConfig class
+        private async void OnResetClicked(object sender, EventArgs e)
+        {
+            // Disable the button to prevent multiple clicks
+            ResetButton.IsEnabled = false;
+
+            try 
+            {
+                // Show warning popup
+                bool shouldReset = await Application.Current.MainPage.DisplayAlert(
+                    "Warning",
+                    "Are you sure you want to discard your changes?",
+                    "Yes, discard changes",
+                    "No, keep changes");
+
+                if (shouldReset)
+                {
+                    // Fetch the original model data from the library
+                    var libraryService = new LibraryService();
+                    var updatedModels = await libraryService.GetLibrary();
+                    var originalModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
+
+                    if (originalModel != null)
+                    {
+                        // Reset the model and ConfigViewModel to the original state
+                        _model = originalModel;
+                        _configViewModel.Config = _model.Config;
+                        _configViewModel.Languages = _model.Languages ?? new Dictionary<string, string>();
+
+                        // Reinitialize other properties
+                        _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
+                        _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
+                        _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+
+                        // Reset collections
+                        _configViewModel.ExampleConversation.Clear();
+                        foreach (var message in _configViewModel.Config.ExampleConversation ?? new List<ConversationMessage>())
+                        {
+                            _configViewModel.ExampleConversation.Add(message);
+                        }
+
+                        _configViewModel.CandidateLabels.Clear();
+                        foreach (var label in _configViewModel.Config.PipelineConfig?.CandidateLabels ?? new List<string>())
+                        {
+                            _configViewModel.CandidateLabels.Add(new CandidateLabel(label));
+                        }
+
+                        _configViewModel.StopSequences.Clear();
+                        foreach (var sequence in _configViewModel.Config.Parameters?.StopSequences ?? new List<string>())
+                        {
+                            _configViewModel.StopSequences.Add(new StopSequence(sequence));
+                        }
+
+                        // Update the BindingContext to refresh the UI
+                        BindingContext = _configViewModel;
+
+                        // Manually trigger UI update for properties that might not be directly bound
+                        OnPropertyChanged(nameof(_configViewModel));
+
+                        // Show success popup
+                        await Application.Current.MainPage.DisplayAlert("Success", "Changes discarded successfully!", "OK");
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "Failed to find original model data", "OK");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Show error popup if something goes wrong
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to reset: {ex.Message}", "OK");
+            }
+            finally
+            {
+                // Re-enable the button
+                ResetButton.IsEnabled = true;
+            }
+        }
     }
 }
