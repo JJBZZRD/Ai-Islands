@@ -3,23 +3,32 @@ using System.Collections.ObjectModel;
 
 namespace frontend.Models.ViewModels
 {
-    internal partial class PlaygroundViewModel : ObservableObject
+    public partial class PlaygroundViewModel : ObservableObject
     {
         [ObservableProperty]
         private Playground? playground;
 
         public ObservableCollection<Model> PlaygroundModels { get; }
 
-        public ObservableCollection<Model> PlaygroundChain { get; }
+        public ObservableCollection<ModelViewModel> PlaygroundChain { get; }
 
         public PlaygroundViewModel()
         {
             PlaygroundModels = new ObservableCollection<Model>();
-            PlaygroundChain = new ObservableCollection<Model>();
+            PlaygroundChain = new ObservableCollection<ModelViewModel>();
+        }
+
+        public void SetPlaygroundChainForPicker()
+        {
+            for (int i = 0; i < PlaygroundChain.Count; i++)
+            {
+                PlaygroundChain[i].SelectedModel = playground.Models[playground.Chain[i]];
+            }
         }
 
         partial void OnPlaygroundChanged(Playground? oldValue, Playground? newValue)
         {
+            System.Diagnostics.Debug.WriteLine($"======Playground changed");
             PlaygroundModels.Clear();
             PlaygroundChain.Clear();
 
@@ -38,7 +47,7 @@ namespace frontend.Models.ViewModels
                     var model = newValue.Models?.Values.FirstOrDefault(m => m.ModelId == modelName);
                     if (model != null)
                     {
-                        PlaygroundChain.Add(model);
+                        PlaygroundChain.Add(new ModelViewModel { SelectedModel = model });
                     }
                 }
             }

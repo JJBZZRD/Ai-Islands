@@ -18,7 +18,7 @@ namespace frontend.Views
         private PlaygroundViewModel _playgroundViewModel;
         private readonly PlaygroundService _playgroundService;
 
-        internal PlaygroundModelView(PlaygroundViewModel playgroundViewModel, PlaygroundService playgroundService)
+        public PlaygroundModelView(PlaygroundViewModel playgroundViewModel, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playgroundService = playgroundService;

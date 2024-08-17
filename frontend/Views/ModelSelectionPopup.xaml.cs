@@ -13,7 +13,7 @@ namespace frontend.Views
     public partial class ModelSelectionPopup : ContentView
     {
         public ObservableCollection<Model> LibraryModels { get; set; }
-        internal PlaygroundViewModel PlaygroundViewModel { get; set; }
+        public PlaygroundViewModel PlaygroundViewModel { get; set; }
         public ICommand AddModelCommand { get; }
         private readonly LibraryService _libraryService;
         private readonly PlaygroundService _playgroundService;

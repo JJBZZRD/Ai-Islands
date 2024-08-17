@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using frontend.Services;
 using System.Net.Http;
 using System.Text.Json;
+using Microsoft.Maui.Controls;
+using System.Diagnostics;
 
 namespace frontend.Views;
 
@@ -14,27 +16,35 @@ public partial class PlaygroundConfigView : ContentView
     private PlaygroundViewModel _viewModel;
     private PlaygroundService _playgroundService;
 
-    internal PlaygroundConfigView(PlaygroundViewModel viewModel, PlaygroundService playgroundService)
+    public PlaygroundConfigView(PlaygroundViewModel viewModel, PlaygroundService playgroundService)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _playgroundService = playgroundService;
         BindingContext = _viewModel;
 
-        System.Diagnostics.Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.ModelId))}");
+        InitializeAsync();
+    }
+
+    private async void InitializeAsync()
+    {
+        await Task.Delay(500);
+        _viewModel.SetPlaygroundChainForPicker();
+
+        Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.SelectedModel?.ModelId))}");
     }
 
     private void OnAddModelClicked(object sender, EventArgs e)
     {
-        // Add a new model to the chain (for demonstration purposes, adding a dummy model)
         var newModel = new Model { ModelId = "new_model" };
-        _viewModel.PlaygroundChain.Add(newModel);
+        _viewModel.PlaygroundChain.Add(new ModelViewModel { SelectedModel = newModel });
+
     }
 
     private void OnDeleteModelClicked(object sender, EventArgs e)
     {
         var button = sender as ImageButton;
-        var model = button?.CommandParameter as Model;
+        var model = button?.CommandParameter as ModelViewModel;
 
         if (model != null)
         {
@@ -46,7 +56,10 @@ public partial class PlaygroundConfigView : ContentView
     {
         try
         {
-            List<string> chainModelIds = _viewModel.PlaygroundChain.Select(m => m.ModelId).ToList();
+            List<string> chainModelIds = _viewModel.PlaygroundChain
+                .Select(m => m.SelectedModel?.ModelId ?? string.Empty)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .ToList();
             var response = await _playgroundService.ConfigureChain(_viewModel.Playground.PlaygroundId, chainModelIds);
 
             if (response.IsSuccessStatusCode)
