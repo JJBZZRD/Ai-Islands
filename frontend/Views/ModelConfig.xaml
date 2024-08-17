@@ -743,7 +743,7 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.TranslationConfig.SrcLang}"
                                Placeholder="Source Language"/> -->
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay}"
+                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
                             <Picker.ItemsSource>
@@ -754,6 +754,12 @@
                                    <x:String>de</x:String>
                                    </x:Array>
                             </Picker.ItemsSource>
+                        </Picker> -->
+                        <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
+                                ItemsSource="{Binding LanguageList}"
+                                ItemDisplayBinding="{Binding Value}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
@@ -761,7 +767,7 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.TranslationConfig.TgtLang}"
                                Placeholder="Target Language"/> -->
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay}"
+                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
                             <Picker.ItemsSource>
@@ -772,6 +778,12 @@
                                    <x:String>de</x:String>
                                    </x:Array>
                             </Picker.ItemsSource>
+                        </Picker> -->
+                        <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
+                                ItemsSource="{Binding LanguageList}"
+                                ItemDisplayBinding="{Binding Value}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TargetLanguage, Converter={StaticResource NullToVisibilityConverter}}">
