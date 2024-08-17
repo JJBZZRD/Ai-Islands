@@ -404,6 +404,9 @@ namespace frontend.Models
         [JsonPropertyName("tgt_lang")]
         public string? TgtLang { get; set; }
 
+        [JsonPropertyName("target_language")]
+        public string? TargetLanguage { get; set; }
+
     }
 
     public class QuantizationConfig
