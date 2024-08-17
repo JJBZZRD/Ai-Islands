@@ -30,7 +30,7 @@
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
 
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
 
@@ -75,7 +75,7 @@
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                      
-                     <toolkit:Expander IsExpanded="True">
+                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
 
@@ -200,7 +200,7 @@
                 <!-- RAG Settings -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
-                     <toolkit:Expander IsExpanded="True">
+                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="RAG Settings"
@@ -251,7 +251,7 @@
                 <!-- Model Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Model Config"
@@ -299,7 +299,7 @@
                 <!-- Tokenizer Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Tokenizer Config"
@@ -344,7 +344,7 @@
                 <!-- Pipeline Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Pipeline Config"
@@ -669,7 +669,7 @@
                 <!-- Device Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Device Config"
@@ -707,7 +707,7 @@
                 <!-- Translation Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Translation Config"
@@ -764,7 +764,7 @@
                 <!-- Quantization Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Quantization Config"
@@ -802,7 +802,7 @@
                 <!-- Quantization Config Options -->
                 <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Quantization Config Options (Read-only)"
@@ -883,7 +883,7 @@
                 <!-- System Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="System Prompt"
@@ -916,7 +916,7 @@
                 <!-- User Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="User Prompt"
@@ -949,7 +949,7 @@
                 <!-- Assistant Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Assistant Prompt"
@@ -982,7 +982,7 @@
                 <!-- Features -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Features"
@@ -1051,7 +1051,7 @@
                 <!-- Other Config Properties -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
                 <VerticalStackLayout Spacing="10">
-                <toolkit:Expander IsExpanded="True">
+                <toolkit:Expander IsExpanded="False">
                      <toolkit:Expander.Header>
                      <HorizontalStackLayout>
                      <Label Text="Settings"
@@ -1303,7 +1303,7 @@
                 <!-- Example Conversation -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
-                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
                     <Label Text="Example Conversation"
