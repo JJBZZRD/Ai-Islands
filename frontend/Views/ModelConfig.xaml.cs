@@ -346,5 +346,86 @@ namespace frontend.Views
                 SaveConfigButton.IsEnabled = true;
             }
         }
+
+        private async void OnSaveAsNewModelClicked(object sender, EventArgs e)
+        {
+            // Disable the button to prevent multiple clicks
+            SaveAsNewModelButton.IsEnabled = false;
+
+            try 
+            {
+                // Prompt the user for a new model name
+                string newModelId = await Application.Current.MainPage.DisplayPromptAsync(
+                    "Save As New Model",
+                    "Enter a name for the new model:",
+                    "Save",
+                    "Cancel",
+                    "New Model Name");
+
+                if (string.IsNullOrWhiteSpace(newModelId))
+                {
+                    // User cancelled or didn't enter a name
+                    return;
+                }
+
+                // Update the _model's Config with the current ConfigViewModel's Config
+                UpdateModelConfig();
+
+                // Create a new LibraryService instance
+                var libraryService = new LibraryService();
+
+                // Convert Config to Dictionary<string, object>
+                var configDict = JsonSerializer.Deserialize<Dictionary<string, object>>(JsonSerializer.Serialize(_model.Config));
+
+                // Call the SaveNewModel method
+                var result = await libraryService.SaveNewModel(_model.ModelId, newModelId, configDict);
+
+                // Show success popup
+                await Application.Current.MainPage.DisplayAlert("Success", $"New model '{newModelId}' saved successfully!", "OK");
+
+                // Optionally, you can update the current model to the new one
+                _model.ModelId = newModelId;
+                ModelIdLabel.Text = $"Model: {_model.ModelId}";
+            }
+            catch (Exception ex)
+            {
+                // Show error popup if something goes wrong
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save new model: {ex.Message}", "OK");
+            }
+            finally
+            {
+                // Re-enable the button
+                SaveAsNewModelButton.IsEnabled = true;
+            }
+        }
+
+        private void UpdateModelConfig()
+        {
+            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            }
+            else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
+            }
+            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            }
+            else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
+            }
+            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+            }
+            else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = new List<string>();
+            }
+            _model.Config = _configViewModel.Config;
+        }
     }
 }

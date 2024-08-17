@@ -1386,9 +1386,16 @@
                      CornerRadius="5"
                      Padding="15,10"/>
               <Button x:Name="SaveConfigButton"
-                     Text="Save Configuration"
+                     Text="Save To Current"
                      Clicked="OnSaveConfigClicked"
                      BackgroundColor="#3366FF"
+                     TextColor="White"
+                     CornerRadius="5"
+                     Padding="15,10"/>
+              <Button x:Name="SaveAsNewModelButton"
+                     Text="Save As New Model"
+                     Clicked="OnSaveAsNewModelClicked"
+                     BackgroundColor="#33CC33"
                      TextColor="White"
                      CornerRadius="5"
                      Padding="15,10"/>
