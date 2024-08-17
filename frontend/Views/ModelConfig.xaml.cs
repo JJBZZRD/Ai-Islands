@@ -23,6 +23,10 @@ namespace frontend.Views
 
         private DataService _dataService;
 
+        // Add these fields at the class level
+        private bool _areExpandersExpanded = false;
+        private List<Microsoft.Maui.Controls.BindableObject> _expanders;
+
         public ModelConfig(Model model)
         {
             InitializeComponent();
@@ -55,6 +59,9 @@ namespace frontend.Views
             BindingContext = _configViewModel; // Set the BindingContext
 
             LoadDatasetNames();
+
+            // Find all Expanders in the view
+            _expanders = FindExpanders(this);
         }
 
         private async void LoadDatasetNames()
@@ -224,6 +231,40 @@ namespace frontend.Views
                     entry.TextColor = Colors.Black;
                 }
             }
+        }
+
+        // Add these new methods
+        private void OnToggleExpandersClicked(object sender, EventArgs e)
+        {
+            _areExpandersExpanded = !_areExpandersExpanded;
+            foreach (var expander in _expanders)
+            {
+                if (expander.GetType().GetProperty("IsExpanded") is PropertyInfo prop)
+                {
+                    prop.SetValue(expander, _areExpandersExpanded);
+                }
+            }
+            ToggleExpandersButton.Text = _areExpandersExpanded ? "Collapse All" : "Expand All";
+        }
+
+        private List<Microsoft.Maui.Controls.BindableObject> FindExpanders(Element element)
+        {
+            var expanders = new List<Microsoft.Maui.Controls.BindableObject>();
+
+            if (element.GetType().Name == "Expander")
+            {
+                expanders.Add((Microsoft.Maui.Controls.BindableObject)element);
+            }
+
+            foreach (var child in element.LogicalChildren)
+            {
+                if (child is Element childElement)
+                {
+                    expanders.AddRange(FindExpanders(childElement));
+                }
+            }
+
+            return expanders;
         }
     }
 }

@@ -15,14 +15,31 @@
     <ScrollView>
         <VerticalStackLayout Padding="20"
                              Spacing="20">
+
             <Label x:Name="ModelIdLabel"
                    FontSize="24"
                    FontAttributes="Bold"
                    TextColor="#333333"/>
-            <Label Text="Model Configuration"
+            <!-- <Label Text="Model Configuration"
                    FontSize="20"
                    FontAttributes="Bold"
-                   TextColor="#333333"/>
+                   TextColor="#333333"/> -->
+                   
+              <HorizontalStackLayout Spacing="10">
+              <Label Text="Model Configuration"
+                     FontSize="20"
+                     FontAttributes="Bold"
+                     TextColor="#333333"/>
+              <Button x:Name="ToggleExpandersButton"
+                     Text="Expand All"
+                     Clicked="OnToggleExpandersClicked"
+                     BackgroundColor="#3366FF"
+                     TextColor="White"
+                     CornerRadius="5"
+                     Padding="10,5"/>
+              </HorizontalStackLayout>
+
+
             <VerticalStackLayout x:Name="ConfigContainer"
                                  Spacing="15">
 
