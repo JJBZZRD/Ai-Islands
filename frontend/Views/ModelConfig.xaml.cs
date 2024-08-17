@@ -294,29 +294,44 @@ namespace frontend.Views
 
             try 
             {
-                var result = await _modelService.ResetDefaultConfig(_model.ModelId);
+                await _modelService.ResetDefaultConfig(_model.ModelId);
                 
                 // Show success popup
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
                 
-                // Update the local config with the reset values
-                // You might need to adjust this part depending on what ResetDefaultConfig returns
-                if (result.ContainsKey("result") && result["result"] is Dictionary<string, object> resetConfig)
+                // Fetch the updated library data
+                var libraryService = new LibraryService();
+                var updatedModels = await libraryService.GetLibrary();
+                
+                // Find the updated model in the list
+                var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
+                
+                if (updatedModel != null)
                 {
-                    // Update _configViewModel with the reset config
-                    // This is a simplified example; you might need to map the properties more carefully
-                    _configViewModel.Config = new Config(); // Create a new Config object
-                    foreach (var kvp in resetConfig)
-                    {
-                        var prop = _configViewModel.Config.GetType().GetProperty(kvp.Key);
-                        if (prop != null && prop.CanWrite)
-                        {
-                            prop.SetValue(_configViewModel.Config, kvp.Value);
-                        }
-                    }
-                    
-                    // Trigger UI update
+                    // Update the local model
+                    _model = updatedModel;
+
+                    // Create a new ConfigViewModel with the updated data
+                    _configViewModel = new ConfigViewModel 
+                    { 
+                        Config = _model.Config, 
+                        Languages = _model.Languages ?? new Dictionary<string, string>()
+                    };
+
+                    // Reinitialize other properties
+                    _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
+                    _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
+                    _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+
+                    // Update the BindingContext to refresh the UI
+                    BindingContext = _configViewModel;
+
+                    // Manually trigger UI update for properties that might not be directly bound
                     OnPropertyChanged(nameof(_configViewModel));
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to find updated model data", "OK");
                 }
             }
             catch (Exception ex)
