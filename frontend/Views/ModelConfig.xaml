@@ -25,12 +25,13 @@
                    FontAttributes="Bold"
                    TextColor="#333333"/> -->
 
-              <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+              <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
               <Label Text="Model Configuration"
                      FontSize="20"
                      FontAttributes="Bold"
                      TextColor="#333333"
-                     VerticalOptions="Center"/>
+                     VerticalOptions="Center"
+                     Grid.Column="0"/>
               <Button x:Name="ToggleExpandersButton"
                      Text="Expand All"
                      Clicked="OnToggleExpandersClicked"
@@ -39,7 +40,24 @@
                      CornerRadius="5"
                      Padding="10,5"
                      Grid.Column="1"
-                     HorizontalOptions="End"/>
+                     HorizontalOptions="End">
+                     <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf338;" FontFamily="FontAwesomeFreeSolid" />
+                     </Button.ImageSource>
+              </Button>
+              <Button x:Name="ResetButton"
+                     Text="Reset"
+                     Clicked="OnResetClicked"
+                     BackgroundColor="#FFA500"
+                     TextColor="White"
+                     CornerRadius="5"
+                     Padding="10,5"
+                     Grid.Column="2"
+                     HorizontalOptions="End">
+                     <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf2ea;" FontFamily="FontAwesomeFreeSolid" />
+                     </Button.ImageSource>
+              </Button>
               </Grid>
 
 
@@ -70,17 +88,23 @@
                         <Label Text="System Prompt"
                                TextColor="#333333"
                                Margin="0,0,0,5"/>
-                        <Entry Text="{Binding Config.Prompt.SystemPrompt}"
+                        <ScrollView HeightRequest="150">
+                        <Editor Text="{Binding Config.Prompt.SystemPrompt}"
                                Placeholder="System Prompt"
-                               HeightRequest="100"
+                               AutoSize="TextChanges"
                                VerticalTextAlignment="Start"/>
+                        </ScrollView>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Example Conversation"
                                TextColor="#333333"
                                Margin="0,0,0,5"/>
-                        <Entry Text="{Binding Config.Prompt.ExampleConversation}"
-                               Placeholder="Example Conversation"/>
+                        <ScrollView HeightRequest="80">
+                        <Editor Text="{Binding Config.Prompt.ExampleConversation}"
+                               Placeholder="Example Conversation"
+                               AutoSize="TextChanges"
+                               VerticalTextAlignment="Start"/>
+                        </ScrollView>
                     </VerticalStackLayout>
 
                     </VerticalStackLayout>
@@ -629,7 +653,6 @@
                                    <Picker.ItemsSource>
                                           <x:Array Type="{x:Type x:String}">
                                                  <x:String>null</x:String>
-                                                 <x:String>transcribe</x:String>
                                                  <x:String>translate</x:String>
                                           </x:Array>
                                    </Picker.ItemsSource>
@@ -744,7 +767,7 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.TranslationConfig.SrcLang}"
                                Placeholder="Source Language"/> -->
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay}"
+                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
                             <Picker.ItemsSource>
@@ -755,6 +778,12 @@
                                    <x:String>de</x:String>
                                    </x:Array>
                             </Picker.ItemsSource>
+                        </Picker> -->
+                        <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
+                                ItemsSource="{Binding LanguageList}"
+                                ItemDisplayBinding="{Binding Value}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
@@ -762,7 +791,7 @@
                                TextColor="#333333"/>
                         <!-- <Entry Text="{Binding Config.TranslationConfig.TgtLang}"
                                Placeholder="Target Language"/> -->
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay}"
+                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
                             <Picker.ItemsSource>
@@ -773,6 +802,22 @@
                                    <x:String>de</x:String>
                                    </x:Array>
                             </Picker.ItemsSource>
+                        </Picker> -->
+                        <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
+                                ItemsSource="{Binding LanguageList}"
+                                ItemDisplayBinding="{Binding Value}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
+                        </Picker>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TargetLanguage, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Label Text="Target Language"
+                               TextColor="#333333"/>
+                        <Picker SelectedItem="{Binding Config.TranslationConfig.TargetLanguage, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
+                                ItemsSource="{Binding LanguageList}"
+                                ItemDisplayBinding="{Binding Value}"
+                                WidthRequest="200"
+                                HorizontalOptions="Start">
                         </Picker>
                     </VerticalStackLayout>
                     </VerticalStackLayout>
@@ -1379,26 +1424,38 @@
             </VerticalStackLayout>
               <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
               <Button x:Name="ResetDefaultsButton"
-                     Text="Reset Defaults"
+                     Text="Restore Defaults"
                      Clicked="OnResetDefaultsClicked"
                      BackgroundColor="Red"
                      TextColor="White"
                      CornerRadius="5"
-                     Padding="15,10"/>
+                     Padding="15,10">
+                     <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf2f9;" FontFamily="FontAwesomeFreeSolid" />
+                     </Button.ImageSource>
+              </Button>
               <Button x:Name="SaveConfigButton"
                      Text="Save To Current"
                      Clicked="OnSaveConfigClicked"
                      BackgroundColor="#3366FF"
                      TextColor="White"
                      CornerRadius="5"
-                     Padding="15,10"/>
+                     Padding="15,10">
+                     <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf0c7;" FontFamily="FontAwesomeFreeSolid" />
+                     </Button.ImageSource>
+              </Button>
               <Button x:Name="SaveAsNewModelButton"
                      Text="Save As New Model"
                      Clicked="OnSaveAsNewModelClicked"
                      BackgroundColor="#33CC33"
                      TextColor="White"
                      CornerRadius="5"
-                     Padding="15,10"/>
+                     Padding="15,10">
+                     <Button.ImageSource>
+                            <FontImageSource Glyph="&#xf0c7;" FontFamily="FontAwesomeFreeRegular" />
+                     </Button.ImageSource>
+              </Button>
               </HorizontalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
