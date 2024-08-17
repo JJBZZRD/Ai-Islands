@@ -28,7 +28,7 @@ public partial class PlaygroundConfigView : ContentView
 
     private async void InitializeAsync()
     {
-        await Task.Delay(500);
+        await Task.Delay(100);
         _viewModel.SetPlaygroundChainForPicker();
 
         Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.SelectedModel?.ModelId))}");
