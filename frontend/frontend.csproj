@@ -76,7 +76,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Playground\" />
-	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -112,6 +111,9 @@
 	  </Compile>
 	  <Compile Update="Views\FineTune.xaml.cs">
 	    <DependentUpon>FineTune.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelConfig.xaml.cs">
+	    <DependentUpon>ModelConfig.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\ModelInfoView.xaml.cs">
 	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
@@ -176,6 +178,9 @@
 	  <MauiXaml Update="Views\FineTune.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelConfig.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelInfoView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -206,6 +211,16 @@
 	  <MauiXaml Update="Components\InputPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<!-- Controls -->
+	<ItemGroup>
+	<MauiXaml Update="Controls\OptimizedSlider.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<Compile Update="Controls\OptimizedSlider.xaml.cs">
+		<DependentUpon>OptimizedSlider.xaml</DependentUpon>
+	</Compile>
 	</ItemGroup>
 
 </Project>

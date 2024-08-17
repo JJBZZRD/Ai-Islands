@@ -38,6 +38,14 @@ namespace frontend.Services
             return result["datasets"];
         }
 
+        public async Task<List<string>> ListDatasetsNames()
+        {
+            var response = await _httpClient.GetAsync("data/list-datasets-names");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
+            return result["datasets"];
+        }
+
         // API Call: GET /data/available-models
         // Response: { "sentence_transformer": ["model1", "model2"], "watson": ["model3", "model4"] }
         public async Task<Dictionary<string, List<string>>> GetAvailableModels()

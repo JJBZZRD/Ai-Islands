@@ -113,6 +113,8 @@ class ModelControl:
             model_class = self._get_model_class(model_id, "library")
             model_dir = model_info['dir']
             is_online = model_info.get('is_online', False)
+            base_model = model_info['base_model']
+
 
 
             if not os.path.exists(model_dir) and not is_online:
@@ -124,7 +126,7 @@ class ModelControl:
 
             lock = multiprocessing.Lock()
             parent_conn, child_conn = multiprocessing.Pipe()
-            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info, lock))
+            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, base_model, device, model_info, lock))
             process.start()
 
             response = parent_conn.recv()
@@ -207,6 +209,19 @@ class ModelControl:
         except KeyError:
             return {"error": f"Model {inference_request['model_id']} is not loaded. Please load the model first"}
         
+    def reset_model_config(self, model_id: str):
+        try:
+            reset_config = self.library_control.reset_model_config(model_id)
+
+            if reset_config:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                    self.load_model(model_id)
+
+            return {"message": f"Model {model_id} configuration reset in library"}
+        except KeyError:
+            return {"error": f"Model {model_id} not found in library"}
+
     def configure_model(self, configure_request):
         try:
             print(configure_request)
