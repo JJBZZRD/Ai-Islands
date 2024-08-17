@@ -383,9 +383,25 @@ namespace frontend.Views
                 // Show success popup
                 await Application.Current.MainPage.DisplayAlert("Success", $"New model '{newModelId}' saved successfully!", "OK");
 
-                // Optionally, you can update the current model to the new one
-                _model.ModelId = newModelId;
-                ModelIdLabel.Text = $"Model: {_model.ModelId}";
+                // Ask user if they want to go to the Library page or stay on the current page
+                bool goToLibrary = await Application.Current.MainPage.DisplayAlert(
+                    "Navigation",
+                    "Do you want to go to the Library page?",
+                    "Yes, go to Library",
+                    "No, stay here");
+
+                if (goToLibrary)
+                {
+                    // Navigate to Library page
+                    // await Shell.Current.GoToAsync("//Library");
+                    // Use the existing navigation stack to go back to the Library page
+                    await Navigation.PopToRootAsync();
+                }
+                else
+                {
+                    // Refresh the current page with the original model's data
+                    await RefreshModelConfig();
+                }
             }
             catch (Exception ex)
             {
@@ -396,6 +412,42 @@ namespace frontend.Views
             {
                 // Re-enable the button
                 SaveAsNewModelButton.IsEnabled = true;
+            }
+        }
+
+        private async Task RefreshModelConfig()
+        {
+            try 
+            {
+                var libraryService = new LibraryService();
+                var updatedModels = await libraryService.GetLibrary();
+                var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
+                
+                if (updatedModel != null)
+                {
+                    _model = updatedModel;
+                    _configViewModel = new ConfigViewModel 
+                    { 
+                        Config = _model.Config, 
+                        Languages = _model.Languages ?? new Dictionary<string, string>()
+                    };
+
+                    _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
+                    _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
+                    _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+
+                    BindingContext = _configViewModel;
+                    OnPropertyChanged(nameof(_configViewModel));
+
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to find updated model data", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to refresh configuration: {ex.Message}", "OK");
             }
         }
 
