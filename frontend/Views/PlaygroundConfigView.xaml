@@ -66,9 +66,7 @@
                                             SelectedItem="{Binding SelectedModel}"
                                             TextColor="Black"
                                             BackgroundColor="White"
-                                            FontSize="16"
-                                            x:Name="MyPicker"
-                                            Loaded="OnPickerLoaded"/>
+                                            FontSize="16"/>
                                     <Label Grid.Column="1" 
                                            Text="{Binding SelectedModel.Mapping.Input}" 
                                            VerticalOptions="Center" TextColor="Black"/>
