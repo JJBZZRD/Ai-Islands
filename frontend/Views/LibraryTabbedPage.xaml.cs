@@ -34,7 +34,7 @@ namespace frontend.Views
         private void OnInfoClicked(object sender, EventArgs e) => ShowInfoPage();
         private void OnInferenceClicked(object sender, EventArgs e) => ShowInferencePage();
         private void OnFineTuneClicked(object sender, EventArgs e) => ShowFineTunePage();
-
+        private void OnModelConfigClicked(object sender, EventArgs e) => ShowModelConfigPage();
         private void ShowInfoPage()
         {
             if (_model != null)
@@ -58,6 +58,15 @@ namespace frontend.Views
                 ContentContainer.Content = new FineTune(_model);
             }
         }
+
+        private void ShowModelConfigPage()
+        {
+            if (_model != null)
+            {
+                ContentContainer.Content = new ModelConfig(_model);
+            }
+        }  
+
 
 
         // private Model LoadModel(string modelId)

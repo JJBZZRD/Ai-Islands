@@ -9,6 +9,7 @@
             <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White"/>
             <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" />
             <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White"/>
+            <Button Text="Configuration" Clicked="OnModelConfigClicked" BackgroundColor="White"/>
         </HorizontalStackLayout>
         <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
     </StackLayout>

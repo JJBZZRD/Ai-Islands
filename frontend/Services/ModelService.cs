@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using frontend.Models;
+using System.Diagnostics;
 
 namespace frontend.Services
 {
@@ -18,6 +19,7 @@ namespace frontend.Services
         {
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
         
         public async Task<List<string>> ListActiveModels()
@@ -75,9 +77,14 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<object>())!;
         }
 
-        public async Task<object> ConfigureModel(string modelId, object data)
+        public async Task<object> ConfigureModel(string modelId, object payload)
         {
-            var request = new { model_id = modelId, data = data };
+            var request = new { model_id = modelId, data = payload };
+
+            // Serialize the request to JSON for debugging
+            string jsonPayload = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+            Debug.WriteLine("Config Payload: " + jsonPayload);
+
             var response = await _httpClient.PostAsJsonAsync("model/configure", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<object>())!;
@@ -92,6 +99,14 @@ namespace frontend.Services
 
         // Note: File upload methods (upload_image, upload_video, upload_dataset) are not included
         // as they require special handling in C# for file uploads.
+
+        public async Task<Dictionary<string, object>> ResetDefaultConfig(string modelId)
+        {
+            var request = new { model_id = modelId };
+            var response = await _httpClient.PostAsJsonAsync("model/reset-config", request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>() ?? new Dictionary<string, object>();
+        }
 
         public async Task<bool> DeleteModel(string modelId)
         {

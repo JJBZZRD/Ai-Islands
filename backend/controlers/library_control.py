@@ -124,11 +124,13 @@ class LibraryControl:
 
     def _merge_configs(self, original_config: dict, new_config: dict) -> dict:
         for key, value in new_config.items():
-            if isinstance(value, dict) and key in original_config:
-                original_config[key] = self._merge_configs(original_config[key], value)
-            else:
-                original_config[key] = value
+            if value is not None:  # Skip None values
+                if isinstance(value, dict) and key in original_config:
+                    original_config[key] = self._merge_configs(original_config[key], value)
+                else:
+                    original_config[key] = value
         return original_config
+
 
     def save_new_model(self, model_id: str, new_model_id: str, new_config: dict):
         logger.info(f"Attempting to save new model {new_model_id} based on {model_id}")
@@ -182,4 +184,42 @@ class LibraryControl:
                 logger.info("Library was empty, reinitialised successfully")
             logger.info("Library initialised successfully")
         return True
-    
+    def reset_model_config(self, model_id: str):
+        logger.info(f"Attempting to reset configuration for model {model_id}")
+        try:
+            # Get the current model info from the library
+            library_model_info = self.get_model_info_library(model_id)
+            if not library_model_info:
+                logger.error(f"Model info not found in library for {model_id}")
+                return None
+
+            base_model_id = library_model_info['base_model']
+
+            # Get the model info from the index
+            index_model_info = self.get_model_info_index(base_model_id)
+            if not index_model_info:
+                logger.error(f"Model info not found in index for {base_model_id}")
+                return None
+
+            
+
+            # Extract the config from the index model info
+            index_config = index_model_info.get('config', {})
+
+            # Update the library model info with the index config
+            library_model_info['config'] = index_config
+
+            # Update the library
+            library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+            library[model_id] = library_model_info
+            JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+
+            logger.info(f"Configuration reset for model {model_id}")
+            return index_config
+        except FileNotFoundError as e:
+            logger.error(f"FileNotFoundError: {e}")
+        except json.JSONDecodeError as e:
+            logger.error(f"JSONDecodeError: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error resetting configuration for model {model_id}: {str(e)}")
+        return None

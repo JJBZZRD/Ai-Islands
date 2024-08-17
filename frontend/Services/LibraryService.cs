@@ -52,6 +52,22 @@ namespace frontend.Services
                         model.ModelId = modelId;
                         modelList.Add(model);
                         System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                        System.Diagnostics.Debug.WriteLine($"Model: {model}");
+                        
+                        // Print model config
+                        if (model.Config != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Model Config for {modelId}:");
+                            System.Diagnostics.Debug.WriteLine($"  Model Config: {JsonSerializer.Serialize(model.Config.ModelConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Tokenizer Config: {JsonSerializer.Serialize(model.Config.TokenizerConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Pipeline Config: {JsonSerializer.Serialize(model.Config.PipelineConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Device Config: {JsonSerializer.Serialize(model.Config.DeviceConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Quantization Config: {JsonSerializer.Serialize(model.Config.QuantizationConfig)}");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"No config available for model: {modelId}");
+                        }
                     }
                 }
 

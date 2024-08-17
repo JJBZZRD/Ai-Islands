@@ -40,6 +40,9 @@ class ConfigureRequest(BaseModel):
                         description="Example: Configuration parameters"
                     )]
 
+class ResetConfigRequest(BaseModel):
+    model_id: str
+
 class ModelRouter:
     def __init__(self, model_control: ModelControl):
         self.router = APIRouter()
@@ -55,6 +58,7 @@ class ModelRouter:
         self.router.add_api_route("/inference", self.inference, methods=["POST"])
         self.router.add_api_route("/train", self.train_model, methods=["POST"])
         self.router.add_api_route("/configure", self.configure_model, methods=["POST"])
+        self.router.add_api_route("/reset-config", self.reset_model_config, methods=["POST"])
         self.router.add_api_route("/hardware-usage", self.get_model_hardware_usage, methods=["GET"])
 
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
@@ -135,6 +139,17 @@ class ModelRouter:
         try:
             return self.model_control.configure_model(jsonable_encoder(configureRequest))
         except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def reset_model_config(self, resetRequest: ResetConfigRequest):
+        try:
+            result = self.model_control.reset_model_config(jsonable_encoder(resetRequest.model_id))
+            if "error" not in result:
+                return {"message": f"Configuration reset for model {resetRequest.model_id}", "result": result}
+            else:
+                raise HTTPException(status_code=400, detail=result["error"])
+        except Exception as e:
+            logger.error(f"Error resetting model configuration: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
     async def predict_live(self, websocket: WebSocket, model_id: str):
