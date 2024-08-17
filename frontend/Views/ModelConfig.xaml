@@ -29,19 +29,23 @@
                 <!-- Prompt Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+
                     <toolkit:Expander IsExpanded="True">
                     <toolkit:Expander.Header>
                     <HorizontalStackLayout>
+
                     <Label Text="Prompt Settings"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"
                            Margin="0,0,0,10"/>
                      <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
+
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="System Prompt"
                                TextColor="#333333"
@@ -58,9 +62,11 @@
                         <Entry Text="{Binding Config.Prompt.ExampleConversation}"
                                Placeholder="Example Conversation"/>
                     </VerticalStackLayout>
+
                     </VerticalStackLayout>
                     </toolkit:Expander.Content>
                     </toolkit:Expander>
+
                 </VerticalStackLayout>
                 </Frame>
                 
@@ -68,10 +74,21 @@
                 <!-- Parameters Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
+                     
+                     <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
+
                     <Label Text="Parameter Settings"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
+
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
                             <Label Text="Temperature"
                                    TextColor="#333333"/>
@@ -172,16 +189,29 @@
                                 Padding="10,5"
                                 Margin="0,10,0,0"/>
                     </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
+
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- RAG Settings -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
+                     <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="RAG Settings"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.RagSettings.UseDataset, Converter={StaticResource NullToVisibilityConverter}}">
                         <CheckBox IsChecked="{Binding Config.RagSettings.UseDataset}"/>
@@ -212,16 +242,27 @@
                         <Label Text="Use Chunking"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Model Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Model Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.ModelConfig.TorchDtype, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Torch Dtype"
                                TextColor="#333333"/>
@@ -249,16 +290,27 @@
                         <Label Text="Trust Remote Code"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Tokenizer Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Tokenizer Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.TokenizerConfig.DoLowerCase, Converter={StaticResource NullToVisibilityConverter}}">
                         <CheckBox IsChecked="{Binding Config.TokenizerConfig.DoLowerCase}"/>
@@ -283,16 +335,27 @@
                         <Label Text="Trust Remote Code"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Pipeline Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Pipeline Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxLength, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Max Length"
                                TextColor="#333333"/>
@@ -597,16 +660,27 @@
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Device Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Device Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig.Device, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Device"
                                TextColor="#333333"/>
@@ -624,16 +698,27 @@
                             </Picker.ItemsSource>
                         </Picker>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Translation Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Translation Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Source Language"
                                TextColor="#333333"/>
@@ -670,16 +755,27 @@
                             </Picker.ItemsSource>
                         </Picker>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Quantization Config -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Quantization Config"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig.CurrentMode, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Current Mode"
                                TextColor="#333333"/>
@@ -697,17 +793,27 @@
                             </Picker.ItemsSource>
                         </Picker>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Quantization Config Options -->
                 <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Quantization Config Options (Read-only)"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
-
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <!-- 4-bit Config -->
                     <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="4-bit Config"
@@ -768,16 +874,27 @@
                                TextColor="#333333"/>
                         <!-- Add properties for Bfloat16Config if needed -->
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- System Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="System Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Role"
                                TextColor="#333333"/>
@@ -790,16 +907,27 @@
                         <Entry Text="{Binding Config.SystemPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
+                     </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- User Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="User Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.UserPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Role"
                                TextColor="#333333"/>
@@ -812,16 +940,27 @@
                         <Entry Text="{Binding Config.UserPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Assistant Prompt -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Assistant Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Role"
                                TextColor="#333333"/>
@@ -834,16 +973,27 @@
                         <Entry Text="{Binding Config.AssistantPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Features -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Features"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
                                            IsVisible="{Binding Config.Features.Sentiment, Converter={StaticResource NullToVisibilityConverter}}">
                         <CheckBox IsChecked="{Binding Config.Features.Sentiment}"/>
@@ -892,12 +1042,27 @@
                         <Label Text="Semantic Roles"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
                 <!-- Other Config Properties -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
                 <VerticalStackLayout Spacing="10">
+                <toolkit:Expander IsExpanded="True">
+                     <toolkit:Expander.Header>
+                     <HorizontalStackLayout>
+                     <Label Text="Settings"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                 <!-- <VerticalStackLayout IsVisible="{Binding Config.ServiceName, Converter={StaticResource NullToVisibilityConverter}}">
                     <Label Text="Service Name"
                            TextColor="#333333"/>
@@ -1130,15 +1295,26 @@
                            Placeholder="Speaker Embedding Config"/>
                 </VerticalStackLayout>
                 </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
+                </VerticalStackLayout>
                 </Frame>
 
                 <!-- Example Conversation -->
                 <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
+                    <toolkit:Expander IsExpanded="True">
+                    <toolkit:Expander.Header>
+                    <HorizontalStackLayout>
                     <Label Text="Example Conversation"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#333333"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     </HorizontalStackLayout>
+                     </toolkit:Expander.Header>
+                     <toolkit:Expander.Content>
+                     <VerticalStackLayout>
                     <CollectionView ItemsSource="{Binding ExampleConversation}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
@@ -1174,6 +1350,9 @@
                             CornerRadius="5"
                             Padding="10,5"
                             Margin="0,10,0,0"/>
+                     </VerticalStackLayout>
+                    </toolkit:Expander.Content>
+                    </toolkit:Expander>
                 </VerticalStackLayout>
                 </Frame>
 
