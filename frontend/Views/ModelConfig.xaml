@@ -1377,14 +1377,22 @@
                 </Frame>
 
             </VerticalStackLayout>
-            <Button x:Name="SaveConfigButton"
-                    Text="Save Configuration"
-                    Clicked="OnSaveConfigClicked"
-                    BackgroundColor="#3366FF"
-                    TextColor="White"
-                    CornerRadius="5"
-                    Padding="15,10"
-                    HorizontalOptions="Center"/>
+              <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+              <Button x:Name="ResetDefaultsButton"
+                     Text="Reset Defaults"
+                     Clicked="OnResetDefaultsClicked"
+                     BackgroundColor="Red"
+                     TextColor="White"
+                     CornerRadius="5"
+                     Padding="15,10"/>
+              <Button x:Name="SaveConfigButton"
+                     Text="Save Configuration"
+                     Clicked="OnSaveConfigClicked"
+                     BackgroundColor="#3366FF"
+                     TextColor="White"
+                     CornerRadius="5"
+                     Padding="15,10"/>
+              </HorizontalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentView>

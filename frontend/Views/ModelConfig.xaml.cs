@@ -284,5 +284,52 @@ namespace frontend.Views
 
             return expanders;
         }
+
+        // Add this method to the ModelConfig class
+        private async void OnResetDefaultsClicked(object sender, EventArgs e)
+        {
+            // Disable both buttons to prevent multiple clicks
+            ResetDefaultsButton.IsEnabled = false;
+            SaveConfigButton.IsEnabled = false;
+
+            try 
+            {
+                var result = await _modelService.ResetDefaultConfig(_model.ModelId);
+                
+                // Show success popup
+                await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
+                
+                // Update the local config with the reset values
+                // You might need to adjust this part depending on what ResetDefaultConfig returns
+                if (result.ContainsKey("result") && result["result"] is Dictionary<string, object> resetConfig)
+                {
+                    // Update _configViewModel with the reset config
+                    // This is a simplified example; you might need to map the properties more carefully
+                    _configViewModel.Config = new Config(); // Create a new Config object
+                    foreach (var kvp in resetConfig)
+                    {
+                        var prop = _configViewModel.Config.GetType().GetProperty(kvp.Key);
+                        if (prop != null && prop.CanWrite)
+                        {
+                            prop.SetValue(_configViewModel.Config, kvp.Value);
+                        }
+                    }
+                    
+                    // Trigger UI update
+                    OnPropertyChanged(nameof(_configViewModel));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Show error popup if something goes wrong
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to reset configuration: {ex.Message}", "OK");
+            }
+            finally
+            {
+                // Re-enable both buttons
+                ResetDefaultsButton.IsEnabled = true;
+                SaveConfigButton.IsEnabled = true;
+            }
+        }
     }
 }

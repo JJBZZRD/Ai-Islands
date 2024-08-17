@@ -100,6 +100,14 @@ namespace frontend.Services
         // Note: File upload methods (upload_image, upload_video, upload_dataset) are not included
         // as they require special handling in C# for file uploads.
 
+        public async Task<Dictionary<string, object>> ResetDefaultConfig(string modelId)
+        {
+            var request = new { model_id = modelId };
+            var response = await _httpClient.PostAsJsonAsync("model/reset-config", request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>() ?? new Dictionary<string, object>();
+        }
+
         public async Task<bool> DeleteModel(string modelId)
         {
             var response = await _httpClient.DeleteAsync($"model/delete-model?model_id={modelId}");
