@@ -4,6 +4,7 @@ import logging
 import os
 import json
 from backend.core.exceptions import FileReadError
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,24 @@ logger = logging.getLogger(__name__)
 class LibraryControl:
     def __init__(self):
         self.library = None
+
+    def get_models_by_base_model(self, base_model: str) -> List[str]:
+        logger.debug(f"Searching for models with base_model: {base_model}")
+        try:
+            library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
+            matching_models = [
+                model_id for model_id, model_info in library.items()
+                if model_info.get('base_model') == base_model
+            ]
+            logger.info(f"Found {len(matching_models)} models with base_model {base_model}")
+            return matching_models
+        except FileNotFoundError:
+            logger.error(f"Library file not found: {DOWNLOADED_MODELS_PATH}")
+        except json.JSONDecodeError:
+            logger.error(f"Error decoding JSON from library file: {DOWNLOADED_MODELS_PATH}")
+        except Exception as e:
+            logger.error(f"Unexpected error while searching for models: {str(e)}")
+        return []
 
     def update_library(self, model_id: str, new_entry: dict):
         logger.debug(f"Updating library at: {DOWNLOADED_MODELS_PATH}")
