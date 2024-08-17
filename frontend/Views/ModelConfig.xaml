@@ -24,20 +24,23 @@
                    FontSize="20"
                    FontAttributes="Bold"
                    TextColor="#333333"/> -->
-                   
-              <HorizontalStackLayout Spacing="10">
+
+              <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
               <Label Text="Model Configuration"
                      FontSize="20"
                      FontAttributes="Bold"
-                     TextColor="#333333"/>
+                     TextColor="#333333"
+                     VerticalOptions="Center"/>
               <Button x:Name="ToggleExpandersButton"
                      Text="Expand All"
                      Clicked="OnToggleExpandersClicked"
-                     BackgroundColor="#3366FF"
+                     BackgroundColor="#000000"
                      TextColor="White"
                      CornerRadius="5"
-                     Padding="10,5"/>
-              </HorizontalStackLayout>
+                     Padding="10,5"
+                     Grid.Column="1"
+                     HorizontalOptions="End"/>
+              </Grid>
 
 
             <VerticalStackLayout x:Name="ConfigContainer"
