@@ -1377,7 +1377,8 @@
                 </Frame>
 
             </VerticalStackLayout>
-            <Button Text="Save Configuration"
+            <Button x:Name="SaveConfigButton"
+                    Text="Save Configuration"
                     Clicked="OnSaveConfigClicked"
                     BackgroundColor="#3366FF"
                     TextColor="White"

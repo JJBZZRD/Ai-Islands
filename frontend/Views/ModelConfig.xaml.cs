@@ -91,29 +91,47 @@ namespace frontend.Views
 
         private async void OnSaveConfigClicked(object sender, EventArgs e)
         {
+            // Disable the button to prevent multiple clicks
+            SaveConfigButton.IsEnabled = false;
 
-            // Update the _model's Config with the current ConfigViewModel's Config
-            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
+            try 
             {
-                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-            } else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull) {
-                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
-            }
-            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
-            {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
-            } else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull) {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
-            }
-            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
-            {
-                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
-            } else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull) {
-                _configViewModel.Config.Parameters.StopSequences = new List<string>();
-            }
-            _model.Config = _configViewModel.Config;
+                // Update the _model's Config with the current ConfigViewModel's Config
+                if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
+                {
+                    _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+                } else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull) {
+                    _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
+                }
+                if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
+                {
+                    _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+                } else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull) {
+                    _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
+                }
+                if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
+                {
+                    _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+                } else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull) {
+                    _configViewModel.Config.Parameters.StopSequences = new List<string>();
+                }
+                _model.Config = _configViewModel.Config;
 
-            await _modelService.ConfigureModel(_model.ModelId, _model.Config);
+                await _modelService.ConfigureModel(_model.ModelId, _model.Config);
+                
+                // Show success popup
+                await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully!", "OK");
+            }
+            catch (Exception ex)
+            {
+                // Show error popup if something goes wrong
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save configuration: {ex.Message}", "OK");
+            }
+            finally
+            {
+                // Re-enable the button
+                SaveConfigButton.IsEnabled = true;
+            }
         }
 
         private void OnAddExampleMessageClicked(object sender, EventArgs e)
