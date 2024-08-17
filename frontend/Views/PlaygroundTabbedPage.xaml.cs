@@ -1,30 +1,36 @@
 using Microsoft.Maui.Controls;
-using System.Collections.Generic;
 using frontend.Models;
+using frontend.Models.ViewModels;
 using frontend.Services;
-using frontend.entities;
+
 namespace frontend.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlaygroundTabbedPage : ContentPage
     {
-        private Dictionary<string, object> _playground;
         private PlaygroundService _playgroundService;
+        private PlaygroundViewModel _playgroundViewModel;
 
-        public PlaygroundTabbedPage(Dictionary<string, object> playground, PlaygroundService playgroundService)
+        public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
-            _playground = playground;
-            _playgroundService = playgroundService;
-            BindingContext = this;
 
-            ShowModelPage(); // show model page when initialised
+            System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(playground.Models));
+
+            _playgroundViewModel = new PlaygroundViewModel{ Playground = playground};
+            _playgroundService = playgroundService;
+            BindingContext = _playgroundViewModel;
+
+            // Ensure Models dictionary is initialized
+            _playgroundViewModel.Playground.Models ??= new Dictionary<string, Model>();
+
+            ShowModelPage(); // show model page when initialized
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            Title = _playground["Id"] as string ?? "Playground"; 
+            Title = _playgroundViewModel.Playground?.PlaygroundId ?? "Playground"; 
         }
 
         private void OnModelClicked(object sender, EventArgs e) => ShowModelPage();
@@ -34,23 +40,26 @@ namespace frontend.Views
 
         private void ShowModelPage()
         {
-            var playgroundModelView = new PlaygroundModelView(_playground, _playgroundService);
+            var playgroundModelView = new PlaygroundModelView(_playgroundViewModel, _playgroundService);
             ContentContainer.Content = playgroundModelView;
         }
 
         private void ShowChainPage()
         {
-            ContentContainer.Content = new Chain(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground);
         }
 
         private void ShowConfigPage()
         {
-            ContentContainer.Content = new ChainConfig(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel, _playgroundService);
         }
 
         private void ShowAPIPage()
         {
-            ContentContainer.Content = new ChainAPI(_playground);
+            // should pass view model instead of playground
+            ContentContainer.Content = new PlaygroundAPIView(_playgroundViewModel.Playground);
         }
     }
 }

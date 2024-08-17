@@ -133,18 +133,20 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<Dictionary<string, object>> GetModelInfoLibrary(string modelId)
+        public async Task<Model> GetModelInfoLibrary(string modelId)
         {
             var response = await _httpClient.GetAsync($"library/get-model-info-library?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            var model = await response.Content.ReadFromJsonAsync<Model>();
+            model.ModelId = modelId;
+            return model!;
         }
 
-        public async Task<Dictionary<string, object>> GetModelInfoIndex(string modelId)
+        public async Task<Model> GetModelInfoIndex(string modelId)
         {
             var response = await _httpClient.GetAsync($"library/get-model-index?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            return (await response.Content.ReadFromJsonAsync<Model>())!;
         }
 
         public async Task<Dictionary<string, object>> DeleteModel(string modelId)

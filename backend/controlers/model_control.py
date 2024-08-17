@@ -11,8 +11,36 @@ from backend.controlers.runtime_control import RuntimeControl
 import torch
 import importlib
 import shutil
+import psutil
+import GPUtil
 
 logger = logging.getLogger(__name__)
+
+def get_hardware_usage(pid):
+    try:
+        process = psutil.Process(pid)
+        cpu_percent = process.cpu_percent(interval=1)
+        memory_info = process.memory_info()
+        memory_percent = process.memory_percent()
+        
+        gpu_usage = None
+        if torch.cuda.is_available():
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                gpu = gpus[0]
+                gpu_usage = gpu.memoryUsed
+                gpu_total = gpu.memoryTotal
+                gpu_percent = (gpu_usage / gpu_total) * 100 if gpu_total > 0 else 0
+        
+        return {
+            'cpu_percent': round(cpu_percent, 2),
+            'memory_used_mb': round(memory_info.rss / (1024 * 1024), 2),  # Convert to MB
+            'memory_percent': round(memory_percent, 2),
+            'gpu_memory_used_mb': round(gpu_usage, 2) if gpu_usage is not None else None,
+            'gpu_memory_percent': round(gpu_percent, 2) if gpu_usage is not None else None
+        }
+    except psutil.NoSuchProcess:
+        return None
 
 class ModelControl:
     def __init__(self):
@@ -49,23 +77,26 @@ class ModelControl:
         model = model_class(model_id=model_id)
         model.load(device=device, model_info=model_info)
         conn.send("Model loaded")
+        
+        pid = os.getpid()
+        
         while True:
-            req = conn.recv()
-            if req == "terminate":
-                conn.send("Terminating")
-                break
-            lock.acquire()
-
-            if req["task"] == "inference":
-                logger.info(f"Running control inference for model {model_id}")
-                prediction = model.inference(req["data"])
-                logger.info(f"Prediction done: {prediction}")
-            elif req["task"] == "train":
-                logger.info(f"Running control train for model {model_id}")
-                prediction = model.train(req["data"])
-                logger.info(f"Training done: {prediction}")
-            lock.release()    
-            conn.send(prediction)
+            if conn.poll():
+                req = conn.recv()
+                if req == "terminate":
+                    conn.send("Terminating")
+                    break
+                elif req == "get_usage":
+                    usage = get_hardware_usage(pid)
+                    conn.send(usage)
+                elif req["task"] in ["inference", "train"]:
+                    lock.acquire()
+                    if req["task"] == "inference":
+                        prediction = model.inference(req["data"])
+                    elif req["task"] == "train":
+                        prediction = model.train(req["data"])
+                    lock.release()
+                    conn.send(prediction)
 
     def _get_model_info(self, model_id: str, source: str = "library"):
         if source == "library":
@@ -289,3 +320,12 @@ class ModelControl:
             return model_class
         except (ImportError, AttributeError) as e:
             raise ValueError(f"Failed to load model class {model_class_name}: {str(e)}")
+
+    def get_model_hardware_usage(self, model_id: str):
+        if model_id in self.models:
+            conn = self.models[model_id]['conn']
+            conn.send("get_usage")
+            return conn.recv()
+        else:
+            logger.error(f"Model {model_id} not found in active models.")
+            return None
