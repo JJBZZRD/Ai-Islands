@@ -70,17 +70,23 @@
                         <Label Text="System Prompt"
                                TextColor="#333333"
                                Margin="0,0,0,5"/>
-                        <Entry Text="{Binding Config.Prompt.SystemPrompt}"
+                        <ScrollView HeightRequest="150">
+                        <Editor Text="{Binding Config.Prompt.SystemPrompt}"
                                Placeholder="System Prompt"
-                               HeightRequest="100"
+                               AutoSize="TextChanges"
                                VerticalTextAlignment="Start"/>
+                        </ScrollView>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Example Conversation"
                                TextColor="#333333"
                                Margin="0,0,0,5"/>
-                        <Entry Text="{Binding Config.Prompt.ExampleConversation}"
-                               Placeholder="Example Conversation"/>
+                        <ScrollView HeightRequest="80">
+                        <Editor Text="{Binding Config.Prompt.ExampleConversation}"
+                               Placeholder="Example Conversation"
+                               AutoSize="TextChanges"
+                               VerticalTextAlignment="Start"/>
+                        </ScrollView>
                     </VerticalStackLayout>
 
                     </VerticalStackLayout>
@@ -1400,7 +1406,7 @@
             </VerticalStackLayout>
               <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
               <Button x:Name="ResetDefaultsButton"
-                     Text="Reset Defaults"
+                     Text="Restore Defaults"
                      Clicked="OnResetDefaultsClicked"
                      BackgroundColor="Red"
                      TextColor="White"
