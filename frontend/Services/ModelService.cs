@@ -7,6 +7,8 @@ using System.IO;
 using System.Text.Json;
 using frontend.Models;
 using System.Text;
+using System.Net.WebSockets;
+using System.Threading;
 
 namespace frontend.Services
 {
@@ -20,6 +22,11 @@ namespace frontend.Services
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
+
+        // public Uri GetWebSocketUri(string modelId)
+        // {
+        //     return new Uri($"ws://{BaseUrl.Replace("http://", "")}/ws/predict-live/{modelId}");
+        // }
 
         public async Task<List<string>> ListActiveModels()
         {
@@ -151,6 +158,16 @@ namespace frontend.Services
         {
             var response = await _httpClient.DeleteAsync($"model/delete-model?model_id={modelId}");
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task PredictLive(string modelId, Func<ClientWebSocket, CancellationToken, Task> sendFramesAsync, CancellationToken cancellationToken)
+        {
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://localhost:8000/ws/predict-live/{modelId}"), cancellationToken);
+
+            await sendFramesAsync(ws, cancellationToken);
+
+            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed", cancellationToken);
         }
     }
 }

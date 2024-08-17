@@ -5,6 +5,12 @@ using System.Text.Json;
 using frontend.Services;
 using Microsoft.Maui.Layouts;
 using System.Text.Json.Serialization;
+using System.Net.WebSockets;
+using System.Threading;
+using System.IO;
+using System.Text;
+using OpenCvSharp;
+using System.Threading;
 
 namespace frontend.Views
 {
@@ -102,11 +108,11 @@ namespace frontend.Views
                     IsViewImageOutputButtonVisible = true;
                     break;
                 case "image-segmentation":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     IsViewImageOutputButtonVisible = true;
                     break;
                 case "zero-shot-object-detection":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     InputContainer.Children.Add(CreateTextInputUI());
                     IsViewImageOutputButtonVisible = true;
                     break;
@@ -147,6 +153,10 @@ namespace frontend.Views
                 CornerRadius = 5
             };
             if (buttonText == "Select Image or Video")
+            {
+                fileButton.Clicked += OnImageOrVideoSelectClicked;
+            }
+            else if (buttonText == "Select Image File")
             {
                 fileButton.Clicked += OnImageSelectClicked;
             }
@@ -194,6 +204,39 @@ namespace frontend.Views
             return button;
         }
 
+        private async void OnImageOrVideoSelectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.image", "public.movie" } },
+                        { DevicePlatform.Android, new[] { "image/*", "video/*" } },
+                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png", ".gif",".mp4", ".mov", ".wmv" } }
+                    });
+
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    FileTypes = customFileType,
+                    PickerTitle = "Select an image or video file"
+                });
+
+                if (result != null)
+                {
+                    _selectedFilePath = result.FullPath;
+                    var stack = (VerticalStackLayout)((Button)sender).Parent;
+                    var label = (Label)stack.Children[1];
+                    label.Text = result.FileName;
+                    label.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
+        }
+
         private async void OnImageSelectClicked(object sender, EventArgs e)
         {
             try
@@ -201,9 +244,9 @@ namespace frontend.Views
                 var customFileType = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
-                        { DevicePlatform.iOS, new[] { "public.jpeg", "public.png", "com.compuserve.gif", "public.movie" } },
-                        { DevicePlatform.Android, new[] { "image/jpeg", "image/png", "image/gif", "video/quicktime" } },
-                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png", ".gif", ".mov" } }
+                        { DevicePlatform.iOS, new[] { "public.jpeg", "public.png" } },
+                        { DevicePlatform.Android, new[] { "image/jpeg", "image/png" } },
+                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png" } }
                     });
 
                 var result = await FilePicker.PickAsync(new PickOptions
@@ -277,6 +320,12 @@ namespace frontend.Views
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file.", "OK");
                             return;
                         }
+                        string[] videoExtensions = { ".mp4", ".mov", ".wmv", ".gif" };
+                        if (videoExtensions.Contains(Path.GetExtension(_selectedFilePath).ToLower()))
+                        {
+                            await RunVideoInference();
+                            return;
+                        }
                         data = new { image_path = _selectedFilePath };
                         break;
                     case "image-segmentation":
@@ -320,11 +369,96 @@ namespace frontend.Views
                 {
                     await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
                 }
+
+                // Add this line after processing the result
+                await Application.Current.MainPage.DisplayAlert("Inference Complete", "The output is ready.", "OK");
             }
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
             }
+        }
+
+        private async Task RunVideoInference()
+        {
+            using var videoCapture = new OpenCvSharp.VideoCapture(_selectedFilePath);
+            var cts = new CancellationTokenSource();
+
+            try
+            {
+                var frameInterval = 2; 
+                var resizeFactor = 0.5; 
+
+                await _modelService.PredictLive(
+                    _model.ModelId,
+                    async (webSocket, token) =>
+                    {
+                        int frameCount = 0;
+                        while (!token.IsCancellationRequested)
+                        {   
+                            // Reading frame from video
+                            using var frame = new OpenCvSharp.Mat();
+                            if (!videoCapture.Read(frame))
+                                break;
+
+                            frameCount++;
+                            if (frameCount % frameInterval != 0)
+                                continue;
+                            
+                            // Resize frame
+                            var resizedFrame = frame.Resize(new OpenCvSharp.Size(), resizeFactor, resizeFactor);
+                            // Encode frame to jpeg and send to backend via websocket
+                            var jpegData = resizedFrame.ImEncode(".jpg");
+
+                            await webSocket.SendAsync(new ArraySegment<byte>(jpegData), WebSocketMessageType.Binary, true, token);
+
+                            var buffer = new byte[8192];
+                            var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+                            var predictionJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
+                            var prediction = JsonSerializer.Deserialize<Dictionary<string, object>>(predictionJson);
+                            OnPredictionReceived(prediction);
+                        }
+                    },
+                    cts.Token
+                );
+
+            
+                await Application.Current.MainPage.DisplayAlert("Inference Complete", "Video inference has finished.", "OK");
+            }
+            catch (WebSocketException wsEx)
+            {
+                Console.WriteLine($"WebSocket error: {wsEx.Message}");
+                await Application.Current.MainPage.DisplayAlert("WebSocket Error", $"WebSocket connection failed: {wsEx.Message}", "OK");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during video inference: {ex.Message}", "OK");
+            }
+            finally
+            {
+                cts.Cancel();
+            }
+        }
+
+        private void OnPredictionReceived(Dictionary<string, object> prediction)
+        {
+            // Serialize the new prediction
+            var newPrediction = JsonSerializer.Serialize(prediction, new JsonSerializerOptions { WriteIndented = true });
+
+            // Append the new prediction to the existing RawJsonText
+            RawJsonText += (string.IsNullOrEmpty(RawJsonText) ? "" : "\n\n") + newPrediction;
+
+            // Ensure the UI updates
+            OnPropertyChanged(nameof(RawJsonText));
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                if (RawJsonOutput != null)
+                {
+                    RawJsonOutput.CursorPosition = RawJsonOutput.Text.Length;
+                }
+            });
         }
 
         private async void OnViewImageOutputClicked(object sender, EventArgs e)

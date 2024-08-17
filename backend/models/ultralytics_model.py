@@ -85,7 +85,7 @@ class UltralyticsModel(BaseModel):
             logger.error(f"Error loading model: {str(e)}")
     
     def inference(self, request_payload: dict):
-        print("Running inference function")
+        logger.info("Running inference function")
         
         if self.model is None:
             raise ValueError("Model is not loaded")
@@ -94,20 +94,22 @@ class UltralyticsModel(BaseModel):
         result = {}
 
         if "image_path" in request_payload:
-            print("Running image inference")
+            logger.info("Running image inference")
             image_path = request_payload["image_path"]
             predictions = self.predict_image(image_path)
             result["predictions"] = predictions
 
         elif "video_frame" in request_payload:
-            print("Running video inference")
+            logger.info("Running video inference")
             frame = request_payload["video_frame"]
             predictions = self.predict_video(frame)
             result["predictions"] = predictions
 
         else:
+            logger.error("Invalid request payload")
             return {"error": "Invalid request payload"}
 
+        logger.info(f"Inference result: {result}")
         return result
 
     def predict_image(self, image_path: str):
@@ -135,18 +137,30 @@ class UltralyticsModel(BaseModel):
             print(f"Error predicting image {image_path}: {str(e)}")
             return {"error": str(e)}
         
-    def predict_video(self, frame: list):
+    def predict_video(self, frame):
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
-        
-            print("Starting prediction on video frame")  
-        
-            frame = np.array(frame, dtype=np.uint8)
+
+            logger.info("Starting prediction on video frame")
+            logger.info(f"Received frame type: {type(frame)}")
+
+            if isinstance(frame, list):
+                frame = np.array(frame, dtype=np.uint8)
+            elif isinstance(frame, bytes):
+                nparr = np.frombuffer(frame, np.uint8)
+                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if frame is None or frame.size == 0:
+                raise ValueError("Invalid frame data")
+
+            logger.info(f"Frame shape: {frame.shape}")
+
             results = self.model.predict(frame)
+            logger.info(f"Prediction results: {results}")
             predictions = []
             class_names = self.model.names
-        
+
             for result in results:
                 boxes = result.boxes
                 for box in boxes:
@@ -159,10 +173,13 @@ class UltralyticsModel(BaseModel):
                         "coordinates": coords
                     })
 
-            print("Prediction on frame completed")  
+            logger.info(f"Processed predictions: {predictions}")
             return predictions
+        except ValueError as ve:
+            logger.error(f"ValueError in predict_video: {str(ve)}")
+            return {"error": str(ve)}
         except Exception as e:
-            print(f"Error predicting video frame: {str(e)}")
+            logger.error(f"Error predicting video frame: {str(e)}")
             return {"error": str(e)}
 
     def train(self, data):

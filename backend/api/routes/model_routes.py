@@ -164,38 +164,64 @@ class ModelRouter:
             return error_response(message=str(e), status_code=404)
     
     async def predict_live(self, websocket: WebSocket, model_id: str):
-        await websocket.accept()
+        logger.info(f"WebSocket connection attempt for model: {model_id}")
         try:
+            await websocket.accept()
+            logger.info(f"WebSocket connection accepted for model: {model_id}")
+
             if not self.model_control.is_model_loaded(model_id):
+                logger.error(f"Model {model_id} is not loaded")
                 await websocket.send_json({"error": f"Model {model_id} is not loaded. Please load the model first"})
                 await websocket.close()
                 return
 
             active_model = self.model_control.get_active_model(model_id)
             if not active_model:
+                logger.error(f"Model {model_id} is not found or not loaded")
                 await websocket.send_json({"error": f"Model {model_id} is not found or not loaded"})
                 await websocket.close()
                 return
 
             conn = active_model['conn']
-            
+            logger.info(f"Starting inference loop for model: {model_id}")
+
             while True:
-                frame_data = await websocket.receive_bytes()
-                nparr = np.frombuffer(frame_data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                
-                if frame is None:
-                    await websocket.send_json({"error": "Invalid frame data"})
-                    continue
-                
-                conn.send({"task": "inference", "data": {"video_frame": frame.tolist()}})
-                prediction = conn.recv()
-                
-                await websocket.send_json(prediction)
-        except WebSocketDisconnect:
-            logger.info("WebSocket disconnected")
+                try:
+                    # Receive frame data
+                    frame_data = await websocket.receive_bytes()
+                    logger.info(f"Received frame data of size: {len(frame_data)} bytes")
+
+                    # Attempt to decode the frame data
+                    try:
+                        nparr = np.frombuffer(frame_data, np.uint8)
+                        logger.debug(f"np.frombuffer shape: {nparr.shape}, dtype: {nparr.dtype}")
+                        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                        if frame is None:
+                            raise ValueError("cv2.imdecode returned None")
+                        logger.info(f"Successfully decoded frame. Shape: {frame.shape}, dtype: {frame.dtype}")
+                    except Exception as decode_error:
+                        logger.error(f"Error decoding frame: {str(decode_error)}")
+                        logger.error(f"Frame data size: {len(frame_data)}, first 100 bytes: {frame_data[:100]}")
+                        await websocket.send_json({"error": f"Failed to decode frame data: {str(decode_error)}"})
+                        continue
+                    
+                    # Send the frame for inference
+                    conn.send({"task": "inference", "data": {"video_frame": frame.tolist()}})
+                    logger.info("Sent frame for inference")
+                    prediction = conn.recv()
+                    logger.info(f"Received prediction: {prediction}")
+                    
+                    # Send the prediction back 
+                    await websocket.send_json(prediction)
+                    logger.info("Sent prediction to client")
+                except WebSocketDisconnect:
+                    logger.info(f"WebSocket disconnected for model: {model_id}")
+                    break
+                except Exception as e:
+                    logger.error(f"Error in predict_live: {str(e)}")
+                    await websocket.send_json({"error": str(e)})
         except Exception as e:
-            logger.error(f"Error in predict_live: {str(e)}")
-            await websocket.send_json({"error": str(e)})
+            logger.error(f"Error in predict_live for model {model_id}: {str(e)}")
         finally:
+            logger.info(f"Closing WebSocket connection for model: {model_id}")
             await websocket.close()

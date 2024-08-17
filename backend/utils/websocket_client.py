@@ -1,3 +1,5 @@
+"""Btw this is not used anymore, will be deprecated"""
+
 import asyncio
 import websockets
 import cv2
@@ -26,19 +28,18 @@ async def send_video(video_path, uri, frame_interval=120, resize_factor=0.5):
                 # Encode frame as JPG
                 _, buffer = cv2.imencode('.jpg', frame)
                 data = buffer.tobytes()
-
+                print(f"Sending frame data of size: {len(data)} bytes")
                 try:
                     # Send the frame to the server
                     await websocket.send(data)
-                    print("Frame sent")
-
-                    # Receive the prediction from the server
-                    prediction = await websocket.recv()
-                    print("Prediction received:", json.loads(prediction))
-                except websockets.exceptions.ConnectionClosed as e:
-                    print(f"Connection closed with exception: {e}")
+                    print("Frame sent successfully")
+                except Exception as e:
+                    print(f"Error sending frame: {e}")
                     break
 
+                # Receive the prediction from the server
+                prediction = await websocket.recv()
+                print("Prediction received:", json.loads(prediction))
         except Exception as e:
             print(f"Error during video processing: {e}")
         finally:
