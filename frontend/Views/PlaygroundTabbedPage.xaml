@@ -3,13 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.PlaygroundTabbedPage"
              Background="White">
-    <StackLayout>
-        <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
-            <Button Text="Models" Clicked="OnModelClicked" BackgroundColor="White"/>
-            <Button Text="Chain Config" Clicked="OnConfigClicked" BackgroundColor="White"/>
-            <Button Text="Run Chain" Clicked="OnChainClicked" BackgroundColor="White" />
-            <Button Text="API Access" Clicked="OnAPIClicked" BackgroundColor="White"/>
-        </HorizontalStackLayout>
-        <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
-    </StackLayout>
+    <Grid RowDefinitions="Auto,*">
+        <BoxView Grid.Row="0" Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+        <StackLayout Grid.Row="1">
+            <HorizontalStackLayout HorizontalOptions="Start" Spacing="30" Margin="10,0,0,10" HeightRequest="30">
+                <Button Text="Model Manager" Clicked="OnModelClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="Chain Order" Clicked="OnConfigClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="Inference" Clicked="OnChainClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="API Access" Clicked="OnAPIClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+            </HorizontalStackLayout>
+            <BoxView Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+            <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+        </StackLayout>
+    </Grid>
 </ContentPage>

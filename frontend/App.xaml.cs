@@ -12,6 +12,7 @@ namespace frontend
         public App()
         {
             InitializeComponent();
+            // this.UserAppTheme = AppTheme.Light;
             Routing.RegisterRoute(nameof(ModelInfoPage), typeof(ModelInfoPage));
             MainPage = new AppShell();
 

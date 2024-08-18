@@ -148,6 +148,9 @@
 	  <Compile Update="Views\Setting.xaml.cs">
 	    <DependentUpon>Setting.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\CustomMenuPopup.xaml.cs">
+	    <DependentUpon>CustomMenuPopup.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -224,6 +227,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Components\InputPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CustomMenuPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
