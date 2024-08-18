@@ -103,7 +103,7 @@
 
     <Shell.FlyoutFooter>
         <Grid BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}" Padding="20">
-            <Label Text="AI Island v1.0" TextColor="{AppThemeBinding Light=White, Dark=White}" HorizontalOptions="Center" />
+            <Label Text="AI Islands v1.0" TextColor="{AppThemeBinding Light=White, Dark=White}" HorizontalOptions="Center" />
         </Grid>
     </Shell.FlyoutFooter>
 

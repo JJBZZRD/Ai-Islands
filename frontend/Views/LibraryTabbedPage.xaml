@@ -6,10 +6,10 @@
     <StackLayout>
         <!-- <Label Text="{Binding Name}" FontSize="Large" Margin="10" TextColor="Black"/> -->
         <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
-            <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White"/>
-            <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" />
-            <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White"/>
-            <Button Text="Configuration" Clicked="OnModelConfigClicked" BackgroundColor="White"/>
+            <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White" TextColor="Black"/>
+            <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" TextColor="Black"/>
+            <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White" TextColor="Black"/>
+            <Button Text="Configuration" Clicked="OnModelConfigClicked" BackgroundColor="White" TextColor="Black"/>
         </HorizontalStackLayout>
         <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
     </StackLayout>
