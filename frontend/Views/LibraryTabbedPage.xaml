@@ -3,17 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.LibraryTabbedPage"
              Background="White">
-    <StackLayout>
-        <!-- <Label Text="{Binding Name}" FontSize="Large" Margin="10" TextColor="Black"/> -->
-        <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
-            <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White" TextColor="Black"/>
-            <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" TextColor="Black"/>
-            <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White" TextColor="Black"/>
-            <Button Text="Configuration" Clicked="OnModelConfigClicked" BackgroundColor="White" TextColor="Black"/>
-        </HorizontalStackLayout>
-        <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
-    </StackLayout>
-    <!-- <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Back" Clicked="OnBackClicked" />
-    </ContentPage.ToolbarItems> -->
+    <Grid RowDefinitions="Auto,*">
+        <BoxView Grid.Row="0" Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+        <StackLayout Grid.Row="1">
+            <HorizontalStackLayout HorizontalOptions="Start" Spacing="30" Margin="10,0,0,10" HeightRequest="30">
+                <Button Text="Info" Clicked="OnInfoClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="Inference" Clicked="OnInferenceClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="Fine-tune" Clicked="OnFineTuneClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+                <Button Text="Configuration" Clicked="OnModelConfigClicked" BackgroundColor="White" TextColor="Black" HeightRequest="20"/>
+            </HorizontalStackLayout>
+            <BoxView Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+            <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+        </StackLayout>
+        
+    </Grid>
 </ContentPage>
