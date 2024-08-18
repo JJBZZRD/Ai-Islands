@@ -3,10 +3,12 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:frontend.Views"
        x:Class="frontend.Views.AppShell"
-       FlyoutBehavior="Flyout">
+       FlyoutBehavior="Flyout"
+       BackgroundColor="{AppThemeBinding Light=White, Dark=White}"
+       FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
 
     <Shell.TitleView>
-        <Grid Padding="15,0,0,0">
+        <Grid Padding="15,0,0,0" BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="Center">
                 <Image Source="ai_island.png"
                    HeightRequest="50"
@@ -14,12 +16,30 @@
                    VerticalOptions="Center"/>
                 <Label Text="AI Island"
                    FontSize="19"
-                   TextColor="White"
-                   VerticalOptions="Center"
-                   />
+                   TextColor="{AppThemeBinding Light=White, Dark=White}"
+                   VerticalOptions="Center"/>
             </StackLayout>
         </Grid>
     </Shell.TitleView>
+
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid Padding="0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Image Source="{Binding Icon}"
+                       Margin="5"
+                       HeightRequest="20" />
+                <Label Grid.Column="1"
+                       Text="{Binding Title}"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light=White, Dark=White}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
 
     <!-- AI Index Page -->
 	<FlyoutItem Title="AI Index" Icon="ai_index.png">
@@ -61,12 +81,26 @@
             Route="SettingsPage"/>
 	</FlyoutItem>
 
-    <TabBar Route="LibraryTabbedPage">
+    <Shell.FlyoutFooter>
+        <Grid BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}" Padding="20">
+            <Label Text="AI Island v1.0" TextColor="{AppThemeBinding Light=White, Dark=White}" HorizontalOptions="Center" />
+        </Grid>
+    </Shell.FlyoutFooter>
+
+    <!-- <TabBar Route="LibraryTabbedPage">
         <Tab Title="Inference">
             <ShellContent ContentTemplate="{DataTemplate local:Inference}" />
         </Tab>
         <Tab Title="Fine-tune">
             <ShellContent ContentTemplate="{DataTemplate local:FineTune}" />
         </Tab>
-    </TabBar>
+    </TabBar> -->
+
+    <Shell.ToolbarItems>
+            <ToolbarItem Text="Start Tutorial" Clicked="OnStartTutorialClicked" Order="Secondary"/>
+            <ToolbarItem Text="Go to IBM Cloud" Clicked="OnGoToIBMCloudClicked" Order="Secondary"/>
+            <ToolbarItem Text="Help" Clicked="OnHelpClicked" Order="Secondary"/>
+    </Shell.ToolbarItems>
+
+    
 </Shell>
