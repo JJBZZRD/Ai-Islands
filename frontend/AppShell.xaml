@@ -5,7 +5,8 @@
        x:Class="frontend.Views.AppShell"
        FlyoutBehavior="Flyout"
        BackgroundColor="{AppThemeBinding Light=White, Dark=White}"
-       FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
+       FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}"
+       FlyoutWidth="200">
 
     <Shell.TitleView>
         <Grid Padding="15,0,0,0" BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
@@ -14,7 +15,7 @@
                    HeightRequest="50"
                    WidthRequest="50"
                    VerticalOptions="Center"/>
-                <Label Text="AI Island"
+                <Label Text="AI Islands"
                    FontSize="19"
                    TextColor="{AppThemeBinding Light=White, Dark=White}"
                    VerticalOptions="Center"/>
@@ -40,6 +41,25 @@
             </Grid>
         </DataTemplate>
     </Shell.ItemTemplate>
+
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}" Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Image Source="ai_island.png"
+                   HeightRequest="80"
+                   WidthRequest="80"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+            <BoxView Grid.Row="1" 
+                     Color="{AppThemeBinding Light=White, Dark=White}" 
+                     HeightRequest="2" 
+                     HorizontalOptions="Fill" 
+                     Margin="10,10,0,0"/>
+        </Grid>
+    </Shell.FlyoutHeader>
 
     <!-- AI Index Page -->
 	<FlyoutItem Title="AI Index" Icon="ai_index.png">
