@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.CustomMenuPopup">
+    <Frame BackgroundColor="White" 
+           Padding="0" 
+           HasShadow="True" 
+           CornerRadius="4">
+        <VerticalStackLayout Spacing="0">
+            <Button Text="Start Tutorial" Clicked="OnStartTutorialClicked" 
+                    BackgroundColor="Transparent" TextColor="Black" 
+                    HorizontalOptions="FillAndExpand" Padding="10"/>
+            <BoxView Color="LightGray" HeightRequest="1" HorizontalOptions="Fill"/>
+            <Button Text="Go to IBM Cloud" Clicked="OnGoToIBMCloudClicked" 
+                    BackgroundColor="Transparent" TextColor="Black" 
+                    HorizontalOptions="FillAndExpand" Padding="10"/>
+            <BoxView Color="LightGray" HeightRequest="1" HorizontalOptions="Fill"/>
+            <Button Text="Help" Clicked="OnHelpClicked" 
+                    BackgroundColor="Transparent" TextColor="Black" 
+                    HorizontalOptions="FillAndExpand" Padding="10"/>
+            <BoxView Color="LightGray" HeightRequest="1" HorizontalOptions="Fill"/>
+            <Button Text="Settings" Clicked="OnSettingsClicked" 
+                    BackgroundColor="Transparent" TextColor="Black" 
+                    HorizontalOptions="FillAndExpand" Padding="10"/>
+            <BoxView Color="LightGray" HeightRequest="1" HorizontalOptions="Fill"/>
+            <Button Text="About" Clicked="OnAboutClicked" 
+                    BackgroundColor="Transparent" TextColor="Black" 
+                    HorizontalOptions="FillAndExpand" Padding="10"/>
+        </VerticalStackLayout>
+    </Frame>
+</ContentView>
