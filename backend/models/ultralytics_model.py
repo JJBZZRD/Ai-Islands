@@ -13,6 +13,7 @@ from backend.core.exceptions import ModelError
 from backend.data_utils.file_utils import verify_file
 from backend.data_utils.json_handler import JSONHandler
 from backend.utils.process_vis_out import process_vision_output
+from backend.core.exceptions import ModelError, ModelNotAvailableError
 
 from .base_model import BaseModel
 
@@ -55,6 +56,8 @@ class UltralyticsModel(BaseModel):
                 "config": {}
             })
             return model_info
+        except FileNotFoundError:
+            raise ModelNotAvailableError(f"Model {model_id} is currently not available in the repository. Please try again later.")
         except Exception as e:
             print(f"Error downloading model {model_id}: {str(e)}")
             raise ModelError(f"Error downloading model {model_id}: {str(e)}")

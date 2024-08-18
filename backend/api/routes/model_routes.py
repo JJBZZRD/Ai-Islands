@@ -14,7 +14,7 @@ from backend.utils.process_vis_out import process_vision_output, _ensure_json_se
 from PIL import Image
 from io import BytesIO
 import base64
-from backend.core.exceptions import FileReadError, ModelError
+from backend.core.exceptions import FileReadError, ModelError, ModelNotAvailableError
 from backend.utils.api_response import error_response, success_response
 
 
@@ -81,6 +81,8 @@ class ModelRouter:
         try:
             self.model_control.download_model(model_id, auth_token)
             return success_response(message=f"Model {model_id} downloaded successfully")
+        except ModelNotAvailableError as e:
+            return error_response(message=str(e), status_code=503)  # 503 Service Unavailable
         except (ModelError, ValueError) as e:
             return error_response(message=str(e), status_code=500)
     

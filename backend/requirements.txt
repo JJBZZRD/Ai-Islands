@@ -27,3 +27,5 @@ torch
 torchvision
 torchaudio
 Pillow
+python-dotenv
+python-multipart

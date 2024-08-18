@@ -29,7 +29,6 @@
         <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="White" Padding="20" CornerRadius="10" Margin="10" BorderColor="LightGray">
             <VerticalStackLayout x:Name="InputContainer" Spacing="15">
                 <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
-                <Label Text="Enter input data and 'Run Inference' to preview the output." FontSize="14" TextColor="#5D5D5D"/>
             </VerticalStackLayout>
         </Frame>
 

@@ -33,3 +33,10 @@ class ChainNotCompatibleError(PlaygroundError):
     def __init__(self, message="Chain is not compatible"):
         self.message = message
         super().__init__(self.message)
+
+class ModelNotAvailableError(ModelError):
+    """Exception raised when a model is not currently available in repository (currently on maintenance or smth)."""
+    def __init__(self, message="Model is not available"):
+        self.message = message
+        super().__init__(self.message)
+

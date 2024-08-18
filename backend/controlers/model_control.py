@@ -13,7 +13,7 @@ import torch
 
 from backend.controlers.library_control import LibraryControl
 from backend.controlers.runtime_control import RuntimeControl
-from backend.core.exceptions import ModelError
+from backend.core.exceptions import ModelError, ModelNotAvailableError
 from backend.settings.settings_service import SettingsService
 from backend.utils.helpers import install_packages
 
@@ -173,8 +173,11 @@ class ModelControl:
             process.join()
             
             response = parent_conn.recv()
-            if "error" in response:
-                raise response["error"]
+            if isinstance(response, dict) and "error" in response:
+                if isinstance(response["error"], ModelNotAvailableError):
+                    raise ModelNotAvailableError(f"Model {model_id} is currently not available in the repository. Please try again later.")
+                else:
+                    raise ModelError(str(response["error"]))
             
             logger.info(f"Model {model_id} downloaded successfully")
             # Check if the download was successful
@@ -183,7 +186,11 @@ class ModelControl:
                 return {"message": f"Model {model_id} downloaded successfully"}
             else:
                 raise ValueError(f"Failed to update library.json for model_id: {model_id}")
+        except ModelNotAvailableError as e:
+            logger.error(str(e))
+            raise e
         except ModelError as e:
+            logger.error(str(e))
             raise e
         except ValueError as e:
             logger.error(str(e))
