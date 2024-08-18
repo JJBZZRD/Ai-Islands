@@ -308,6 +308,43 @@ class ModelControl:
         logger.debug(f"Active models: {active_models_info}")
         return active_models_info
     
+    def get_active_model(self, model_id: str):
+        if model_id in self.models:
+            return self.models[model_id]
+        logger.error(f"Model {model_id} not found in active models.")
+        raise KeyError(f"Model {model_id} not found in active models.")
+    
+    def delete_model(self, model_id: str):
+        
+        try:
+            model_info = self._get_model_info(model_id)
+            base_model = model_info['base_model']
+            
+            if base_model == model_id:
+                models_using_base = self.library_control.get_models_by_base_model(base_model)
+                # Loop through models using the base model and delete them
+                for dependent_model_id in models_using_base:
+                    if self.is_model_loaded(dependent_model_id):
+                        self.unload_model(dependent_model_id)
+                        
+                    self.library_control.delete_model(dependent_model_id)
+                    logger.info(f"Deleted dependent model: {dependent_model_id}")
+                
+                model_dir = model_info['dir']
+                if os.path.exists(model_dir):
+                    shutil.rmtree(model_dir)
+                    logger.info(f"Model {model_id} directory deleted")
+
+                return {"message": f"Model {model_id} and its dependent models deleted"}
+            else:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                self.library_control.delete_model(model_id)
+                return {"message": f"Model {model_id} deleted"}
+        except ValueError as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
     def inference(self, inference_request):
         """
         Performs inference using a loaded model.
