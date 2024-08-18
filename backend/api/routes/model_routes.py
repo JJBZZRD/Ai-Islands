@@ -52,6 +52,9 @@ class ConfigureRequest(BaseModel):
                         description="Example: Configuration parameters"
                     )]
 
+class ResetConfigRequest(BaseModel):
+    model_id: str
+
 class ModelRouter:
     def __init__(self, model_control: ModelControl):
         self.router = APIRouter()
@@ -67,6 +70,9 @@ class ModelRouter:
         self.router.add_api_route("/train", self.train_model, methods=["POST"])
         self.router.add_api_route("/configure", self.configure_model, methods=["POST"])
         self.router.add_api_route("/process-image", self.process_image, methods=["POST"], response_model=dict)
+        self.router.add_api_route("/reset-config", self.reset_model_config, methods=["POST"])
+        self.router.add_api_route("/hardware-usage", self.get_model_hardware_usage, methods=["GET"])
+
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
         
@@ -154,6 +160,32 @@ class ModelRouter:
             logger.error(f"Error in process_image: {str(e)}")
             return error_response(message=str(e), status_code=500)
 
+    async def reset_model_config(self, resetRequest: ResetConfigRequest):
+        try:
+            result = self.model_control.reset_model_config(jsonable_encoder(resetRequest.model_id))
+            if "error" not in result:
+                return {"message": f"Configuration reset for model {resetRequest.model_id}", "result": result}
+            else:
+                raise HTTPException(status_code=400, detail=result["error"])
+        except Exception as e:
+            logger.error(f"Error resetting model configuration: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    #async def predict_live(self, websocket: WebSocket, model_id: str):
+    #    await websocket.accept()
+    #    try:
+    #        output = request.output
+    #        if isinstance(output, list):
+    #            output = {"predictions": output}
+    #        processed_output = self.model_control.process_image(request.image_path, output, request.task)
+    #        return processed_output
+    #    except ValueError as e:
+    #        logger.error(f"Error in process_image: {str(e)}")
+    #        return error_response(message=str(e), status_code=400)
+    #    except Exception as e:
+    #        logger.error(f"Error in process_image: {str(e)}")
+    #        return error_response(message=str(e), status_code=500)
+
     async def delete_model(self, model_id: str = Query(...)):
         try:
             response = self.model_control.delete_model(model_id)
@@ -225,3 +257,13 @@ class ModelRouter:
         finally:
             logger.info(f"Closing WebSocket connection for model: {model_id}")
             await websocket.close()
+
+    async def get_model_hardware_usage(self, model_id: str = Query(...)):
+        try:
+            usage = self.model_control.get_model_hardware_usage(model_id)
+            if usage is None:
+                raise HTTPException(status_code=404, detail=f"Model {model_id} not found or not active")
+            return JSONResponse(content=usage)
+        except Exception as e:
+            logger.error(f"Error getting hardware usage for model {model_id}: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))

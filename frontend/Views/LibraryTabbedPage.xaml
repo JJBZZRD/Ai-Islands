@@ -2,55 +2,62 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.LibraryTabbedPage"
-             xmlns:local="clr-namespace:frontend.ViewModels" 
+             xmlns:local="clr-namespace:frontend.ViewModels"
              Background="White">
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <Style x:Key="TabButtonStyle" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="White" />
-                <Setter Property="TextColor" Value="Gray" />
-                <Setter Property="VisualStateManager.VisualStateGroups">
-                    <VisualStateGroupList>
-                        <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="Normal" />
-                            <VisualState x:Name="PointerOver">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="#3366FF" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateGroupList>
-                </Setter>
-            </Style>
-        </ResourceDictionary>
-    </ContentPage.Resources>
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<Style x:Key="TabButtonStyle" TargetType="Button">
+				<Setter Property="BackgroundColor" Value="White" />
+				<Setter Property="TextColor" Value="Gray" />
+				<Setter Property="VisualStateManager.VisualStateGroups">
+					<VisualStateGroupList>
+						<VisualStateGroup x:Name="CommonStates">
+							<VisualState x:Name="Normal" />
+							<VisualState x:Name="PointerOver">
+								<VisualState.Setters>
+									<Setter Property="TextColor" Value="#3366FF" />
+								</VisualState.Setters>
+							</VisualState>
+						</VisualStateGroup>
+					</VisualStateGroupList>
+				</Setter>
+			</Style>
+		</ResourceDictionary>
+	</ContentPage.Resources>
 
-    <ContentPage.Content>
-        <StackLayout>
-            <HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
-                <Button Text="Info" Clicked="OnInfoClicked" Style="{StaticResource TabButtonStyle}">
-                    <Button.Triggers>
-                        <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Info">
-                            <Setter Property="TextColor" Value="#3366FF" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-                <Button Text="Inference" Clicked="OnInferenceClicked" Style="{StaticResource TabButtonStyle}">
-                    <Button.Triggers>
-                        <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Inference">
-                            <Setter Property="TextColor" Value="#3366FF" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-                <Button Text="Fine-tune" Clicked="OnFineTuneClicked" Style="{StaticResource TabButtonStyle}">
-                    <Button.Triggers>
-                        <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="FineTune">
-                            <Setter Property="TextColor" Value="#3366FF" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-            </HorizontalStackLayout>
-            <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
-        </StackLayout>
-    </ContentPage.Content>
+	<ContentPage.Content>
+		<StackLayout>
+			<HorizontalStackLayout HorizontalOptions="Start" Spacing="10" Margin="10,10,0,10">
+				<Button Text="Info" Clicked="OnInfoClicked" Style="{StaticResource TabButtonStyle}">
+					<Button.Triggers>
+						<DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Info">
+							<Setter Property="TextColor" Value="#3366FF" />
+						</DataTrigger>
+					</Button.Triggers>
+				</Button>
+				<Button Text="Inference" Clicked="OnInferenceClicked" Style="{StaticResource TabButtonStyle}">
+					<Button.Triggers>
+						<DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Inference">
+							<Setter Property="TextColor" Value="#3366FF" />
+						</DataTrigger>
+					</Button.Triggers>
+				</Button>
+				<Button Text="Fine-tune" Clicked="OnFineTuneClicked" Style="{StaticResource TabButtonStyle}">
+					<Button.Triggers>
+						<DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="FineTune">
+							<Setter Property="TextColor" Value="#3366FF" />
+						</DataTrigger>
+					</Button.Triggers>
+				</Button>
+				<Button Text="Configuration" Clicked="OnModelConfigClicked" Style="{StaticResource TabButtonStyle}">
+					<Button.Triggers>
+						<DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Configuration">
+							<Setter Property="TextColor" Value="#3366FF" />
+						</DataTrigger>
+					</Button.Triggers>
+				</Button>
+			</HorizontalStackLayout>
+			<ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+		</StackLayout>
+	</ContentPage.Content>
 </ContentPage>

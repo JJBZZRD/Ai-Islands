@@ -26,7 +26,7 @@ namespace frontend.Views
                     await Shell.Current.GoToAsync(route);
                 }
             });
-            Routing.RegisterRoute("Playground", typeof(Playground));
+            Routing.RegisterRoute("Playground", typeof(PlaygroundPage));
             Routing.RegisterRoute("DataRefinery", typeof(DataRefinery));
             Routing.RegisterRoute("Setting", typeof(Setting));
             Routing.RegisterRoute(nameof(LibraryTabbedPage), typeof(LibraryTabbedPage));

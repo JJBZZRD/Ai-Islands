@@ -2,6 +2,7 @@ using frontend.Views;
 using frontend.Models;
 using frontend.ViewModels;
 using Microsoft.Maui.Controls;
+using System;
 
 namespace frontend.Views
 {
@@ -32,15 +33,23 @@ namespace frontend.Views
             ViewModel.SelectedTab = "Info";
             ShowInfoPage();
         }
+
         private void OnInferenceClicked(object sender, EventArgs e)
         {
             ViewModel.SelectedTab = "Inference";
             ShowInferencePage();
         }
+
         private void OnFineTuneClicked(object sender, EventArgs e)
         {
             ViewModel.SelectedTab = "FineTune";
             ShowFineTunePage();
+        }
+
+        private void OnModelConfigClicked(object sender, EventArgs e)
+        {
+            ViewModel.SelectedTab = "Configuration";
+            ShowModelConfigPage();
         }
 
         private void ShowInfoPage()
@@ -64,6 +73,14 @@ namespace frontend.Views
             if (_model != null)
             {
                 ContentContainer.Content = new FineTune(_model);
+            }
+        }
+
+        private void ShowModelConfigPage()
+        {
+            if (_model != null)
+            {
+                ContentContainer.Content = new ModelConfig(_model);
             }
         }
     }

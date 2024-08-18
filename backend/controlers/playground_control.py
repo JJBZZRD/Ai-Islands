@@ -61,8 +61,9 @@ class PlaygroundControl:
             logger.error(f"Playground {playground_id} already exists.")
             raise PlaygroundAlreadyExistsError(playground_id)
 
-        # Create a new playground instance and add it to the playgrounds dictionary
-        new_playground = Playground(playground_id, description=description)
+        # Create a new playground instance with empty models and chain
+        new_playground = Playground(playground_id, description=description, models={}, chain=[])
+        logger.info(f"Created new playground with ID: {playground_id}")
         self.playgrounds[playground_id] = new_playground
 
         # Write the updated playground data to the JSON file
@@ -72,7 +73,6 @@ class PlaygroundControl:
             logger.error("Error writing new playground data to JSON file")
             raise e
 
-        logger.info(f"Created new playground with ID: {playground_id}")
         return {"playground_id": playground_id, "playground": new_playground.to_dict()}
 
     def update_playround_info(self, playground_id: str, new_playground_id: str = None, description: str = None):

@@ -52,6 +52,22 @@ namespace frontend.Services
                         model.ModelId = modelId;
                         modelList.Add(model);
                         System.Diagnostics.Debug.WriteLine($"Added model to list: {modelId}");
+                        System.Diagnostics.Debug.WriteLine($"Model: {model}");
+                        
+                        // Print model config
+                        if (model.Config != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Model Config for {modelId}:");
+                            System.Diagnostics.Debug.WriteLine($"  Model Config: {JsonSerializer.Serialize(model.Config.ModelConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Tokenizer Config: {JsonSerializer.Serialize(model.Config.TokenizerConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Pipeline Config: {JsonSerializer.Serialize(model.Config.PipelineConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Device Config: {JsonSerializer.Serialize(model.Config.DeviceConfig)}");
+                            System.Diagnostics.Debug.WriteLine($"  Quantization Config: {JsonSerializer.Serialize(model.Config.QuantizationConfig)}");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"No config available for model: {modelId}");
+                        }
                     }
                 }
 
@@ -117,18 +133,20 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<Dictionary<string, object>> GetModelInfoLibrary(string modelId)
+        public async Task<Model> GetModelInfoLibrary(string modelId)
         {
             var response = await _httpClient.GetAsync($"library/get-model-info-library?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            var model = await response.Content.ReadFromJsonAsync<Model>();
+            model.ModelId = modelId;
+            return model!;
         }
 
-        public async Task<Dictionary<string, object>> GetModelInfoIndex(string modelId)
+        public async Task<Model> GetModelInfoIndex(string modelId)
         {
             var response = await _httpClient.GetAsync($"library/get-model-index?model_id={modelId}");
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            return (await response.Content.ReadFromJsonAsync<Model>())!;
         }
 
         public async Task<Dictionary<string, object>> DeleteModel(string modelId)

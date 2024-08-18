@@ -41,7 +41,7 @@
     <FlyoutItem Title="Playground" Icon="playground.png">
         <ShellContent
             Title="Playground"
-            ContentTemplate="{DataTemplate local:Playground}"
+            ContentTemplate="{DataTemplate local:PlaygroundPage}"
             Route="Playground"/>
     </FlyoutItem>
 

@@ -153,7 +153,7 @@ class TransformerModel(BaseModel):
             
             # for those translation models that require pipeline task = "translation_XX_to_YY"
             # it will set the pipeline task to be "translation_{src}_to_{tgt}"
-            if translation_config:
+            if translation_config and translation_config.get('src_lang') and translation_config.get('tgt_lang'):
                 pipeline_tag = self._get_translation_pipeline_task(translation_config.get('src_lang'), translation_config.get('tgt_lang'))
             
             self.pipeline = self._construct_pipeline(pipeline_tag)
@@ -217,10 +217,26 @@ class TransformerModel(BaseModel):
             # For some translation models, if the api request contains translation_config, it will set the pipeline task to be "translation_{src}_to_{tgt}"
             # the new pipeline is single-use only
             elif data.get("translation_config"):
-                pipeline_tag = self._get_translation_pipeline_task(data["translation_config"]["src_lang"], data["translation_config"]["tgt_lang"])
-                temp_pipeline = self._construct_pipeline(pipeline_tag)
-                output = temp_pipeline(data["payload"], **pipeline_config)
-            
+                src_lang = data["translation_config"].get("src_lang")
+                tgt_lang = data["translation_config"].get("tgt_lang")
+                # taget language is used by google/madlad400-10b-mt which requires a token as sentence prefix
+                target_language_token = data["translation_config"].get("target_language")
+                
+                if src_lang is not None and tgt_lang is not None:
+                    pipeline_tag = self._get_translation_pipeline_task(data["translation_config"]["src_lang"], data["translation_config"]["tgt_lang"])
+                    temp_pipeline = self._construct_pipeline(pipeline_tag)
+                    output = temp_pipeline(data["payload"], **pipeline_config)
+                elif target_language_token is not None:
+                    data = self._append_language_token(data)
+                    output = self.pipeline(data["payload"], **pipeline_config)
+                    
+            elif self.config.get("translation_config") and self.config.get("translation_config").get("target_language"):
+                target_language_token = f"<2{self.config.get('translation_config').get('target_language')}>"
+                if isinstance(data["payload"], str):
+                    data["payload"] = target_language_token + data["payload"]
+                elif isinstance(data["payload"], list):
+                    data["payload"] = [target_language_token + c for c in data["payload"]]
+                output = self.pipeline(data["payload"], **pipeline_config)
             # For other tasks, the pipeline will be called with the payload
             
             elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
@@ -273,4 +289,65 @@ class TransformerModel(BaseModel):
         
     def _is_languages_supported(self, lang: str):
         return lang in self.languages
+    
+    def _append_language_token(self, data: dict):
+        target_language_token = None
+        
+        # first it will check if the translation_config is provided in the request data
+        if data.get("translation_config"):
+            target_language_token = data["translation_config"].get("target_language")
+        # if not, it will check if the model config contains translation_config
+        elif self.config.get("translation_config") and self.config["translation_config"].get("target_language"):
+            target_language_token = self.config["translation_config"].get("target_language")
+        
+        # if target_language_token is provided, it will append the token to the payload
+        if target_language_token:
+            target_language_token = f"<2{target_language_token}>"
+            if isinstance(data["payload"], str):
+                data["payload"] = target_language_token + data["payload"]
+            elif isinstance(data["payload"], list):
+                data["payload"] = [target_language_token + sentence for sentence in data["payload"]]
+        
+        return data
+    
+    # def process_request(self, request_payload: dict):
+    #     if self.pipeline:
+    #         if "text" in request_payload:
+    #             return self.pipeline(request_payload["text"])
+    #         elif "image" in request_payload:
+    #             return self.pipeline(request_payload["image"])
+    #     else:
+    #         # Fallback to existing methods if pipeline is not available
+    #         if "prompt" in request_payload:
+    #             return self.generate(request_payload["prompt"])
+    #         elif "image" in request_payload:
+    #             return self.process_image(request_payload["image"])
+        
+    #     return {"error": "Invalid request payload or unsupported operation"}
+
+    # def generate(self, prompt: str, max_length: int = 50):
+    #     try:
+    #         if self.model is None or self.tokenizer is None:
+    #             raise ValueError("Model or tokenizer not loaded. Please load a model first.")
+            
+    #         inputs = self.tokenizer(prompt, return_tensors="pt")
+    #         outputs = self.model.generate(**inputs, max_length=max_length)
+    #         generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    #         return {"generated_text": generated_text}
+    #     except Exception as e:
+    #         logger.error(f"Error during text generation: {str(e)}")
+    #         return {"error": str(e)}
+
+    # def process_image(self, image_path: str):
+    #     try:
+    #         if self.model is None or self.processor is None:
+    #             raise ValueError("Model or processor not loaded. Please load a model first.")
+            
+    #         # Implement image processing logic here
+    #         # This is a placeholder and should be adapted based on the specific model's requirements
+    #         return {"message": "Image processing not implemented for this model"}
+    #     except Exception as e:
+    #         logger.error(f"Error during image processing: {str(e)}")
+    #         return {"error": str(e)}
+
         

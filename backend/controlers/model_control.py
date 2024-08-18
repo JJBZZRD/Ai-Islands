@@ -17,8 +17,36 @@ from backend.core.exceptions import ModelError
 from backend.settings.settings_service import SettingsService
 from backend.utils.helpers import install_packages
 
+import psutil
+import GPUtil
 
 logger = logging.getLogger(__name__)
+
+def get_hardware_usage(pid):
+    try:
+        process = psutil.Process(pid)
+        cpu_percent = process.cpu_percent(interval=1)
+        memory_info = process.memory_info()
+        memory_percent = process.memory_percent()
+        
+        gpu_usage = None
+        if torch.cuda.is_available():
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                gpu = gpus[0]
+                gpu_usage = gpu.memoryUsed
+                gpu_total = gpu.memoryTotal
+                gpu_percent = (gpu_usage / gpu_total) * 100 if gpu_total > 0 else 0
+        
+        return {
+            'cpu_percent': round(cpu_percent, 2),
+            'memory_used_mb': round(memory_info.rss / (1024 * 1024), 2),  # Convert to MB
+            'memory_percent': round(memory_percent, 2),
+            'gpu_memory_used_mb': round(gpu_usage, 2) if gpu_usage is not None else None,
+            'gpu_memory_percent': round(gpu_percent, 2) if gpu_usage is not None else None
+        }
+    except psutil.NoSuchProcess:
+        return None
 
 class ModelControl:
     
@@ -75,46 +103,42 @@ class ModelControl:
         """
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
-        try:
-            model.load(device=device, model_info=model_info)
-            conn.send("Model loaded")
-        except Exception as e:
-            logger.error(f"Failed to load model {model_id}: {str(e)}")
-            # Send error message to parent process
-            conn.send(f"error: Failed to load model {model_id}: {str(e)}")
-            return
-
-        # A loop to keep the process alive
+        model.load(device=device, model_info=model_info)
+        conn.send("Model loaded")
+        
+        pid = os.getpid()
+        
         while True:
-            try:
-                # Await a request from the parent process
+            if conn.poll():
                 req = conn.recv()
-                # Check if the request is to terminate the process
                 if req == "terminate":
                     conn.send("Terminating")
                     break
-                
-                # Acquire the lock to ensure that only one request is processed at a time
-                lock.acquire()
+                elif req == "get_usage":
+                    usage = get_hardware_usage(pid)
+                    conn.send(usage)
+                elif req["task"] in ["inference", "train"]:
+                    lock.acquire()
+                    if req["task"] == "inference":
+                        prediction = model.inference(req["data"])
+                    elif req["task"] == "train":
+                        prediction = model.train(req["data"])
+                    lock.release()
+                    conn.send(prediction)
 
-                # Process the request
-                if req["task"] == "inference":
-                    logger.info(f"Running control inference for model {model_id}")
-                    result = model.inference(req["data"])
-                    logger.info(f"Prediction done: {result}")
-                elif req["task"] == "train":
-                    logger.info(f"Running control train for model {model_id}")
-                    result = model.train(req["data"])
-                    logger.info(f"Training done: {result}")
-                # Send the response back to the parent process
-                conn.send(result)
-            except Exception as e:
-                logger.error(f"Error in load process: {str(e)}")
-                # Send the error to parent process
-                conn.send({"error": e})
-            finally:
-                # Release the lock
-                lock.release()
+    def _get_model_info(self, model_id: str, source: str = "library"):
+        if source == "library":
+            model_info = self.library_control.get_model_info_library(model_id)
+        elif source == "index":
+            model_info = self.library_control.get_model_info_index(model_id)
+        else:
+            raise ValueError(f"Invalid source: {source}. Use 'library' or 'index'.")
+
+        if not model_info:
+            logger.error(f"Model info not found for {model_id} in {source}")
+            raise ValueError(f"Model info not found for {model_id} in {source}")
+
+        return model_info
 
     def download_model(self, model_id: str, auth_token: str = None):
         """
@@ -190,6 +214,8 @@ class ModelControl:
             model_class = self._get_model_class(model_id, "library")
             model_dir = model_info['dir']
             is_online = model_info.get('is_online', False)
+            base_model = model_info['base_model']
+
 
             if not os.path.exists(model_dir) and not is_online:
                 logger.error(f"Model directory not found: {model_dir}")
@@ -200,7 +226,7 @@ class ModelControl:
 
             lock = multiprocessing.Lock()
             parent_conn, child_conn = multiprocessing.Pipe()
-            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, model_id, device, model_info, lock))
+            process = multiprocessing.Process(target=self._load_process, args=(model_class, child_conn, base_model, device, model_info, lock))
             process.start()
 
             response = parent_conn.recv()
@@ -376,6 +402,19 @@ class ModelControl:
         except KeyError:
             return {"error": f"Model {train_request['model_id']} is not loaded. Please load the model first"}
     
+    def reset_model_config(self, model_id: str):
+        try:
+            reset_config = self.library_control.reset_model_config(model_id)
+
+            if reset_config:
+                if self.is_model_loaded(model_id):
+                    self.unload_model(model_id)
+                    self.load_model(model_id)
+
+            return {"message": f"Model {model_id} configuration reset in library"}
+        except KeyError:
+            return {"error": f"Model {model_id} not found in library"}
+
     def configure_model(self, configure_request):
         """
         Configures a model with new settings.
@@ -507,3 +546,13 @@ class ModelControl:
             error_string = str(e)
             logger.error(f"Failed to load model class {model_class_name}: {error_string}")
             raise ValueError(f"Failed to load model class {model_class_name}: {error_string}")
+
+    def get_model_hardware_usage(self, model_id: str):
+        if model_id in self.models:
+            conn = self.models[model_id]['conn']
+            conn.send("get_usage")
+            return conn.recv()
+        else:
+            logger.error(f"Model {model_id} not found in active models.")
+            return None
+

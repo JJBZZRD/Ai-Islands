@@ -93,14 +93,14 @@
 	  <Compile Update="Views\Models.xaml.cs">
 	    <DependentUpon>Models.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ChainConfig.xaml.cs">
-	    <DependentUpon>ChainConfig.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundConfigView.xaml.cs">
+	    <DependentUpon>PlaygroundConfigView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\Chain.xaml.cs">
-	    <DependentUpon>Chain.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundInferenceView.xaml.cs">
+	    <DependentUpon>PlaygroundInferenceView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Views\ChainAPI.xaml.cs">
-	    <DependentUpon>ChainAPI.xaml</DependentUpon>
+	  <Compile Update="Views\PlaygroundAPIView.xaml.cs">
+	    <DependentUpon>PlaygroundAPIView.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\FilterPopUp.xaml.cs">
 	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
@@ -113,6 +113,9 @@
 	  </Compile>
 	  <Compile Update="Views\FineTune.xaml.cs">
 	    <DependentUpon>FineTune.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\ModelConfig.xaml.cs">
+	    <DependentUpon>ModelConfig.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\ModelInfoView.xaml.cs">
 	    <DependentUpon>ModelInfoView.xaml</DependentUpon>
@@ -162,13 +165,13 @@
 	  <MauiXaml Update="Views\Models.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ChainConfig.xaml">
+	  <MauiXaml Update="Views\PlaygroundConfigView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Chain.xaml">
+	  <MauiXaml Update="Views\PlaygroundInferenceView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\ChainAPI.xaml">
+	  <MauiXaml Update="Views\PlaygroundAPIView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FilterPopUp.xaml">
@@ -183,6 +186,9 @@
 	  <MauiXaml Update="Views\FineTune.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelConfig.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ModelInfoView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -190,6 +196,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ImagePopupView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\PlaygroundPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TerminalPage.xaml">
@@ -219,6 +228,16 @@
 	  <MauiXaml Update="Components\InputPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<!-- Controls -->
+	<ItemGroup>
+	<MauiXaml Update="Controls\OptimizedSlider.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	</MauiXaml>
+	<Compile Update="Controls\OptimizedSlider.xaml.cs">
+		<DependentUpon>OptimizedSlider.xaml</DependentUpon>
+	</Compile>
 	</ItemGroup>
 
 </Project>
