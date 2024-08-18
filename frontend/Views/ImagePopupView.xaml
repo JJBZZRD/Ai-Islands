@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.ImagePopupView">
+    <AbsoluteLayout>
+        <BoxView x:Name="BackgroundOverlay"
+                 Color="Black"
+                 Opacity="0.5"
+                 AbsoluteLayout.LayoutBounds="0,0,1,1"
+                 AbsoluteLayout.LayoutFlags="All" />
+        <Frame BackgroundColor="White" 
+               CornerRadius="10" 
+               Padding="10"
+               AbsoluteLayout.LayoutBounds="0.5,0.5,0.9,0.9"
+               AbsoluteLayout.LayoutFlags="All">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button Text="X" 
+                        FontAttributes="Bold"
+                        Clicked="OnCloseButtonClicked"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start"
+                        BackgroundColor="Transparent"
+                        TextColor="Black"
+                        Margin="0,0,0,10"/>
+                <Image x:Name="PopupImage" 
+                       Grid.Row="1"
+                       Aspect="AspectFit" 
+                       HorizontalOptions="FillAndExpand"
+                       VerticalOptions="FillAndExpand"/>
+            </Grid>
+        </Frame>
+    </AbsoluteLayout>
+</ContentView>

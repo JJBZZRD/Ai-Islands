@@ -10,6 +10,12 @@ class FileWriteError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class ModelError(Exception):
+    """Exception raised when there is an error with a model."""
+    def __init__(self, message="Error with model"):
+        self.message = message
+        super().__init__(self.message)
+
 class PlaygroundError(Exception):
     """Exception raised when there is an error with the playground."""
     def __init__(self, message="Error with playground"):
@@ -27,3 +33,10 @@ class ChainNotCompatibleError(PlaygroundError):
     def __init__(self, message="Chain is not compatible"):
         self.message = message
         super().__init__(self.message)
+
+class ModelNotAvailableError(ModelError):
+    """Exception raised when a model is not currently available in repository (currently on maintenance or smth)."""
+    def __init__(self, message="Model is not available"):
+        self.message = message
+        super().__init__(self.message)
+

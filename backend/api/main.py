@@ -1,24 +1,34 @@
 import logging
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, WebSocket
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.routes.model_routes import ModelRouter
 from backend.api.routes.data_routes import DataRouter
 from backend.api.routes.library_routes import LibraryRouter
 from backend.api.routes.settings_routes import SettingsRouter
+from backend.api.routes.playground_routes import PlaygroundRouter
 from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.controlers.library_control import LibraryControl
-from backend.api.routes.playground_routes import PlaygroundRouter
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Instantiate controls and set all models inactive in chain
 model_control = ModelControl()
@@ -44,7 +54,7 @@ async def log_requests(request, call_next):
     logger.info(f"Completed response: {response.status_code}")
     return response
 
-# customise error response for validation errors
+# Customise error response for validation errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
@@ -59,6 +69,11 @@ app.include_router(library_router.router, prefix="/library", tags=["library"])
 app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
 app.include_router(playground_router.router, prefix="/playground", tags=["playground"])
 
+# Establish WebSocket route for prediction
+@app.websocket("/ws/predict-live/{model_id}")
+async def predict_live(websocket: WebSocket, model_id: str):
+    await model_router.predict_live(websocket, model_id)
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.api.main:app", host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run("backend.api.main:app", host="0.0.0.0", port=8000, log_level="debug", reload=True)

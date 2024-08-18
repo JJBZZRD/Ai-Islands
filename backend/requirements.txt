@@ -26,3 +26,6 @@ python-docx
 torch
 torchvision
 torchaudio
+Pillow
+python-dotenv
+python-multipart

@@ -9,6 +9,7 @@ using frontend.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Linq;
 using frontend.Services;
+using Newtonsoft.Json;
 
 namespace frontend.Views
 {
@@ -269,10 +270,9 @@ namespace frontend.Views
             await Navigation.PushModalAsync(alertPage);
             try
             {
-                // Create a HttpClient with no timeout
                 using (var client = new HttpClient())
                 {
-                    client.Timeout = TimeSpan.FromMilliseconds(-1); // Set timeout to infinite
+                    client.Timeout = TimeSpan.FromMilliseconds(-1);
 
                     var requestUri = $"http://127.0.0.1:8000/model/download-model?model_id={ModelId}";
                     if (!string.IsNullOrEmpty(authToken))
@@ -307,9 +307,19 @@ namespace frontend.Views
                         // notify the library page to refresh
                         WeakReferenceMessenger.Default.Send(new RefreshLibraryMessage());
                     }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        System.Diagnostics.Debug.WriteLine($"Error content: {errorContent}");
+                        var errorMessage = ParseErrorMessage(errorContent);
+                        await DisplayAlert("Model Unavailable", errorMessage, "OK");
+                    }
                     else
                     {
-                        await DisplayAlert("Error", $"Failed to download model {ModelId}", "OK");
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        System.Diagnostics.Debug.WriteLine($"Error content: {errorContent}");
+                        var errorMessage = ParseErrorMessage(errorContent);
+                        await DisplayAlert("Error", $"Failed to download model: {errorMessage}", "OK");
                     }
                 }
             }
@@ -321,6 +331,32 @@ namespace frontend.Views
             {
                 await Navigation.PopModalAsync();
             }
+        }
+
+        private string ParseErrorMessage(string errorContent)
+        {
+            try
+            {
+                var errorResponse = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(errorContent);
+                if (errorResponse != null && errorResponse.TryGetValue("error", out var errorObj))
+                {
+                    if (errorObj is JsonElement jsonElement && jsonElement.TryGetProperty("message", out var messageElement))
+                    {
+                        return messageElement.GetString() ?? "Unknown error occurred";
+                    }
+                }
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // JSON parsing failed, fall back to checking for "not found" in the raw content
+            }
+
+            if (errorContent.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Model not found in the repository";
+            }
+
+            return errorContent.Length > 100 ? errorContent.Substring(0, 100) + "..." : errorContent;
         }
     }
 
@@ -343,5 +379,10 @@ namespace frontend.Views
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    public class ErrorResponse
+    {
+        public required string Message { get; set; }
     }
 }

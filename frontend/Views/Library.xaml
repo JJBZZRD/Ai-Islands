@@ -9,6 +9,8 @@
     <ContentPage.Resources>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
+        <converters:LoadUnloadTextConverter x:Key="LoadUnloadTextConverter" />
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </ContentPage.Resources>
 
     <Grid>
@@ -124,8 +126,8 @@
                                            HorizontalOptions="Center"/>
                                 </Frame>
                                 <Button Grid.Column="3" 
-                                        Text="Load"
-                                        BackgroundColor="#3366FF"
+                                        Text="{Binding IsLoaded, Converter={StaticResource LoadUnloadTextConverter}}"
+                                        BackgroundColor="{Binding IsLoaded, Converter={StaticResource BoolToColorConverter}}"
                                         TextColor="White"
                                         CornerRadius="15"
                                         HeightRequest="20"

@@ -2,7 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.ModelInfoView"
-             xmlns:views="clr-namespace:frontend.Views">
+             xmlns:views="clr-namespace:frontend.Views"
+             BackgroundColor="#F2F2F2">
     <ScrollView>
         <StackLayout Padding="20">
             <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
