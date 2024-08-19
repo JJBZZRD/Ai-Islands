@@ -118,8 +118,12 @@
     </TabBar> -->
 
     <Shell.ToolbarItems>
-            <ToolbarItem Text="Start Tutorial" Clicked="OnStartTutorialClicked" Order="Secondary"/>
-            <ToolbarItem Text="Go to IBM Cloud" Clicked="OnGoToIBMCloudClicked" Order="Secondary"/>
+            <ToolbarItem Text="Getting Started" Clicked="OnGettingStartedClicked" Order="Secondary"/>
+            <ToolbarItem Text="Tutorial" Clicked="OnTutorialClicked" Order="Secondary"/>
+            <ToolbarItem Text="IBM Cloud" Clicked="OnIBMCloudClicked" Order="Secondary"/>
+            <ToolbarItem Text="Hugging Face" Clicked="OnHuggingFaceClicked" Order="Secondary"/>
+            <ToolbarItem Text="Ultralytics" Clicked="OnUltralyticsClicked" Order="Secondary"/>
+            <ToolbarItem Text="About" Clicked="OnAboutClicked" Order="Secondary"/>
             <ToolbarItem Text="Help" Clicked="OnHelpClicked" Order="Secondary"/>
     </Shell.ToolbarItems>
 
