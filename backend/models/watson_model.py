@@ -13,6 +13,8 @@ from backend.utils.dataset_utility import DatasetManagement
 from dotenv import load_dotenv
 from backend.utils.watson_settings_manager import watson_settings
 
+from backend.core.exceptions import ModelError
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -32,11 +34,11 @@ class WatsonModel(BaseModel):
         self.project_id = watson_settings.get('USER_PROJECT_ID')
         
         if not self.api_key:
-            logger.error("No API key found. Please set IBM_CLOUD_API_KEY in your environment or .env file.")
+            logger.error("No IBM API key found. Please set your key in Settings.")
             raise ValueError("No API key found")
         
         if not self.auth._validate_api_key(self.api_key):
-            logger.error("Invalid API key. Please check your IBM_CLOUD_API_KEY.")
+            logger.error("Invalid API key. Please check your IBM API key.")
             raise ValueError("Invalid API key")
         
         if not self.project_id:
@@ -70,13 +72,11 @@ class WatsonModel(BaseModel):
             # Check if API key is available and valid
             api_key = watson_settings.get('IBM_CLOUD_API_KEY')
             if not api_key:
-                logger.error("No API key found. Please set IBM_CLOUD_API_KEY in your environment or .env file.")
-                return None
+                raise ModelError("No IBM API key found. Please set your key in Settings.")
             
             auth = Authentication()
             if not auth._validate_api_key(api_key):
-                logger.error("Invalid API key. Please check your IBM_CLOUD_API_KEY.")
-                return None
+                raise ModelError("Invalid API key. Please check your IBM API key.")
 
             # Check if required services are available in the account
             account_info = AccountInfo()
@@ -109,9 +109,11 @@ class WatsonModel(BaseModel):
             
             missing_services = [service for service, available in required_services.items() if not available]
             if missing_services:
-                logger.error(f"The following required services are missing: {', '.join(missing_services)}")
+                formatted_missing_services = ", ".join(format_service_name(service) for service in missing_services)
+                error_message = f"The following required services are missing from your IBM Cloud account resource list: {formatted_missing_services}"
+                logger.error(error_message)
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
-                return None
+                raise ModelError(error_message)
 
             if api_key and auth._validate_api_key(api_key):
                 # Create directory for the model
@@ -138,13 +140,14 @@ class WatsonModel(BaseModel):
                 logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
                 return new_entry
             else:
-                logger.warning(f"No valid API key found. Skipping model download and library entry creation for model {model_id}")
-                return None
+                error_message = f"No valid API key found. Skipping model download and library entry creation for model {model_id}"
+                logger.warning(error_message)
+                raise ModelError(error_message)
 
         except Exception as e:
             logger.error(f"Error adding model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            return None
+            raise ModelError(f"Error adding model {model_id}: {str(e)}")
 
     def load(self, device: str, model_info: dict):
         try:
@@ -327,3 +330,6 @@ class WatsonModel(BaseModel):
 
 def check_service(resource_name, service_keyword):
     return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
+
+def format_service_name(service):
+    return ' '.join(word.capitalize() for word in service.split('_'))
