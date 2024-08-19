@@ -2,15 +2,22 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Controls.OptimizedSlider">
-    <Frame BackgroundColor="#F0F0F0" Padding="10" CornerRadius="5">
+    <Frame BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}" 
+           Padding="10" 
+           CornerRadius="5">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="5">
             <Grid ColumnDefinitions="Auto,*,Auto" Grid.Row="0">
-                <Label x:Name="MinLabel" HorizontalOptions="Start" />
-                <Label x:Name="MaxLabel" HorizontalOptions="End" Grid.Column="2" />
+                <Label x:Name="MinLabel" 
+                       HorizontalOptions="Start" 
+                       TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" />
+                <Label x:Name="MaxLabel" 
+                       HorizontalOptions="End" 
+                       Grid.Column="2" 
+                       TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" />
             </Grid>
             <Grid Grid.Row="1" HeightRequest="30" ColumnDefinitions="Auto,*,Auto">
                 <BoxView x:Name="SliderBackground"
-                         BackgroundColor="#E0E0E0" 
+                         BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#4A4A4A}" 
                          CornerRadius="2" 
                          Grid.ColumnSpan="3"
                          HeightRequest="15"
@@ -18,39 +25,40 @@
                 <BoxView x:Name="MinIndicator" 
                          WidthRequest="2" 
                          HeightRequest="15"
-                         BackgroundColor="Black" 
+                         BackgroundColor="{AppThemeBinding Light=#333333, Dark=#B0B0B0}" 
                          HorizontalOptions="Start" 
                          VerticalOptions="Center"/>
                 <Slider x:Name="MainSlider" 
                         Grid.Column="1"
-                        MinimumTrackColor="#3366FF"
-                        MaximumTrackColor="#CCCCCC"
-                        ThumbColor="#3366FF" />
+                        MinimumTrackColor="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"
+                        MaximumTrackColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"
+                        ThumbColor="{AppThemeBinding Light=#3366FF, Dark=#6699FF}" />
                 <BoxView x:Name="MaxIndicator" 
                          Grid.Column="2"
                          WidthRequest="2" 
                          HeightRequest="15"
-                         BackgroundColor="Black" 
+                         BackgroundColor="{AppThemeBinding Light=#333333, Dark=#B0B0B0}" 
                          HorizontalOptions="End" 
                          VerticalOptions="Center"/>
                 <BoxView x:Name="OptimizedIndicator"
                          Grid.Column="1"
                          WidthRequest="2"
                          HeightRequest="15"
-                         BackgroundColor="Green"
+                         BackgroundColor="{AppThemeBinding Light=#00CC00, Dark=#00FF00}"
                          HorizontalOptions="Start"
                          VerticalOptions="Center" />
             </Grid>
             <Label x:Name="ValueLabel"
                    HorizontalOptions="Center"
                    VerticalOptions="Start"
-                   Grid.Row="2"/>
+                   Grid.Row="2"
+                   TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" />
             <Label x:Name="OptimizedLabel"
                    HorizontalOptions="Start"
                    VerticalOptions="Start"
                    Grid.Row="1"
                    FontSize="Micro"
-                   TextColor="Green" />
+                   TextColor="{AppThemeBinding Light=#00CC00, Dark=#00FF00}" />
         </Grid>
     </Frame>
 </ContentView>
