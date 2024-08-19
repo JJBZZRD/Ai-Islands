@@ -64,7 +64,10 @@ class WatsonModel(BaseModel):
             resources = account_info.get_resource_list()
             
             # Output resource list to JSON file
-            resource_list_path = os.path.join('data', 'downloads', 'watson', 'resource_list.json')
+            base_dir = os.path.join('data', 'downloads', 'watson')
+            # Create the downloads directory if it doesn't exist
+            os.makedirs(base_dir, exist_ok=True)
+            resource_list_path = os.path.join(base_dir, 'resource_list.json')
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")
@@ -92,15 +95,18 @@ class WatsonModel(BaseModel):
                 return None
             
             # Create directory for the model
-            model_dir = os.path.join('data', 'downloads', 'watson', model_id)
+            model_dir = os.path.join(base_dir, model_id)
             os.makedirs(model_dir, exist_ok=True)
+            logger.info(f"Created directory for model: {model_dir}")
 
             # Save original model info to model_info.json in the model directory
-            with open(os.path.join(model_dir, 'model_info.json'), 'w') as f:
+            model_info_path = os.path.join(model_dir, 'model_info.json')
+            with open(model_info_path, 'w') as f:
                 json.dump(model_info, f, indent=4)
+            logger.info(f"Saved model info to {model_info_path}")
 
             # Create the new entry for library.json
-            logger.info(f"Creating library entry for Watson model {model_id}")
+            logger.info(f"Creating library entry for Watson model {model_id}...")
 
             new_entry = model_info.copy()
             new_entry.update({
@@ -285,7 +291,7 @@ class WatsonModel(BaseModel):
                         result = result.split(stop_seq)[0]
                         logger.info(f"Applied stop sequence: {stop_seq}")
                 
-                final_result = {"result": result.strip()}
+                final_result = result.strip()
                 logger.info(f"Final result: {final_result}")
                 return final_result
             else:
