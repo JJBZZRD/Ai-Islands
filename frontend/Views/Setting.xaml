@@ -8,37 +8,29 @@
         <VerticalStackLayout Padding="20" Spacing="20">
             <Label Text="Settings" 
                    FontSize="24" 
-                   FontAttributes="Bold" 
-                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                   FontAttributes="Bold"/>
             <Label Text="Set your application settings here." 
-                   FontSize="17" 
-                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                   FontSize="17"/>
 
-            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Gray, Dark=Gray}"/>
+            <BoxView HeightRequest="1" Color="Gray"/>
 
-            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=Gray}" BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Watson Cloud Account:" 
                            FontSize="20" 
-                           FontAttributes="Bold" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                           FontAttributes="Bold"/>
                     <Label Text="Please provide your General Watson Cloud API Key and Location." 
-                           FontSize="14" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                           FontSize="14"/>
 
-                    <Label Text="API Key:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="API Key:" FontSize="14"/>
                     <Grid ColumnDefinitions="*, Auto, Auto">
-                        <Entry Placeholder="Enter API Key" Text="{Binding ApiKey}" IsPassword="True" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter API Key" Text="{Binding ApiKey}" IsPassword="True" Grid.Column="0"/>
                         <Button Text="Copy" Grid.Column="1" WidthRequest="60" Margin="5,0,0,0" Clicked="OnCopyApiKeyClicked" BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#007AFF}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                         <Button Text="?" Grid.Column="2" WidthRequest="30" Margin="5,0,0,0" Command="{Binding ShowTooltipCommand}" CommandParameter="APIKeyInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
-                    <Label Text="Location:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                    <Picker SelectedItem="{Binding Location}"
-                            BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                            TextColor="{AppThemeBinding Light=Black, Dark=White}">
+                    <Label Text="Location:" FontSize="14"/>
+                    <Picker SelectedItem="{Binding Location}">
                         <Picker.Items>
                             <x:String>eu-gb</x:String>
                             <x:String>eu-de</x:String>
@@ -47,46 +39,40 @@
                         </Picker.Items>
                     </Picker>
 
-                    <Label Text="Project ID:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Project ID:" FontSize="14"/>
                     <Grid ColumnDefinitions="*, Auto, Auto">
-                        <Entry Placeholder="Enter Project ID" Text="{Binding ProjectId}" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter Project ID" Text="{Binding ProjectId}" Grid.Column="0"/>
                         <Button Text="Copy" Grid.Column="1" WidthRequest="60" Margin="5,0,0,0" Clicked="OnCopyProjectIdClicked" BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#007AFF}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                         <Button Text="?" Grid.Column="2" WidthRequest="30" Margin="5,0,0,0" Command="{Binding ShowTooltipCommand}" CommandParameter="ProjectIDInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
                     <Label Text="If no project ID entered, AI Islands will automatically find your latest created project using your general API Key." 
                            FontSize="12" 
-                           TextColor="{AppThemeBinding Light=Gray, Dark=Gray}"/>
+                           TextColor="Gray"/>
 
                     <Button Text="Save Watson Cloud Settings" Clicked="OnSaveWatsonCloudClicked" 
                             BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#007AFF}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Gray, Dark=Gray}"/>
+            <BoxView HeightRequest="1" Color="Gray"/>
 
-            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=Gray}" BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="RAG Global Chunking Settings:" 
                            FontSize="20" 
-                           FontAttributes="Bold" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                           FontAttributes="Bold" />
                     <Label Text="Set optimal chunking settings for processing of datasets." 
-                           FontSize="14" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                           FontSize="14" />
 
                     <Grid ColumnDefinitions="Auto, *">
-                        <Label Text="Use chunking:" VerticalOptions="Center" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                        <Label Text="Use chunking:" VerticalOptions="Center" Grid.Column="0" />
                         <Switch IsToggled="{Binding UseChunking}" Grid.Column="1" HorizontalOptions="Start" />
                     </Grid>
 
-                    <Label Text="Chunk method:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Chunk method:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Picker SelectedItem="{Binding ChunkMethod}" IsEnabled="{Binding UseChunking}" Grid.Column="0" SelectedIndexChanged="OnChunkMethodChanged"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                                TextColor="{AppThemeBinding Light=Black, Dark=White}">
+                        <Picker SelectedItem="{Binding ChunkMethod}" IsEnabled="{Binding UseChunking}" Grid.Column="0" SelectedIndexChanged="OnChunkMethodChanged">
                             <Picker.Items>
                                 <x:String>csv_row</x:String>
                                 <x:String>fixed_length</x:String>
@@ -97,35 +83,27 @@
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkMethodInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
-                    <Label Text="Chunk size:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Chunk size:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter chunk size" Text="{Binding ChunkSize}" IsEnabled="{Binding IsChunkSizeEnabled}" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter chunk size" Text="{Binding ChunkSize}" IsEnabled="{Binding IsChunkSizeEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkSizeInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
-                    <Label Text="Chunk overlap:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Chunk overlap:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter chunk overlap" Text="{Binding ChunkOverlap}" IsEnabled="{Binding IsChunkOverlapEnabled}" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter chunk overlap" Text="{Binding ChunkOverlap}" IsEnabled="{Binding IsChunkOverlapEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="ChunkOverlapInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
-                    <Label Text="Rows per chunk:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Rows per chunk:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter rows per chunk" Text="{Binding RowsPerChunk}" IsEnabled="{Binding IsRowsPerChunkEnabled}" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter rows per chunk" Text="{Binding RowsPerChunk}" IsEnabled="{Binding IsRowsPerChunkEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="RowsPerChunkInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
-                    <Label Text="CSV columns:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="CSV columns:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry Placeholder="Enter CSV columns" Text="{Binding CsvColumns}" IsEnabled="{Binding IsCsvColumnsEnabled}" Grid.Column="0" 
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Entry Placeholder="Enter CSV columns" Text="{Binding CsvColumns}" IsEnabled="{Binding IsCsvColumnsEnabled}" Grid.Column="0" />
                         <Button Text="?" Grid.Column="1" WidthRequest="30" Command="{Binding ShowTooltipCommand}" CommandParameter="CsvColumnsInfo" BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}" TextColor="{AppThemeBinding Light=White, Dark=White}"/>
                     </Grid>
 
@@ -134,20 +112,17 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Gray, Dark=Gray}"/>
+            <BoxView HeightRequest="1" Color="Gray"/>
 
-            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=Gray}" BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Hardware Settings:" 
                            FontSize="20" 
-                           FontAttributes="Bold" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                           FontAttributes="Bold" />
 
-                    <Label Text="Set device:" FontSize="14" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Set device:" FontSize="14" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Picker SelectedItem="{Binding Device}" Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2E}"
-                                TextColor="{AppThemeBinding Light=Black, Dark=White}">
+                        <Picker SelectedItem="{Binding Device}" Grid.Column="0">
                             <Picker.Items>
                                 <x:String>cpu</x:String>
                                 <x:String>gpu</x:String>
@@ -161,11 +136,10 @@
 
                     <Label Text="GPU Information:" 
                            FontSize="16" 
-                           FontAttributes="Bold" 
-                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                    <Label Text="{Binding CudaAvailable, StringFormat='CUDA Available: {0}'}" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
-                    <Label Text="{Binding CudaVersion, StringFormat='CUDA Version: {0}'}" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
-                    <Label Text="{Binding CudnnVersion, StringFormat='cuDNN Version: {0}'}" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                           FontAttributes="Bold" />
+                    <Label Text="{Binding CudaAvailable, StringFormat='CUDA Available: {0}'}" />
+                    <Label Text="{Binding CudaVersion, StringFormat='CUDA Version: {0}'}" />
+                    <Label Text="{Binding CudnnVersion, StringFormat='cuDNN Version: {0}'}" />
                 </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>
