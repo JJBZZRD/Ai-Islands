@@ -152,23 +152,26 @@ class WatsonModel(BaseModel):
     def load(self, device: str, model_info: dict):
         try:
             if not self.api_key:
-                raise ValueError("IBM_CLOUD_API_KEY not found in environment variables")
+                raise ModelError("IBM_CLOUD_API_KEY not found in environment variables")
 
             if not self.auth._validate_api_key(self.api_key):
-                raise ValueError("Invalid IBM_CLOUD_API_KEY")
+                raise ModelError("Invalid IBM_CLOUD_API_KEY")
 
             url = watson_settings.get("IBM_CLOUD_MODELS_URL")
             if not url:
-                raise ValueError("IBM_CLOUD_MODELS_URL not found in environment variables")
+                raise ModelError("IBM_CLOUD_MODELS_URL not found in environment variables")
 
             self.config = model_info.get("config", {})
             
             if not self.project_id:
                 logger.info("No USER_PROJECT_ID found or it's empty. Selecting a project...")
                 if not self.select_project():
-                    raise ValueError("Failed to select a project")
+                    raise ModelError("Failed to select a project")
             else:
-                logger.info(f"Using project ID: {self.project_id}")
+                logger.info(f"Validating project ID: {self.project_id}")
+                if not self.auth.validate_project(self.project_id):
+                    raise ModelError(f"Invalid or inaccessible project ID: {self.project_id}")
+                logger.info(f"Project ID {self.project_id} is valid")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
             logger.info(f"Using project ID: {self.project_id}")
@@ -200,15 +203,17 @@ class WatsonModel(BaseModel):
                 self.is_loaded = True
 
             return True
-        except ValueError as e:
+
+        except ModelError as e:
             logger.error(f"Error loading model {self.model_id}: {str(e)}")
             self.is_loaded = False
-            return False
+            raise
+
         except Exception as e:
             logger.error(f"Unexpected error loading model {self.model_id}: {str(e)}")
             logger.exception("Full traceback:")
             self.is_loaded = False
-            return False
+            raise ModelError(f"Unexpected error loading model {self.model_id}: {str(e)}")
 
     def _get_embedding_type(self, model_id):
         embedding_types = {
