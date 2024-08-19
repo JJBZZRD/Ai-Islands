@@ -71,6 +71,62 @@ namespace frontend.Views
             }
         }
 
+        private bool _isChatbotVisible = false;
+        public bool IsChatbotVisible
+        {
+            get => _isChatbotVisible;
+            set
+            {
+                if (_isChatbotVisible != value)
+                {
+                    _isChatbotVisible = value;
+                    OnPropertyChanged(nameof(IsChatbotVisible));
+                }
+            }
+        }
+
+        private bool _isInputFrameVisible = true;
+        public bool IsInputFrameVisible
+        {
+            get => _isInputFrameVisible;
+            set
+            {
+                if (_isInputFrameVisible != value)
+                {
+                    _isInputFrameVisible = value;
+                    OnPropertyChanged(nameof(IsInputFrameVisible));
+                }
+            }
+        }
+
+        private bool _isOutputFrameVisible = true;
+        public bool IsOutputFrameVisible
+        {
+            get => _isOutputFrameVisible;
+            set
+            {
+                if (_isOutputFrameVisible != value)
+                {
+                    _isOutputFrameVisible = value;
+                    OnPropertyChanged(nameof(IsOutputFrameVisible));
+                }
+            }
+        }
+
+        private bool _isRunInferenceButtonVisible = true;
+        public bool IsRunInferenceButtonVisible
+        {
+            get => _isRunInferenceButtonVisible;
+            set
+            {
+                if (_isRunInferenceButtonVisible != value)
+                {
+                    _isRunInferenceButtonVisible = value;
+                    OnPropertyChanged(nameof(IsRunInferenceButtonVisible));
+                }
+            }
+        }
+
         public string InputText
         {
             get => _inputText;
@@ -186,15 +242,18 @@ namespace frontend.Views
                 case "text-generation":
                     if (_model.Config.ChatHistory == true)
                     {
-                        InputContainer.Children.Add(CreateChatBotUI());
-                        IsOutputTextVisible = false;
-                        IsChatHistoryVisible = true;
+                        IsChatbotVisible = true;
+                        IsInputFrameVisible = false;
+                        IsOutputFrameVisible = false;
+                        IsRunInferenceButtonVisible = false;
                     }
                     else
                     {
                         InputContainer.Children.Add(CreateTextInputUI());
-                        IsOutputTextVisible = true;
-                        IsChatHistoryVisible = false;
+                        IsChatbotVisible = false;
+                        IsInputFrameVisible = true;
+                        IsOutputFrameVisible = true;
+                        IsRunInferenceButtonVisible = true;
                     }
                     break;
                 case "token-classification":
@@ -207,8 +266,10 @@ namespace frontend.Views
                     break;
                 default:
                     InputContainer.Children.Add(new Label { Text = "Input type not supported for this model.", TextColor = Colors.Gray });
-                    IsOutputTextVisible = true;
-                    IsChatHistoryVisible = false;
+                    IsChatbotVisible = false;
+                    IsInputFrameVisible = true;
+                    IsOutputFrameVisible = true;
+                    IsRunInferenceButtonVisible = true;
                     break;
             }
         }
@@ -284,97 +345,22 @@ namespace frontend.Views
             return editor;
         }
 
-        private View CreateChatBotUI()
+        private async void OnSendMessageClicked(object sender, EventArgs e)
         {
-            var chatListView = new ListView
+            if (!string.IsNullOrWhiteSpace(ChatInputEntry.Text))
             {
-                ItemsSource = ChatHistory,
-                HasUnevenRows = true,
-                SeparatorVisibility = SeparatorVisibility.None,
-                SelectionMode = ListViewSelectionMode.None,
-                ItemTemplate = new DataTemplate(() =>
+                ChatHistory.Add(new ChatMessage { Role = "user", Content = ChatInputEntry.Text });
+                var userMessage = ChatInputEntry.Text;
+                ChatInputEntry.Text = string.Empty;
+
+                await SendMessageToChatbot(userMessage);
+                
+                // Scroll to the bottom of the chat history
+                Device.BeginInvokeOnMainThread(() =>
                 {
-                    var messageFrame = new Frame
-                    {
-                        CornerRadius = 10,
-                        Padding = new Thickness(10),
-                        Margin = new Thickness(5)
-                    };
-
-                    var messageLabel = new Label { LineBreakMode = LineBreakMode.WordWrap };
-                    messageLabel.SetBinding(Label.TextProperty, "FormattedContent");
-
-                    messageFrame.Content = messageLabel;
-
-                    var cell = new ViewCell { View = messageFrame };
-
-                    var triggerRole = new DataTrigger(typeof(Frame))
-                    {
-                        Binding = new Binding("Role"),
-                        Value = "user"
-                    };
-                    triggerRole.Setters.Add(new Setter
-                    {
-                        Property = BackgroundColorProperty,
-                        Value = Color.FromRgba("#E1F5FE")
-                    });
-
-                    var triggerAssistant = new DataTrigger(typeof(Frame))
-                    {
-                        Binding = new Binding("Role"),
-                        Value = "assistant"
-                    };
-                    triggerAssistant.Setters.Add(new Setter
-                    {
-                        Property = BackgroundColorProperty,
-                        Value = Color.FromRgba("#F1F8E9")
-                    });
-
-                    messageFrame.Triggers.Add(triggerRole);
-                    messageFrame.Triggers.Add(triggerAssistant);
-
-                    return cell;
-                })
-            };
-
-            var inputEntry = new Entry
-            {
-                Placeholder = "Type your message...",
-                HorizontalOptions = LayoutOptions.FillAndExpand
-            };
-
-            var sendButton = new Button
-            {
-                Text = "Send",
-                HorizontalOptions = LayoutOptions.End
-            };
-
-            sendButton.Clicked += async (sender, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(inputEntry.Text))
-                {
-                    ChatHistory.Add(new ChatMessage { Role = "user", Content = inputEntry.Text });
-                    var userMessage = inputEntry.Text;
-                    inputEntry.Text = string.Empty;
-
-                    await SendMessageToChatbot(userMessage);
-                }
-            };
-
-            var inputLayout = new StackLayout
-            {
-                Orientation = StackOrientation.Horizontal,
-                Children = { inputEntry, sendButton }
-            };
-
-            return new StackLayout
-            {
-                Children =
-                {
-                    new ScrollView { Content = chatListView, VerticalOptions = LayoutOptions.FillAndExpand },
-                    inputLayout
-                }
-            };
+                    ChatHistoryListView.ScrollTo(ChatHistory.Last(), ScrollToPosition.End, false);
+                });
+            }
         }
 
         private async Task SendMessageToChatbot(string userMessage)
@@ -601,8 +587,6 @@ namespace frontend.Views
                     await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
                     return;
                 }
-
-                await Application.Current.MainPage.DisplayAlert("Inference Complete", "The output is ready.", "OK");
             }
             catch (Exception ex)
             {

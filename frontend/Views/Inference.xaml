@@ -6,7 +6,6 @@
              BackgroundColor="#F2F2F2">
     <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -14,28 +13,48 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Button Grid.Row="0" 
-            Grid.Column="1" 
-            Text="Run Inference"
-            Clicked="OnRunInferenceClicked"
-            BackgroundColor="#3366FF"
-            TextColor="White"
-            CornerRadius="5"
-            Padding="15,10"
-            HorizontalOptions="End"
-            VerticalOptions="Start"
-            Margin="0,10,10,0"/>
+        <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="White" Padding="20" CornerRadius="10" Margin="10" BorderColor="LightGray" IsVisible="{Binding IsInputFrameVisible}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="White" Padding="20" CornerRadius="10" Margin="10" BorderColor="LightGray">
-            <VerticalStackLayout x:Name="InputContainer" Spacing="15">
-                <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
-            </VerticalStackLayout>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Text="Input" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D" VerticalOptions="Center"/>
+                    <Button Grid.Column="1" 
+                        Text="Run Inference"
+                        Clicked="OnRunInferenceClicked"
+                        BackgroundColor="#3366FF"
+                        TextColor="White"
+                        CornerRadius="5"
+                        Padding="15,10"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center"
+                        Margin="0,0,0,10"/>
+                </Grid>
+
+                <VerticalStackLayout Grid.Row="1" x:Name="InputContainer" Spacing="15">
+                    <!-- Input controls will be added here programmatically -->
+                </VerticalStackLayout>
+            </Grid>
         </Frame>
 
-        <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="White" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" BorderColor="LightGray">
-            <VerticalStackLayout Spacing="15">
-                <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
-                <Button x:Name="ViewImageOutputButton" 
+        <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="White" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" BorderColor="LightGray" IsVisible="{Binding IsOutputFrameVisible}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Text="Output" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
+                
+                <Button Grid.Row="0" 
+                        x:Name="ViewImageOutputButton" 
                         Text="View Image Output" 
                         Clicked="OnViewImageOutputClicked" 
                         BackgroundColor="White" 
@@ -45,40 +64,64 @@
                         CornerRadius="5" 
                         IsVisible="{Binding IsViewImageOutputButtonVisible}" 
                         HorizontalOptions="End" 
-                        Margin="0,20,0,10"/>
-                <Frame BorderColor="Transparent" CornerRadius="0" Padding="10" BackgroundColor="#F5F5F5" HeightRequest="400">
-                    <ScrollView>
-                        <StackLayout>
-                            <Label TextType="Html" Text="{Binding OutputText}" IsVisible="{Binding IsOutputTextVisible}" />
-                            <ListView ItemsSource="{Binding ChatHistory}" 
-                                      HasUnevenRows="True" 
-                                      SeparatorVisibility="None" 
-                                      SelectionMode="None"
-                                      IsVisible="{Binding IsChatHistoryVisible}">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <ViewCell>
-                                            <Frame CornerRadius="10" Padding="10" Margin="5">
-                                                <Frame.Triggers>
-                                                    <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="user">
-                                                        <Setter Property="BackgroundColor" Value="#E1F5FE" />
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="assistant">
-                                                        <Setter Property="BackgroundColor" Value="#F1F8E9" />
-                                                    </DataTrigger>
-                                                </Frame.Triggers>
-                                                <Label TextType="Html" Text="{Binding FormattedContent}" LineBreakMode="WordWrap" />
-                                            </Frame>
-                                        </ViewCell>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </StackLayout>
-                    </ScrollView>
-                </Frame>
-            </VerticalStackLayout>
+                        Margin="0,0,0,10"/>
+
+                <ScrollView Grid.Row="1" x:Name="OutputScrollView">
+                    <Label TextType="Html" Text="{Binding OutputText}" />
+                </ScrollView>
+            </Grid>
         </Frame>
 
-        <local:ImagePopupView x:Name="_imagePopupView" IsVisible="False" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
+        <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BackgroundColor="White" Padding="20" CornerRadius="10" Margin="10" BorderColor="LightGray" IsVisible="{Binding IsChatbotVisible}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Text="Chat Bot" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D" Margin="0,0,0,10"/>
+
+                <ScrollView Grid.Row="1">
+                    <ListView x:Name="ChatHistoryListView"
+                              ItemsSource="{Binding ChatHistory}" 
+                              HasUnevenRows="True" 
+                              SeparatorVisibility="None" 
+                              SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <Frame CornerRadius="10" Padding="10" Margin="5">
+                                        <Frame.Triggers>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="user">
+                                                <Setter Property="BackgroundColor" Value="#E1F5FE" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="assistant">
+                                                <Setter Property="BackgroundColor" Value="#F1F8E9" />
+                                            </DataTrigger>
+                                        </Frame.Triggers>
+                                        <Label TextType="Html" Text="{Binding FormattedContent}" LineBreakMode="WordWrap" />
+                                    </Frame>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollView>
+
+                <StackLayout Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                    <Entry x:Name="ChatInputEntry"
+                           Placeholder="Type your message..."
+                           HorizontalOptions="FillAndExpand" />
+                    <Button Text="Send"
+                            Clicked="OnSendMessageClicked"
+                            BackgroundColor="#3366FF"
+                            TextColor="White"
+                            CornerRadius="5"
+                            Padding="15,10" />
+                </StackLayout>
+            </Grid>
+        </Frame>
+
+        <local:ImagePopupView x:Name="_imagePopupView" IsVisible="False" Grid.RowSpan="1" Grid.ColumnSpan="2"/>
     </Grid>
 </ContentView>
