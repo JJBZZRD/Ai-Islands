@@ -585,7 +585,7 @@
       "relation-extraction",
       "semantic-role-labeling"
     ],
-    "pipeline_tag": "text-analysis",
+    "pipeline_tag": "text-classification",
     "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
     "model_desc": "IBM Watson Natural Language Understanding is a cloud-native product that uses deep learning to extract metadata from text such as entities, keywords, categories, sentiment, emotion, relations, and syntax.",
     "model_detail": "This service can analyze text to extract metadata from content such as concepts, entities, keywords, categories, sentiment, emotion, relations, and semantic roles using natural language processing.",

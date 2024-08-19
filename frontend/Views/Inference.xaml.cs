@@ -503,19 +503,6 @@ namespace frontend.Views
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
-                    case "text-generation":
-                        if (string.IsNullOrEmpty(InputText))
-                        {
-                            await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
-                            return;
-                        }
-                        data = new { payload = InputText };
-                        break;
-
-
-
-                    
-                    
                     case "text-to-speech":
                     
                     default:
