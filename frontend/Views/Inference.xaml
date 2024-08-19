@@ -46,17 +46,34 @@
                         IsVisible="{Binding IsViewImageOutputButtonVisible}" 
                         HorizontalOptions="End" 
                         Margin="0,20,0,10"/>
-                <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" BackgroundColor="#F5F5F5" HeightRequest="400">
+                <Frame BorderColor="Transparent" CornerRadius="0" Padding="10" BackgroundColor="#F5F5F5" HeightRequest="400">
                     <ScrollView>
-                        <Editor x:Name="RawJsonOutput"
-                                IsReadOnly="True"
-                                Text="{Binding RawJsonText}"
-                                FontFamily="Courier New"
-                                FontSize="12"
-                                TextColor="Black"
-                                BackgroundColor="#F5F5F5"
-                                AutoSize="TextChanges"
-                                />
+                        <StackLayout>
+                            <Label TextType="Html" Text="{Binding OutputText}" IsVisible="{Binding IsOutputTextVisible}" />
+                            <ListView ItemsSource="{Binding ChatHistory}" 
+                                      HasUnevenRows="True" 
+                                      SeparatorVisibility="None" 
+                                      SelectionMode="None"
+                                      IsVisible="{Binding IsChatHistoryVisible}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <ViewCell>
+                                            <Frame CornerRadius="10" Padding="10" Margin="5">
+                                                <Frame.Triggers>
+                                                    <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="user">
+                                                        <Setter Property="BackgroundColor" Value="#E1F5FE" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Frame" Binding="{Binding Role}" Value="assistant">
+                                                        <Setter Property="BackgroundColor" Value="#F1F8E9" />
+                                                    </DataTrigger>
+                                                </Frame.Triggers>
+                                                <Label TextType="Html" Text="{Binding FormattedContent}" LineBreakMode="WordWrap" />
+                                            </Frame>
+                                        </ViewCell>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackLayout>
                     </ScrollView>
                 </Frame>
             </VerticalStackLayout>

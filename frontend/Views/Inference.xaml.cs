@@ -43,6 +43,34 @@ namespace frontend.Views
             }
         }
 
+        private bool _isOutputTextVisible = true;
+        public bool IsOutputTextVisible
+        {
+            get => _isOutputTextVisible;
+            set
+            {
+                if (_isOutputTextVisible != value)
+                {
+                    _isOutputTextVisible = value;
+                    OnPropertyChanged(nameof(IsOutputTextVisible));
+                }
+            }
+        }
+
+        private bool _isChatHistoryVisible = false;
+        public bool IsChatHistoryVisible
+        {
+            get => _isChatHistoryVisible;
+            set
+            {
+                if (_isChatHistoryVisible != value)
+                {
+                    _isChatHistoryVisible = value;
+                    OnPropertyChanged(nameof(IsChatHistoryVisible));
+                }
+            }
+        }
+
         public string InputText
         {
             get => _inputText;
@@ -63,7 +91,7 @@ namespace frontend.Views
             {
                 if (_outputText != value)
                 {
-                    _outputText = value;
+                    _outputText = FormatOutputText(value);
                     OnPropertyChanged(nameof(OutputText));
                 }
             }
@@ -119,36 +147,54 @@ namespace frontend.Views
                 case "object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
                     IsViewImageOutputButtonVisible = true;
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "image-segmentation":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     IsViewImageOutputButtonVisible = true;
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "zero-shot-object-detection":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     InputContainer.Children.Add(CreateTextInputUI());
                     IsViewImageOutputButtonVisible = true;
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "text-classification":
                     InputContainer.Children.Add(CreateTextInputUI());
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "zero-shot-classification":
                     InputContainer.Children.Add(CreateTextInputUI());
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "translation":
                     InputContainer.Children.Add(CreateTextInputUI());
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "text-to-speech":
                     InputContainer.Children.Add(CreateTextInputUI());
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 case "text-generation":
                     if (_model.Config.ChatHistory == true)
                     {
                         InputContainer.Children.Add(CreateChatBotUI());
+                        IsOutputTextVisible = false;
+                        IsChatHistoryVisible = true;
                     }
                     else
                     {
                         InputContainer.Children.Add(CreateTextInputUI());
+                        IsOutputTextVisible = true;
+                        IsChatHistoryVisible = false;
                     }
                     break;
                 case "token-classification":
@@ -156,9 +202,13 @@ namespace frontend.Views
                 case "summarization":
                 case "automatic-speech-recognition":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
                 default:
                     InputContainer.Children.Add(new Label { Text = "Input type not supported for this model.", TextColor = Colors.Gray });
+                    IsOutputTextVisible = true;
+                    IsChatHistoryVisible = false;
                     break;
             }
         }
@@ -252,7 +302,7 @@ namespace frontend.Views
                     };
 
                     var messageLabel = new Label { LineBreakMode = LineBreakMode.WordWrap };
-                    messageLabel.SetBinding(Label.TextProperty, "Content");
+                    messageLabel.SetBinding(Label.TextProperty, "FormattedContent");
 
                     messageFrame.Content = messageLabel;
 
@@ -334,6 +384,8 @@ namespace frontend.Views
                 var data = new { payload = userMessage };
                 var result = await _modelService.Inference(_model.ModelId, data);
 
+                System.Diagnostics.Debug.WriteLine($"Raw result: {JsonSerializer.Serialize(result)}");
+
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     string assistantMessage;
@@ -341,15 +393,30 @@ namespace frontend.Views
                     {
                         assistantMessage = stringResponse;
                     }
+                    else if (dataValue is JsonElement jsonElement)
+                    {
+                        if (jsonElement.ValueKind == JsonValueKind.String)
+                        {
+                            assistantMessage = jsonElement.GetString();
+                        }
+                        else if (jsonElement.ValueKind == JsonValueKind.Object && jsonElement.TryGetProperty("response", out var responseProperty))
+                        {
+                            assistantMessage = responseProperty.GetString();
+                        }
+                        else
+                        {
+                            assistantMessage = $"Unexpected response format: {jsonElement}";
+                        }
+                    }
                     else if (dataValue is Dictionary<string, object> responseDict)
                     {
                         assistantMessage = responseDict.TryGetValue("response", out var responseValue) 
                             ? responseValue?.ToString() 
-                            : "I'm sorry, I couldn't generate a response.";
+                            : $"Unexpected response format: {JsonSerializer.Serialize(responseDict)}";
                     }
                     else
                     {
-                        assistantMessage = "I'm sorry, I couldn't generate a response.";
+                        assistantMessage = $"Unexpected data type: {dataValue?.GetType().Name}";
                     }
 
                     ChatHistory.Add(new ChatMessage { Role = "assistant", Content = assistantMessage });
@@ -357,13 +424,16 @@ namespace frontend.Views
                 }
                 else
                 {
-                    ChatHistory.Add(new ChatMessage { Role = "assistant", Content = "I'm sorry, I couldn't generate a response." });
+                    var errorMessage = $"Invalid result format. Raw result: {JsonSerializer.Serialize(result)}";
+                    ChatHistory.Add(new ChatMessage { Role = "assistant", Content = errorMessage });
+                    System.Diagnostics.Debug.WriteLine(errorMessage);
                 }
             }
             catch (Exception ex)
             {
-                ChatHistory.Add(new ChatMessage { Role = "assistant", Content = $"An error occurred: {ex.Message}" });
-                System.Diagnostics.Debug.WriteLine($"Error in SendMessageToChatbot: {ex}");
+                var errorMessage = $"An error occurred: {ex.Message}\nStack trace: {ex.StackTrace}";
+                ChatHistory.Add(new ChatMessage { Role = "assistant", Content = errorMessage });
+                System.Diagnostics.Debug.WriteLine($"Error in SendMessageToChatbot: {errorMessage}");
             }
         }
 
@@ -503,6 +573,14 @@ namespace frontend.Views
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
+                    case "text-generation":
+                        if (string.IsNullOrEmpty(InputText))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
+                            return;
+                        }
+                        data = new { payload = InputText };
+                        break;
                     case "text-to-speech":
                     
                     default:
@@ -510,12 +588,13 @@ namespace frontend.Views
                         return;
                 }
 
-                var result = await _modelService.Inference(_model.ModelId, data);
+                Dictionary<string, object> result = await _modelService.Inference(_model.ModelId, data);
 
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     RawJsonText = FormatJsonString(dataValue);
-                    System.Diagnostics.Debug.WriteLine($"Extracted data: {RawJsonText}");
+                    OutputText = dataValue.ToString(); // Use OutputText instead of RawJsonText for formatted output
+                    System.Diagnostics.Debug.WriteLine($"Extracted data: {OutputText}");
                 }
                 else
                 {
@@ -565,7 +644,12 @@ namespace frontend.Views
                             var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
                             var predictionJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
                             var prediction = JsonSerializer.Deserialize<Dictionary<string, object>>(predictionJson);
-                            OnPredictionReceived(prediction);
+                            
+                            Device.BeginInvokeOnMainThread(() =>
+                            {
+                                var newPrediction = JsonSerializer.Serialize(prediction, new JsonSerializerOptions { WriteIndented = true });
+                                OutputText += (string.IsNullOrEmpty(OutputText) ? "" : "\n\n") + newPrediction;
+                            });
                         }
                     },
                     cts.Token
@@ -587,21 +671,6 @@ namespace frontend.Views
             {
                 cts.Cancel();
             }
-        }
-
-        private void OnPredictionReceived(Dictionary<string, object> prediction)
-        {
-            var newPrediction = JsonSerializer.Serialize(prediction, new JsonSerializerOptions { WriteIndented = true });
-            RawJsonText += (string.IsNullOrEmpty(RawJsonText) ? "" : "\n\n") + newPrediction;
-            OnPropertyChanged(nameof(RawJsonText));
-
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                if (RawJsonOutput != null)
-                {
-                    RawJsonOutput.CursorPosition = RawJsonOutput.Text.Length;
-                }
-            });
         }
 
         private async void OnViewImageOutputClicked(object sender, EventArgs e)
@@ -665,13 +734,19 @@ namespace frontend.Views
         }
         private string FormatJsonString(object obj)
         {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
             if (obj is string strValue)
             {
                 // If it's already a string, try to parse and re-serialize it
                 try
                 {
                     var jsonElement = JsonSerializer.Deserialize<JsonElement>(strValue);
-                    return JsonSerializer.Serialize(jsonElement, new JsonSerializerOptions { WriteIndented = true });
+                    return JsonSerializer.Serialize(jsonElement, options);
                 }
                 catch
                 {
@@ -682,8 +757,25 @@ namespace frontend.Views
             else
             {
                 // For non-string objects, serialize with indentation
-                return JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+                return JsonSerializer.Serialize(obj, options);
             }
+        }
+
+        private string FormatOutputText(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            // Replace "\n" with actual new lines
+            text = text.Replace("\\n", "\n");
+
+            // Convert Markdown-style bold to XAML bold
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
+
+            // Convert Markdown-style numbered list to XAML list
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+                $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
+
+            return text;
         }
     }
 
@@ -691,5 +783,23 @@ namespace frontend.Views
     {
         public string Role { get; set; }
         public string Content { get; set; }
+        public string FormattedContent => FormatContent(Content);
+
+        private string FormatContent(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            // Replace "\n" with actual new lines
+            text = text.Replace("\\n", "\n");
+
+            // Convert Markdown-style bold to XAML bold
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
+
+            // Convert Markdown-style numbered list to XAML list
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+                $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
+
+            return text;
+        }
     }
 }
