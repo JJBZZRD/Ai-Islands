@@ -2532,6 +2532,7 @@
     "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
+      "chat_history": false,
       "model_config": {
         "torch_dtype": "bfloat16"
 

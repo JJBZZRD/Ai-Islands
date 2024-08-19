@@ -160,6 +160,9 @@ namespace frontend.Models
 
         [JsonPropertyName("speaker_embedding_config")]
         public string? SpeakerEmbeddingConfig { get; set; }
+
+        [JsonPropertyName("chat_history")]
+        public bool? ChatHistory { get; set; }
     }
 
     public class ConversationMessage

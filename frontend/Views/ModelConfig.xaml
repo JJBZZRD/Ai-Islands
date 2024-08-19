@@ -1248,6 +1248,10 @@
                     <Entry Text="{Binding Config.SpeakerEmbeddingConfig}"
                            Placeholder="Speaker Embedding Config"/>
                 </VerticalStackLayout>
+                 <VerticalStackLayout IsVisible="{Binding Config.ChatHistory, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Label Text="Chat History"/>
+                    <Switch IsToggled="{Binding Config.ChatHistory, Mode=TwoWay}" />
+                </VerticalStackLayout>
                 </VerticalStackLayout>
                     </toolkit:Expander.Content>
                     </toolkit:Expander>
