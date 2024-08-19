@@ -31,6 +31,14 @@ class WatsonModel(BaseModel):
         self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
         self.project_id = watson_settings.get('USER_PROJECT_ID')
         
+        if not self.api_key:
+            logger.error("No API key found. Please set IBM_CLOUD_API_KEY in your environment or .env file.")
+            raise ValueError("No API key found")
+        
+        if not self.auth._validate_api_key(self.api_key):
+            logger.error("Invalid API key. Please check your IBM_CLOUD_API_KEY.")
+            raise ValueError("Invalid API key")
+        
         if not self.project_id:
             self.select_project()
         
@@ -58,6 +66,17 @@ class WatsonModel(BaseModel):
         try:
             logger.info(f"Attempting to download model: {model_id}")
             logger.info(f"Original model info: {json.dumps(model_info, indent=2)}")
+
+            # Check if API key is available and valid
+            api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+            if not api_key:
+                logger.error("No API key found. Please set IBM_CLOUD_API_KEY in your environment or .env file.")
+                return None
+            
+            auth = Authentication()
+            if not auth._validate_api_key(api_key):
+                logger.error("Invalid API key. Please check your IBM_CLOUD_API_KEY.")
+                return None
 
             # Check if required services are available in the account
             account_info = AccountInfo()
@@ -93,30 +112,35 @@ class WatsonModel(BaseModel):
                 logger.error(f"The following required services are missing: {', '.join(missing_services)}")
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
                 return None
-            
-            # Create directory for the model
-            model_dir = os.path.join(base_dir, model_id)
-            os.makedirs(model_dir, exist_ok=True)
-            logger.info(f"Created directory for model: {model_dir}")
 
-            # Save original model info to model_info.json in the model directory
-            model_info_path = os.path.join(model_dir, 'model_info.json')
-            with open(model_info_path, 'w') as f:
-                json.dump(model_info, f, indent=4)
-            logger.info(f"Saved model info to {model_info_path}")
+            if api_key and auth._validate_api_key(api_key):
+                # Create directory for the model
+                model_dir = os.path.join(base_dir, model_id)
+                os.makedirs(model_dir, exist_ok=True)
+                logger.info(f"Created directory for model: {model_dir}")
 
-            # Create the new entry for library.json
-            logger.info(f"Creating library entry for Watson model {model_id}...")
+                # Save original model info to model_info.json in the model directory
+                model_info_path = os.path.join(model_dir, 'model_info.json')
+                with open(model_info_path, 'w') as f:
+                    json.dump(model_info, f, indent=4)
+                logger.info(f"Saved model info to {model_info_path}")
 
-            new_entry = model_info.copy()
-            new_entry.update({
-                "base_model": model_id,
-                "dir": model_dir,
-                "is_customised": False,
-            })
+                # Create the new entry for library.json
+                logger.info(f"Creating library entry for Watson model {model_id}...")
 
-            logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
-            return new_entry
+                new_entry = model_info.copy()
+                new_entry.update({
+                    "base_model": model_id,
+                    "dir": model_dir,
+                    "is_customised": False,
+                })
+
+                logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
+                return new_entry
+            else:
+                logger.warning(f"No valid API key found. Skipping model download and library entry creation for model {model_id}")
+                return None
+
         except Exception as e:
             logger.error(f"Error adding model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
@@ -124,30 +148,24 @@ class WatsonModel(BaseModel):
 
     def load(self, device: str, model_info: dict):
         try:
-            # Validate API key
-            api_key = os.getenv("IBM_CLOUD_API_KEY")
-            if not api_key:
+            if not self.api_key:
                 raise ValueError("IBM_CLOUD_API_KEY not found in environment variables")
 
-            # Validate API key using the Authentication class
-            if not self.auth._validate_api_key(api_key):
+            if not self.auth._validate_api_key(self.api_key):
                 raise ValueError("Invalid IBM_CLOUD_API_KEY")
 
-            # Get the URL from environment variable
-            url = os.getenv("IBM_CLOUD_MODELS_URL")
+            url = watson_settings.get("IBM_CLOUD_MODELS_URL")
             if not url:
                 raise ValueError("IBM_CLOUD_MODELS_URL not found in environment variables")
 
             self.config = model_info.get("config", {})
             
-            # Check for USER_PROJECT_ID in .env file
-            self.project_id = os.getenv("USER_PROJECT_ID")
             if not self.project_id:
                 logger.info("No USER_PROJECT_ID found or it's empty. Selecting a project...")
                 if not self.select_project():
                     raise ValueError("Failed to select a project")
             else:
-                logger.info(f"Using project ID from .env file: {self.project_id}")
+                logger.info(f"Using project ID: {self.project_id}")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
             logger.info(f"Using project ID: {self.project_id}")
@@ -161,7 +179,7 @@ class WatsonModel(BaseModel):
                 self.embeddings = WatsonxEmbeddings(
                     model_id=embedding_type,
                     url=url,
-                    apikey=api_key,
+                    apikey=self.api_key,
                     project_id=self.project_id
                 )
                 logger.info(f"Connected to Watson embedding model {self.model_id}")
@@ -179,13 +197,12 @@ class WatsonModel(BaseModel):
                 self.is_loaded = True
 
             return True
-        except AttributeError as e:
-            logger.error(f"AttributeError while loading model {self.model_id}: {str(e)}")
-            logger.exception("Full traceback:")
+        except ValueError as e:
+            logger.error(f"Error loading model {self.model_id}: {str(e)}")
             self.is_loaded = False
             return False
         except Exception as e:
-            logger.error(f"Error loading model {self.model_id}: {str(e)}")
+            logger.error(f"Unexpected error loading model {self.model_id}: {str(e)}")
             logger.exception("Full traceback:")
             self.is_loaded = False
             return False
