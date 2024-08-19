@@ -45,6 +45,22 @@ class Authentication:
             error_message = f"Failed to get IAM token: {response.text}"
             raise RuntimeError(error_message)
 
+    def validate_project(self, project_id: str) -> bool:
+        try:
+            projects = get_projects()
+            if not projects:
+                logging.warning("No projects found in the IBM Cloud account.")
+                return False
+            
+            valid_project = any(project['id'] == project_id for project in projects)
+            if not valid_project:
+                logging.error(f"Project ID {project_id} not found in available projects.")
+                logging.info(f"Available project IDs: {[project['id'] for project in projects]}")
+            return valid_project
+        except Exception as e:
+            logging.error(f"Error validating project ID: {str(e)}")
+            return False
+
 class ResourceService:
     def get_resource_list(self, iam_token):
         headers = {
