@@ -4,19 +4,19 @@
        xmlns:local="clr-namespace:frontend.Views"
        x:Class="frontend.Views.AppShell"
        FlyoutBehavior="Flyout"
-       BackgroundColor="{AppThemeBinding Light=White, Dark=White}"
+       BackgroundColor="{AppThemeBinding Light=Gray, Dark=Gray}"
        FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}"
-       FlyoutWidth="200">
+       FlyoutWidth="180">
 
     <Shell.TitleView>
         <Grid Padding="15,0,0,0" BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="Center">
-                <Image Source="ai_island.png"
-                   HeightRequest="50"
-                   WidthRequest="50"
+                <Image Source="ai_island_title.png"
+                   HeightRequest="40"
+                   WidthRequest="40"
                    VerticalOptions="Center"/>
-                <Label Text="AI Islands"
-                   FontSize="19"
+                <Label Margin="15,0,0,0" Text="AI Islands"
+                   FontSize="25"
                    TextColor="{AppThemeBinding Light=White, Dark=White}"
                    VerticalOptions="Center"/>
             </StackLayout>
@@ -28,12 +28,13 @@
             <Grid Padding="0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="15"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Image Source="{Binding Icon}"
                        Margin="5"
                        HeightRequest="20" />
-                <Label Grid.Column="1"
+                <Label Grid.Column="2"
                        Text="{Binding Title}"
                        FontSize="14"
                        TextColor="{AppThemeBinding Light=White, Dark=White}"
@@ -49,15 +50,15 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Image Source="ai_island.png"
-                   HeightRequest="80"
-                   WidthRequest="80"
+                   HeightRequest="100"
+                   WidthRequest="100"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"/>
             <BoxView Grid.Row="1" 
                      Color="{AppThemeBinding Light=White, Dark=White}" 
                      HeightRequest="2" 
                      HorizontalOptions="Fill" 
-                     Margin="10,10,0,0"/>
+                     Margin="0,30,0,20"/>
         </Grid>
     </Shell.FlyoutHeader>
 
@@ -117,8 +118,12 @@
     </TabBar> -->
 
     <Shell.ToolbarItems>
-            <ToolbarItem Text="Start Tutorial" Clicked="OnStartTutorialClicked" Order="Secondary"/>
-            <ToolbarItem Text="Go to IBM Cloud" Clicked="OnGoToIBMCloudClicked" Order="Secondary"/>
+            <ToolbarItem Text="Getting Started" Clicked="OnGettingStartedClicked" Order="Secondary"/>
+            <ToolbarItem Text="Tutorial" Clicked="OnTutorialClicked" Order="Secondary"/>
+            <ToolbarItem Text="IBM Cloud" Clicked="OnIBMCloudClicked" Order="Secondary"/>
+            <ToolbarItem Text="Hugging Face" Clicked="OnHuggingFaceClicked" Order="Secondary"/>
+            <ToolbarItem Text="Ultralytics" Clicked="OnUltralyticsClicked" Order="Secondary"/>
+            <ToolbarItem Text="About" Clicked="OnAboutClicked" Order="Secondary"/>
             <ToolbarItem Text="Help" Clicked="OnHelpClicked" Order="Secondary"/>
     </Shell.ToolbarItems>
 

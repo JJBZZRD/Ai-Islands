@@ -5,7 +5,7 @@
              xmlns:converters="clr-namespace:frontend.Converters"
              xmlns:controls="clr-namespace:frontend.Controls"
              x:Class="frontend.Views.ModelConfig"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ContentView.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:AnyPropertyExistsConverter x:Key="AnyPropertyExistsConverter"/>
@@ -13,23 +13,14 @@
         <converters:ListToStringConverter x:Key="ListToStringConverter"/>
     </ContentView.Resources>
     <ScrollView>
-        <VerticalStackLayout Padding="20"
-                             Spacing="20">
-
+        <VerticalStackLayout Padding="20" Spacing="20">
             <Label x:Name="ModelIdLabel"
                    FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#333333"/>
-            <!-- <Label Text="Model Configuration"
-                   FontSize="20"
-                   FontAttributes="Bold"
-                   TextColor="#333333"/> -->
-
+                   FontAttributes="Bold"/>
               <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
               <Label Text="Model Configuration"
                      FontSize="20"
                      FontAttributes="Bold"
-                     TextColor="#333333"
                      VerticalOptions="Center"
                      Grid.Column="0"/>
               <Button x:Name="ToggleExpandersButton"
@@ -60,12 +51,12 @@
               </Button>
               </Grid>
 
-
             <VerticalStackLayout x:Name="ConfigContainer"
                                  Spacing="15">
 
+
                 <!-- Prompt Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Prompt, Converter={StaticResource NullToVisibilityConverter}}">
 
                     <toolkit:Expander IsExpanded="False">
@@ -75,9 +66,8 @@
                     <Label Text="Prompt Settings"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"
                            Margin="0,0,0,10"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
 
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
@@ -86,7 +76,6 @@
 
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="System Prompt"
-                               TextColor="#333333"
                                Margin="0,0,0,5"/>
                         <ScrollView HeightRequest="150">
                         <Editor Text="{Binding Config.Prompt.SystemPrompt}"
@@ -97,7 +86,6 @@
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Prompt.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Example Conversation"
-                               TextColor="#333333"
                                Margin="0,0,0,5"/>
                         <ScrollView HeightRequest="80">
                         <Editor Text="{Binding Config.Prompt.ExampleConversation}"
@@ -116,7 +104,7 @@
                 
 
                 <!-- Parameters Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Parameters, Converter={StaticResource NullToVisibilityConverter}}">
                      
                      <toolkit:Expander IsExpanded="False">
@@ -126,16 +114,15 @@
                     <Label Text="Parameter Settings"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Temperature"
-                                   TextColor="#333333"/>
+                            <Label Text="Temperature"/>
                             <controls:OptimizedSlider Minimum="0.0"
                                                         Maximum="2.0"
                                                         Step="0.1"
@@ -145,8 +132,7 @@
                                                         IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopP, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Top P"
-                                   TextColor="#333333"/>
+                            <Label Text="Top P"/>
                             <controls:OptimizedSlider Minimum="0.0"
                                                  Maximum="1.0"
                                                  Step="0.1"
@@ -156,7 +142,7 @@
                                                  IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.TopK, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Top K" TextColor="#333333"/>
+                            <Label Text="Top K"/>
                             <controls:OptimizedSlider Minimum="1"
                                                  Maximum="100"
                                                  Step="1"
@@ -166,8 +152,7 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Max New Tokens"
-                                   TextColor="#333333"/>
+                            <Label Text="Max New Tokens"/>
                             <controls:OptimizedSlider Minimum="0"
                                                  Maximum="2048"
                                                  OptimizedValue="1000"
@@ -175,8 +160,7 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Min New Tokens"
-                                   TextColor="#333333"/>
+                            <Label Text="Min New Tokens"/>
                             <controls:OptimizedSlider Minimum="0"
                                                  Maximum="2048"
                                                  OptimizedValue="20"
@@ -184,8 +168,7 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.RepetitionPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Repetition Penalty"
-                                   TextColor="#333333"/>
+                            <Label Text="Repetition Penalty"/>
                             <controls:OptimizedSlider Minimum="1.0"
                                                  Maximum="2.0"
                                                  OptimizedValue="1.2"
@@ -194,16 +177,14 @@
                                                  IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.RandomSeed, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Random Seed"
-                                   TextColor="#333333"/>
+                            <Label Text="Random Seed"/>
                             <Entry Text="{Binding Config.Parameters.RandomSeed, Mode=TwoWay}"
                                    Placeholder="Enter seed (0-2147483647)"
                                    Keyboard="Numeric"
                                    TextChanged="OnRandomSeedTextChanged"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.Parameters.StopSequences, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Stop Sequences"
-                               TextColor="#333333"/>
+                        <Label Text="Stop Sequences"/>
                         <CollectionView ItemsSource="{Binding StopSequences}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
@@ -221,7 +202,6 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                         <Label Text="Add a new stop sequence..."
-                               TextColor="#333333"
                                Margin="0,10,0,0"/>
                         <Entry x:Name="NewStopSequence"
                                Placeholder="Stop Sequence"/>
@@ -242,7 +222,7 @@
                 </Frame>
 
                 <!-- RAG Settings -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.RagSettings, Converter={StaticResource NullToVisibilityConverter}}">
                      <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -250,8 +230,8 @@
                     <Label Text="RAG Settings"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -263,16 +243,14 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.RagSettings.DatasetName, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Dataset Name"
-                               TextColor="#333333"/>
+                        <Label Text="Dataset Name"/>
                         <Picker x:Name="DatasetNamePicker"
                                ItemsSource="{Binding DatasetNames}"
                                SelectedItem="{Binding SelectedDatasetName, Mode=TwoWay}"
                                />
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.RagSettings.SimilarityThreshold, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Similarity Threshold"
-                                   TextColor="#333333"/>
+                            <Label Text="Similarity Threshold"/>
                             <controls:OptimizedSlider Minimum="0.0"
                                                  Maximum="1.0"
                                                  OptimizedValue="0.7"
@@ -293,7 +271,7 @@
                 </Frame>
 
                 <!-- Model Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ModelConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -301,15 +279,14 @@
                     <Label Text="Model Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.ModelConfig.TorchDtype, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Torch Dtype"
-                               TextColor="#333333"/>
+                        <Label Text="Torch Dtype"/>
                             <Picker SelectedItem="{Binding Config.ModelConfig.TorchDtype, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
@@ -341,7 +318,7 @@
                 </Frame>
 
                 <!-- Tokenizer Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -349,8 +326,8 @@
                     <Label Text="Tokenizer Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -362,14 +339,12 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig.EosToken, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="EOS Token"
-                               TextColor="#333333"/>
+                        <Label Text="EOS Token"/>
                         <Entry Text="{Binding Config.TokenizerConfig.EosToken}"
                                Placeholder="EOS Token"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TokenizerConfig.UnkToken, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="UNK Token"
-                               TextColor="#333333"/>
+                        <Label Text="UNK Token"/>
                         <Entry Text="{Binding Config.TokenizerConfig.UnkToken}"
                                Placeholder="UNK Token"/>
                     </VerticalStackLayout>
@@ -386,7 +361,7 @@
                 </Frame>
 
                 <!-- Pipeline Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -394,15 +369,14 @@
                     <Label Text="Pipeline Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxLength, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Max Length"
-                               TextColor="#333333"/>
+                        <Label Text="Max Length"/>
                         <controls:OptimizedSlider Minimum="1"
                                                  Maximum="4096"
                                                  OptimizedValue="512"
@@ -410,8 +384,7 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MaxNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Max New Tokens"
-                               TextColor="#333333"/>
+                        <Label Text="Max New Tokens"/>
                         <controls:OptimizedSlider Minimum="1"
                                                  Maximum="4096"
                                                  OptimizedValue="1000"
@@ -419,12 +392,11 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.MinNewTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Min New Tokens" TextColor="#333333"/>
+                        <Label Text="Min New Tokens"/>
                         <controls:OptimizedSlider Minimum="1" Maximum="2048" Step="1" OptimizedValue="20" Value="{Binding Config.PipelineConfig.MinNewTokens, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeams, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Num Beams"
-                               TextColor="#333333"/>
+                        <Label Text="Num Beams"/>
                         <Picker SelectedItem="{Binding Config.PipelineConfig.NumBeams, Mode=TwoWay}"
                                 WidthRequest="200"
                                 HorizontalOptions="Start">
@@ -440,7 +412,7 @@
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumBeamGroups, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Num Beam Groups" TextColor="#333333"/>
+                        <Label Text="Num Beam Groups"/>
                         <controls:OptimizedSlider Minimum="1" Maximum="10" Step="1" OptimizedValue="2" Value="{Binding Config.PipelineConfig.NumBeamGroups, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10"
@@ -450,31 +422,31 @@
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.DiversityPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Diversity Penalty" TextColor="#333333"/>
+                        <Label Text="Diversity Penalty"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="1.0" Step="0.1" OptimizedValue="0.1" Value="{Binding Config.PipelineConfig.DiversityPenalty, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.Temperature, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Temperature" TextColor="#333333"/>
+                        <Label Text="Temperature"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="2.0" Step="0.1" OptimizedValue="0.6" Value="{Binding Config.PipelineConfig.Temperature, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TopK, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Top K" TextColor="#333333"/>
+                        <Label Text="Top K"/>
                         <controls:OptimizedSlider Minimum="1" Maximum="100" Step="1" OptimizedValue="40" Value="{Binding Config.PipelineConfig.TopK, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TopP, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Top P" TextColor="#333333"/>
+                        <Label Text="Top P"/>
                         <controls:OptimizedSlider Minimum="0.00" Maximum="1.00" Step="0.01" OptimizedValue="0.92" FloatPlaces="2" Value="{Binding Config.PipelineConfig.TopP, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.RepetitionPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Repetition Penalty" TextColor="#333333"/>
+                        <Label Text="Repetition Penalty"/>
                         <controls:OptimizedSlider Minimum="1.0" Maximum="2.0" Step="0.1" OptimizedValue="1.2" Value="{Binding Config.PipelineConfig.RepetitionPenalty, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.LengthPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Length Penalty" TextColor="#333333"/>
+                        <Label Text="Length Penalty"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="2.0" Step="0.1" OptimizedValue="1.2" Value="{Binding Config.PipelineConfig.LengthPenalty, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NoRepeatNgramSize, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="No Repeat Ngram Size" TextColor="#333333"/>
+                        <Label Text="No Repeat Ngram Size"/>
                         <controls:OptimizedSlider Minimum="0" Maximum="10" Step="1" OptimizedValue="3" Value="{Binding Config.PipelineConfig.NoRepeatNgramSize, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10" IsVisible="{Binding Config.PipelineConfig.EarlyStopping, Converter={StaticResource NullToVisibilityConverter}}">
@@ -482,15 +454,15 @@
                         <Label Text="Early Stopping" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TypicalP, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Typical P" TextColor="#333333"/>
+                        <Label Text="Typical P"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="1.0" Step="0.1" OptimizedValue="0.9" Value="{Binding Config.PipelineConfig.TypicalP, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.EpsilonCutoff, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Epsilon Cutoff" TextColor="#333333"/>
+                        <Label Text="Epsilon Cutoff"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="1.0" Step="0.1" OptimizedValue="0.0" Value="{Binding Config.PipelineConfig.EpsilonCutoff, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.EtaCutoff, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Eta Cutoff" TextColor="#333333"/>
+                        <Label Text="Eta Cutoff"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="1.0" Step="0.1" OptimizedValue="0.0" Value="{Binding Config.PipelineConfig.EtaCutoff, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10" IsVisible="{Binding Config.PipelineConfig.DoSample, Converter={StaticResource NullToVisibilityConverter}}">
@@ -502,25 +474,25 @@
                         <Label Text="Renormalize Logits" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ExponentialDecayLengthPenalty, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Exponential Decay Length Penalty" TextColor="#333333"/>
+                        <Label Text="Exponential Decay Length Penalty"/>
                         <controls:OptimizedSlider Minimum="0.0" Maximum="2.0" Step="0.1" OptimizedValue="1.0" Value="{Binding Config.PipelineConfig.ExponentialDecayLengthPenalty, Mode=TwoWay}" IsInteger="False"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Suppress Tokens" TextColor="#333333"/>
+                        <Label Text="Suppress Tokens"/>
                         <Entry Text="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource ListToStringConverter}}" Placeholder="Enter token IDs separated by commas"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BeginSuppressTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Begin Suppress Tokens" TextColor="#333333"/>
+                        <Label Text="Begin Suppress Tokens"/>
                         <Entry Text="{Binding Config.PipelineConfig.BeginSuppressTokens, Converter={StaticResource ListToStringConverter}}" Placeholder="Enter token IDs separated by commas"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ForcedBosTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Forced BOS Token ID" TextColor="#333333"/>
+                        <Label Text="Forced BOS Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.ForcedBosTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ForcedEosTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Forced EOS Token ID" TextColor="#333333"/>
+                        <Label Text="Forced EOS Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.ForcedEosTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
 
@@ -529,7 +501,7 @@
                         <Label Text="Remove Invalid Values" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.NumReturnSequences, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Num Return Sequences" TextColor="#333333"/>
+                        <Label Text="Num Return Sequences"/>
                         <controls:OptimizedSlider Minimum="1" Maximum="10" Step="1" OptimizedValue="2" Value="{Binding Config.PipelineConfig.NumReturnSequences, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="10" IsVisible="{Binding Config.PipelineConfig.OutputAttentions, Converter={StaticResource NullToVisibilityConverter}}">
@@ -546,32 +518,29 @@
                     </HorizontalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.PadTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Pad Token ID" TextColor="#333333"/>
+                        <Label Text="Pad Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.PadTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BosTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="BOS Token ID" TextColor="#333333"/>
+                        <Label Text="BOS Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.BosTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.EosTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="EOS Token ID" TextColor="#333333"/>
+                        <Label Text="EOS Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.EosTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.EncoderNoRepeatNgramSize, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Encoder No Repeat Ngram Size" TextColor="#333333"/>
+                        <Label Text="Encoder No Repeat Ngram Size"/>
                         <controls:OptimizedSlider Minimum="0" Maximum="10" Step="1" OptimizedValue="3" Value="{Binding Config.PipelineConfig.EncoderNoRepeatNgramSize, Mode=TwoWay}" IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.DecoderStartTokenId, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Decoder Start Token ID" TextColor="#333333"/>
+                        <Label Text="Decoder Start Token ID"/>
                         <Entry Text="{Binding Config.PipelineConfig.DecoderStartTokenId}" Placeholder="Enter token ID"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Source Language"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.PipelineConfig.SrcLang}"
-                               Placeholder="Source Language"/> -->
+                        <Label Text="Source Language"/>
                         <Picker SelectedItem="{Binding Config.PipelineConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -580,10 +549,7 @@
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Target Language"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.PipelineConfig.TgtLang}"
-                               Placeholder="Target Language"/> -->
+                        <Label Text="Target Language"/>
                         <Picker SelectedItem="{Binding Config.PipelineConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -592,10 +558,7 @@
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ChunkLengthS, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Chunk Length (s)"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.PipelineConfig.ChunkLengthS}"
-                               Placeholder="Chunk Length (s)"/> -->
+                        <Label Text="Chunk Length(s)"/>
                         <controls:OptimizedSlider Minimum="5"
                                                  Maximum="60"
                                                  OptimizedValue="30"
@@ -603,10 +566,7 @@
                                                  IsInteger="True"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BatchSize, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Batch Size"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.PipelineConfig.BatchSize}"
-                               Placeholder="Batch Size"/> -->
+                        <Label Text="Batch Size"/>
                         <controls:OptimizedSlider Minimum="1"
                                                  Maximum="64"
                                                  OptimizedValue="16"
@@ -628,13 +588,9 @@
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Generate Kwargs"
                                FontSize="16"
-                               FontAttributes="Bold"
-                               TextColor="#333333"/>
+                               FontAttributes="Bold"/>
                         <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Language"
-                                   TextColor="#333333"/>
-                            <!-- <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Language}"
-                                   Placeholder="Language"/> -->
+                            <Label Text="Language"/>
                             <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Language, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -643,10 +599,7 @@
                             </Picker>
                         </VerticalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Task"
-                                   TextColor="#333333"/>
-                            <!-- <Entry Text="{Binding Config.PipelineConfig.GenerateKwargs.Task}"
-                                   Placeholder="Task"/> -->
+                            <Label Text="Task"/>
                             <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Task, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
@@ -660,8 +613,7 @@
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.CandidateLabels, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Candidate Labels"
-                               TextColor="#333333"/>
+                        <Label Text="Candidate Labels"/>
                         <CollectionView ItemsSource="{Binding CandidateLabels}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
@@ -679,7 +631,6 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                         <Label Text="New Label"
-                               TextColor="#333333"
                                Margin="0,10,0,0"/>
                         <Entry x:Name="NewCandidateLabel"
                                Placeholder="Enter label here..."/>
@@ -694,8 +645,7 @@
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ForwardParams, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Forward Params"
                                FontSize="16"
-                               FontAttributes="Bold"
-                               TextColor="#333333"/>
+                               FontAttributes="Bold"/>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.PipelineConfig.ForwardParams.DoSample, Converter={StaticResource NullToVisibilityConverter}}">
                             <CheckBox IsChecked="{Binding Config.PipelineConfig.ForwardParams.DoSample}"/>
@@ -710,7 +660,7 @@
                 </Frame>
 
                 <!-- Device Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -718,17 +668,14 @@
                     <Label Text="Device Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.DeviceConfig.Device, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Device"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.DeviceConfig.Device}"
-                               Placeholder="Device"/> -->
+                        <Label Text="Device"/>
                         <Picker SelectedItem="{Binding Config.DeviceConfig.Device, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
@@ -748,7 +695,7 @@
                 </Frame>
 
                 <!-- Translation Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -756,29 +703,14 @@
                     <Label Text="Translation Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Source Language"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.TranslationConfig.SrcLang}"
-                               Placeholder="Source Language"/> -->
-                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay}"
-                                    WidthRequest="200"
-                                    HorizontalOptions="Start">
-                            <Picker.ItemsSource>
-                                   <x:Array Type="{x:Type x:String}">
-                                   <x:String>en</x:String>
-                                   <x:String>fr</x:String>
-                                   <x:String>ro</x:String>
-                                   <x:String>de</x:String>
-                                   </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker> -->
+                        <Label Text="Source Language"/>
                         <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -787,22 +719,7 @@
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Target Language"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.TranslationConfig.TgtLang}"
-                               Placeholder="Target Language"/> -->
-                        <!-- <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay}"
-                                    WidthRequest="200"
-                                    HorizontalOptions="Start">
-                            <Picker.ItemsSource>
-                                   <x:Array Type="{x:Type x:String}">
-                                   <x:String>en</x:String>
-                                   <x:String>fr</x:String>
-                                   <x:String>ro</x:String>
-                                   <x:String>de</x:String>
-                                   </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker> -->
+                        <Label Text="Target Language"/>
                         <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -811,8 +728,7 @@
                         </Picker>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TargetLanguage, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Target Language"
-                               TextColor="#333333"/>
+                        <Label Text="Target Language"/>
                         <Picker SelectedItem="{Binding Config.TranslationConfig.TargetLanguage, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
                                 ItemsSource="{Binding LanguageList}"
                                 ItemDisplayBinding="{Binding Value}"
@@ -826,8 +742,9 @@
                 </VerticalStackLayout>
                 </Frame>
 
+
                 <!-- Quantization Config -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -835,17 +752,14 @@
                     <Label Text="Quantization Config"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfig.CurrentMode, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Current Mode"
-                               TextColor="#333333"/>
-                        <!-- <Entry Text="{Binding Config.QuantizationConfig.CurrentMode}"
-                               Placeholder="Current Mode"/> -->
+                        <Label Text="Current Mode"/>
                         <Picker SelectedItem="{Binding Config.QuantizationConfig.CurrentMode, Mode=TwoWay}"
                                     WidthRequest="200"
                                     HorizontalOptions="Start">
@@ -865,7 +779,7 @@
                 </Frame>
 
                 <!-- Quantization Config Options -->
-                <Frame BorderColor="LightGray" BackgroundColor="#F0F0F0" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame BackgroundColor="Gray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -873,8 +787,8 @@
                     <Label Text="Quantization Config Options (Read-only)"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -884,7 +798,7 @@
                         <Label Text="4-bit Config"
                                FontSize="16"
                                FontAttributes="Bold"
-                               TextColor="#333333"/>
+                               Margin="0,0,0,10"/>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit, Converter={StaticResource NullToVisibilityConverter}}">
                             <CheckBox IsEnabled="False" IsChecked="{Binding Config.QuantizationConfigOptions.FourBit.LoadIn4Bit}"/>
@@ -898,22 +812,20 @@
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitQuantType, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="BNB 4-bit Quant Type"
-                                   TextColor="#333333"/>
+                            <Label Text="BNB 4-bit Quant Type"/>
                             <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitQuantType}"
                                    Placeholder="BNB 4-bit Quant Type"
                                    WidthRequest="200"
                                    HorizontalOptions="Start"
-                                   IsEnabled="False" BackgroundColor="Transparent"/>
+                                   IsEnabled="False"/>
                         </VerticalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="BNB 4-bit Compute Dtype"
-                                   TextColor="#333333"/>
+                            <Label Text="BNB 4-bit Compute Dtype"/>
                             <Entry Text="{Binding Config.QuantizationConfigOptions.FourBit.Bnb4BitComputeDtype}"
                                    Placeholder="BNB 4-bit Compute Dtype"
                                    WidthRequest="200"
                                    HorizontalOptions="Start"
-                                   IsEnabled="False" BackgroundColor="Transparent"/>
+                                   IsEnabled="False"/>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
 
@@ -922,7 +834,7 @@
                         <Label Text="8-bit Config"
                                FontSize="16"
                                FontAttributes="Bold"
-                               TextColor="#333333"/>
+                               Margin="0,0,0,10"/>
                         <HorizontalStackLayout Spacing="10"
                                                IsVisible="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit, Converter={StaticResource NullToVisibilityConverter}}">
                             <CheckBox IsEnabled="False" IsChecked="{Binding Config.QuantizationConfigOptions.EightBit.LoadIn8Bit}"/>
@@ -936,7 +848,7 @@
                         <Label Text="Bfloat16 Config"
                                FontSize="16"
                                FontAttributes="Bold"
-                               TextColor="#333333"/>
+                               Margin="0,0,0,10"/>
                         <!-- Add properties for Bfloat16Config if needed -->
                     </VerticalStackLayout>
                     </VerticalStackLayout>
@@ -946,7 +858,7 @@
                 </Frame>
 
                 <!-- System Prompt -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -954,21 +866,20 @@
                     <Label Text="System Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Role"
-                               TextColor="#333333"/>
+                        <Label Text="Role"/>
                         <Entry Text="{Binding Config.SystemPrompt.Role}"
-                               Placeholder="Role"/>
+                               Placeholder="Role"
+                               IsEnabled="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.SystemPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Content"
-                               TextColor="#333333"/>
+                        <Label Text="Content"/>
                         <Entry Text="{Binding Config.SystemPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
@@ -979,7 +890,7 @@
                 </Frame>
 
                 <!-- User Prompt -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.UserPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -987,21 +898,20 @@
                     <Label Text="User Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.UserPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Role"
-                               TextColor="#333333"/>
+                        <Label Text="Role"/>
                         <Entry Text="{Binding Config.UserPrompt.Role}"
-                               Placeholder="Role"/>
+                               Placeholder="Role"
+                               IsEnabled="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.UserPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Content"
-                               TextColor="#333333"/>
+                        <Label Text="Content"/>
                         <Entry Text="{Binding Config.UserPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
@@ -1012,7 +922,7 @@
                 </Frame>
 
                 <!-- Assistant Prompt -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -1020,21 +930,20 @@
                     <Label Text="Assistant Prompt"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt.Role, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Role"
-                               TextColor="#333333"/>
+                        <Label Text="Role"/>
                         <Entry Text="{Binding Config.AssistantPrompt.Role}"
-                               Placeholder="Role"/>
+                               Placeholder="Role"
+                               IsEnabled="False"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.AssistantPrompt.Content, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Content"
-                               TextColor="#333333"/>
+                        <Label Text="Content"/>
                         <Entry Text="{Binding Config.AssistantPrompt.Content}"
                                Placeholder="Content"/>
                     </VerticalStackLayout>
@@ -1045,7 +954,7 @@
                 </Frame>
 
                 <!-- Features -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.Features, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -1053,8 +962,8 @@
                     <Label Text="Features"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -1114,7 +1023,7 @@
                 </Frame>
 
                 <!-- Other Config Properties -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config, Converter={StaticResource AnyPropertyExistsConverter}}">
                 <VerticalStackLayout Spacing="10">
                 <toolkit:Expander IsExpanded="False">
                      <toolkit:Expander.Header>
@@ -1122,8 +1031,8 @@
                      <Label Text="Settings"
                             FontSize="18"
                             FontAttributes="Bold"
-                            TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                            Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -1135,10 +1044,7 @@
                            Placeholder="Service Name"/>
                 </VerticalStackLayout> -->
                 <VerticalStackLayout IsVisible="{Binding Config.Voice, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Voice"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.Voice}"
-                           Placeholder="Voice"/> -->
+                    <Label Text="Voice"/>
                          <Picker SelectedItem="{Binding Config.Voice, Mode=TwoWay}"
                             WidthRequest="300"
                             HorizontalOptions="Start">
@@ -1201,10 +1107,7 @@
                      </Picker>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Pitch, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Pitch"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.Pitch}"
-                           Placeholder="Pitch"/> -->
+                    <Label Text="Pitch"/>
                      <controls:OptimizedSlider Minimum="-100"
                                                  Maximum="100"
                                                  OptimizedValue="0"
@@ -1212,10 +1115,7 @@
                                                  IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Speed, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Speed"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.Speed}"
-                           Placeholder="Speed"/> -->
+                    <Label Text="Speed"/>
                      <controls:OptimizedSlider Minimum="-100"
                                                  Maximum="100"
                                                  OptimizedValue="0"
@@ -1223,10 +1123,7 @@
                                                  IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.Model, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Model"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.Model}"
-                           Placeholder="Model"/> -->
+                    <Label Text="Model"/>
                      <Picker SelectedItem="{Binding Config.Model, Mode=TwoWay}"
                              WidthRequest="300"
                              HorizontalOptions="Start">
@@ -1323,8 +1220,7 @@
                      </Picker>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.ContentType, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Content Type"
-                           TextColor="#333333"/>
+                    <Label Text="Content Type"/>
                     <Entry Text="{Binding Config.ContentType}"
                            Placeholder="Content Type"
                            IsEnabled="False" BackgroundColor="Transparent"
@@ -1332,10 +1228,7 @@
                            HorizontalOptions="Start"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.EmbeddingDimensions, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Embedding Dimensions"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.EmbeddingDimensions}"
-                           Placeholder="Embedding Dimensions"/> -->
+                    <Label Text="Embedding Dimensions"/>
                      <controls:OptimizedSlider Minimum="64"
                                                  Maximum="2048"
                                                  OptimizedValue="768"
@@ -1343,10 +1236,7 @@
                                                  IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.MaxInputTokens, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Max Input Tokens"
-                           TextColor="#333333"/>
-                    <!-- <Entry Text="{Binding Config.MaxInputTokens}"
-                           Placeholder="Max Input Tokens"/> -->
+                    <Label Text="Max Input Tokens"/>
                      <controls:OptimizedSlider Minimum="64"
                                                  Maximum="2048"
                                                  OptimizedValue="512"
@@ -1354,8 +1244,7 @@
                                                  IsInteger="True"/>
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding Config.SpeakerEmbeddingConfig, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Label Text="Speaker Embedding Config"
-                           TextColor="#333333"/>
+                    <Label Text="Speaker Embedding Config"/>
                     <Entry Text="{Binding Config.SpeakerEmbeddingConfig}"
                            Placeholder="Speaker Embedding Config"/>
                 </VerticalStackLayout>
@@ -1366,7 +1255,7 @@
                 </Frame>
 
                 <!-- Example Conversation -->
-                <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
+                <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10" IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                 <VerticalStackLayout IsVisible="{Binding Config.ExampleConversation, Converter={StaticResource NullToVisibilityConverter}}">
                     <toolkit:Expander IsExpanded="False">
                     <toolkit:Expander.Header>
@@ -1374,8 +1263,8 @@
                     <Label Text="Example Conversation"
                            FontSize="18"
                            FontAttributes="Bold"
-                           TextColor="#333333"/>
-                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" TextColor="#333333" VerticalOptions="Center" Margin="10,0,0,10" />
+                           Margin="0,0,0,10"/>
+                     <Label Text="&#xf13a;" FontFamily="FontAwesomeFreeSolid" FontSize="18" VerticalOptions="Center" Margin="10,0,0,10" />
                      </HorizontalStackLayout>
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
@@ -1402,7 +1291,6 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                     <Label Text="Add a new example conversation..."
-                           TextColor="#333333"
                            Margin="0,10,0,0"/>
                     <Entry x:Name="NewMessageRole"
                            Placeholder="Role"/>

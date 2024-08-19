@@ -3,26 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.DataRefinery"
              Title="Data Refinery"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <VerticalStackLayout Grid.Column="0">
                     <Label Text="Data Refinery" 
                            FontSize="24" 
-                           FontAttributes="Bold" 
-                           TextColor="Black"/>
+                           FontAttributes="Bold"/>
                     <Label Text="Refine and preprocess your data for RAG" 
-                           FontSize="17" 
-                           TextColor="Black"/>
+                           FontSize="17"/>
                 </VerticalStackLayout>
                 <Button Grid.Column="1" 
                         Text="Find Dataset" 
                         Clicked="OnFindDatasetClicked"
                         VerticalOptions="Center"
-                        Margin="0,0,10,0">
+                        Margin="0,0,10,0"
+                        BackgroundColor="{AppThemeBinding Light=#6200EE, Dark=#6200EE}"
+                        TextColor="{AppThemeBinding Light=White, Dark=White}">
                     <Button.ImageSource>
-                        <FontImageSource Glyph="&#xf002;" FontFamily="FontAwesomeFreeSolid" />
+                        <FontImageSource Glyph="&#xf002;" FontFamily="FontAwesomeFreeSolid" Color="{AppThemeBinding Light=White, Dark=White}" />
                     </Button.ImageSource>
                 </Button>
                 <Button Grid.Column="2" 
@@ -38,21 +38,21 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto">
-                <Entry x:Name="FilePathEntry" Placeholder="Selected file path" IsReadOnly="True" Grid.Column="0" />
+                <Entry x:Name="FilePathEntry" Placeholder="Selected file path" IsReadOnly="True" Grid.Column="0"/>
                 <Button Text="Upload to AI Islands" 
                         Clicked="OnUploadToAIIslandsClicked" 
                         Grid.Column="1"
                         WidthRequest="230"
-                        Margin="10,0,0,0">
+                        Margin="10,0,0,0"
+                        BackgroundColor="{AppThemeBinding Light=#007AFF, Dark=#007AFF}"
+                        TextColor="{AppThemeBinding Light=White, Dark=White}">
                     <Button.ImageSource>
-                        <FontImageSource Glyph="&#xf382;" FontFamily="FontAwesomeFreeSolid" />
+                        <FontImageSource Glyph="&#xf382;" FontFamily="FontAwesomeFreeSolid" Color="{AppThemeBinding Light=White, Dark=White}" />
                     </Button.ImageSource>
                 </Button>
             </Grid>
 
-            <BoxView HeightRequest="1" 
-                     Color="Gray" 
-                     Margin="0,10"/>
+            <BoxView HeightRequest="1" Margin="0,10"/>
 
             <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="10">
                 <Label Text="Select AI Island dataset:" VerticalOptions="Center" Grid.Column="0" Grid.Row="0"/>
@@ -135,26 +135,24 @@
                             WidthRequest="120"
                             HeightRequest="50"
                             Margin="10,0,0,0"
-                            Clicked="OnClearClicked">
+                            Clicked="OnClearClicked"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=Black}"
+                            TextColor="{AppThemeBinding Light=Black, Dark=White}">
                         <Button.ImageSource>
-                            <FontImageSource Glyph="&#xf12d;" FontFamily="FontAwesomeFreeSolid" />
+                            <FontImageSource Glyph="&#xf12d;" FontFamily="FontAwesomeFreeSolid" Color="{AppThemeBinding Light=Black, Dark=White}" />
                         </Button.ImageSource>
                     </Button>
                 </StackLayout>
             </Grid>
 
-            <Frame BorderColor="Gray" 
-                   CornerRadius="5" 
-                   Padding="10">
+            <Frame CornerRadius="5" Padding="10" >
                 <VerticalStackLayout>
                     <Label Text="Dataset Preview" 
                            FontSize="18" 
-                           FontAttributes="Bold"
-                           TextColor="Black"/>
+                           FontAttributes="Bold"/>
                     <Editor x:Name="DatasetPreviewEditor"
                             IsReadOnly="True" 
-                            HeightRequest="300" 
-                            TextColor="Black"/>
+                            HeightRequest="300"/>
                 </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>
