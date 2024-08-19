@@ -28,12 +28,13 @@
             <Grid Padding="0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="15"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Image Source="{Binding Icon}"
                        Margin="5"
                        HeightRequest="20" />
-                <Label Grid.Column="1"
+                <Label Grid.Column="2"
                        Text="{Binding Title}"
                        FontSize="14"
                        TextColor="{AppThemeBinding Light=White, Dark=White}"
@@ -57,7 +58,7 @@
                      Color="{AppThemeBinding Light=White, Dark=White}" 
                      HeightRequest="2" 
                      HorizontalOptions="Fill" 
-                     Margin="10,10,0,0"/>
+                     Margin="0,30,0,20"/>
         </Grid>
     </Shell.FlyoutHeader>
 
