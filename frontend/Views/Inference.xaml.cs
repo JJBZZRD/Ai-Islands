@@ -114,6 +114,8 @@ namespace frontend.Views
                     IsViewImageOutputButtonVisible = true;
                     break;
                 case "text-classification":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
                 case "zero-shot-classification":
                 case "translation":
                 case "text-to-speech":
@@ -339,8 +341,14 @@ namespace frontend.Views
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
-                    case "text-to-speech":
-                    
+                    case "text-classification":
+                        if (string.IsNullOrEmpty(InputText))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please enter text to synthesize.", "OK");
+                            return;
+                        }
+                        data = new { payload = InputText };
+                        break;
                     default:
                         await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
                         return;
