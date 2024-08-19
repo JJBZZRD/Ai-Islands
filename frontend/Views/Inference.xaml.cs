@@ -10,6 +10,7 @@ using System.Threading;
 using System.IO;
 using System.Text;
 using OpenCvSharp;
+using System.Collections.ObjectModel;
 
 namespace frontend.Views
 {
@@ -81,11 +82,26 @@ namespace frontend.Views
             }
         }
 
+        private ObservableCollection<ChatMessage> _chatHistory;
+        public ObservableCollection<ChatMessage> ChatHistory
+        {
+            get => _chatHistory;
+            set
+            {
+                if (_chatHistory != value)
+                {
+                    _chatHistory = value;
+                    OnPropertyChanged(nameof(ChatHistory));
+                }
+            }
+        }
+
         public Inference(Model model)
         {
             InitializeComponent();
             _model = model;
             _modelService = new ModelService();
+            ChatHistory = new ObservableCollection<ChatMessage>();
             BindingContext = this;
             CreateInputUI();
         }
@@ -114,11 +130,26 @@ namespace frontend.Views
                     IsViewImageOutputButtonVisible = true;
                     break;
                 case "text-classification":
-                case "zero-shot-classification":
-                case "translation":
-                case "text-to-speech":
-                case "text-generation":
                     InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "zero-shot-classification":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "translation":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "text-to-speech":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "text-generation":
+                    if (_model.Config.ChatHistory == true)
+                    {
+                        InputContainer.Children.Add(CreateChatBotUI());
+                    }
+                    else
+                    {
+                        InputContainer.Children.Add(CreateTextInputUI());
+                    }
                     break;
                 case "token-classification":
                 case "question-answering":
@@ -201,6 +232,139 @@ namespace frontend.Views
             };
             editor.TextChanged += (sender, e) => InputText = ((Editor)sender)?.Text ?? string.Empty;
             return editor;
+        }
+
+        private View CreateChatBotUI()
+        {
+            var chatListView = new ListView
+            {
+                ItemsSource = ChatHistory,
+                HasUnevenRows = true,
+                SeparatorVisibility = SeparatorVisibility.None,
+                SelectionMode = ListViewSelectionMode.None,
+                ItemTemplate = new DataTemplate(() =>
+                {
+                    var messageFrame = new Frame
+                    {
+                        CornerRadius = 10,
+                        Padding = new Thickness(10),
+                        Margin = new Thickness(5)
+                    };
+
+                    var messageLabel = new Label { LineBreakMode = LineBreakMode.WordWrap };
+                    messageLabel.SetBinding(Label.TextProperty, "Content");
+
+                    messageFrame.Content = messageLabel;
+
+                    var cell = new ViewCell { View = messageFrame };
+
+                    var triggerRole = new DataTrigger(typeof(Frame))
+                    {
+                        Binding = new Binding("Role"),
+                        Value = "user"
+                    };
+                    triggerRole.Setters.Add(new Setter
+                    {
+                        Property = BackgroundColorProperty,
+                        Value = Color.FromRgba("#E1F5FE")
+                    });
+
+                    var triggerAssistant = new DataTrigger(typeof(Frame))
+                    {
+                        Binding = new Binding("Role"),
+                        Value = "assistant"
+                    };
+                    triggerAssistant.Setters.Add(new Setter
+                    {
+                        Property = BackgroundColorProperty,
+                        Value = Color.FromRgba("#F1F8E9")
+                    });
+
+                    messageFrame.Triggers.Add(triggerRole);
+                    messageFrame.Triggers.Add(triggerAssistant);
+
+                    return cell;
+                })
+            };
+
+            var inputEntry = new Entry
+            {
+                Placeholder = "Type your message...",
+                HorizontalOptions = LayoutOptions.FillAndExpand
+            };
+
+            var sendButton = new Button
+            {
+                Text = "Send",
+                HorizontalOptions = LayoutOptions.End
+            };
+
+            sendButton.Clicked += async (sender, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(inputEntry.Text))
+                {
+                    ChatHistory.Add(new ChatMessage { Role = "user", Content = inputEntry.Text });
+                    var userMessage = inputEntry.Text;
+                    inputEntry.Text = string.Empty;
+
+                    await SendMessageToChatbot(userMessage);
+                }
+            };
+
+            var inputLayout = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Children = { inputEntry, sendButton }
+            };
+
+            return new StackLayout
+            {
+                Children =
+                {
+                    new ScrollView { Content = chatListView, VerticalOptions = LayoutOptions.FillAndExpand },
+                    inputLayout
+                }
+            };
+        }
+
+        private async Task SendMessageToChatbot(string userMessage)
+        {
+            try
+            {
+                var data = new { payload = userMessage };
+                var result = await _modelService.Inference(_model.ModelId, data);
+
+                if (result.TryGetValue("data", out var dataValue))
+                {
+                    string assistantMessage;
+                    if (dataValue is string stringResponse)
+                    {
+                        assistantMessage = stringResponse;
+                    }
+                    else if (dataValue is Dictionary<string, object> responseDict)
+                    {
+                        assistantMessage = responseDict.TryGetValue("response", out var responseValue) 
+                            ? responseValue?.ToString() 
+                            : "I'm sorry, I couldn't generate a response.";
+                    }
+                    else
+                    {
+                        assistantMessage = "I'm sorry, I couldn't generate a response.";
+                    }
+
+                    ChatHistory.Add(new ChatMessage { Role = "assistant", Content = assistantMessage });
+                    System.Diagnostics.Debug.WriteLine($"Assistant message: {assistantMessage}");
+                }
+                else
+                {
+                    ChatHistory.Add(new ChatMessage { Role = "assistant", Content = "I'm sorry, I couldn't generate a response." });
+                }
+            }
+            catch (Exception ex)
+            {
+                ChatHistory.Add(new ChatMessage { Role = "assistant", Content = $"An error occurred: {ex.Message}" });
+                System.Diagnostics.Debug.WriteLine($"Error in SendMessageToChatbot: {ex}");
+            }
         }
 
         private async void OnImageOrVideoSelectClicked(object sender, EventArgs e)
@@ -339,6 +503,19 @@ namespace frontend.Views
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
+                    case "text-generation":
+                        if (string.IsNullOrEmpty(InputText))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
+                            return;
+                        }
+                        data = new { payload = InputText };
+                        break;
+
+
+
+                    
+                    
                     case "text-to-speech":
                     
                     default:
@@ -348,18 +525,15 @@ namespace frontend.Views
 
                 var result = await _modelService.Inference(_model.ModelId, data);
 
-                RawJsonText = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-                
-                var resultDict = JsonSerializer.Deserialize<Dictionary<string, object>>(RawJsonText);
-
-                if (resultDict != null && resultDict.TryGetValue("data", out var dataValue))
+                if (result.TryGetValue("data", out var dataValue))
                 {
-                    RawJsonText = JsonSerializer.Serialize(dataValue, new JsonSerializerOptions { WriteIndented = true });
+                    RawJsonText = FormatJsonString(dataValue);
                     System.Diagnostics.Debug.WriteLine($"Extracted data: {RawJsonText}");
                 }
                 else
                 {
                     await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
+                    return;
                 }
 
                 await Application.Current.MainPage.DisplayAlert("Inference Complete", "The output is ready.", "OK");
@@ -502,5 +676,33 @@ namespace frontend.Views
                 System.Diagnostics.Debug.WriteLine($"Detailed error: {ex}");
             }
         }
+        private string FormatJsonString(object obj)
+        {
+            if (obj is string strValue)
+            {
+                // If it's already a string, try to parse and re-serialize it
+                try
+                {
+                    var jsonElement = JsonSerializer.Deserialize<JsonElement>(strValue);
+                    return JsonSerializer.Serialize(jsonElement, new JsonSerializerOptions { WriteIndented = true });
+                }
+                catch
+                {
+                    // If parsing fails, return the original string
+                    return strValue;
+                }
+            }
+            else
+            {
+                // For non-string objects, serialize with indentation
+                return JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            }
+        }
+    }
+
+    public class ChatMessage
+    {
+        public string Role { get; set; }
+        public string Content { get; set; }
     }
 }
