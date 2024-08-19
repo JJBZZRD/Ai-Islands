@@ -14,7 +14,7 @@
 
             <BoxView HeightRequest="1" Color="Gray"/>
 
-            <Frame BorderColor="LightGray" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+            <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Watson Cloud Account:" 
                            FontSize="20" 
