@@ -21,138 +21,142 @@
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
     </ContentPage.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <AbsoluteLayout>
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-            <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
-            <Label Text="Explore the pre-selected AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
-                   FontSize="17" TextColor="Black" />
-        </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
+                <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
+                <Label Text="Explore the pre-selected AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
+                       FontSize="17" TextColor="Black" />
+            </VerticalStackLayout>
 
-        <Grid Grid.Row="1" HorizontalOptions="Start" Margin="20,20,20,0">
-            <Grid.WidthRequest>
-                <OnPlatform x:TypeArguments="x:Double">
-                    <On Platform="Android,iOS" Value="800" />
-                    <On Platform="WinUI,MacCatalyst" Value="{OnIdiom Phone=800, Default=-1}" />
-                </OnPlatform>
-            </Grid.WidthRequest>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1" HorizontalOptions="Start" Margin="20,20,20,0">
+                <Grid.WidthRequest>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="Android,iOS" Value="800" />
+                        <On Platform="WinUI,MacCatalyst" Value="{OnIdiom Phone=800, Default=-1}" />
+                    </OnPlatform>
+                </Grid.WidthRequest>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <Frame Grid.Column="0" 
-                   Padding="5,0" 
-                   CornerRadius="10"
-                   MinimumWidthRequest="350"
-                   HasShadow="False"
-                   BorderColor="#E0E0E0"
-                   BackgroundColor="White"> 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" 
-                           Source="search_icon_2.png" 
-                           HeightRequest="15" 
-                           WidthRequest="15" 
-                           Margin="10,0,0,0"/>
-                    <SearchBar Grid.Column="1" 
-                               Placeholder="Search" 
-                               PlaceholderColor="#888888"
-                               TextColor="Black"
-                               FontSize="15"
-                               HorizontalTextAlignment="Start"
-                               VerticalOptions="Center"
-                               BackgroundColor="Transparent"
-                               TextChanged="OnSearchTextChanged"/>
+                <Frame Grid.Column="0" 
+                       Padding="5,0" 
+                       CornerRadius="10"
+                       MinimumWidthRequest="350"
+                       HasShadow="False"
+                       BorderColor="#E0E0E0"
+                       BackgroundColor="White"> 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" 
+                               Source="search_icon_2.png" 
+                               HeightRequest="15" 
+                               WidthRequest="15" 
+                               Margin="10,0,0,0"/>
+                        <SearchBar Grid.Column="1" 
+                                   Placeholder="Search" 
+                                   PlaceholderColor="#888888"
+                                   TextColor="Black"
+                                   FontSize="15"
+                                   HorizontalTextAlignment="Start"
+                                   VerticalOptions="Center"
+                                   BackgroundColor="Transparent"
+                                   TextChanged="OnSearchTextChanged"/>
+                    </Grid>
+                </Frame>
+
+                <Button Grid.Column="1" 
+                        Text="Filter" 
+                        FontSize="16"
+                        ImageSource="filter_icon.png"
+                        HeightRequest="10"
+                        ContentLayout="Left,10"
+                        BackgroundColor="Transparent" 
+                        TextColor="Black" 
+                        CornerRadius="10" 
+                        Margin="10,0,0,0"
+                        Clicked="OnFilterClicked"/>     
+            </Grid>
+
+            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
+                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
                 </Grid>
             </Frame>
 
-            <Button Grid.Column="1" 
-                    Text="Filter" 
-                    FontSize="16"
-                    ImageSource="filter_icon.png"
-                    HeightRequest="10"
-                    ContentLayout="Left,10"
-                    BackgroundColor="Transparent" 
-                    TextColor="Black" 
-                    CornerRadius="10" 
-                    Margin="10,0,0,0"
-                    Clicked="OnFilterClicked"/>     
+            <ScrollView Grid.Row="3">
+                <CollectionView ItemsSource="{Binding Models}" Margin="20,10,20,20">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BorderColor="LightGray" 
+                                   BackgroundColor="White" 
+                                   CornerRadius="10" 
+                                   Padding="10" 
+                                   HasShadow="True"
+                                   Margin="0,5">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
+                                    <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
+                                           TextColor="Black"/>
+                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                           TextColor="Black" Margin="10,0,0,0"/>
+                                    <Frame Grid.Column="2" 
+                                           BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                           BorderColor="Transparent"
+                                           CornerRadius="18"
+                                           HeightRequest="33"
+                                           WidthRequest="60"
+                                           Padding="5,2"
+                                           HorizontalOptions="Start">
+                                        <Label Text="{Binding Status}"
+                                               TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
+                                               FontAttributes="Bold"
+                                               FontSize="12"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center"/> 
+                                    </Frame>
+                                    <Button Grid.Column="3" 
+                                            Text="Add to library"
+                                            BackgroundColor="#3366FF"
+                                            TextColor="White"
+                                            CornerRadius="15"
+                                            HeightRequest="20"
+                                            Clicked="OnAddToLibraryClicked"
+                                            BindingContext="{Binding .}"
+                                            CommandParameter="{Binding .}"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Center"
+                                            Padding="10,5"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
         </Grid>
 
-        <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
-            <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
-                <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
-                <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
-            </Grid>
-        </Frame>
-
-        <ScrollView Grid.Row="3">
-            <CollectionView ItemsSource="{Binding Models}" Margin="20,10,20,20">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame BorderColor="LightGray" 
-                               BackgroundColor="White" 
-                               CornerRadius="10" 
-                               Padding="10" 
-                               HasShadow="True"
-                               Margin="0,5">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
-                            </Frame.GestureRecognizers>
-                            <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
-                                <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
-                                       TextColor="Black"/>
-                                <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
-                                       TextColor="Black" Margin="10,0,0,0"/>
-                                <Frame Grid.Column="2" 
-                                       BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                       BorderColor="Transparent"
-                                       CornerRadius="18"
-                                       HeightRequest="33"
-                                       WidthRequest="60"
-                                       Padding="5,2"
-                                       HorizontalOptions="Start">
-                                    <Label Text="{Binding Status}"
-                                       TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
-                                       FontAttributes="Bold"
-                                       FontSize="12"
-                                       VerticalOptions="Center"
-                                       HorizontalOptions="Center"/> 
-                                </Frame>
-                                <Button Grid.Column="3" 
-                                        Text="Add to library"
-                                        BackgroundColor="#3366FF"
-                                        TextColor="White"
-                                        CornerRadius="15"
-                                        HeightRequest="20"
-                                        Clicked="OnAddToLibraryClicked"
-                                        BindingContext="{Binding .}"
-                                        CommandParameter="{Binding .}"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Center"
-                                        Padding="10,5"/>
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
-
         <BoxView x:Name="Overlay"
+                 AbsoluteLayout.LayoutBounds="0,0,1,1"
+                 AbsoluteLayout.LayoutFlags="All"
                  IsVisible="{Binding Source={x:Reference FilterPopup}, Path=IsVisible}"
                  BackgroundColor="#80000000"
                  InputTransparent="False">
@@ -160,20 +164,25 @@
                 <TapGestureRecognizer Tapped="OnOverlayTapped"/>
             </BoxView.GestureRecognizers>
         </BoxView>
-        <local:FilterPopup x:Name="FilterPopup"
-                   IsVisible="false"
-                   ModelTypes="{Binding ModelTypes}"
-                   FilterOnline="{Binding FilterOnline}"
-                   FilterOffline="{Binding FilterOffline}"
-                   AllModels="{Binding AllModels}"
-                   CloseRequested="OnCloseFilterPopup"
-                   ApplyFiltersRequested="OnApplyFilters"
-                   ResetFiltersRequested="OnResetFilters"/>
 
-        <components:InputPopup x:Name="AuthTokenPopup" 
+        <local:FilterPopup x:Name="FilterPopup"
+                           AbsoluteLayout.LayoutBounds="0.5,0.5,0.9,0.9"
+                           AbsoluteLayout.LayoutFlags="All"
+                           IsVisible="false"
+                           ModelTypes="{Binding ModelTypes}"
+                           FilterOnline="{Binding FilterOnline}"
+                           FilterOffline="{Binding FilterOffline}"
+                           AllModels="{Binding AllModels}"
+                           CloseRequested="OnCloseFilterPopup"
+                           ApplyFiltersRequested="OnApplyFilters"
+                           ResetFiltersRequested="OnResetFilters"/>
+
+        <components:InputPopup x:Name="AuthTokenPopup"
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.9,0.9"
+                               AbsoluteLayout.LayoutFlags="All"
                                IsVisible="false"
                                Title="Authentication Required"
                                FieldLabel="Enter Auth Token"
                                IsPassword="True" />
-    </Grid>
+    </AbsoluteLayout>
 </ContentPage>
