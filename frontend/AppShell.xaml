@@ -4,19 +4,19 @@
        xmlns:local="clr-namespace:frontend.Views"
        x:Class="frontend.Views.AppShell"
        FlyoutBehavior="Flyout"
-       BackgroundColor="{AppThemeBinding Light=White, Dark=White}"
+       BackgroundColor="{AppThemeBinding Light=Gray, Dark=Gray}"
        FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}"
-       FlyoutWidth="200">
+       FlyoutWidth="180">
 
     <Shell.TitleView>
         <Grid Padding="15,0,0,0" BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="Center">
-                <Image Source="ai_island.png"
-                   HeightRequest="50"
-                   WidthRequest="50"
+                <Image Source="ai_island_title.png"
+                   HeightRequest="40"
+                   WidthRequest="40"
                    VerticalOptions="Center"/>
-                <Label Text="AI Islands"
-                   FontSize="19"
+                <Label Margin="15,0,0,0" Text="AI Islands"
+                   FontSize="25"
                    TextColor="{AppThemeBinding Light=White, Dark=White}"
                    VerticalOptions="Center"/>
             </StackLayout>
@@ -49,8 +49,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Image Source="ai_island.png"
-                   HeightRequest="80"
-                   WidthRequest="80"
+                   HeightRequest="100"
+                   WidthRequest="100"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"/>
             <BoxView Grid.Row="1" 
