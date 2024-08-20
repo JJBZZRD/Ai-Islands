@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from ibm_watsonx_ai import APIClient, Credentials
 from backend.utils.watson_settings_manager import watson_settings
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 IAM_TOKEN_URL = "https://iam.cloud.ibm.com/identity/token"
 RESOURCE_SERVICE_URL = "https://resource-controller.cloud.ibm.com/v2/resource_instances"
 
@@ -12,20 +15,25 @@ class Authentication:
     def __init__(self):
         self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
         if not self.api_key:
+            logger.error("API key is not set in the settings.")
             raise ValueError("API key is not set in the settings.")
 
     def _validate_api_key(self, api_key: str) -> bool:
-        url = IAM_TOKEN_URL
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
-        }
-        data = {
-            "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
-            "apikey": api_key
-        }
-        response = requests.post(url, headers=headers, data=data)
-        return response.status_code == 200
+        try:
+            url = IAM_TOKEN_URL
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json"
+            }
+            data = {
+                "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+                "apikey": api_key
+            }
+            response = requests.post(url, headers=headers, data=data)
+            return response.status_code == 200
+        except requests.RequestException as e:
+            logger.error(f"Error validating API key: {str(e)}")
+            return False
 
     def get_iam_token(self):
         headers = {
@@ -111,6 +119,11 @@ class AccountInfo:
         self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
         self.projects_url = watson_settings.get('IBM_CLOUD_PROJECTS_URL')
         self.models_url = watson_settings.get('IBM_CLOUD_MODELS_URL')
+
+        if not self.api_key or not self.projects_url or not self.models_url:
+            logger.error("API key or URLs are not set in the settings.")
+            raise ValueError("API key or URLs are not set in the settings.")
+
         self.credentials = Credentials(
             url=self.models_url,
             api_key=self.api_key
@@ -118,9 +131,6 @@ class AccountInfo:
         self.watsonx = APIClient(self.credentials)
         self.auth = Authentication()
         self.resource_service = ResourceService()
-
-        if not self.api_key or not self.projects_url or not self.models_url:
-            raise ValueError("API key or URLs are not set in the settings.")
 
     def get_iam_token(self):
         return self.auth.get_iam_token()
@@ -148,19 +158,19 @@ class AccountInfo:
 
 # Functions to handle projects
 def get_projects():
-    auth = Authentication()
-    account_info = AccountInfo()
     try:
+        auth = Authentication()
+        account_info = AccountInfo()
         iam_token = auth.get_iam_token()
         projects = account_info.list_projects(iam_token)
         return [{"id": project["metadata"]["guid"], "name": project["entity"]["name"]} for project in projects]
     except Exception as e:
-        logging.error(f"Error: {e}")
+        logger.error(f"Error getting projects: {str(e)}")
         return []
 
 def select_project(project_id: str):
     try:
         return {"status": "Project selected", "project_id": project_id}
     except Exception as e:
-        logging.error(f"Error: {e}")
+        logger.error(f"Error: {e}")
         return {"status": "Error", "message": str(e)}

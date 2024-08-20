@@ -24,27 +24,16 @@ class WatsonModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.config = None
-        self.auth = Authentication()
-        self.resource_service = ResourceService()
-        self.account_info = AccountInfo()
+        self.auth = None
+        self.resource_service = None
+        self.account_info = None
         self.model_inference = None
         self.embeddings = None
         self.is_loaded = False
-        self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
-        self.project_id = watson_settings.get('USER_PROJECT_ID')
+        self.api_key = None
+        self.project_id = None
         
-        if not self.api_key:
-            logger.error("No IBM API key found. Please set your key in Settings.")
-            raise ValueError("No API key found")
-        
-        if not self.auth._validate_api_key(self.api_key):
-            logger.error("Invalid API key. Please check your IBM API key.")
-            raise ValueError("Invalid API key")
-        
-        if not self.project_id:
-            self.select_project()
-        
-        logger.info(f"Initialized WatsonModel with API_KEY: {self.api_key[:5]}... and PROJECT_ID: {self.project_id}")
+        logger.info(f"Initialized WatsonModel with ID: {self.model_id}")
 
     def select_project(self):
         projects = get_projects()
@@ -151,9 +140,13 @@ class WatsonModel(BaseModel):
 
     def load(self, device: str, model_info: dict):
         try:
+            self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+            self.project_id = watson_settings.get('USER_PROJECT_ID')
+
             if not self.api_key:
                 raise ModelError("IBM_CLOUD_API_KEY not found in environment variables")
 
+            self.auth = Authentication()
             if not self.auth._validate_api_key(self.api_key):
                 raise ModelError("Invalid IBM_CLOUD_API_KEY")
 
@@ -170,7 +163,9 @@ class WatsonModel(BaseModel):
             else:
                 logger.info(f"Validating project ID: {self.project_id}")
                 if not self.auth.validate_project(self.project_id):
-                    raise ModelError(f"Invalid or inaccessible project ID: {self.project_id}")
+                    logger.info("Invalid project ID. Attempting to select a new project...")
+                    if not self.select_project():
+                        raise ModelError("Failed to select a valid project")
                 logger.info(f"Project ID {self.project_id} is valid")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
@@ -193,6 +188,7 @@ class WatsonModel(BaseModel):
                 logger.info(f"Max input tokens: {self.config.get('max_input_tokens')}")
                 self.is_loaded = True
             else:
+                self.account_info = AccountInfo()
                 self.model_inference = ModelInference(
                     model_id=self.model_id,
                     credentials=self.account_info.credentials,
