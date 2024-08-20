@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
+using frontend.Services;
+using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace frontend.Views
 {
@@ -33,37 +36,107 @@ namespace frontend.Views
             }
         }
 
+        private ObservableCollection<Parameter> _parameters;
+        public ObservableCollection<Parameter> Parameters
+        {
+            get => _parameters;
+            set
+            {
+                if (_parameters != value)
+                {
+                    _parameters = value;
+                    OnPropertyChanged();
+                    SaveVisParameters();
+                }
+            }
+        }
+
         public FineTune(Model model)
         {
             InitializeComponent();
             _model = model;
             BindingContext = this;
 
-            GenerateTaskSpecificUI();
+            TaskSpecificContent.Content = GenerateTaskSpecificUI();
         }
 
-        private void GenerateTaskSpecificUI()
+        private View GenerateTaskSpecificUI()
         {
+            View taskSpecificContent;
+
             switch (_model.PipelineTag?.ToLower())
             {
                 case "object-detection":
-                    TaskSpecificContent.Content = CreateObjectDetectionUI();
+                    taskSpecificContent = CreateObjectDetectionUI();
                     IsFineTuningAvailable = true;
                     break;
                 case "text-generation":
-                    TaskSpecificContent.Content = CreateNLPUI();
+                    taskSpecificContent = CreateNLPUI();
                     IsFineTuningAvailable = true;
                     break;
-                // more cases can be added here
+                // more cases here
                 default:
-                    TaskSpecificContent.Content = CreateDefaultUI();
+                    // taskSpecificContent = new Label { Text = "Unsupported task" };
+                    taskSpecificContent = CreateDefaultUI();
                     IsFineTuningAvailable = false;
                     break;
             }
+
+            return taskSpecificContent;
         }
+
+        private string _selectedZipPath;
+        private Label _selectedZipLabel;
 
         private View CreateObjectDetectionUI()
         {
+            Parameters = new ObservableCollection<Parameter>
+            {
+                new Parameter { Name = "Epochs", Value = _model.FineTuningParameters?.GetValueOrDefault("Epochs", "10") ?? "10", Description = "The number of complete passes through the training dataset. Starting with a smaller number of epochs (e.g., 10) is recommended, as it helps prevent overfitting and allows for iterative improvement.", Parent = this },
+                new Parameter { Name = "Batch size", Value = _model.FineTuningParameters?.GetValueOrDefault("Batch size", "16") ?? "16", Description = "The number of training examples utilised in one iteration. A larger batch size can lead to faster training but may require more memory. It's often a trade-off between speed and generalization performance. Start with a smaller batch size (e.g., 16 or 32) and adjust based on your hardware capabilities and model performance.", Parent = this },
+                new Parameter { Name = "Learning rate", Value = _model.FineTuningParameters?.GetValueOrDefault("Learning rate", "0.001") ?? "0.001", Description = "The step size at each iteration while moving toward a minimum of the loss function. It controls how quickly or slowly a neural network model learns a problem. A high learning rate can cause the model to converge too quickly to a suboptimal solution, while a low learning rate can result in a slow learning process. It's often recommended to start with a small value (e.g., 0.001) and adjust based on training performance.", Parent = this }
+            };
+
+            var selectZipButton = new Button
+            {
+                Text = "Select zip folder (max permitted size: 3.5GB)",
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
+                TextColor = Color.FromArgb("#333333"),
+                CornerRadius = 5,
+                Margin = new Thickness(0, 10, 0, 10),
+                Command = new Command(async () => await SelectZipFolder())
+            };
+
+            var submitVisDatasetButton = new Button
+            {
+                Text = "Submit Dataset",
+                BackgroundColor = Color.FromArgb("#4CAF50"),
+                TextColor = Colors.White,
+                CornerRadius = 5,
+                Margin = new Thickness(0, 10, 0, 10),
+                IsVisible = true, 
+                Command = new Command(async () => await SubmitVisDataset())
+            };
+
+            _selectedZipLabel = new Label
+            {
+                Text = "No folder selected",
+                TextColor = Color.FromArgb("#555555"),
+                Margin = new Thickness(0, 10, 0, 10)
+            };
+
+            var saveButton = new Button
+            {
+                Text = "Save Parameters",
+                BackgroundColor = Color.FromArgb("#3366FF"),
+                TextColor = Colors.White,
+                CornerRadius = 5,
+                Margin = new Thickness(0, 0, 0, 0),
+                Command = new Command(OnSaveParametersClicked),
+                HorizontalOptions = LayoutOptions.End
+            };
+            Grid.SetColumn(saveButton, 1);
+
             return new VerticalStackLayout
             {
                 Children =
@@ -79,9 +152,15 @@ namespace frontend.Views
                             Children =
                             {
                                 new Label { Text = "Fine-tuning parameters", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                CreateParameterEntryWithInfo("Epochs", "The number of complete passes through the training dataset. Starting with a smaller number of epochs (e.g., 10) is recommended, as it helps prevent overfitting and allows for iterative improvement."),
-                                CreateParameterEntryWithInfo("Batch size", "The number of training examples utilised in one iteration. A larger batch size can lead to faster training but may require more memory. It's often a trade-off between speed and generalization performance. Start with a smaller batch size (e.g., 16 or 32) and adjust based on your hardware capabilities and model performance."),
-                                CreateParameterEntryWithInfo("Learning rate", "The step size at each iteration while moving toward a minimum of the loss function. It controls how quickly or slowly a neural network model learns a problem. A high learning rate can cause the model to converge too quickly to a suboptimal solution, while a low learning rate can result in a slow learning process. It's often recommended to start with a small value (e.g., 0.001) and adjust based on training performance.")
+                                saveButton,
+                                new CollectionView
+                                {
+                                    ItemsSource = Parameters,
+                                    ItemTemplate = new DataTemplate(() =>
+                                    {
+                                        return CreateParameterEntryWithInfo();
+                                    })
+                                }
                             }
                         }
                     },
@@ -111,7 +190,9 @@ namespace frontend.Views
                                     Margin = new Thickness(0, 10, 0, 10),
                                     Command = new Command(async () => await DownloadExampleDataset())
                                 },
-                                CreateUploadButtonWithInfo("Select zip folder", "Choose a dataset zip folder for fine-tuning. Format supported for this model: YOLO.")
+                                selectZipButton,
+                                _selectedZipLabel, 
+                                submitVisDatasetButton
                             }
                         }
                     }
@@ -119,8 +200,20 @@ namespace frontend.Views
             };
         }
 
+        private async void OnSaveParametersClicked()
+        {
+            SaveVisParameters();
+            await Application.Current.MainPage.DisplayAlert("Success", "Parameters saved successfully", "OK");
+        }
+
         private View CreateNLPUI()
         {
+            Parameters = new ObservableCollection<Parameter>
+            {
+                new Parameter { Name = "Vocabulary size", Value = "", Description = "The number of unique tokens in the model's vocabulary." },
+                new Parameter { Name = "Embedding dimension", Value = "", Description = "The size of the vector space in which words are embedded." }
+            };
+
             return new VerticalStackLayout
             {
                 Children =
@@ -136,8 +229,14 @@ namespace frontend.Views
                             Children =
                             {
                                 new Label { Text = "Parameters", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                CreateParameterEntryWithInfo("Vocabulary size", "The number of unique tokens in the model's vocabulary."),
-                                CreateParameterEntryWithInfo("Embedding dimension", "The size of the vector space in which words are embedded."),
+                                new CollectionView
+                                {
+                                    ItemsSource = Parameters,
+                                    ItemTemplate = new DataTemplate(() =>
+                                    {
+                                        return CreateParameterEntryWithInfo();
+                                    })
+                                }
                             }
                         }
                     },
@@ -160,7 +259,7 @@ namespace frontend.Views
             };
         }
 
-        private View CreateParameterEntryWithInfo(string parameterName, string infoText)
+        private View CreateParameterEntryWithInfo()
         {
             var grid = new Grid
             {
@@ -179,10 +278,10 @@ namespace frontend.Views
 
             var label = new Label
             {
-                Text = parameterName,
                 TextColor = Color.FromArgb("#333333"),
                 VerticalOptions = LayoutOptions.Center
             };
+            label.SetBinding(Label.TextProperty, "Name");
             grid.Add(label, 0, 0);
 
             var button = new Button
@@ -195,47 +294,51 @@ namespace frontend.Views
                 Padding = new Thickness(0),
                 Margin = new Thickness(5, 0, 0, 0),
                 BackgroundColor = Color.FromArgb("#E0E0E0"),
-                TextColor = Color.FromArgb("#333333"),
-                Command = new Command(() => ShowInfoPopup(parameterName, infoText))
+                TextColor = Color.FromArgb("#333333")
             };
+            button.SetBinding(Button.CommandProperty, new Binding("Name", source: null, converter: new InfoButtonCommandConverter(this)));
             grid.Add(button, 1, 0);
 
             var entry = new Entry
             {
-                Placeholder = $"Enter {parameterName.ToLower()}",
                 TextColor = Color.FromArgb("#333333")
             };
+            entry.SetBinding(Entry.TextProperty, "Value");
+            entry.SetBinding(Entry.PlaceholderProperty, new Binding("Name", stringFormat: "Enter {0}"));
             grid.Add(entry, 0, 2);
             Grid.SetColumnSpan(entry, 2);
+
+            var parameter = new Parameter { Name = "", Value = "", Description = "", Parent = this };
+            grid.BindingContext = parameter;
 
             return grid;
         }
 
-        private View CreateUploadButtonWithInfo(string buttonText, string infoText)
-        {
-            return new HorizontalStackLayout
-            {
-                Children =
-                {
-                    new Button { Text = buttonText, BackgroundColor = Color.FromArgb("#E0E0E0"), TextColor = Color.FromArgb("#333333"), CornerRadius = 5 },
-                    new Button
-                    {
-                        Text = "?",
-                        FontSize = 12,
-                        WidthRequest = 25,
-                        HeightRequest = 25,
-                        CornerRadius = 12,
-                        Padding = new Thickness(0),
-                        Margin = new Thickness(5, 0, 0, 0),
-                        BackgroundColor = Color.FromArgb("#E0E0E0"),
-                        TextColor = Color.FromArgb("#333333"),
-                        Command = new Command(() => ShowInfoPopup("Dataset", infoText))
-                    }
-                }
-            };
-        }
+        // private View CreateUploadButtonWithInfo(string buttonText, string infoText)
+        // {
+        //     return new HorizontalStackLayout
+        //     {
+        //         Children =
+        //         {
+        //             new Button { Text = buttonText, BackgroundColor = Color.FromArgb("#E0E0E0"), TextColor = Color.FromArgb("#333333"), CornerRadius = 5 },
+        //             new Button
+        //             {
+        //                 Text = "?",
+        //                 FontSize = 12,
+        //                 WidthRequest = 25,
+        //                 HeightRequest = 25,
+        //                 CornerRadius = 12,
+        //                 Padding = new Thickness(0),
+        //                 Margin = new Thickness(5, 0, 0, 0),
+        //                 BackgroundColor = Color.FromArgb("#E0E0E0"),
+        //                 TextColor = Color.FromArgb("#333333"),
+        //                 Command = new Command(() => ShowInfoPopup("Dataset", infoText))
+        //             }
+        //         }
+        //     };
+        // }
 
-        private async void ShowInfoPopup(string title, string message)
+        public async void ShowInfoPopup(string title, string message)
         {
             await Application.Current.MainPage.DisplayAlert(title, message, "OK");
         }
@@ -245,16 +348,16 @@ namespace frontend.Views
             return new StackLayout
             {
                 Children =
-        {
-            new Label
-            {
-                Text = "Fine-tuning is not available for this model.",
-                TextColor = Color.FromArgb("#333333"),
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.CenterAndExpand,
-                FontSize = 18
-            }
-        }
+                {
+                    new Label
+                    {
+                        Text = "Fine-tuning is not available for this model.",
+                        TextColor = Color.FromArgb("#333333"),
+                        HorizontalOptions = LayoutOptions.Center,
+                        VerticalOptions = LayoutOptions.CenterAndExpand,
+                        FontSize = 18
+                    }
+                }
             };
         }
 
@@ -279,6 +382,167 @@ namespace frontend.Views
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to download example dataset: {ex.Message}", "OK");
             }
+        }
+
+        private async Task SelectZipFolder()
+        {
+            try
+            {
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.zip-archive" } },
+                        { DevicePlatform.Android, new[] { "application/zip" } },
+                        { DevicePlatform.WinUI, new[] { ".zip" } },
+                        { DevicePlatform.macOS, new[] { "zip" } }
+                    }),
+                    PickerTitle = "Please select a zip folder (max permitted size: 3.5GB)"
+                });
+
+                if (result != null)
+                {
+                    var fileInfo = new FileInfo(result.FullPath);
+                    const long maxSizeInBytes = (long)(3.5 * 1024 * 1024 * 1024); // Max permitted 3.5 GB in bytes
+
+                    if (fileInfo.Length > maxSizeInBytes)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "The selected file exceeds the maximum allowed size of 3.5 GB.", "OK");
+                        return;
+                    }
+
+                    _selectedZipPath = result.FullPath;
+                    _selectedZipLabel.Text = $"Selected folder: {Path.GetFileName(_selectedZipPath)}"; // Update the label text
+                    OnPropertyChanged(nameof(_selectedZipPath));
+                    await Application.Current.MainPage.DisplayAlert("Success", "Zip file selected successfully", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Unable to pick file: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task SubmitVisDataset()
+        {
+            if (string.IsNullOrEmpty(_selectedZipPath))
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Please select a zip file first", "OK");
+                return;
+            }
+
+            try
+            {
+                var filePath = _selectedZipPath;
+                var modelId = _model.ModelId;
+                var dataService = new DataService();
+
+               
+                await Application.Current.MainPage.DisplayAlert("Upload", "Please click 'OK' and wait. Dataset is being processed. Approximate maximum time: 2 minutes", "OK");
+
+                // Start the upload process
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        var result = await dataService.UploadImageDataset(filePath, modelId);
+
+                    
+                        System.Diagnostics.Debug.WriteLine($"Upload result: {result}");
+
+                        
+                        Dispatcher.Dispatch(async () =>
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Success", "Dataset uploaded and processed successfully!", "OK");
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                        System.Diagnostics.Debug.WriteLine($"UploadImageDataset error: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                        
+                        Dispatcher.Dispatch(async () =>
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
+                        });
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                
+                System.Diagnostics.Debug.WriteLine($"SubmitVisDataset error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
+            }
+        }
+
+        public void SaveVisParameters()
+        {
+            if (_model != null)
+            {
+                if (_model.FineTuningParameters == null)
+                {
+                    _model.FineTuningParameters = new Dictionary<string, string>();
+                }
+
+                foreach (var parameter in Parameters)
+                {
+                    _model.FineTuningParameters[parameter.Name] = parameter.Value;
+                }
+            }
+        }
+    }
+
+    public class Parameter : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string Name { get; set; }
+        private string _value;
+        public string Value
+        {
+            get => _value;
+            set
+            {
+                if (_value != value)
+                {
+                    _value = value;
+                    OnPropertyChanged();
+                    Parent?.SaveVisParameters();
+                }
+            }
+        }
+        public string Description { get; set; }
+        public FineTune Parent { get; set; }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class InfoButtonCommandConverter : IValueConverter
+    {
+        private readonly FineTune _fineTune;
+
+        public InfoButtonCommandConverter(FineTune fineTune)
+        {
+            _fineTune = fineTune;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return new Command(() => _fineTune.ShowInfoPopup(value.ToString(), _fineTune.Parameters.FirstOrDefault(p => p.Name == value.ToString())?.Description));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -69,6 +69,8 @@ namespace frontend.Models
 
         [JsonPropertyName("languages")]
         public Dictionary<string, string>? Languages { get; set; }
+
+        public Dictionary<string, string> FineTuningParameters { get; set; } = new Dictionary<string, string>();
     }
 
         public class Mapping

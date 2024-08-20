@@ -18,7 +18,7 @@ namespace frontend.Views
             CompletionSource = new TaskCompletionSource<bool>();
         }
 
-        public void UpdateProgress(double progress)
+        public void UpdateDownloadProgress(double progress)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {

@@ -97,6 +97,9 @@
 	  <Compile Update="Views\Models.xaml.cs">
 	    <DependentUpon>Models.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\UploadProgressPopUp.xaml.cs">
+	    <DependentUpon>UploadProgressPopUp.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\PlaygroundConfigView.xaml.cs">
 	    <DependentUpon>PlaygroundConfigView.xaml</DependentUpon>
 	  </Compile>
@@ -170,6 +173,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Models.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\UploadProgressPopUp.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\PlaygroundConfigView.xaml">

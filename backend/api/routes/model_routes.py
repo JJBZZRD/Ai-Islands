@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 
 from backend.controlers.model_control import ModelControl
-from backend.data_utils.dataset_processor import process_dataset
+from backend.data_utils.dataset_processor import process_vis_dataset
 from backend.data_utils.training_handler import handle_training_request
 from backend.utils.process_vis_out import process_vision_output, _ensure_json_serializable
 from PIL import Image

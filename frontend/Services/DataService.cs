@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace frontend.Services
 {
@@ -16,6 +17,7 @@ namespace frontend.Services
         {
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient.Timeout = TimeSpan.FromMinutes(2);
         }
 
         // API Call: POST /data/upload-dataset
@@ -105,5 +107,57 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
+
+        // API Call: POST /data/upload-image-dataset
+        // Request Body: { "file_path": "path/to/dataset.zip", "model_name": "model1" }
+        public async Task<Dictionary<string, object>> UploadImageDataset(string filePath, string modelId)
+        {
+            var request = new { file_path = filePath, model_name = modelId };
+            var response = await _httpClient.PostAsJsonAsync("data/upload-image-dataset", request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        }
     }
+
+    // public class ProgressableStreamContent : HttpContent
+    // {
+    //     private readonly HttpContent _content;
+    //     private readonly Action<long, long> _progress;
+
+    //     public ProgressableStreamContent(HttpContent content, Action<long, long> progress)
+    //     {
+    //         _content = content;
+    //         _progress = progress;
+    //         foreach (var header in _content.Headers)
+    //         {
+    //             Headers.TryAddWithoutValidation(header.Key, header.Value);
+    //         }
+    //     }
+
+    //     protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+    //     {
+    //         var buffer = new byte[8192];
+    //         TryComputeLength(out var size);
+    //         var uploaded = 0L;
+
+    //         using (var contentStream = await _content.ReadAsStreamAsync())
+    //         {
+    //             while (true)
+    //             {
+    //                 var length = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+    //                 if (length <= 0) break;
+    //                 uploaded += length;
+    //                 _progress?.Invoke(uploaded, size);
+    //                 await stream.WriteAsync(buffer, 0, length);
+    //                 await stream.FlushAsync();
+    //             }
+    //         }
+    //     }
+
+    //     protected override bool TryComputeLength(out long length)
+    //     {
+    //         length = _content.Headers.ContentLength ?? -1;
+    //         return length != -1;
+    //     }
+    // }
 }

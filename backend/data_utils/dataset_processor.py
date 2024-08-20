@@ -13,7 +13,7 @@ def log_directory_structure(directory: str, message: str):
     for root, dirs, files in os.walk(directory):
         logger.debug(f"{message} - Directory structure: {root}, Directories: {dirs}, Files: {files}")
 
-def process_dataset(file_path: str, dataset_dir: str, dataset_id: str):
+def process_vis_dataset(file_path: str, dataset_dir: str, dataset_id: str):
     try:
         file_extension = os.path.splitext(file_path)[1][1:]
 
