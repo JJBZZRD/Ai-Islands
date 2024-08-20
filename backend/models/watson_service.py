@@ -36,7 +36,7 @@ class WatsonService(BaseModel):
                 raise ModelError("No IBM API key found. Please set your key in Settings.")
             
             auth = Authentication()
-            if not auth._validate_api_key(api_key):
+            if not auth.validate_api_key():
                 raise ModelError("Invalid API key. Please check your IBM API key.")
 
             # Check if the required service is available in the account
@@ -101,7 +101,7 @@ class WatsonService(BaseModel):
                 raise ModelError("IBM_CLOUD_API_KEY not found in settings")
 
             self.account_info = AccountInfo()
-            if not self.account_info.auth._validate_api_key(self.api_key):
+            if not self.account_info.auth.validate_api_key():
                 raise ModelError("Invalid IBM Cloud API key")
 
             config = model_info.get("config", {})
@@ -189,7 +189,7 @@ class WatsonService(BaseModel):
 
     def inference(self, data: dict):
         if not self.is_loaded:
-            raise ModelError("Watson service is not initialized. Please call load model before inference.")
+            raise ModelError("Model is not loaded. Please load the model first.")
 
         try:
             if self.nlu:

@@ -64,7 +64,7 @@ class WatsonModel(BaseModel):
                 raise ModelError("No IBM API key found. Please set your key in Settings.")
             
             auth = Authentication()
-            if not auth._validate_api_key(api_key):
+            if not auth.validate_api_key():
                 raise ModelError("Invalid API key. Please check your IBM API key.")
 
             # Check if required services are available in the account
@@ -104,7 +104,7 @@ class WatsonModel(BaseModel):
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
                 raise ModelError(error_message)
 
-            if api_key and auth._validate_api_key(api_key):
+            if api_key and auth.validate_api_key():
                 # Create directory for the model
                 model_dir = os.path.join(base_dir, model_id)
                 os.makedirs(model_dir, exist_ok=True)
@@ -147,7 +147,7 @@ class WatsonModel(BaseModel):
                 raise ModelError("IBM_CLOUD_API_KEY not found in environment variables")
 
             self.auth = Authentication()
-            if not self.auth._validate_api_key(self.api_key):
+            if not self.auth.validate_api_key():
                 raise ModelError("Invalid IBM_CLOUD_API_KEY")
 
             url = watson_settings.get("IBM_CLOUD_MODELS_URL")
