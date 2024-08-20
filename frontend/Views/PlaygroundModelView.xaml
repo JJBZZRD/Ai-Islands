@@ -4,7 +4,7 @@
              xmlns:converters="clr-namespace:frontend.Converters"
              xmlns:views="clr-namespace:frontend.Views"
              x:Class="frontend.Views.PlaygroundModelView"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ContentView.Resources>
         <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
@@ -20,28 +20,22 @@
             </Grid.RowDefinitions>
 
             <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-                <Label Text="{Binding Playground.PlaygroundId, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
-                <Label Text="Explore the models available in this playground" 
-                       FontSize="17" TextColor="Black" />
+                <Label Text="{Binding Playground.PlaygroundId, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                <Label Text="Explore the models available in this playground" FontSize="17" TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
             </VerticalStackLayout>
 
-            <Image Grid.Row="1" 
-                   Source="add_icon.png" 
-                   HeightRequest="30"
-                   WidthRequest="30"
-                   HorizontalOptions="End" 
-                   VerticalOptions="Start" 
-                   Margin="0,20,20,20">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnAddModelClicked"/>
-                </Image.GestureRecognizers>
-            </Image>
+            <ImageButton Grid.Row="1" HorizontalOptions="End" VerticalOptions="Start" Margin="0,20,20,20" HeightRequest="24" WidthRequest="24" Clicked="OnAddModelClicked" BackgroundColor="Transparent">
+                <ImageButton.Source>
+                    <FontImageSource Glyph="&#xf055;" FontFamily="FontAwesomeFreeSolid" Color="{AppThemeBinding Light=#28A745, Dark=#34D058}" />
+                </ImageButton.Source>
+            </ImageButton>
 
-            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
-                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
-                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
-                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+            <Frame Grid.Row="2" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=#cccccc, Dark=#3A3B3C}" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
+                <Grid ColumnDefinitions="3*, 2*, 1.5*, Auto">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0" HorizontalOptions="Center"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Actions" FontAttributes="Bold" Grid.Column="3" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
                 </Grid>
             </Frame>
 
@@ -52,37 +46,18 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame BorderColor="LightGray" 
-                                   BackgroundColor="White" 
-                                   CornerRadius="10" 
-                                   Padding="10" 
-                                   HasShadow="True"
-                                   Margin="0,5">
-                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
-                                    <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center" TextColor="Black"/>
-                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center" TextColor="Black" Margin="10,0,0,0"/>
-                                    <Frame Grid.Column="2" 
-                                           BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                           BorderColor="Transparent"
-                                           CornerRadius="18"
-                                           HeightRequest="33"
-                                           WidthRequest="60"
-                                           Padding="5,2"
-                                           HorizontalOptions="Start">
-                                        <Label Text="{Binding Status}" 
-                                               TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}"
-                                               FontAttributes="Bold"
-                                               FontSize="12"
-                                               VerticalOptions="Center"
-                                               HorizontalOptions="Center"/>
+                            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}" CornerRadius="10" Padding="10" HasShadow="True" Margin="0,5">
+                                <Grid ColumnDefinitions="3*, 2*, 1.5*, Auto">
+                                    <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0" HorizontalOptions="Center"/>
+                                    <Frame Grid.Column="2" BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" BorderColor="Transparent" CornerRadius="18" HeightRequest="33" WidthRequest="60" Padding="5,2" HorizontalOptions="Center">
+                                        <Label Text="{Binding Status}" TextColor="{Binding Status, Converter={StaticResource TextStatusToColorConverter}}" FontAttributes="Bold" FontSize="12" VerticalOptions="Center" HorizontalOptions="Center"/>
                                     </Frame>
-                                    <ImageButton Grid.Column="3"
-                                                 Source="delete_icon.png"
-                                                 HeightRequest="20"
-                                                 WidthRequest="20"
-                                                 HorizontalOptions="End"
-                                                 VerticalOptions="Center"
-                                                 Clicked="OnDeleteModelClicked"/>
+                                    <ImageButton Grid.Column="3" HeightRequest="20" WidthRequest="20" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnDeleteModelClicked" BackgroundColor="Transparent">
+                                        <ImageButton.Source>
+                                            <FontImageSource Glyph="&#xf2ed;" FontFamily="FontAwesomeFreeRegular" Color="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}" />
+                                        </ImageButton.Source>
+                                    </ImageButton>
                                 </Grid>
                             </Frame>
                         </DataTemplate>

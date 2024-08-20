@@ -2,8 +2,13 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:frontend.Views"
+             xmlns:converters="clr-namespace:frontend.Converters"
              x:Class="frontend.Views.PlaygroundConfigView"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
+
+    <ContentView.Resources>
+        <converters:PercentageConverter x:Key="PercentageConverter"/>
+    </ContentView.Resources>
 
     <AbsoluteLayout x:Name="MainLayout">
         <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
@@ -19,30 +24,33 @@
                 <Label Text="AI Island creation" 
                        FontSize="24" 
                        FontAttributes="Bold" 
-                       TextColor="Black"/>
+                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                 <Label Text="Build and customise your own AI model chain. Utilise various AI models, such as NLP, CV, GenAI chatbot models to construct a model chain tailored to your unique needs."
                        FontSize="17"
-                       TextColor="Black"/>
+                       TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}"/>
             </VerticalStackLayout>
 
-            <Image Grid.Row="1" 
-                   Source="add_icon.png" 
-                   HeightRequest="30"
-                   WidthRequest="30"
-                   HorizontalOptions="End" 
-                   VerticalOptions="Start" 
-                   Margin="0,20,20,20">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnAddModelClicked"/>
-                </Image.GestureRecognizers>
-            </Image>
+            <ImageButton Grid.Row="1" 
+                         HorizontalOptions="End" 
+                         VerticalOptions="Start" 
+                         Margin="0,20,20,20"
+                         HeightRequest="24"
+                         WidthRequest="24"
+                         Clicked="OnAddModelClicked"
+                         BackgroundColor="Transparent">
+                <ImageButton.Source>
+                    <FontImageSource Glyph="&#xf055;" 
+                                     FontFamily="FontAwesomeFreeSolid" 
+                                     Color="{AppThemeBinding Light=#28A745, Dark=#34D058}" />
+                </ImageButton.Source>
+            </ImageButton>
 
-            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
-                <Grid ColumnDefinitions="2*, 2*, *, Auto">
-                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                    <Label Text="Input" FontAttributes="Bold" Grid.Column="1" TextColor="Black"/>
-                    <Label Text="Output" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
-                    <Label Text="Actions" FontAttributes="Bold" Grid.Column="3" TextColor="Black"/>
+            <Frame Grid.Row="2" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=#cccccc, Dark=#3A3B3C}" CornerRadius="10" Padding="10" Margin="20,0,20,0" HasShadow="True">
+                <Grid ColumnDefinitions="3*, 1.5*, 1.5*, Auto">
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Input" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Output" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Actions" FontAttributes="Bold" Grid.Column="3" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
                 </Grid>
             </Frame>
 
@@ -53,34 +61,47 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame BorderColor="LightGray" 
-                                   BackgroundColor="White" 
+                            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=#444444}" 
+                                   BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}" 
                                    CornerRadius="10" 
                                    Padding="10" 
                                    HasShadow="True"
                                    Margin="0,5">
-                                <Grid ColumnDefinitions="2*, 2*, *, Auto">
-                                    <Picker Grid.Column="0"
-                                            ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type local:PlaygroundConfigView}}, Path=BindingContext.PlaygroundModels}"
-                                            ItemDisplayBinding="{Binding ModelId}"
-                                            SelectedItem="{Binding SelectedModel}"
-                                            TextColor="Black"
-                                            BackgroundColor="White"
-                                            FontSize="16"/>
+                                <Grid ColumnDefinitions="3*, 1.5*, 1.5*, Auto">
+                                    <Grid Grid.Column="0">
+                                        <Picker ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type local:PlaygroundConfigView}}, Path=BindingContext.PlaygroundModels}"
+                                                ItemDisplayBinding="{Binding ModelId}"
+                                                SelectedItem="{Binding SelectedModel}"
+                                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
+                                                BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}"
+                                                FontSize="16"
+                                                HorizontalOptions="Start"
+                                                WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type Grid}}, Path=Width, Converter={StaticResource PercentageConverter}, ConverterParameter=0.8}"/>
+                                    </Grid>
                                     <Label Grid.Column="1" 
                                            Text="{Binding SelectedModel.Mapping.Input}" 
-                                           VerticalOptions="Center" TextColor="Black"/>
+                                           VerticalOptions="Center" 
+                                           TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
+                                           HorizontalOptions="Center"/>
                                     <Label Grid.Column="2" 
                                            Text="{Binding SelectedModel.Mapping.Output}" 
-                                           VerticalOptions="Center" TextColor="Black"/>
+                                           VerticalOptions="Center" 
+                                           TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
+                                           HorizontalOptions="Center"/>
                                     <ImageButton Grid.Column="3"
-                                                 Source="delete_icon.png"
                                                  HeightRequest="20"
                                                  WidthRequest="20"
-                                                 HorizontalOptions="End"
+                                                 HorizontalOptions="Center"
                                                  VerticalOptions="Center"
                                                  Clicked="OnDeleteModelClicked"
-                                                 CommandParameter="{Binding .}"/>
+                                                 CommandParameter="{Binding .}"
+                                                 BackgroundColor="Transparent">
+                                        <ImageButton.Source>
+                                            <FontImageSource Glyph="&#xf2ed;" 
+                                                             FontFamily="FontAwesomeFreeRegular" 
+                                                             Color="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}" />
+                                        </ImageButton.Source>
+                                    </ImageButton>
                                 </Grid>
                             </Frame>
                         </DataTemplate>
@@ -93,7 +114,9 @@
                     VerticalOptions="End" 
                     HorizontalOptions="Center" 
                     Clicked="OnSaveConfigClicked"
-                    Margin="0,20,0,20"/>
+                    Margin="0,20,0,20"
+                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                    TextColor="White"/>
         </Grid>
     </AbsoluteLayout>
 </ContentView>
