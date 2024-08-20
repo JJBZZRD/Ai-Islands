@@ -67,6 +67,7 @@ public partial class PlaygroundConfigView : ContentView
             if (response.IsSuccessStatusCode)
             {
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
+                _viewModel.Playground.Chain = chainModelIds;
             }
             else
             {

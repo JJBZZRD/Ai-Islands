@@ -2,60 +2,70 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.PlaygroundInferenceView"
-             BackgroundColor="#F2F2F2">
-    <Grid Padding="20" RowSpacing="20" ColumnSpacing="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
-        <!-- Run Chain Button -->
-        <Button Grid.Row="0" 
-        Grid.Column="1" 
-        HorizontalOptions="End"
-        BackgroundColor="#3366FF"
-        TextColor="White"
-        BorderColor="#3366FF"
-        CornerRadius="5"
-        Padding="15,10"
-        Text="Run Chain">
-            
-        </Button>
+    <AbsoluteLayout x:Name="MainLayout">
+        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" Padding="20" RowSpacing="20" ColumnSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
+            <!-- Load Chain Button -->
+            <Button Grid.Row="0" 
+                    Grid.Column="1" 
+                    HorizontalOptions="End"
+                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                    TextColor="White"
+                    BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                    CornerRadius="5"
+                    Padding="15,10"
+                    Text="Load Chain">
+            </Button>
 
-        <!-- Input Frame -->
-        <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="#F0F4F8" Padding="0" HasShadow="False" BorderColor="#cccccc">
-            <ScrollView VerticalScrollBarVisibility="Always">
-                <VerticalStackLayout Spacing="15" Padding="20">
-                    <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
-                    <Label Text="Enter input data and 'Run Chain' to preview the output of your playground." FontSize="14" TextColor="#5D5D5D"/>
+            <!-- Input Frame -->
+            <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
+                <ScrollView VerticalScrollBarVisibility="Always">
+                    <VerticalStackLayout Spacing="15" Padding="20">
+                        <Grid>
+                            <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}" VerticalOptions="Center"/>
+                            <Button Text="Inference"
+                                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                                    TextColor="White"
+                                    BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                                    CornerRadius="5"
+                                    Padding="10,5"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+                        <Label Text="Enter input data and 'Load Chain' to preview the output of your playground." FontSize="14" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" HeightRequest="400">
+                            <ScrollView>
+                                <Label Text="Btw what is being represented here should depend on the model being detected as first one in playground" FontSize="14" TextColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                            </ScrollView>
+                        </Frame>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
 
-                    <Frame BackgroundColor="white" BorderColor="#cccccc" HeightRequest="400">
-                        <ScrollView>
-                            <Label Text="Btw what is being represented here should depend on the model being detected as first one in playground" FontSize="14" TextColor="#CCCCCC"/>
-                        </ScrollView>
-                    </Frame>
-                </VerticalStackLayout>
-            </ScrollView>
-        </Frame>
-
-        <!-- Output Frame -->
-        <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="White" Padding="0" HasShadow="False" BorderColor="#cccccc">
-            <ScrollView VerticalScrollBarVisibility="Always">
-                <VerticalStackLayout Spacing="15" Padding="20">
-                    <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="#5D5D5D"/>
-                    <Label Text="Preview output generated by your model chain." FontSize="14" TextColor="#5D5D5D"/>
-                    <Frame BackgroundColor="white" BorderColor="#cccccc" HeightRequest="400">
-                        <ScrollView>
-                            <Label Text="Output will appear here" FontSize="14" TextColor="#CCCCCC"/>
-                        </ScrollView>
-                    </Frame>
-                </VerticalStackLayout>
-            </ScrollView>
-        </Frame>
-    </Grid>
+            <!-- Output Frame -->
+            <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
+                <ScrollView VerticalScrollBarVisibility="Always">
+                    <VerticalStackLayout Spacing="15" Padding="20">
+                        <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}"/>
+                        <Label Text="Preview output generated by your model chain." FontSize="14" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" HeightRequest="400">
+                            <ScrollView>
+                                <Label Text="Output will appear here" FontSize="14" TextColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                            </ScrollView>
+                        </Frame>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
+        </Grid>
+    </AbsoluteLayout>
 </ContentView>
