@@ -101,38 +101,30 @@ class ModelControl:
             model_info (dict): Information about the model.
             lock (multiprocessing.Lock): Lock to ensure that only one request is processed at a time.
         """
-        try:
-            # instantiate the model class with model_id
-            model = model_class(model_id=model_id)
-            with lock:
-                model.load(device=device, model_info=model_info)
-            conn.send("Model loaded")
-            
-            pid = os.getpid()
-            
-            while True:
-                if conn.poll():
-                    req = conn.recv()
-                    if req == "terminate":
-                        conn.send("Terminating")
-                        break
-                    elif req == "get_usage":
-                        usage = get_hardware_usage(pid)
-                        conn.send(usage)
-                    elif req["task"] in ["inference", "train"]:
-                        lock.acquire()
-                        try:
-                            if req["task"] == "inference":
-                                prediction = model.inference(req["data"])
-                            elif req["task"] == "train":
-                                prediction = model.train(req["data"])
-                            conn.send(prediction)
-                        finally:
-                            lock.release()
-        except ModelError as e:
-            conn.send(f"Error: {str(e)}")
-        except Exception as e:
-            conn.send(f"Unexpected error: {str(e)}")
+        # instantiate the model class with model_id
+        model = model_class(model_id=model_id)
+        model.load(device=device, model_info=model_info)
+        conn.send("Model loaded")
+        
+        pid = os.getpid()
+        
+        while True:
+            if conn.poll():
+                req = conn.recv()
+                if req == "terminate":
+                    conn.send("Terminating")
+                    break
+                elif req == "get_usage":
+                    usage = get_hardware_usage(pid)
+                    conn.send(usage)
+                elif req["task"] in ["inference", "train"]:
+                    lock.acquire()
+                    if req["task"] == "inference":
+                        prediction = model.inference(req["data"])
+                    elif req["task"] == "train":
+                        prediction = model.train(req["data"])
+                    lock.release()
+                    conn.send(prediction)
 
     def _get_model_info(self, model_id: str, source: str = "library"):
         if source == "library":
@@ -251,22 +243,13 @@ class ModelControl:
                 self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
                 logger.info(f"Model {model_id} loaded and process started.")
                 return True
-            elif response.startswith("Error:"):
-                logger.error(f"Failed to load model {model_id}. Response: {response}")
-                raise ModelError(response[7:])  # Remove "Error: " prefix
             else:
-                logger.error(f"Failed to load model {model_id}. Unexpected response: {response}")
-                raise ModelError(f"Failed to load model {model_id}. Unexpected response: {response}")
+                logger.error(f"Failed to load model {model_id}. Response: {response}")
+                raise ModelError(f"Failed to load model {model_id}. Response: {response}")
         except ValueError as e:
             # ValueError is raised from get_model_info and get_model_class
             logger.error(str(e))
-            raise
-        except ModelError as e:
-            logger.error(f"ModelError while loading model {model_id}: {str(e)}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error loading model {model_id}: {str(e)}")
-            raise ModelError(f"Unexpected error loading model {model_id}: {str(e)}")
+            raise e
 
     def unload_model(self, model_id: str):
         """
