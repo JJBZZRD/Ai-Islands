@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Body
 from pydantic import BaseModel
-from typing import List
+from typing import List, Annotated
 from backend.controlers.playground_control import PlaygroundControl
 from backend.utils.api_response import success_response, error_response
 import logging
@@ -124,7 +124,7 @@ class PlaygroundRouter:
         except FileWriteError as e:
             return error_response(message=str(e), status_code=500)
         
-    async def load_playground_chain(self, playground_id: str = Query(...)):
+    async def load_playground_chain(self, playground_id: str = Annotated[str, Body(embed=True)]):
         try:
             result = self.playground_control.load_playground_chain(playground_id)
             return success_response(message="Playground chain loaded successfully", data=result, status_code=200)
@@ -133,7 +133,7 @@ class PlaygroundRouter:
         except (FileReadError, FileWriteError) as e:
             return error_response(message=str(e), status_code=500)
 
-    async def stop_playground_chain(self, playground_id: str = Query(...)):
+    async def stop_playground_chain(self, playground_id: str = Annotated[str, Body(embed=True)]):
         try:
             result = self.playground_control.stop_playground_chain(playground_id)
             if result:
