@@ -6,11 +6,11 @@
              xmlns:local="clr-namespace:frontend.Views"
              xmlns:components="clr-namespace:frontend.Components"
              x:Class="frontend.Views.ModelIndex"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
     <ContentPage.Resources>
         <Style x:Key="DownloadAlertFrame" TargetType="Frame">
-            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#38393B}"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="HasShadow" Value="True"/>
             <Setter Property="Padding" Value="20"/>
@@ -31,70 +31,49 @@
             </Grid.RowDefinitions>
 
             <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-                <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="Black"/>
+                <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
                 <Label Text="Explore the pre-selected AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
-                       FontSize="17" TextColor="Black" />
+                       FontSize="17" TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
             </VerticalStackLayout>
 
             <Grid Grid.Row="1" HorizontalOptions="Start" Margin="20,20,20,0">
-                <Grid.WidthRequest>
-                    <OnPlatform x:TypeArguments="x:Double">
-                        <On Platform="Android,iOS" Value="800" />
-                        <On Platform="WinUI,MacCatalyst" Value="{OnIdiom Phone=800, Default=-1}" />
-                    </OnPlatform>
-                </Grid.WidthRequest>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Frame Grid.Column="0" 
-                       Padding="5,0" 
-                       CornerRadius="10"
-                       MinimumWidthRequest="350"
-                       HasShadow="False"
-                       BorderColor="#E0E0E0"
-                       BackgroundColor="White"> 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" 
-                               Source="search_icon_2.png" 
-                               HeightRequest="15" 
-                               WidthRequest="15" 
-                               Margin="10,0,0,0"/>
-                        <SearchBar Grid.Column="1" 
-                                   Placeholder="Search" 
-                                   PlaceholderColor="#888888"
-                                   TextColor="Black"
-                                   FontSize="15"
-                                   HorizontalTextAlignment="Start"
-                                   VerticalOptions="Center"
-                                   BackgroundColor="Transparent"
-                                   TextChanged="OnSearchTextChanged"/>
-                    </Grid>
-                </Frame>
+                <SearchBar Grid.Column="0" 
+                           Placeholder="Search" 
+                           PlaceholderColor="{AppThemeBinding Light=#888888, Dark=#AAAAAA}"
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                           FontSize="15"
+                           HorizontalTextAlignment="Start"
+                           VerticalOptions="Center"
+                           BackgroundColor="Transparent"
+                           HorizontalOptions="Start"
+                           MinimumWidthRequest="300"
+                           MaximumWidthRequest="500"
+                           WidthRequest="400"
+                           TextChanged="OnSearchTextChanged"/>
 
                 <Button Grid.Column="1" 
-                        Text="Filter" 
-                        FontSize="16"
-                        ImageSource="filter_icon.png"
-                        HeightRequest="10"
-                        ContentLayout="Left,10"
                         BackgroundColor="Transparent" 
-                        TextColor="Black" 
                         CornerRadius="10" 
                         Margin="10,0,0,0"
-                        Clicked="OnFilterClicked"/>     
+                        Clicked="OnFilterClicked"
+                        HeightRequest="20"
+                        WidthRequest="20">
+                    <Button.ImageSource>
+                        <FileImageSource File="{AppThemeBinding Light=filter_icon_black.png, Dark=filter_icon_white.png}"/>
+                    </Button.ImageSource>
+                </Button>
             </Grid>
 
-            <Frame Grid.Row="2" BorderColor="#cccccc" BackgroundColor="#cccccc" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
+            <Frame Grid.Row="2" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=#cccccc, Dark=#3A3B3C}" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
                 <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
-                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="Black"/>
-                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="Black" Margin="10,0,0,0"/>
-                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="Black"/>
+                    <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=White}" Margin="10,0,0,0"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
                 </Grid>
             </Frame>
 
@@ -105,8 +84,8 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame BorderColor="LightGray" 
-                                   BackgroundColor="White" 
+                            <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=#444444}" 
+                                   BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}" 
                                    CornerRadius="10" 
                                    Padding="10" 
                                    HasShadow="True"
@@ -116,9 +95,9 @@
                                 </Frame.GestureRecognizers>
                                 <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
                                     <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
-                                           TextColor="Black"/>
+                                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
                                     <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
-                                           TextColor="Black" Margin="10,0,0,0"/>
+                                           TextColor="{AppThemeBinding Light=Black, Dark=White}" Margin="10,0,0,0"/>
                                     <Frame Grid.Column="2" 
                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
                                            BorderColor="Transparent"

@@ -2,20 +2,29 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.PlaygroundTabbedPage"
-             BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}">
+             BackgroundColor="{AppThemeBinding Light=F2F2F2, Dark=#303134}">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="TabButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="Transparent" />
-                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
-                <Setter Property="HeightRequest" Value="20" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
+                <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="Padding" Value="10,0" />
+                <Setter Property="Margin" Value="0" />
                 <Setter Property="VisualStateManager.VisualStateGroups">
                     <VisualStateGroupList>
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal" />
                             <VisualState x:Name="PointerOver">
                                 <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="#3366FF" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#505152}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#4A4B4C}" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -26,39 +35,43 @@
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*">
-        <BoxView Grid.Row="0" Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+        <BoxView Grid.Row="0" Color="{AppThemeBinding Light=Grey, Dark=#444444}" HeightRequest="1" />
         <StackLayout Grid.Row="1">
-            <HorizontalStackLayout HorizontalOptions="Start" Spacing="30" Margin="10,0,0,10" HeightRequest="30">
+            <HorizontalStackLayout HorizontalOptions="Start" Spacing="30" Margin="10,0,0,10" HeightRequest="40">
                 <Button Text="Model Manager" Clicked="OnModelClicked" Style="{StaticResource TabButtonStyle}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="ModelManager">
-                            <Setter Property="TextColor" Value="#3366FF" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#4A4B4C}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
                 <Button Text="Chain Order" Clicked="OnConfigClicked" Style="{StaticResource TabButtonStyle}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="ChainOrder">
-                            <Setter Property="TextColor" Value="#3366FF" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#4A4B4C}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
                 <Button Text="Inference" Clicked="OnChainClicked" Style="{StaticResource TabButtonStyle}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="Inference">
-                            <Setter Property="TextColor" Value="#3366FF" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#4A4B4C}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
                 <Button Text="API Access" Clicked="OnAPIClicked" Style="{StaticResource TabButtonStyle}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="APIAccess">
-                            <Setter Property="TextColor" Value="#3366FF" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=Transparent, Dark=#4A4B4C}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light=#3366FF, Dark=#FFFFFF}" />
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
             </HorizontalStackLayout>
-            <BoxView Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+            <BoxView Color="{AppThemeBinding Light=Grey, Dark=#444444}" HeightRequest="1" />
             <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
         </StackLayout>
     </Grid>
