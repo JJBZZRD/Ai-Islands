@@ -187,7 +187,7 @@ namespace frontend.Views
             var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
             if (model == null) return;
 
-            bool isLoaded = await _modelService.IsModelLoaded(ModelId);
+            var isLoaded = await _modelService.IsModelLoaded(ModelId);
             string action = isLoaded ? "unload" : "load";
 
             try
@@ -195,19 +195,19 @@ namespace frontend.Views
                 var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
                 await Navigation.PushAsync(terminalPage);
 
-                bool success;
+                HttpResponseMessage response;
                 if (isLoaded)
                 {
-                    success = await _modelService.UnloadModel(ModelId);
+                    response = await _modelService.UnloadModel(ModelId);
                     terminalPage.AppendOutput($"Unloading model {ModelId}...");
                 }
                 else
                 {
-                    success = await _modelService.LoadModel(ModelId);
+                    response = await _modelService.LoadModel(ModelId);
                     terminalPage.AppendOutput($"Loading model {ModelId}...");
                 }
 
-                if (success)
+                if (response.IsSuccessStatusCode)
                 {
                     model.IsLoaded = !isLoaded; // Update the IsLoaded property
                     terminalPage.AppendOutput($"Model {ModelId} {action}ed successfully.");
@@ -215,6 +215,10 @@ namespace frontend.Views
                 else
                 {
                     terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorJson = JsonSerializer.Deserialize<JsonElement>(errorContent);
+                    var errorMessage = errorJson.GetProperty("error").GetProperty("message").GetString();
+                    await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {errorMessage}", "OK");
                 }
 
                 await Task.Delay(2000); // Give user time to read the output
