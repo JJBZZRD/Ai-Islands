@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv, set_key, find_dotenv
 from threading import Lock
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class WatsonSettingsManager:
     _instance = None
@@ -37,14 +41,17 @@ class WatsonSettingsManager:
         load_dotenv(self.env_file, override=True)
 
     def get(self, key: str, default: str = None) -> str:
-        return os.getenv(key, default)
+        value = os.getenv(key, default)
+        if value is None:
+            logger.warning(f"Setting '{key}' not found and no default provided.")
+        return value
 
     def set(self, key: str, value: str):
-        set_key(self.env_file, key, value)
-        if value == "":
-            os.environ[key] = ""
-        else:
-            os.environ[key] = value
+        try:
+            set_key(self.env_file, key, value)
+            os.environ[key] = value if value != "" else ""
+        except Exception as e:
+            logger.error(f"Error setting '{key}': {str(e)}")
 
     def update_location(self, new_location: str):
         location = new_location if new_location else self.DEFAULT_LOCATION
