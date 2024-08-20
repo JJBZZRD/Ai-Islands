@@ -163,10 +163,9 @@ class WatsonModel(BaseModel):
             else:
                 logger.info(f"Validating project ID: {self.project_id}")
                 if not self.auth.validate_project(self.project_id):
-                    logger.info("Invalid project ID. Attempting to select a new project...")
-                    if not self.select_project():
-                        raise ModelError("Failed to select a valid project")
-                logger.info(f"Project ID {self.project_id} is valid")
+                    raise ModelError(f"Invalid project ID: {self.project_id}. Please check your project settings.")
+
+            logger.info(f"Using valid project ID: {self.project_id}")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
             logger.info(f"Using project ID: {self.project_id}")
