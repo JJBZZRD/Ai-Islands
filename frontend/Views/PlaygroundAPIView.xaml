@@ -27,46 +27,46 @@
                    Grid.Row="1"/>
 
             <StackLayout Grid.Row="2"
-                    Spacing="10"
-                    Margin="0,0,0,20">
+                         Spacing="10"
+                         Margin="0,0,0,20">
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Frame BackgroundColor="{AppThemeBinding Light=#E6F0FF, Dark=#28292C}"
-                                Padding="10"
-                                CornerRadius="5"
-                                HasShadow="False">
+                               Padding="10"
+                               CornerRadius="5"
+                               HasShadow="False">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Frame Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light=#4A90E2, Dark=#4A90E2}"
-                                        Padding="10,5"
-                                        CornerRadius="5"
-                                        HasShadow="False">
+                                       BackgroundColor="{AppThemeBinding Light=#4A90E2, Dark=#4A90E2}"
+                                       Padding="10,5"
+                                       CornerRadius="5"
+                                       HasShadow="False">
                                     <Label Text="GET"
-                                            TextColor="#FFFFFF"
-                                            FontAttributes="Bold"/>
+                                           TextColor="#FFFFFF"
+                                           FontAttributes="Bold"/>
                                 </Frame>
                                 <Label Grid.Column="1"
-                                        Text="list"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="list"
+                                       VerticalOptions="Center"
+                                       Margin="10,0,0,0"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                 <Label Grid.Column="2"
-                                        Text="&#xf13a;"
-                                        FontFamily="FontAwesomeFreeSolid"
-                                        FontSize="18"
-                                        VerticalOptions="Center"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="&#xf13a;"
+                                       FontFamily="FontAwesomeFreeSolid"
+                                       FontSize="18"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                             </Grid>
                         </Frame>
                     </toolkit:Expander.Header>
                     <StackLayout Padding="10"
-                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
+                                 BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
                         <Label Text="List all available playgrounds."
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Label Text="Example Request URL:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -85,9 +85,10 @@
                                         TextColor="{AppThemeBinding Light=Black, Dark=White}"
                                         HorizontalOptions="FillAndExpand"
                                         VerticalOptions="FillAndExpand"
-                                        AutoSize="TextChanges" />
+                                        AutoSize="TextChanges"/>
                             </Frame>
-                            <Button Grid.Column="1"
+                            <Button x:Name="ListRequestCopyButton"
+                                    Grid.Column="1"
                                     Text="Copy"
                                     Clicked="OnCopyClicked"
                                     CommandParameter="{Binding Source={x:Reference ListRequestEditor}, Path=Text}"
@@ -98,13 +99,13 @@
                                    Text="Copied!"
                                    IsVisible="False"
                                    TextColor="Green"
-                                   VerticalOptions="Start"
+                                   VerticalOptions="Center"
                                    Margin="5,0,0,0"/>
                         </Grid>
                         <Label Text="Example Response:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -123,9 +124,10 @@
                                         TextColor="{AppThemeBinding Light=Black, Dark=White}"
                                         HorizontalOptions="FillAndExpand"
                                         VerticalOptions="FillAndExpand"
-                                        AutoSize="TextChanges" />
+                                        AutoSize="TextChanges"/>
                             </Frame>
-                            <Button Grid.Column="1"
+                            <Button x:Name="ListResponseCopyButton"
+                                    Grid.Column="1"
                                     Text="Copy"
                                     Clicked="OnCopyClicked"
                                     CommandParameter="{Binding Source={x:Reference ListResponseEditor}, Path=Text}"
@@ -145,52 +147,52 @@
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Frame BackgroundColor="{AppThemeBinding Light=#E6F0FF, Dark=#28292C}"
-                                Padding="10"
-                                CornerRadius="5"
-                                HasShadow="False">
+                               Padding="10"
+                               CornerRadius="5"
+                               HasShadow="False">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Frame Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light=#4A90E2, Dark=#4A90E2}"
-                                        Padding="10,5"
-                                        CornerRadius="5"
-                                        HasShadow="False">
+                                       BackgroundColor="{AppThemeBinding Light=#4A90E2, Dark=#4A90E2}"
+                                       Padding="10,5"
+                                       CornerRadius="5"
+                                       HasShadow="False">
                                     <Label Text="GET"
-                                            TextColor="#FFFFFF"
-                                            FontAttributes="Bold"/>
+                                           TextColor="#FFFFFF"
+                                           FontAttributes="Bold"/>
                                 </Frame>
                                 <Label Grid.Column="1"
-                                        Text="info"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="info"
+                                       VerticalOptions="Center"
+                                       Margin="10,0,0,0"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                 <Label Grid.Column="2"
-                                        Text="&#xf13a;"
-                                        FontFamily="FontAwesomeFreeSolid"
-                                        FontSize="18"
-                                        VerticalOptions="Center"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="&#xf13a;"
+                                       FontFamily="FontAwesomeFreeSolid"
+                                       FontSize="18"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                             </Grid>
                         </Frame>
                     </toolkit:Expander.Header>
                     <StackLayout Padding="10"
-                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
+                                 BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
                         <Label Text="Get information about a specific playground."
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Label Text="Query Parameters:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+                               CornerRadius="5"
+                               BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
                             <Label Text="playground_id: string"
-                                    TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}"/>
+                                   TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}"/>
                         </Frame>
 
                         <Label Text="Example Request URL:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -209,9 +211,10 @@
                                         TextColor="{AppThemeBinding Light=Black, Dark=White}"
                                         HorizontalOptions="FillAndExpand"
                                         VerticalOptions="FillAndExpand"
-                                        AutoSize="TextChanges" />
+                                        AutoSize="TextChanges"/>
                             </Frame>
-                            <Button Grid.Column="1"
+                            <Button x:Name="InfoRequestCopyButton"
+                                    Grid.Column="1"
                                     Text="Copy"
                                     Clicked="OnCopyClicked"
                                     CommandParameter="{Binding Source={x:Reference InfoRequestEditor}, Path=Text}"
@@ -227,9 +230,9 @@
                         </Grid>
 
                         <Label Text="Example Response:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -248,9 +251,10 @@
                                         TextColor="{AppThemeBinding Light=Black, Dark=White}"
                                         HorizontalOptions="FillAndExpand"
                                         VerticalOptions="FillAndExpand"
-                                        AutoSize="TextChanges" />
+                                        AutoSize="TextChanges"/>
                             </Frame>
-                            <Button Grid.Column="1"
+                            <Button x:Name="InfoResponseCopyButton"
+                                    Grid.Column="1"
                                     Text="Copy"
                                     Clicked="OnCopyClicked"
                                     CommandParameter="{Binding Source={x:Reference InfoResponseEditor}, Path=Text}"
@@ -270,208 +274,311 @@
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Frame BackgroundColor="{AppThemeBinding Light=#E6F5E6, Dark=#28292C}"
-                                Padding="10"
-                                CornerRadius="5"
-                                HasShadow="False">
+                               Padding="10"
+                               CornerRadius="5"
+                               HasShadow="False">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Frame Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
-                                        Padding="10,5"
-                                        CornerRadius="5"
-                                        HasShadow="False">
+                                       BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
+                                       Padding="10,5"
+                                       CornerRadius="5"
+                                       HasShadow="False">
                                     <Label Text="POST"
-                                            TextColor="#FFFFFF"
-                                            FontAttributes="Bold"/>
+                                           TextColor="#FFFFFF"
+                                           FontAttributes="Bold"/>
                                 </Frame>
                                 <Label Grid.Column="1"
-                                        Text="load-chain"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="load-chain"
+                                       VerticalOptions="Center"
+                                       Margin="10,0,0,0"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                 <Label Grid.Column="2"
-                                        Text="&#xf13a;"
-                                        FontFamily="FontAwesomeFreeSolid"
-                                        FontSize="18"
-                                        VerticalOptions="Center"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="&#xf13a;"
+                                       FontFamily="FontAwesomeFreeSolid"
+                                       FontSize="18"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                             </Grid>
                         </Frame>
                     </toolkit:Expander.Header>
                     <StackLayout Padding="10"
-                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
+                                 BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
                         <Label Text="Load the chain for a specific playground."
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Label Text="Request Body:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label Text="playground_id: string"
-                                    TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}"/>
-                        </Frame>
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Label Text="Example Request URL:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="LoadChainRequestEditor"
+                                        Text="{Binding LoadChainRequest}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="LoadChainRequestCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference LoadChainRequestEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="LoadChainRequestCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                         <Label Text="Example Response:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}">
-                                <Label.Text>
-                                    <![CDATA[
-{
-  "message": "Playground chain loaded successfully",
-  "data": {
-    "playground_id": "playground1",
-    "chain": ["model1", "model2", "model3"]
-  }
-}
-                                    ]]>
-                                </Label.Text>
-                            </Label>
-                        </Frame>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="LoadChainResponseEditor"
+                                        Text="{Binding LoadChainResponse}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="LoadChainResponseCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference LoadChainResponseEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="LoadChainResponseCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                     </StackLayout>
                 </toolkit:Expander>
 
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Frame BackgroundColor="{AppThemeBinding Light=#E6F5E6, Dark=#28292C}"
-                                Padding="10"
-                                CornerRadius="5"
-                                HasShadow="False">
+                               Padding="10"
+                               CornerRadius="5"
+                               HasShadow="False">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Frame Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
-                                        Padding="10,5"
-                                        CornerRadius="5"
-                                        HasShadow="False">
+                                       BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
+                                       Padding="10,5"
+                                       CornerRadius="5"
+                                       HasShadow="False">
                                     <Label Text="POST"
-                                            TextColor="#FFFFFF"
-                                            FontAttributes="Bold"/>
+                                           TextColor="#FFFFFF"
+                                           FontAttributes="Bold"/>
                                 </Frame>
                                 <Label Grid.Column="1"
-                                        Text="stop-chain"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="stop-chain"
+                                       VerticalOptions="Center"
+                                       Margin="10,0,0,0"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                 <Label Grid.Column="2"
-                                        Text="&#xf13a;"
-                                        FontFamily="FontAwesomeFreeSolid"
-                                        FontSize="18"
-                                        VerticalOptions="Center"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="&#xf13a;"
+                                       FontFamily="FontAwesomeFreeSolid"
+                                       FontSize="18"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                             </Grid>
                         </Frame>
                     </toolkit:Expander.Header>
                     <StackLayout Padding="10"
-                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
+                                 BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
                         <Label Text="Stop the chain for a specific playground."
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Label Text="Request Body:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label Text="playground_id: string"
-                                    TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}"/>
-                        </Frame>
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Label Text="Example Request URL:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="StopChainRequestEditor"
+                                        Text="{Binding StopChainRequest}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="StopChainRequestCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference StopChainRequestEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="StopChainRequestCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                         <Label Text="Example Response:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}">
-                                <Label.Text>
-                                    <![CDATA[
-{
-  "message": "Playground chain stopped successfully"
-}
-                                    ]]>
-                                </Label.Text>
-                            </Label>
-                        </Frame>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Label Text="On Successful request, the server will return 204 No Content as the status Code" />
                     </StackLayout>
                 </toolkit:Expander>
 
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Frame BackgroundColor="{AppThemeBinding Light=#E6F5E6, Dark=#28292C}"
-                                Padding="10"
-                                CornerRadius="5"
-                                HasShadow="False">
+                               Padding="10"
+                               CornerRadius="5"
+                               HasShadow="False">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <Frame Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
-                                        Padding="10,5"
-                                        CornerRadius="5"
-                                        HasShadow="False">
+                                       BackgroundColor="{AppThemeBinding Light=#2E8B57, Dark=#249D48}"
+                                       Padding="10,5"
+                                       CornerRadius="5"
+                                       HasShadow="False">
                                     <Label Text="POST"
-                                            TextColor="#FFFFFF"
-                                            FontAttributes="Bold"/>
+                                           TextColor="#FFFFFF"
+                                           FontAttributes="Bold"/>
                                 </Frame>
                                 <Label Grid.Column="1"
-                                        Text="inference"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="inference"
+                                       VerticalOptions="Center"
+                                       Margin="10,0,0,0"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                 <Label Grid.Column="2"
-                                        Text="&#xf13a;"
-                                        FontFamily="FontAwesomeFreeSolid"
-                                        FontSize="18"
-                                        VerticalOptions="Center"
-                                        TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                                       Text="&#xf13a;"
+                                       FontFamily="FontAwesomeFreeSolid"
+                                       FontSize="18"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                             </Grid>
                         </Frame>
                     </toolkit:Expander.Header>
                     <StackLayout Padding="10"
-                            BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
+                                 BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#38393B}">
                         <Label Text="Run inference on the specified playground."
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Label Text="Request Body:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}">
-                                <Label.Text>
-                                    <![CDATA[
-{
-  "playground_id": "string",
-  "data": {
-    "input": "Your input text or data here"
-  }
-}
-                                    ]]>
-                                </Label.Text>
-                            </Label>
-                        </Frame>
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Label Text="Example Request URL:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="InferenceRequestEditor"
+                                        Text="{Binding InferenceRequest}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="InferenceRequestCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference InferenceRequestEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="InferenceRequestCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                         <Label Text="Example Response:"
-                                FontAttributes="Bold"
-                                Margin="0,10,0,5"
-                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Frame Padding="10"
-                                CornerRadius="5"
-                                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
-                            <Label TextColor="{AppThemeBinding Light=Black, Dark=#D4D4D4}">
-                                <Label.Text>
-                                    <![CDATA[
-{
-  "data": {
-    "output": "Inference result or generated text here"
-  }
-}
-                                    ]]>
-                                </Label.Text>
-                            </Label>
-                        </Frame>
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="InferenceResponseEditor"
+                                        Text="{Binding InferenceResponse}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="InferenceResponseCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference InferenceResponseEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="InferenceResponseCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                     </StackLayout>
                 </toolkit:Expander>
             </StackLayout>
