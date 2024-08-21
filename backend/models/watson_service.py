@@ -33,11 +33,11 @@ class WatsonService(BaseModel):
             # Check if API key is available and valid
             api_key = watson_settings.get('IBM_CLOUD_API_KEY')
             if not api_key:
-                raise ModelError("No IBM API key found. Please set your key in Settings.")
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
             
             auth = Authentication()
             if not auth.validate_api_key():
-                raise ModelError("Invalid API key. Please check your IBM API key.")
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
 
             # Check if the required service is available in the account
             account_info = AccountInfo()
@@ -64,7 +64,8 @@ class WatsonService(BaseModel):
                     break
 
             if not service_available:
-                error_message = f"The required service '{service_name}' is not available in the account."
+                formatted_service_name = format_service_name(service_name)
+                error_message = f"The required service '{formatted_service_name}' is missing from your IBM Cloud account.\n\nPlease go to your account and create this service instance."
                 logger.error(error_message)
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
                 raise ModelError(error_message)
@@ -89,20 +90,29 @@ class WatsonService(BaseModel):
 
             logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
             return new_entry
-        except Exception as e:
-            logger.error(f"Error adding Watson service {model_id}: {str(e)}")
+
+        except ModelError as e:
+            # Log the error for debugging purposes
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            raise ModelError(f"Error adding Watson service {model_id}: {str(e)}")
+            # Re-raise the original ModelError without adding extra context
+            raise
+
+        except Exception as e:
+            # For unexpected errors, we might want to keep a generic message
+            logger.error(f"Unexpected error downloading {model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
 
     def load(self, device: str, model_info: dict):
         try:
             self.api_key = watson_settings.get("IBM_CLOUD_API_KEY")
             if not self.api_key:
-                raise ModelError("IBM_CLOUD_API_KEY not found in settings")
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
 
             self.account_info = AccountInfo()
             if not self.account_info.auth.validate_api_key():
-                raise ModelError("Invalid IBM Cloud API key")
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
 
             config = model_info.get("config", {})
             service_name = config.get("service_name")
@@ -343,3 +353,6 @@ def check_service(resource_name, service_keyword):
     resource_name_normalized = resource_name.lower().replace(' ', '').replace('-', '')
     service_keyword_normalized = service_keyword.lower().replace(' ', '').replace('-', '')
     return service_keyword_normalized in resource_name_normalized
+
+def format_service_name(service):
+    return ' '.join(word.capitalize() for word in service.split('-'))

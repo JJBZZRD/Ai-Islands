@@ -61,11 +61,11 @@ class WatsonModel(BaseModel):
             # Check if API key is available and valid
             api_key = watson_settings.get('IBM_CLOUD_API_KEY')
             if not api_key:
-                raise ModelError("No IBM API key found. Please set your key in Settings.")
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
             
             auth = Authentication()
             if not auth.validate_api_key():
-                raise ModelError("Invalid API key. Please check your IBM API key.")
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
 
             # Check if required services are available in the account
             account_info = AccountInfo()
@@ -98,8 +98,9 @@ class WatsonModel(BaseModel):
             
             missing_services = [service for service, available in required_services.items() if not available]
             if missing_services:
-                formatted_missing_services = ", ".join(format_service_name(service) for service in missing_services)
-                error_message = f"The following required services are missing from your IBM Cloud account resource list: {formatted_missing_services}"
+                # formatted_missing_services = ", ".join(format_service_name(service) for service in missing_services)
+                formatted_missing_services = format_service_name_to_list(missing_services)
+                error_message = f"The following required services are missing from your IBM Cloud account resource list:\n\n{formatted_missing_services}"
                 logger.error(error_message)
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
                 raise ModelError(error_message)
@@ -133,10 +134,18 @@ class WatsonModel(BaseModel):
                 logger.warning(error_message)
                 raise ModelError(error_message)
 
-        except Exception as e:
-            logger.error(f"Error adding model {model_id}: {str(e)}")
+        except ModelError as e:
+            # Log the error for debugging purposes
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            raise ModelError(f"Error adding model {model_id}: {str(e)}")
+            # Re-raise the original ModelError without adding extra context
+            raise
+
+        except Exception as e:
+            # For unexpected errors, we might want to keep a generic message
+            logger.error(f"Unexpected error downloading model {model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
 
     def load(self, device: str, model_info: dict):
         try:
@@ -144,11 +153,11 @@ class WatsonModel(BaseModel):
             self.project_id = watson_settings.get('USER_PROJECT_ID')
 
             if not self.api_key:
-                raise ModelError("IBM_CLOUD_API_KEY not found in environment variables")
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
 
             self.auth = Authentication()
             if not self.auth.validate_api_key():
-                raise ModelError("Invalid IBM_CLOUD_API_KEY")
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
 
             url = watson_settings.get("IBM_CLOUD_MODELS_URL")
             if not url:
@@ -159,11 +168,11 @@ class WatsonModel(BaseModel):
             if not self.project_id:
                 logger.info("No USER_PROJECT_ID found or it's empty. Selecting a project...")
                 if not self.select_project():
-                    raise ModelError("Failed to select a project")
+                    raise ModelError("Failed to select a project.\n\nGo to your IBM Cloud account and create a project in Watson Studio.")
             else:
                 logger.info(f"Validating project ID: {self.project_id}")
                 if not self.auth.validate_project(self.project_id):
-                    raise ModelError(f"Invalid project ID: {self.project_id}. Please check your project settings.")
+                    raise ModelError(f"Invalid project ID: {self.project_id}. Please set another project in Settings.")
 
             logger.info(f"Using valid project ID: {self.project_id}")
 
@@ -208,7 +217,7 @@ class WatsonModel(BaseModel):
             logger.error(f"Unexpected error loading model {self.model_id}: {str(e)}")
             logger.exception("Full traceback:")
             self.is_loaded = False
-            raise ModelError(f"Unexpected error loading model {self.model_id}: {str(e)}")
+            raise ModelError(f"Unexpected error occurred while downloading the model. Please try again later.")
 
     def _get_embedding_type(self, model_id):
         embedding_types = {
@@ -333,3 +342,8 @@ def check_service(resource_name, service_keyword):
 
 def format_service_name(service):
     return ' '.join(word.capitalize() for word in service.split('_'))
+
+def format_service_name_to_list(services):
+    if isinstance(services, str):
+        services = [services]
+    return '\n'.join(f"- {' '.join(word.capitalize() for word in service.replace('_', ' ').split())}" for service in services)
