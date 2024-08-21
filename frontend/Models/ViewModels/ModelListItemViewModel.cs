@@ -13,7 +13,25 @@ namespace frontend.ViewModels
         public string PipelineTag => Model.PipelineTag;
         public string Status => Model.Status;
         public string BaseModel => Model.BaseModel;
-        public bool IsCustomised => Model.IsCustomised ?? false;
+
+        private bool _isCustomised;
+        public bool IsCustomised
+        {
+            get => Model.IsCustomised ?? false;
+            set
+            {
+                if (_isCustomised != value)
+                {
+                    _isCustomised = value;
+                    Model.IsCustomised = value;
+                    OnPropertyChanged();
+                    IsCustomisedChanged?.Invoke(this, value);
+                }
+            }
+        }
+
+        // Event to notify the View
+        public event EventHandler<bool> IsCustomisedChanged;
 
         private bool _isLoaded;
         public bool IsLoaded
@@ -45,10 +63,25 @@ namespace frontend.ViewModels
 
         public ICommand LoadOrStopCommand { get; set; }
 
+        private Color _customLabelColor;
+        public Color CustomLabelColor
+        {
+            get => _customLabelColor;
+            set
+            {
+                if (_customLabelColor != value)
+                {
+                    _customLabelColor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ModelListItemViewModel(Model model)
         {
             Model = model;
             IsLoaded = model.IsLoaded;
+            _isCustomised = model.IsCustomised ?? false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -56,6 +89,22 @@ namespace frontend.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void UpdateCustomLabelColor()
+        {
+            Color trueColor = Color.FromArgb("#34C759");
+            Color falseColorLight = Color.FromArgb("#E5E5EA");
+            Color falseColorDark = Color.FromArgb("#3A3A3C");
+
+            if (IsCustomised)
+            {
+                CustomLabelColor = trueColor;
+            }
+            else
+            {
+                CustomLabelColor = Application.Current.RequestedTheme == AppTheme.Dark ? falseColorDark : falseColorLight;
+            }
         }
     }
 }

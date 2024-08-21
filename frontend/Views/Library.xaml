@@ -104,12 +104,21 @@
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                     <Label Grid.Column="1" Text="{Binding BaseModel}" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
-                                    <Image Grid.Column="2" 
+                                    <!-- <Image Grid.Column="2" 
                                            Source="{Binding IsCustomised, Converter={StaticResource BoolToImageConverter}}"
                                            HeightRequest="20" 
                                            WidthRequest="20"
                                            HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
+                                           VerticalOptions="Center"/> -->
+                                    <Label Grid.Column="2" 
+                                            FontFamily="FontAwesomeFreeSolid"
+                                            FontSize="20"
+                                            Text="&#xf7d9;"
+                                            HeightRequest="20" 
+                                            WidthRequest="20"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            TextColor="{Binding CustomLabelColor}"/>
                                     <Label Grid.Column="4" Text="{Binding PipelineTag}" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
                                     <Frame Grid.Column="5" 

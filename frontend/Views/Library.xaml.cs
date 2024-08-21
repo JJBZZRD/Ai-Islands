@@ -57,8 +57,6 @@ namespace frontend.Views
             _libraryService = new LibraryService();
             _modelService = new ModelService();
             
-            
-
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
                 await MainThread.InvokeOnMainThreadAsync(async () => await RefreshLibraryModels());
@@ -160,9 +158,21 @@ namespace frontend.Views
                 }
 
                 AllModels = newModels;
-                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => 
                 {
-                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                    var viewModel = new ModelListItemViewModel(m)
+                    {
+                        LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                    };
+                    viewModel.PropertyChanged += (sender, args) => 
+                    {
+                        if (args.PropertyName == nameof(ModelListItemViewModel.IsCustomised))
+                        {
+                            viewModel.UpdateCustomLabelColor();
+                        }
+                    };
+                    viewModel.UpdateCustomLabelColor(); // Set initial color
+                    return viewModel;
                 }));
                 System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
 
