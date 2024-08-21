@@ -209,8 +209,9 @@ namespace frontend.Views
 
             try
             {
-                LoadingIndicator.IsVisible = true;
+                LoadingOverlay.IsVisible = true;
                 LoadingIndicator.IsRunning = true;
+                LoadingText.Text = $"{char.ToUpper(action[0])}{action.Substring(1)}ing Model...";
 
                 HttpResponseMessage response;
                 if (viewModel.IsLoaded)
@@ -225,6 +226,8 @@ namespace frontend.Views
                 if (response.IsSuccessStatusCode)
                 {
                     viewModel.IsLoaded = !viewModel.IsLoaded;
+                    LoadingText.Text = "Success!";
+                    await Task.Delay(1000); // Show success message for 1 second
                 }
                 else
                 {
@@ -241,7 +244,7 @@ namespace frontend.Views
             finally
             {
                 LoadingIndicator.IsRunning = false;
-                LoadingIndicator.IsVisible = false;
+                LoadingOverlay.IsVisible = false;
                 viewModel.IsButtonEnabled = true;
             }
         }

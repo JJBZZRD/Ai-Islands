@@ -148,12 +148,41 @@
                            ApplyFiltersRequested="OnApplyFilters"
                            ResetFiltersRequested="OnResetFilters"/>
 
+        <!-- OPTION 1 -->
         <!-- Add this ActivityIndicator -->
-        <ActivityIndicator x:Name="LoadingIndicator" 
+        <!-- <ActivityIndicator x:Name="LoadingIndicator" 
                            IsRunning="False" 
                            IsVisible="False"
                            Color="{AppThemeBinding Light=Black, Dark=White}"
                            AbsoluteLayout.LayoutFlags="PositionProportional"
-                           AbsoluteLayout.LayoutBounds="0.5, 0.5, AutoSize, AutoSize"/>
+                           AbsoluteLayout.LayoutBounds="0.5, 0.5, AutoSize, AutoSize"/> -->
+
+        <!-- OPTION 2 -->
+        <!-- Replace the existing ActivityIndicator with this new layout -->
+        <Grid x:Name="LoadingOverlay" 
+            IsVisible="False"
+            AbsoluteLayout.LayoutFlags="All"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            BackgroundColor="#80000000">
+            <Frame CornerRadius="10" 
+                BackgroundColor="#CC000000" 
+                HorizontalOptions="Center" 
+                VerticalOptions="Center"
+                Padding="20">
+                <StackLayout>
+                    <ActivityIndicator x:Name="LoadingIndicator" 
+                                    IsRunning="False" 
+                                    Color="White"
+                                    HeightRequest="50"
+                                    WidthRequest="50"/>
+                    <Label x:Name="LoadingText"
+                        Text="Loading Model..."
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        Margin="0,10,0,0"/>
+                </StackLayout>
+            </Frame>
+        </Grid>
+        
     </AbsoluteLayout>
 </ContentPage>
