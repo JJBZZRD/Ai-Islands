@@ -112,6 +112,8 @@
                                             CornerRadius="15"
                                             HeightRequest="20"
                                             Command="{Binding LoadOrStopCommand}"
+                                            CommandParameter="{Binding ModelId}"
+                                            IsEnabled="{Binding IsButtonEnabled}"
                                             VerticalOptions="Center"
                                             HorizontalOptions="Center"
                                             Padding="10,5"/>
@@ -145,5 +147,13 @@
                            CloseRequested="OnCloseFilterPopup"
                            ApplyFiltersRequested="OnApplyFilters"
                            ResetFiltersRequested="OnResetFilters"/>
+
+        <!-- Add this ActivityIndicator -->
+        <ActivityIndicator x:Name="LoadingIndicator" 
+                           IsRunning="False" 
+                           IsVisible="False"
+                           Color="{AppThemeBinding Light=Black, Dark=White}"
+                           AbsoluteLayout.LayoutFlags="PositionProportional"
+                           AbsoluteLayout.LayoutBounds="0.5, 0.5, AutoSize, AutoSize"/>
     </AbsoluteLayout>
 </ContentPage>

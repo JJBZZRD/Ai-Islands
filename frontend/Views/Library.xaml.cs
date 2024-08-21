@@ -9,7 +9,7 @@ using frontend.Models;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using frontend.Services;
-
+using frontend.ViewModels;
 
 namespace frontend.Views
 {
@@ -27,8 +27,8 @@ namespace frontend.Views
             }
         }
 
-        private ObservableCollection<Model> _models;
-        public ObservableCollection<Model> Models
+        private ObservableCollection<ModelListItemViewModel> _models;
+        public ObservableCollection<ModelListItemViewModel> Models
         {
             get => _models;
             set
@@ -50,12 +50,14 @@ namespace frontend.Views
         public Library()
         {
             InitializeComponent();
-            Models = new ObservableCollection<Model>();
+            Models = new ObservableCollection<ModelListItemViewModel>();
             AllModels = new ObservableCollection<Model>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
             _libraryService = new LibraryService();
             _modelService = new ModelService();
+            
+            
 
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
@@ -96,7 +98,10 @@ namespace frontend.Views
 
         private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
         {
-            Models = new ObservableCollection<Model>(e.FilteredModels);
+            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m => new ModelListItemViewModel(m)
+            {
+                LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+            }));
             FilterOnline = FilterPopup.FilterOnline;
             FilterOffline = FilterPopup.FilterOffline;
             FilterPopup.IsVisible = false;
@@ -104,7 +109,10 @@ namespace frontend.Views
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            Models = new ObservableCollection<Model>(AllModels);
+            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+            {
+                LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+            }));
             FilterOnline = false;
             FilterOffline = false;
             FilterPopup.IsVisible = false;
@@ -152,7 +160,10 @@ namespace frontend.Views
                 }
 
                 AllModels = newModels;
-                Models = new ObservableCollection<Model>(AllModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                }));
                 System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
 
                 InitializeFilterPopup();
@@ -168,7 +179,10 @@ namespace frontend.Views
         {
             if (string.IsNullOrWhiteSpace(e.NewTextValue))
             {
-                Models = new ObservableCollection<Model>(AllModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                }));
             }
             else
             {
@@ -178,57 +192,57 @@ namespace frontend.Views
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
 
-                Models = new ObservableCollection<Model>(filteredModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(filteredModels.Select(m => new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                }));
             }
         }
 
         private async void LoadOrStopModel(string ModelId)
         {
-            var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
-            if (model == null) return;
+            var viewModel = Models.FirstOrDefault(vm => vm.ModelId == ModelId);
+            if (viewModel == null) return;
 
-            var isLoaded = await _modelService.IsModelLoaded(ModelId);
-            string action = isLoaded ? "unload" : "load";
+            viewModel.IsButtonEnabled = false;
+            string action = viewModel.IsLoaded ? "unload" : "load";
 
             try
             {
-                var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
-                await Navigation.PushAsync(terminalPage);
+                LoadingIndicator.IsVisible = true;
+                LoadingIndicator.IsRunning = true;
 
                 HttpResponseMessage response;
-                if (isLoaded)
+                if (viewModel.IsLoaded)
                 {
                     response = await _modelService.UnloadModel(ModelId);
-                    terminalPage.AppendOutput($"Unloading model {ModelId}...");
                 }
                 else
                 {
                     response = await _modelService.LoadModel(ModelId);
-                    terminalPage.AppendOutput($"Loading model {ModelId}...");
                 }
 
                 if (response.IsSuccessStatusCode)
                 {
-                    model.IsLoaded = !isLoaded; // Update the IsLoaded property
-                    terminalPage.AppendOutput($"Model {ModelId} {action}ed successfully.");
+                    viewModel.IsLoaded = !viewModel.IsLoaded;
                 }
                 else
                 {
-                    terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
                     var errorContent = await response.Content.ReadAsStringAsync();
                     var errorJson = JsonSerializer.Deserialize<JsonElement>(errorContent);
                     var errorMessage = errorJson.GetProperty("error").GetProperty("message").GetString();
                     await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {errorMessage}", "OK");
                 }
-
-                await Task.Delay(2000); // Give user time to read the output
-                await Navigation.PopAsync(); // Close the terminal page
-
-                OnPropertyChanged(nameof(Models)); // Notify UI of changes
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {ex.Message}", "OK");
+            }
+            finally
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingIndicator.IsVisible = false;
+                viewModel.IsButtonEnabled = true;
             }
         }
 
