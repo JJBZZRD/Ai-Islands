@@ -192,7 +192,10 @@
                            AllModels="{Binding AllModels}"
                            CloseRequested="OnCloseFilterPopup"
                            ApplyFiltersRequested="OnApplyFilters"
-                           ResetFiltersRequested="OnResetFilters"/>
+                           ResetFiltersRequested="OnResetFilters"
+                           BaseModelTypes="{Binding BaseModelTypes}"
+                           FilterCustom="{Binding FilterCustom}"
+                           FilterNonCustom="{Binding FilterNonCustom}"/>
 
         <!-- OPTION 1 -->
         <!-- Add this ActivityIndicator -->

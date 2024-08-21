@@ -41,6 +41,9 @@ namespace frontend.Views
         public ObservableCollection<ModelTypeFilter> ModelTypes { get; set; }
         public bool FilterOnline { get; set; }
         public bool FilterOffline { get; set; }
+        public ObservableCollection<ModelTypeFilter> BaseModelTypes { get; set; }
+        public bool FilterCustom { get; set; }
+        public bool FilterNonCustom { get; set; }
 
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
@@ -53,6 +56,7 @@ namespace frontend.Views
             Models = new ObservableCollection<ModelListItemViewModel>();
             AllModels = new ObservableCollection<Model>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
+            BaseModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
             _libraryService = new LibraryService();
             _modelService = new ModelService();
@@ -72,11 +76,21 @@ namespace frontend.Views
                 distinctTypes.Select(tag => new ModelTypeFilter { TypeName = tag, IsSelected = false })
             );
             FilterPopup.ModelTypes = ModelTypes;
+
+            var distinctBaseModels = AllModels.Select(m => m.BaseModel).Distinct().OrderBy(t => t).ToList();
+            BaseModelTypes = new ObservableCollection<ModelTypeFilter>(
+                distinctBaseModels.Select(baseModel => new ModelTypeFilter { TypeName = baseModel, IsSelected = false })
+            );
+            FilterPopup.BaseModelTypes = BaseModelTypes;
+
             FilterPopup.AllModels = AllModels;
             FilterPopup.FilterOnline = FilterOnline;
             FilterPopup.FilterOffline = FilterOffline;
+            FilterPopup.FilterCustom = FilterCustom;
+            FilterPopup.FilterNonCustom = FilterNonCustom;
 
             System.Diagnostics.Debug.WriteLine($"InitializeFilterPopup: ModelTypes count: {ModelTypes.Count}");
+            System.Diagnostics.Debug.WriteLine($"InitializeFilterPopup: BaseModelTypes count: {BaseModelTypes.Count}");
         }
 
         private void OnFilterClicked(object sender, EventArgs e)
@@ -102,6 +116,8 @@ namespace frontend.Views
             }));
             FilterOnline = FilterPopup.FilterOnline;
             FilterOffline = FilterPopup.FilterOffline;
+            FilterCustom = FilterPopup.FilterCustom;
+            FilterNonCustom = FilterPopup.FilterNonCustom;
             FilterPopup.IsVisible = false;
         }
 
@@ -113,6 +129,16 @@ namespace frontend.Views
             }));
             FilterOnline = false;
             FilterOffline = false;
+            FilterCustom = false;
+            FilterNonCustom = false;
+            foreach (var type in ModelTypes)
+            {
+                type.IsSelected = false;
+            }
+            foreach (var baseModel in BaseModelTypes)
+            {
+                baseModel.IsSelected = false;
+            }
             FilterPopup.IsVisible = false;
         }
 

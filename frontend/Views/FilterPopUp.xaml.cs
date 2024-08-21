@@ -45,6 +45,15 @@ namespace frontend.Views
         public static readonly BindableProperty AllModelsProperty =
             BindableProperty.Create(nameof(AllModels), typeof(ObservableCollection<Model>), typeof(FilterPopup), null);
 
+        public static readonly BindableProperty BaseModelTypesProperty =
+            BindableProperty.Create(nameof(BaseModelTypes), typeof(ObservableCollection<ModelTypeFilter>), typeof(FilterPopup), null);
+
+        public static readonly BindableProperty FilterCustomProperty =
+            BindableProperty.Create(nameof(FilterCustom), typeof(bool), typeof(FilterPopup), false);
+
+        public static readonly BindableProperty FilterNonCustomProperty =
+            BindableProperty.Create(nameof(FilterNonCustom), typeof(bool), typeof(FilterPopup), false);
+
         public ObservableCollection<ModelTypeFilter> ModelTypes
         {
             get => (ObservableCollection<ModelTypeFilter>)GetValue(ModelTypesProperty);
@@ -80,6 +89,24 @@ namespace frontend.Views
             set => SetValue(AllModelsProperty, value);
         }
 
+        public ObservableCollection<ModelTypeFilter> BaseModelTypes
+        {
+            get => (ObservableCollection<ModelTypeFilter>)GetValue(BaseModelTypesProperty);
+            set => SetValue(BaseModelTypesProperty, value);
+        }
+
+        public bool FilterCustom
+        {
+            get => (bool)GetValue(FilterCustomProperty);
+            set => SetValue(FilterCustomProperty, value);
+        }
+
+        public bool FilterNonCustom
+        {
+            get => (bool)GetValue(FilterNonCustomProperty);
+            set => SetValue(FilterNonCustomProperty, value);
+        }
+
         public FilterPopup()
         {
             InitializeComponent();
@@ -106,12 +133,17 @@ namespace frontend.Views
         private ObservableCollection<Model> ApplyFilters()
         {
             var selectedTypes = ModelTypes.Where(mt => mt.IsSelected).Select(mt => mt.TypeName).ToList();
+            var selectedBaseModels = BaseModelTypes.Where(bmt => bmt.IsSelected).Select(bmt => bmt.TypeName).ToList();
 
             var filteredModels = AllModels.Where(m =>
                 (selectedTypes.Count == 0 || selectedTypes.Contains(m.PipelineTag)) &&
+                (selectedBaseModels.Count == 0 || selectedBaseModels.Contains(m.BaseModel)) &&
                 ((!FilterOnline && !FilterOffline) ||
                  (FilterOnline && m.Status == "Online") ||
-                 (FilterOffline && m.Status == "Offline"))
+                 (FilterOffline && m.Status == "Offline")) &&
+                ((!FilterCustom && !FilterNonCustom) ||
+                 (FilterCustom && m.IsCustomised == true) ||
+                 (FilterNonCustom && m.IsCustomised != true))
             ).ToList();
 
             return new ObservableCollection<Model>(filteredModels);
@@ -123,8 +155,14 @@ namespace frontend.Views
             {
                 modelType.IsSelected = false;
             }
+            foreach (var baseModelType in BaseModelTypes)
+            {
+                baseModelType.IsSelected = false;
+            }
             FilterOnline = false;
             FilterOffline = false;
+            FilterCustom = false;
+            FilterNonCustom = false;
         }
     }
 

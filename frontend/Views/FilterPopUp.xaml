@@ -43,10 +43,32 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
+                        <Label Text="Base Model" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                               Margin="0,20,0,0"/>
+                        <CollectionView ItemsSource="{Binding BaseModelTypes, Mode=TwoWay}"
+                                        HeightRequest="200">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                                        <Label Text="{Binding TypeName}" 
+                                               Grid.Column="1" 
+                                               VerticalOptions="Center" 
+                                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
                         <Label Text="Status" 
                                FontSize="16" 
                                FontAttributes="Bold" 
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                               Margin="0,20,0,0"/>
                         <Grid ColumnDefinitions="Auto,*,Auto,*">
                             <CheckBox IsChecked="{Binding FilterOnline}" 
                                       Grid.Column="0"
@@ -59,6 +81,28 @@
                                       Grid.Column="2"
                                       Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
                             <Label Text="Offline" 
+                                   Grid.Column="3" 
+                                   VerticalOptions="Center" 
+                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                        </Grid>
+
+                        <Label Text="Custom Status" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                               Margin="0,20,0,0"/>
+                        <Grid ColumnDefinitions="Auto,*,Auto,*">
+                            <CheckBox IsChecked="{Binding FilterCustom, Mode=TwoWay}" 
+                                      Grid.Column="0"
+                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                            <Label Text="Custom" 
+                                   Grid.Column="1" 
+                                   VerticalOptions="Center" 
+                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                            <CheckBox IsChecked="{Binding FilterNonCustom, Mode=TwoWay}" 
+                                      Grid.Column="2"
+                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                            <Label Text="Non-Custom" 
                                    Grid.Column="3" 
                                    VerticalOptions="Center" 
                                    TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
