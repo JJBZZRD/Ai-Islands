@@ -249,6 +249,61 @@ namespace frontend.Views
             }
         }
 
+        private async void OnLoadAllClicked(object sender, EventArgs e)
+        {
+            await LoadOrUnloadAllModels(true);
+        }
+
+        private async void OnUnloadAllClicked(object sender, EventArgs e)
+        {
+            await LoadOrUnloadAllModels(false);
+        }
+
+        private async Task LoadOrUnloadAllModels(bool load)
+        {
+            LoadingOverlay.IsVisible = true;
+            LoadingIndicator.IsRunning = true;
+            LoadingText.Text = load ? "Loading All Models..." : "Unloading All Models...";
+
+            try
+            {
+                foreach (var viewModel in Models)
+                {
+                    if (load && !viewModel.IsLoaded || !load && viewModel.IsLoaded)
+                    {
+                        LoadingText.Text = $"{(load ? "Loading" : "Unloading")} Model {viewModel.ModelId}...";
+                        HttpResponseMessage response = load
+                            ? await _modelService.LoadModel(viewModel.ModelId)
+                            : await _modelService.UnloadModel(viewModel.ModelId);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            viewModel.IsLoaded = load;
+                        }
+                        else
+                        {
+                            var errorContent = await response.Content.ReadAsStringAsync();
+                            var errorJson = JsonSerializer.Deserialize<JsonElement>(errorContent);
+                            var errorMessage = errorJson.GetProperty("error").GetProperty("message").GetString();
+                            await DisplayAlert("Error", $"Failed to {(load ? "load" : "unload")} model {viewModel.ModelId}: {errorMessage}", "OK");
+                        }
+                    }
+                }
+
+                LoadingText.Text = "Operation Completed!";
+                await Task.Delay(1000); // Show completion message for 1 second
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
+            finally
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingOverlay.IsVisible = false;
+            }
+        }
+
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
