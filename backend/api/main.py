@@ -14,6 +14,7 @@ from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.controlers.library_control import LibraryControl
+from backend.utils.console_stream import start_console_stream_server
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
@@ -73,6 +74,11 @@ app.include_router(playground_router.router, prefix="/playground", tags=["playgr
 @app.websocket("/ws/predict-live/{model_id}")
 async def predict_live(websocket: WebSocket, model_id: str):
     await model_router.predict_live(websocket, model_id)
+
+# Establish WebSocket route for terminal
+@app.websocket("/ws/console-stream/{model_id}/{action}")
+async def console_stream(websocket: WebSocket, model_id: str, action: str):
+    await start_console_stream_server(websocket, model_id, action)
 
 if __name__ == "__main__":
     import uvicorn

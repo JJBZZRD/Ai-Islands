@@ -47,6 +47,8 @@ namespace frontend.Views
         private readonly LibraryService _libraryService;
         private readonly ModelService _modelService;
 
+        private CancellationTokenSource _cts;
+
         public Library()
         {
             InitializeComponent();
@@ -195,31 +197,33 @@ namespace frontend.Views
                 var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
                 await Navigation.PushAsync(terminalPage);
 
+                await terminalPage.ConnectAndStreamOutput(ModelId, action);
+
                 bool success;
                 if (isLoaded)
                 {
                     success = await _modelService.UnloadModel(ModelId);
-                    terminalPage.AppendOutput($"Unloading model {ModelId}...");
                 }
                 else
                 {
                     success = await _modelService.LoadModel(ModelId);
-                    terminalPage.AppendOutput($"Loading model {ModelId}...");
                 }
 
-                if (success)
+                bool operationCompleted = await terminalPage.WaitForCompletion();
+
+                if (success && operationCompleted)
                 {
                     model.IsLoaded = !isLoaded; // Update the IsLoaded property
-                    terminalPage.AppendOutput($"Model {ModelId} {action}ed successfully.");
+                    terminalPage.AppendOutput($"Model {ModelId} has been successfully {action}ed.");
                 }
                 else
                 {
                     terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
                 }
 
-                await Task.Delay(2000); // Give user time to read the output
-                await Navigation.PopAsync(); // Close the terminal page
-
+                // Keep the terminal page open for a few seconds after operation completion
+                await Task.Delay(5000);
+                await Navigation.PopAsync();
                 OnPropertyChanged(nameof(Models)); // Notify UI of changes
             }
             catch (Exception ex)
@@ -228,10 +232,17 @@ namespace frontend.Views
             }
         }
 
-        protected override void OnDisappearing()
+        // close the terminal page when the library page is closed
+        protected override async void OnDisappearing()
         {
             base.OnDisappearing();
-            WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
+            _cts?.Cancel();
+        }
+
+        private Task CloseWebSocketAndTerminal()
+        {
+            // Implement the logic to close WebSocket and terminal
+            return Task.CompletedTask;
         }
     }
 }

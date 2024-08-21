@@ -257,25 +257,36 @@ namespace frontend.Views
 
                 var fineTuningData = new
                 {
-                        epochs = int.Parse(epochs),
-                        batch_size = int.Parse(batchSize),
-                        learning_rate = double.Parse(learningRate),
-                        dataset_id = _datasetId,
-                        imgsz = 640
+                    epochs = int.Parse(epochs),
+                    batch_size = int.Parse(batchSize),
+                    learning_rate = double.Parse(learningRate),
+                    dataset_id = _datasetId,
+                    imgsz = 640
                 };
 
                 var modelService = new ModelService();
                 await Application.Current.MainPage.DisplayAlert("Fine-Tuning", "Fine-tuning process is starting. This may take a while.", "OK");
+
+                var terminalPage = new TerminalPage("Fine-Tuning Progress");
+                await Navigation.PushAsync(terminalPage);
+
+                await terminalPage.ConnectAndStreamOutput(_model.ModelId, "fine-tune");
                 var result = await modelService.TrainModel(_model.ModelId, fineTuningData);
 
-                if (result != null)
+                bool success = await terminalPage.WaitForCompletion();
+
+                if (success)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Success", $"Fine-tuning started successfully. Dataset ID: {_datasetId}", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Success", $"Fine-tuning completed successfully. Dataset ID: {_datasetId}", "OK");
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to start fine-tuning", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to complete fine-tuning", "OK");
                 }
+
+                // Keep the terminal page open for a few seconds after completion
+                await Task.Delay(5000);
+                await Navigation.PopAsync();
             }
             catch (Exception ex)
             {
@@ -478,7 +489,7 @@ namespace frontend.Views
                         { DevicePlatform.iOS, new[] { "public.zip-archive" } },
                         { DevicePlatform.Android, new[] { "application/zip" } },
                         { DevicePlatform.WinUI, new[] { ".zip" } },
-                        { DevicePlatform.macOS, new[] { "zip" } }
+                        { DevicePlatform.macOS, new[] { "zip" }}
                     }),
                     PickerTitle = "Please select a zip folder (max permitted size: 3.5GB)"
                 });
