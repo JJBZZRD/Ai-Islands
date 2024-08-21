@@ -95,7 +95,7 @@ namespace frontend.ViewModels
         {
             Color trueColor = Color.FromArgb("#34C759");
             Color falseColorLight = Color.FromArgb("#E5E5EA");
-            Color falseColorDark = Color.FromArgb("#3A3A3C");
+            Color falseColorDark = Color.FromArgb("#8E8E93");
 
             if (IsCustomised)
             {
