@@ -120,9 +120,9 @@ namespace frontend.Views
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is Model selectedModel)
+            if (e.Parameter is ModelListItemViewModel selectedViewModel)
             {
-                await Navigation.PushAsync(new LibraryTabbedPage(selectedModel));
+                await Navigation.PushAsync(new LibraryTabbedPage(selectedViewModel.Model));
             }
         }
 

@@ -7,13 +7,11 @@ namespace frontend.ViewModels
 {
     public class ModelListItemViewModel : INotifyPropertyChanged
     {
-        public Model Model { get; set; }
+        public Model Model { get; }
 
-        private readonly Model _model;
-
-        public string ModelId => _model.ModelId;
-        public string PipelineTag => _model.PipelineTag;
-        public string Status => _model.Status;
+        public string ModelId => Model.ModelId;
+        public string PipelineTag => Model.PipelineTag;
+        public string Status => Model.Status;
 
         private bool _isLoaded;
         public bool IsLoaded
@@ -47,9 +45,8 @@ namespace frontend.ViewModels
 
         public ModelListItemViewModel(Model model)
         {
-            _model = model;
-            IsLoaded = model.IsLoaded;
             Model = model;
+            IsLoaded = model.IsLoaded;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
