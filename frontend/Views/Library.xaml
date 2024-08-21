@@ -11,6 +11,7 @@
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
         <converters:LoadUnloadTextConverter x:Key="LoadUnloadTextConverter" />
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <converters:BoolToImageConverter x:Key="BoolToImageConverter"/>
     </ContentPage.Resources>
 
     <AbsoluteLayout>
@@ -71,10 +72,14 @@
             </Grid>
 
             <Frame Grid.Row="2" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=#cccccc, Dark=#3A3B3C}" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
-                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
+                <Grid ColumnDefinitions="3*, 2*, 0.8*, 20, 2*, 1.1*, 110, 20, 60">
                     <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
-                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Base Model" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                    <Label Text="Custom" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="4" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="5" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Action" FontAttributes="Bold" Grid.Column="6" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Delete" FontAttributes="Bold" Grid.Column="8" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
                 </Grid>
             </Frame>
 
@@ -94,12 +99,20 @@
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
-                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto, Auto">
+                                <Grid ColumnDefinitions="3*, 2*, 0.8*, 20, 2*, 1.1*, 110, 20, 60">
                                     <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                    <Label Grid.Column="1" Text="{Binding BaseModel}" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
-                                    <Frame Grid.Column="2" 
+                                    <Image Grid.Column="2" 
+                                           Source="{Binding IsCustomised, Converter={StaticResource BoolToImageConverter}}"
+                                           HeightRequest="20" 
+                                           WidthRequest="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="4" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                                    <Frame Grid.Column="5" 
                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
                                            BorderColor="Transparent"
                                            CornerRadius="18"
@@ -114,19 +127,20 @@
                                                VerticalOptions="Center"
                                                HorizontalOptions="Center"/>
                                     </Frame>
-                                    <Button Grid.Column="3" 
+                                    <Button Grid.Column="6" 
                                             Text="{Binding IsLoaded, Converter={StaticResource LoadUnloadTextConverter}}"
                                             BackgroundColor="{Binding IsLoaded, Converter={StaticResource BoolToColorConverter}}"
                                             TextColor="White"
                                             CornerRadius="15"
-                                            HeightRequest="20"
+                                            HeightRequest="33"
+                                            WidthRequest="90"
                                             Command="{Binding LoadOrStopCommand}"
                                             CommandParameter="{Binding ModelId}"
                                             IsEnabled="{Binding IsButtonEnabled}"
                                             VerticalOptions="Center"
                                             HorizontalOptions="Center"
-                                            Padding="10,5"/>
-                                    <ImageButton Grid.Column="4" 
+                                            Padding="0"/>
+                                    <ImageButton Grid.Column="8" 
                                                  HeightRequest="20"
                                                  WidthRequest="20"
                                                  HorizontalOptions="Center"

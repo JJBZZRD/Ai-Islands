@@ -12,6 +12,8 @@ namespace frontend.ViewModels
         public string ModelId => Model.ModelId;
         public string PipelineTag => Model.PipelineTag;
         public string Status => Model.Status;
+        public string BaseModel => Model.BaseModel;
+        public bool IsCustomised => Model.IsCustomised ?? false;
 
         private bool _isLoaded;
         public bool IsLoaded
