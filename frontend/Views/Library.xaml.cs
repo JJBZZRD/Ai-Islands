@@ -309,5 +309,41 @@ namespace frontend.Views
             base.OnDisappearing();
             WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
         }
+
+        private async void OnDeleteModelClicked(object sender, EventArgs e)
+        {
+            var button = sender as ImageButton;
+            var model = button?.CommandParameter as ModelListItemViewModel;
+
+            if (model != null)
+            {
+                bool confirm = await DisplayAlert(
+                    "Confirm Deletion", 
+                    $"Are you sure you want to delete model {model.ModelId}?", 
+                    "Yes", "No");
+
+                if (confirm)
+                {
+                    try
+                    {
+                        bool success = await _modelService.DeleteModel(model.ModelId);
+                        if (success)
+                        {
+                            Models.Remove(model);
+                            AllModels.Remove(model.Model);
+                            await DisplayAlert("Success", $"Model {model.ModelId} has been deleted.", "OK");
+                        }
+                        else
+                        {
+                            await DisplayAlert("Error", $"Failed to delete model {model.ModelId}.", "OK");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"An error occurred while deleting the model: {ex.Message}", "OK");
+                    }
+                }
+            }
+        }
     }
 }

@@ -94,7 +94,7 @@
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
-                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
+                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto, Auto">
                                     <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
                                     <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
@@ -126,6 +126,20 @@
                                             VerticalOptions="Center"
                                             HorizontalOptions="Center"
                                             Padding="10,5"/>
+                                    <ImageButton Grid.Column="4" 
+                                                 HeightRequest="20"
+                                                 WidthRequest="20"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Clicked="OnDeleteModelClicked"
+                                                 CommandParameter="{Binding .}"
+                                                 BackgroundColor="Transparent">
+                                        <ImageButton.Source>
+                                            <FontImageSource Glyph="&#xf2ed;" 
+                                                                 FontFamily="FontAwesomeFreeRegular" 
+                                                                 Color="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}" />
+                                        </ImageButton.Source>
+                                    </ImageButton>
                                 </Grid>
                             </Frame>
                         </DataTemplate>

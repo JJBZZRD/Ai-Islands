@@ -7,6 +7,8 @@ namespace frontend.ViewModels
 {
     public class ModelListItemViewModel : INotifyPropertyChanged
     {
+        public Model Model { get; set; }
+
         private readonly Model _model;
 
         public string ModelId => _model.ModelId;
@@ -47,6 +49,7 @@ namespace frontend.ViewModels
         {
             _model = model;
             IsLoaded = model.IsLoaded;
+            Model = model;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
