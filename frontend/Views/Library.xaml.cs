@@ -110,9 +110,14 @@ namespace frontend.Views
 
         private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
         {
-            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m => new ModelListItemViewModel(m)
+            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m => 
             {
-                LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                var viewModel = new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                };
+                viewModel.UpdateCustomLabelColor();
+                return viewModel;
             }));
             FilterOnline = FilterPopup.FilterOnline;
             FilterOffline = FilterPopup.FilterOffline;
@@ -123,9 +128,14 @@ namespace frontend.Views
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => 
             {
-                LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                var viewModel = new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                };
+                viewModel.UpdateCustomLabelColor();
+                return viewModel;
             }));
             FilterOnline = false;
             FilterOffline = false;
@@ -154,6 +164,15 @@ namespace frontend.Views
         {
             base.OnAppearing();
             await RefreshLibraryModels();
+            Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
+        }
+
+        private void Current_RequestedThemeChanged(object sender, AppThemeChangedEventArgs e)
+        {
+            foreach (var model in Models)
+            {
+                model.UpdateCustomLabelColor();
+            }
         }
 
         private async Task RefreshLibraryModels()
@@ -344,6 +363,7 @@ namespace frontend.Views
         {
             base.OnDisappearing();
             WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
+            Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
         }
 
         private async void OnDeleteModelClicked(object sender, EventArgs e)
