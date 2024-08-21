@@ -3,13 +3,54 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Components.InputPopup">
     <ContentView.Content>
-        <Frame VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="White" Padding="20">
-            <StackLayout>
-                <Label x:Name="TitleLabel" FontSize="18" FontAttributes="Bold"/>
-                <Entry x:Name="InputEntry" />
-                <Button Text="Submit" Clicked="OnSubmitClicked"/>
-                <Button Text="Cancel" Clicked="OnCancelClicked"/>
-            </StackLayout>
+        <Frame VerticalOptions="Center" 
+               HorizontalOptions="Center" 
+               BackgroundColor="White" 
+               Padding="40"
+               WidthRequest="600"
+               HeightRequest="400"
+               CornerRadius="10">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <Label x:Name="TitleLabel" 
+                       FontSize="28" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       Grid.Row="0"/>
+                <ScrollView Grid.Row="1" Margin="0,20,0,0">
+                    <Label x:Name="DescriptionLabel" 
+                           FontSize="16" 
+                           TextColor="Gray"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnDescriptionDoubleTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </ScrollView>
+                <Entry x:Name="InputEntry" 
+                       Placeholder="Enter Auth Token"
+                       Margin="0,20,0,0"
+                       VerticalOptions="Start"
+                       Grid.Row="2"/>
+                <StackLayout Orientation="Horizontal" 
+                             Spacing="20" 
+                             HorizontalOptions="Center"
+                             VerticalOptions="End"
+                             Grid.Row="3">
+                    <Button Text="Submit" 
+                            Clicked="OnSubmitClicked"
+                            WidthRequest="140"
+                            HeightRequest="50"
+                            BackgroundColor="#6200EE"
+                            TextColor="White"/>
+                    <Button Text="Cancel" 
+                            Clicked="OnCancelClicked"
+                            WidthRequest="140"
+                            HeightRequest="50"
+                            BackgroundColor="#6200EE"
+                            TextColor="White"/>
+                </StackLayout>
+            </Grid>
         </Frame>
     </ContentView.Content>
 </ContentView>
