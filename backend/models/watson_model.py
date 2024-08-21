@@ -172,7 +172,7 @@ class WatsonModel(BaseModel):
             else:
                 logger.info(f"Validating project ID: {self.project_id}")
                 if not self.auth.validate_project(self.project_id):
-                    raise ModelError(f"Invalid project ID: {self.project_id}. Please set another project in Settings.")
+                    raise ModelError(f"Invalid project ID:\n\n\t{self.project_id}\n\nPlease set another project in Settings.")
 
             logger.info(f"Using valid project ID: {self.project_id}")
 
