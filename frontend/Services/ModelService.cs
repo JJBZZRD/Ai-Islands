@@ -131,12 +131,27 @@ namespace frontend.Services
             return await response.Content.ReadAsStringAsync();
         }
 
+        // public async Task<object> TrainModel(string modelId, object data)
+        // {
+        //     var request = new { model_id = modelId, data = data };
+        //     var response = await _httpClient.PostAsJsonAsync("model/train", request);
+        //     response.EnsureSuccessStatusCode();
+        //     return (await response.Content.ReadFromJsonAsync<object>())!;
+        // }
+
         public async Task<object> TrainModel(string modelId, object data)
         {
             var request = new { model_id = modelId, data = data };
-            var response = await _httpClient.PostAsJsonAsync("model/train", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<object>())!;
+            var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.Timeout = TimeSpan.FromHours(12); // Setting timeout to 12 hours for training
+                var response = await httpClient.PostAsync($"{BaseUrl}/model/train", content);
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+                return result?["data"] ?? new Dictionary<string, object>();
+            }
         }
 
         public async Task<object> ConfigureModel(string modelId, object payload)

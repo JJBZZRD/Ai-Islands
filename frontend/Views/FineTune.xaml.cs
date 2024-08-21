@@ -51,6 +51,8 @@ namespace frontend.Views
             }
         }
 
+        private Button _startVisFineTuningButton;
+
         public FineTune(Model model)
         {
             InitializeComponent();
@@ -63,25 +65,32 @@ namespace frontend.Views
         private View GenerateTaskSpecificUI()
         {
             View taskSpecificContent;
-
-            switch (_model.PipelineTag?.ToLower())
+            // disable fine-tuning for yolov10
+            if (_model.ModelId.StartsWith("yolov10", StringComparison.OrdinalIgnoreCase))
             {
-                case "object-detection":
-                    taskSpecificContent = CreateObjectDetectionUI();
-                    IsFineTuningAvailable = true;
-                    break;
-                case "text-generation":
-                    taskSpecificContent = CreateNLPUI();
-                    IsFineTuningAvailable = true;
-                    break;
-                // more cases here
-                default:
-                    // taskSpecificContent = new Label { Text = "Unsupported task" };
-                    taskSpecificContent = CreateDefaultUI();
-                    IsFineTuningAvailable = false;
-                    break;
+                taskSpecificContent = CreateDefaultUI();
+                IsFineTuningAvailable = false;
             }
-
+            else
+            {
+                switch (_model.PipelineTag?.ToLower())
+                {
+                    case "object-detection":
+                        taskSpecificContent = CreateObjectDetectionUI();
+                        IsFineTuningAvailable = true;
+                        break;
+                    case "text-generation":
+                        taskSpecificContent = CreateNLPUI();
+                        IsFineTuningAvailable = true;
+                        break;
+                    // more cases here
+                    default:
+                        // taskSpecificContent = new Label { Text = "Unsupported task" };
+                        taskSpecificContent = CreateDefaultUI();
+                        IsFineTuningAvailable = false;
+                        break;
+                }
+            }
             return taskSpecificContent;
         }
 
@@ -137,6 +146,18 @@ namespace frontend.Views
             };
             Grid.SetColumn(saveButton, 1);
 
+            _startVisFineTuningButton = new Button
+            {
+                Text = "Start Fine-Tuning",
+                BackgroundColor = Color.FromArgb("#3366FF"),
+                TextColor = Colors.White,
+                CornerRadius = 5,
+                Margin = new Thickness(0, 10, 0, 0),
+                Command = new Command(StartVisFineTuning),
+                IsEnabled = false,
+                AutomationId = "startVisFineTuningButton"
+            };
+
             return new VerticalStackLayout
             {
                 Children =
@@ -151,8 +172,19 @@ namespace frontend.Views
                             Spacing = 15,
                             Children =
                             {
-                                new Label { Text = "Fine-tuning parameters", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                saveButton,
+                                new Grid
+                                {
+                                    ColumnDefinitions =
+                                    {
+                                        new ColumnDefinition { Width = GridLength.Star },
+                                        new ColumnDefinition { Width = GridLength.Auto }
+                                    },
+                                    Children =
+                                    {
+                                        new Label { Text = "Fine-tuning parameters", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
+                                        saveButton
+                                    }
+                                },
                                 new CollectionView
                                 {
                                     ItemsSource = Parameters,
@@ -194,10 +226,61 @@ namespace frontend.Views
                                 _selectedZipLabel, 
                                 submitVisDatasetButton
                             }
-                        }
-                    }
+                        }   
+                    },
+                    _startVisFineTuningButton   
                 }
             };
+        }
+
+        private string _datasetId;
+
+        private async void StartVisFineTuning()
+        {
+            if (string.IsNullOrEmpty(_datasetId))
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Please submit a dataset first", "OK");
+                return;
+            }
+
+            try
+            {
+                var epochs = Parameters.FirstOrDefault(p => p.Name == "Epochs")?.Value;
+                var batchSize = Parameters.FirstOrDefault(p => p.Name == "Batch size")?.Value;
+                var learningRate = Parameters.FirstOrDefault(p => p.Name == "Learning rate")?.Value;
+
+                if (string.IsNullOrEmpty(epochs) || string.IsNullOrEmpty(batchSize) || string.IsNullOrEmpty(learningRate))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please ensure all parameters are filled", "OK");
+                    return;
+                }
+
+                var fineTuningData = new
+                {
+                        epochs = int.Parse(epochs),
+                        batch_size = int.Parse(batchSize),
+                        learning_rate = double.Parse(learningRate),
+                        dataset_id = _datasetId,
+                        imgsz = 640
+                };
+
+                var modelService = new ModelService();
+                await Application.Current.MainPage.DisplayAlert("Fine-Tuning", "Fine-tuning process is starting. This may take a while.", "OK");
+                var result = await modelService.TrainModel(_model.ModelId, fineTuningData);
+
+                if (result != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Success", $"Fine-tuning started successfully. Dataset ID: {_datasetId}", "OK");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to start fine-tuning", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
         }
 
         private async void OnSaveParametersClicked()
@@ -314,29 +397,29 @@ namespace frontend.Views
             return grid;
         }
 
-        // private View CreateUploadButtonWithInfo(string buttonText, string infoText)
-        // {
-        //     return new HorizontalStackLayout
-        //     {
-        //         Children =
-        //         {
-        //             new Button { Text = buttonText, BackgroundColor = Color.FromArgb("#E0E0E0"), TextColor = Color.FromArgb("#333333"), CornerRadius = 5 },
-        //             new Button
-        //             {
-        //                 Text = "?",
-        //                 FontSize = 12,
-        //                 WidthRequest = 25,
-        //                 HeightRequest = 25,
-        //                 CornerRadius = 12,
-        //                 Padding = new Thickness(0),
-        //                 Margin = new Thickness(5, 0, 0, 0),
-        //                 BackgroundColor = Color.FromArgb("#E0E0E0"),
-        //                 TextColor = Color.FromArgb("#333333"),
-        //                 Command = new Command(() => ShowInfoPopup("Dataset", infoText))
-        //             }
-        //         }
-        //     };
-        // }
+        private View CreateUploadButtonWithInfo(string buttonText, string infoText)
+        {
+            return new HorizontalStackLayout
+            {
+                Children =
+                {
+                    new Button { Text = buttonText, BackgroundColor = Color.FromArgb("#E0E0E0"), TextColor = Color.FromArgb("#333333"), CornerRadius = 5 },
+                    new Button
+                    {
+                        Text = "?",
+                        FontSize = 12,
+                        WidthRequest = 25,
+                        HeightRequest = 25,
+                        CornerRadius = 12,
+                        Padding = new Thickness(0),
+                        Margin = new Thickness(5, 0, 0, 0),
+                        BackgroundColor = Color.FromArgb("#E0E0E0"),
+                        TextColor = Color.FromArgb("#333333"),
+                        Command = new Command(() => ShowInfoPopup("Dataset", infoText))
+                    }
+                }
+            };
+        }
 
         public async void ShowInfoPopup(string title, string message)
         {
@@ -437,7 +520,6 @@ namespace frontend.Views
                 var modelId = _model.ModelId;
                 var dataService = new DataService();
 
-               
                 await Application.Current.MainPage.DisplayAlert("Upload", "Please click 'OK' and wait. Dataset is being processed. Approximate maximum time: 2 minutes", "OK");
 
                 // Start the upload process
@@ -447,22 +529,37 @@ namespace frontend.Views
                     {
                         var result = await dataService.UploadImageDataset(filePath, modelId);
 
-                    
                         System.Diagnostics.Debug.WriteLine($"Upload result: {result}");
 
-                        
-                        Dispatcher.Dispatch(async () =>
+                        if (result != null && result.TryGetValue("dataset_id", out var datasetIdObj))
                         {
-                            await Application.Current.MainPage.DisplayAlert("Success", "Dataset uploaded and processed successfully!", "OK");
-                        });
+                            _datasetId = datasetIdObj?.ToString();
+                            Dispatcher.Dispatch(async () =>
+                            {
+                                await Application.Current.MainPage.DisplayAlert("Success", $"Dataset uploaded and processed successfully! Dataset ID: {_datasetId}", "OK");
+                                if (_startVisFineTuningButton != null)
+                                {
+                                    _startVisFineTuningButton.IsEnabled = true;
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Start Fine-Tuning button is null");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            Dispatcher.Dispatch(async () =>
+                            {
+                                await Application.Current.MainPage.DisplayAlert("Error", "Failed to upload dataset: No dataset ID returned", "OK");
+                            });
+                        }
                     }
                     catch (Exception ex)
                     {
-                        
                         System.Diagnostics.Debug.WriteLine($"UploadImageDataset error: {ex.Message}");
                         System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
 
-                        
                         Dispatcher.Dispatch(async () =>
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
@@ -472,11 +569,9 @@ namespace frontend.Views
             }
             catch (Exception ex)
             {
-                
                 System.Diagnostics.Debug.WriteLine($"SubmitVisDataset error: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
 
-                
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
             }
         }

@@ -12,13 +12,6 @@
 
             <ContentView x:Name="TaskSpecificContent" />
 
-            <Button Text="Start Fine-Tuning" 
-                    BackgroundColor="#3366FF"
-                    TextColor="White"
-                    CornerRadius="5"
-                    HeightRequest="50"
-                    FontAttributes="Bold"
-                    IsVisible="{Binding IsFineTuningAvailable}"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentView>
