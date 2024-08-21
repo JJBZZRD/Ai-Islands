@@ -21,8 +21,11 @@ public partial class PlaygroundAPIView : ContentView
             { "InfoResponseCopyButton", InfoResponseCopiedLabel },
             { "LoadChainRequestCopyButton", LoadChainRequestCopiedLabel },
             { "LoadChainResponseCopyButton", LoadChainResponseCopiedLabel },
+            { "LoadChainRequestBodyCopyButton", LoadChainRequestBodyCopiedLabel },
             { "StopChainRequestCopyButton", StopChainRequestCopiedLabel },
+            { "StopChainRequestBodyCopyButton", StopChainRequestBodyCopiedLabel },
             { "InferenceRequestCopyButton", InferenceRequestCopiedLabel },
+            { "InferenceRequestBodyCopyButton", InferenceRequestBodyCopiedLabel },
             { "InferenceResponseCopyButton", InferenceResponseCopiedLabel }
         };
     }

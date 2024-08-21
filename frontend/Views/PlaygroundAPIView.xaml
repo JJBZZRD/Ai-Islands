@@ -344,6 +344,45 @@
                                    VerticalOptions="Start"
                                    Margin="5,0,0,0"/>
                         </Grid>
+                        <Label Text="Example Request Body:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="LoadChainRequestBodyEditor"
+                                        Text="{Binding LoadChainRequestBody}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="LoadChainRequestBodyCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference LoadChainRequestBodyEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="LoadChainRequestBodyCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                         <Label Text="Example Response:"
                                FontAttributes="Bold"
                                Margin="0,10,0,5"
@@ -459,11 +498,50 @@
                                    VerticalOptions="Start"
                                    Margin="5,0,0,0"/>
                         </Grid>
+                        <Label Text="Example Request Body:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="StopChainRequestBodyEditor"
+                                        Text="{Binding StopChainRequestBody}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="StopChainRequestBodyCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference StopChainRequestBodyEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="StopChainRequestBodyCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
                         <Label Text="Example Response:"
                                FontAttributes="Bold"
                                Margin="0,10,0,5"
                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                        <Label Text="On Successful request, the server will return 204 No Content as the status Code" />
+                        <Label Text="{Binding StopChainResponse}" />
                     </StackLayout>
                 </toolkit:Expander>
 
@@ -534,6 +612,45 @@
                                     Margin="5,0,0,0"/>
                             <Label Grid.Column="2"
                                    x:Name="InferenceRequestCopiedLabel"
+                                   Text="Copied!"
+                                   IsVisible="False"
+                                   TextColor="Green"
+                                   VerticalOptions="Start"
+                                   Margin="5,0,0,0"/>
+                        </Grid>
+                        <Label Text="Example Request Body:"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,5"
+                               TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Frame BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#444444}"
+                                   Padding="1"
+                                   HasShadow="False"
+                                   CornerRadius="5"
+                                   IsClippedToBounds="True">
+                                <Editor x:Name="InferenceRequestBodyEditor"
+                                        Text="{Binding InferenceRequestBody}"
+                                        IsReadOnly="True"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="FillAndExpand"
+                                        AutoSize="TextChanges"/>
+                            </Frame>
+                            <Button x:Name="InferenceRequestBodyCopyButton"
+                                    Grid.Column="1"
+                                    Text="Copy"
+                                    Clicked="OnCopyClicked"
+                                    CommandParameter="{Binding Source={x:Reference InferenceRequestBodyEditor}, Path=Text}"
+                                    VerticalOptions="Start"
+                                    Margin="5,0,0,0"/>
+                            <Label Grid.Column="2"
+                                   x:Name="InferenceRequestBodyCopiedLabel"
                                    Text="Copied!"
                                    IsVisible="False"
                                    TextColor="Green"
