@@ -477,33 +477,7 @@ class ModelControl:
             model_id = configure_request['model_id']
             config_data = configure_request['data']
             
-            # Check if RAG settings exist and are being used
-            rag_settings = config_data.get('rag_settings', {})
-            if rag_settings and rag_settings.get('use_dataset'):
-                dataset_name = rag_settings.get('dataset_name')
-                use_chunking = rag_settings.get('use_chunking', False)
-                if dataset_name:
-                    from backend.utils.dataset_management import DatasetFileManagement
-                    dataset_file_management = DatasetFileManagement()
-                    feasible, error_message = dataset_file_management.check_rag_settings_feasibility(dataset_name, use_chunking)
-                    if not feasible:
-                        logger.warning(f"RAG settings may not be feasible: {error_message}")
-                        return {"message": f"RAG settings may not be feasible: {error_message}"}
-            
             updated_config = self.library_control.update_model_config(model_id, config_data)
-
-            # # Check RAG settings feasibility
-            # rag_settings = config_data.get('rag_settings', {})
-            # if rag_settings.get('use_dataset'):
-            #     dataset_name = rag_settings.get('dataset_name')
-            #     use_chunking = rag_settings.get('use_chunking', False)
-            #     if dataset_name:
-            #         from backend.utils.dataset_management import DatasetFileManagement
-            #         dataset_file_management = DatasetFileManagement()
-            #         feasible, error_message = dataset_file_management.check_rag_settings_feasibility(dataset_name, use_chunking)
-            #         if not feasible:
-            #             logger.warning(f"RAG settings may not be feasible: {error_message}")
-            #             # You might want to add this warning to the response
             
             if updated_config:
                 if self.is_model_loaded(model_id):
