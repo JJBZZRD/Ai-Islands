@@ -252,6 +252,12 @@ namespace frontend.Views
                     LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
                 }));
             }
+
+            // Add this line at the end of the method
+            foreach (var model in Models)
+            {
+                model.UpdateCustomLabelColor();
+            }
         }
 
         private async void LoadOrStopModel(string ModelId)
