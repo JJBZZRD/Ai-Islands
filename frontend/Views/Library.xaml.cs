@@ -197,7 +197,14 @@ namespace frontend.Views
                 var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
                 await Navigation.PushAsync(terminalPage);
 
-                await terminalPage.ConnectAndStreamOutput(ModelId, action);
+                if (isLoaded)
+                {
+                    await terminalPage.ConnectAndStreamOutputForUnload(ModelId);
+                }
+                else
+                {
+                    await terminalPage.ConnectAndStreamOutputForLoad(ModelId);
+                }
 
                 bool success;
                 if (isLoaded)
@@ -221,8 +228,8 @@ namespace frontend.Views
                     terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
                 }
 
-                // Keep the terminal page open for a few seconds after operation completion
-                await Task.Delay(5000);
+                // Wait for few seconds after operation completion
+                await Task.Delay(3000);
                 await Navigation.PopAsync();
                 OnPropertyChanged(nameof(Models)); // Notify UI of changes
             }

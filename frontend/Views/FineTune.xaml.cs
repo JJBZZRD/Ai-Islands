@@ -264,14 +264,12 @@ namespace frontend.Views
                     imgsz = 640
                 };
 
-                var modelService = new ModelService();
                 await Application.Current.MainPage.DisplayAlert("Fine-Tuning", "Fine-tuning process is starting. This may take a while.", "OK");
 
                 var terminalPage = new TerminalPage("Fine-Tuning Progress");
                 await Navigation.PushAsync(terminalPage);
 
-                await terminalPage.ConnectAndStreamOutput(_model.ModelId, "fine-tune");
-                var result = await modelService.TrainModel(_model.ModelId, fineTuningData);
+                await terminalPage.ConnectAndStreamOutput(_model.ModelId, "fine_tune", fineTuningData.epochs, fineTuningData.batch_size, fineTuningData.learning_rate, fineTuningData.dataset_id, fineTuningData.imgsz);
 
                 bool success = await terminalPage.WaitForCompletion();
 
@@ -284,8 +282,8 @@ namespace frontend.Views
                     await Application.Current.MainPage.DisplayAlert("Error", "Failed to complete fine-tuning", "OK");
                 }
 
-                // Keep the terminal page open for a few seconds after completion
-                await Task.Delay(5000);
+                // Keeping the terminal page open for a few seconds after completion
+                await Task.Delay(3000);
                 await Navigation.PopAsync();
             }
             catch (Exception ex)

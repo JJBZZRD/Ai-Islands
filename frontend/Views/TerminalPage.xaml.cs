@@ -20,15 +20,51 @@ namespace frontend.Views
             _operationCompletionSource = new TaskCompletionSource<bool>();
         }
 
-        public async Task ConnectAndStreamOutput(string modelId, string action)
+        public async Task ConnectAndStreamOutput(string modelId, string action, int epochs, int batchSize, double learningRate, string datasetId, int imgsz)
         {
             _webSocket = new ClientWebSocket();
             _cts = new CancellationTokenSource();
 
             try
             {
-                await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/console-stream/{modelId}/{action}"), _cts.Token);
+                await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/console-stream/{modelId}/{action}/{epochs}/{batchSize}/{learningRate}/{datasetId}/{imgsz}"), _cts.Token);
                 AppendOutput($"Connected to WebSocket for {action} operation on model {modelId}");
+                _ = ReceiveMessages();
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"WebSocket connection error: {ex.Message}");
+                _operationCompletionSource.SetResult(false);
+            }
+        }
+
+        public async Task ConnectAndStreamOutputForLoad(string modelId)
+        {
+            _webSocket = new ClientWebSocket();
+            _cts = new CancellationTokenSource();
+
+            try
+            {
+                await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/load-model/{modelId}"), _cts.Token);
+                AppendOutput($"Connected to WebSocket for loading model {modelId}");
+                _ = ReceiveMessages();
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"WebSocket connection error: {ex.Message}");
+                _operationCompletionSource.SetResult(false);
+            }
+        }
+
+        public async Task ConnectAndStreamOutputForUnload(string modelId)
+        {
+            _webSocket = new ClientWebSocket();
+            _cts = new CancellationTokenSource();
+
+            try
+            {
+                await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/unload-model/{modelId}"), _cts.Token);
+                AppendOutput($"Connected to WebSocket for unloading model {modelId}");
                 _ = ReceiveMessages();
             }
             catch (Exception ex)
@@ -87,12 +123,17 @@ namespace frontend.Views
 
         private async Task CloseWebSocketAndTerminal()
         {
-            if (_webSocket.State == WebSocketState.Open)
+            if (_webSocket != null && _webSocket.State == WebSocketState.Open)
             {
-                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                _webSocket.Dispose();
             }
+            _cts?.Cancel();
+        }
 
-            await Task.Delay(2000); // Give user time to read the output
+        private async Task CloseTerminalPage()
+        {
+            await Task.Delay(5000);
             await Navigation.PopAsync();
         }
 
