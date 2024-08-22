@@ -3,129 +3,157 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.FilterPopup">
     <ScrollView>
-        <Frame x:Name="PopupFrame"
-               BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}"
-               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}"
-               CornerRadius="10"
-               HasShadow="True"
-               MaximumWidthRequest="500"
-               VerticalOptions="Center"
-               HorizontalOptions="Center"
-               Padding="20">
-            <Grid RowDefinitions="Auto,*">
-                <Button Text="X"
-                        FontAttributes="Bold"
-                        HorizontalOptions="End"
-                        VerticalOptions="Start"
-                        BackgroundColor="Transparent"
-                        TextColor="{AppThemeBinding Light=Black, Dark=White}"
-                        Clicked="OnCloseFilterPopup"
-                        Margin="0,0,0,10"/>
-                <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Type" 
-                               FontSize="16" 
-                               FontAttributes="Bold" 
+    <Frame x:Name="PopupFrame"
+           BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}"
+           BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}"
+           CornerRadius="10"
+           HasShadow="True"
+           WidthRequest="800"
+           HeightRequest="500"
+           VerticalOptions="Center"
+           HorizontalOptions="Center"
+           Padding="20">
+        <Grid RowDefinitions="Auto,*,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="20" ColumnSpacing="20">
+            <Button Text="X"
+                    FontAttributes="Bold"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                    Clicked="OnCloseFilterPopup"
+                    Grid.ColumnSpan="2"
+                    Margin="0,0,0,10"/>
+
+            <!-- Type Filter -->
+            <Frame Grid.Row="1" Grid.Column="0" Padding="10" BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Type" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <ScrollView Grid.Row="1">
+                        <CollectionView ItemsSource="{Binding ModelTypes, Mode=TwoWay}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                                        <Label Text="{Binding TypeName}" 
+                                               Grid.Column="1" 
+                                               VerticalOptions="Center" 
+                                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </ScrollView>
+                </Grid>
+            </Frame>
+
+            <!-- Base Model Filter -->
+            <Frame Grid.Row="1" Grid.Column="1" Padding="10" BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Base Model" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <ScrollView Grid.Row="1">
+                        <CollectionView ItemsSource="{Binding BaseModelTypes, Mode=TwoWay}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                                        <Label Text="{Binding TypeName}" 
+                                               Grid.Column="1" 
+                                               VerticalOptions="Center" 
+                                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </ScrollView>
+                </Grid>
+            </Frame>
+
+            <!-- Status Filter -->
+            <Frame Grid.Row="2" Grid.Column="0" Padding="10" BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}">
+                <VerticalStackLayout>
+                    <Label Text="Status" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto,*">
+                        <CheckBox IsChecked="{Binding FilterOnline}" 
+                                  Grid.Column="0"
+                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                        <Label Text="Online" 
+                               Grid.Column="1" 
+                               VerticalOptions="Center" 
                                TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                        <CollectionView ItemsSource="{Binding ModelTypes, Mode=TwoWay}"
-                                        HeightRequest="200">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
-                                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                                        <Label Text="{Binding TypeName}" 
-                                               Grid.Column="1" 
-                                               VerticalOptions="Center" 
-                                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                        <CheckBox IsChecked="{Binding FilterOffline}" 
+                                  Grid.Column="2"
+                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                        <Label Text="Offline" 
+                               Grid.Column="3" 
+                               VerticalOptions="Center" 
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
 
-                        <Label Text="Base Model" 
-                               FontSize="16" 
-                               FontAttributes="Bold" 
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
-                               Margin="0,20,0,0"/>
-                        <CollectionView ItemsSource="{Binding BaseModelTypes, Mode=TwoWay}"
-                                        HeightRequest="200">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
-                                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                                        <Label Text="{Binding TypeName}" 
-                                               Grid.Column="1" 
-                                               VerticalOptions="Center" 
-                                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+            <!-- Custom Status Filter -->
+            <Frame Grid.Row="2" Grid.Column="1" Padding="10" BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}">
+                <VerticalStackLayout>
+                    <Label Text="Custom Status" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto,*">
+                        <CheckBox IsChecked="{Binding FilterCustom, Mode=TwoWay}" 
+                                  Grid.Column="0"
+                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                        <Label Text="Custom" 
+                               Grid.Column="1" 
+                               VerticalOptions="Center" 
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                        <CheckBox IsChecked="{Binding FilterNonCustom, Mode=TwoWay}" 
+                                  Grid.Column="2"
+                                  Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
+                        <Label Text="Non-Custom" 
+                               Grid.Column="3" 
+                               VerticalOptions="Center" 
+                               TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
 
-                        <Label Text="Status" 
-                               FontSize="16" 
-                               FontAttributes="Bold" 
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
-                               Margin="0,20,0,0"/>
-                        <Grid ColumnDefinitions="Auto,*,Auto,*">
-                            <CheckBox IsChecked="{Binding FilterOnline}" 
-                                      Grid.Column="0"
-                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                            <Label Text="Online" 
-                                   Grid.Column="1" 
-                                   VerticalOptions="Center" 
-                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                            <CheckBox IsChecked="{Binding FilterOffline}" 
-                                      Grid.Column="2"
-                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                            <Label Text="Offline" 
-                                   Grid.Column="3" 
-                                   VerticalOptions="Center" 
-                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                        </Grid>
-
-                        <Label Text="Custom Status" 
-                               FontSize="16" 
-                               FontAttributes="Bold" 
-                               TextColor="{AppThemeBinding Light=Black, Dark=White}"
-                               Margin="0,20,0,0"/>
-                        <Grid ColumnDefinitions="Auto,*,Auto,*">
-                            <CheckBox IsChecked="{Binding FilterCustom, Mode=TwoWay}" 
-                                      Grid.Column="0"
-                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                            <Label Text="Custom" 
-                                   Grid.Column="1" 
-                                   VerticalOptions="Center" 
-                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                            <CheckBox IsChecked="{Binding FilterNonCustom, Mode=TwoWay}" 
-                                      Grid.Column="2"
-                                      Color="{AppThemeBinding Light=#3366FF, Dark=#6699FF}"/>
-                            <Label Text="Non-Custom" 
-                                   Grid.Column="3" 
-                                   VerticalOptions="Center" 
-                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                        </Grid>
-
-                        <Button Text="Apply" 
-                                Clicked="OnApplyFilters" 
-                                BackgroundColor="#3366FF" 
-                                TextColor="White"
-                                CornerRadius="5"
-                                HeightRequest="40"
-                                FontSize="16"
-                                HorizontalOptions="Fill"/>
-                        <Button Text="Reset" 
-                                Clicked="OnResetFilters" 
-                                Margin="0,10,0,0" 
-                                BackgroundColor="Transparent" 
-                                TextColor="{AppThemeBinding Light=#3366FF, Dark=#6699FF}" 
-                                FontSize="16"
-                                HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </ScrollView>
+            <!-- Buttons -->
+            <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" Margin="0,10,0,0">
+                <Button Text="Reset" 
+                        Clicked="OnResetFilters" 
+                        BackgroundColor="Transparent" 
+                        TextColor="#3366FF"
+                        BorderColor="#3366FF"
+                        BorderWidth="1"
+                        CornerRadius="5"
+                        FontSize="16"
+                        HeightRequest="40"
+                        HorizontalOptions="Fill"
+                        Grid.Column="0"
+                        Margin="0,0,10,0"/>
+                <Button Text="Apply" 
+                        Clicked="OnApplyFilters" 
+                        BackgroundColor="#3366FF" 
+                        TextColor="White"
+                        CornerRadius="5"
+                        HeightRequest="40"
+                        FontSize="16"
+                        HorizontalOptions="Fill"
+                        Grid.Column="1"
+                        Margin="10,0,0,0"/>
             </Grid>
-        </Frame>
+        </Grid>
+    </Frame>
     </ScrollView>
 </ContentView>
