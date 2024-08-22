@@ -1,11 +1,7 @@
-using System.Globalization;
 using frontend.Models;
 using frontend.Models.ViewModels;
-using System.Collections.ObjectModel;
 using frontend.Services;
-using System.Net.Http;
 using System.Text.Json;
-using Microsoft.Maui.Controls;
 using System.Diagnostics;
 
 namespace frontend.Views;
@@ -68,6 +64,9 @@ public partial class PlaygroundConfigView : ContentView
             {
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully", "OK");
                 _viewModel.Playground.Chain = chainModelIds;
+
+                Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.SelectedModel?.ModelId))}");
+                Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.Playground.Chain)}");
             }
             else
             {
