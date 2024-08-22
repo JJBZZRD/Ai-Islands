@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 class DatasetFileManagement:
     def __init__(self):
         self.file_type_manager = FileTypeManager()
+        self.metadata_file = Path("data") / "metadata.json"
+        if not self.metadata_file.exists():
+            self.metadata_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.metadata_file, 'w') as f:
+                json.dump({}, f)
 
     def upload_dataset(self, file_path: str):
         try:
@@ -23,6 +28,9 @@ class DatasetFileManagement:
 
             destination_path = dataset_folder / source_path.name
             shutil.copy2(source_path, destination_path)
+
+            # Update metadata
+            self.update_dataset_metadata(dataset_name, {"default": False, "chunked": False})
 
             return {"message": f"Dataset uploaded successfully to {destination_path}"}
         except Exception as e:
@@ -140,3 +148,35 @@ class DatasetFileManagement:
         except Exception as e:
             logger.error(f"Error listing datasets: {e}")
             return {"datasets": []}
+
+    def update_dataset_metadata(self, dataset_name: str, processing_info: dict):
+        with open(self.metadata_file, 'r') as f:
+            metadata = json.load(f)
+        
+        if dataset_name not in metadata:
+            metadata[dataset_name] = {}
+
+        metadata[dataset_name].update(processing_info)
+        
+        with open(self.metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=2)
+
+    def get_dataset_metadata(self, dataset_name: str):
+        with open(self.metadata_file, 'r') as f:
+            metadata = json.load(f)
+        
+        if dataset_name not in metadata:
+            raise FileNotFoundError(f"Metadata not found for dataset: {dataset_name}")
+        
+        return metadata[dataset_name]
+
+    def check_rag_settings_feasibility(self, dataset_name: str, use_chunking: bool):
+        try:
+            metadata = self.get_dataset_metadata(dataset_name)
+            if use_chunking and not metadata.get('chunked', False):
+                return False, "Chunked processing is requested but the dataset has not been processed with chunking."
+            elif not use_chunking and not metadata.get('default', False):
+                return False, "Default processing is requested but the dataset has not been processed without chunking."
+            return True, None
+        except FileNotFoundError:
+            return False, f"Dataset {dataset_name} not found or has not been processed."

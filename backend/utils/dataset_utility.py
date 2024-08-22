@@ -16,6 +16,7 @@ import shutil
 from backend.utils.file_type_manager import FileTypeManager
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import CONFIG_PATH
+from backend.utils.dataset_management import DatasetFileManagement
 
 load_dotenv()
 
@@ -278,6 +279,12 @@ class DatasetManagement:
             with open(model_info_path, 'w') as f:
                 json.dump(model_info, f, indent=4)
             logger.info(f"Saved model info to {model_info_path}")
+
+            # process metadata too!
+            manage_dataset_metadata = DatasetFileManagement()
+            processing_type = "chunked" if self.chunking_settings["use_chunking"] else "default"
+            manage_dataset_metadata.update_dataset_metadata(file_path.stem, {processing_type: True})
+            # return to the function...
 
             return {"message": "Dataset processed successfully", "model_info": model_info}
 
