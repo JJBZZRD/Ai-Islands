@@ -4,11 +4,18 @@
              x:Class="frontend.Views.ModelInfoPage"
              xmlns:views="clr-namespace:frontend.Views"
              Title="{Binding Model.ModelId}"
-             BackgroundColor="White">
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}">
     <ScrollView>
         <StackLayout Padding="20">
-            <Label Text="{Binding Model.ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
-            <Label Text="{Binding Model.ModelDesc}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
+            <Label Text="{Binding Model.ModelId}" 
+                   FontSize="30" 
+                   FontAttributes="Bold" 
+                   Margin="10,20,0,20" 
+                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+            <Label Text="{Binding Model.ModelDesc}" 
+                   FontSize="17" 
+                   Margin="10,10,0,20" 
+                   TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}"/>
             <views:TagsView Tags="{Binding Tags}" />
         </StackLayout>
     </ScrollView>

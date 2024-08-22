@@ -172,19 +172,22 @@ namespace frontend.Views
             NewPlaygroundDescription = string.Empty;
         }
 
-        private async void OnDeletePlaygroundClicked(object sender, TappedEventArgs e)
+        private async void OnDeletePlaygroundClicked(object sender, EventArgs e)
         {
-            if (e.Parameter is Playground selectedPlayground)
+            var button = sender as ImageButton;
+            var playground = button?.BindingContext as Playground;
+
+            if (playground != null)
             {
                 bool answer = await DisplayAlert("Confirm Delete",
-                    $"Are you sure you want to delete the playground '{selectedPlayground.PlaygroundId}'?",
+                    $"Are you sure you want to delete the playground '{playground.PlaygroundId}'?",
                     "Yes", "No");
 
                 if (answer)
                 {
                     try
                     {
-                        await _playgroundService.DeletePlayground(selectedPlayground.PlaygroundId);
+                        await _playgroundService.DeletePlayground(playground.PlaygroundId);
                         await LoadPlaygrounds();
                         // Optionally, show a success message
                         await DisplayAlert("Success", "Playground deleted successfully", "OK");

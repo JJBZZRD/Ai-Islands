@@ -70,6 +70,10 @@ namespace frontend.Views
                 var addedModel = await _libraryService.GetModelInfoLibrary(model.ModelId);
                 
                 // Add the model to the PlaygroundViewModel
+                PlaygroundViewModel.Playground.Models.Add(model.ModelId, addedModel);
+
+                // Since only the Playground has Observable Property
+                // We have to manually update the Observable Collection
                 PlaygroundViewModel.PlaygroundModels.Add(addedModel);
 
                 // If we've reached this point, it means the operation was successful

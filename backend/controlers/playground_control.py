@@ -365,9 +365,9 @@ class PlaygroundControl:
         runtime_data = RuntimeControl.get_runtime_data("playground")
         for model_id in playground.chain:
             if runtime_data.get(model_id):
-                runtime_data[model_id]["active"] = True
+                runtime_data[model_id].append(playground_id)
             else:
-                runtime_data[model_id] = {"active": True}
+                runtime_data[model_id] = [playground_id]
 
         # Update the runtime data
         try:
@@ -412,7 +412,6 @@ class PlaygroundControl:
             runtime_data[model_id].remove(playground_id)
             if len(runtime_data[model_id]) == 0:
                 del runtime_data[model_id]
-
         # Update the runtime data
         try:
             RuntimeControl.update_runtime_data("playground", runtime_data)
