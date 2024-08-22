@@ -105,6 +105,9 @@
 	  <Compile Update="Views\FilterPopUp.xaml.cs">
 	    <DependentUpon>FilterPopUp.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\ModelIndexFilterPopUp.xaml.cs">
+	    <DependentUpon>ModelIndexFilterPopUp.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\LibraryTabbedPage.xaml.cs">
 	    <DependentUpon>LibraryTabbedPage.xaml</DependentUpon>
 	  </Compile>
@@ -178,6 +181,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FilterPopUp.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ModelIndexFilterPopUp.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\LibraryTabbedPage.xaml">
