@@ -34,6 +34,7 @@ class DataRouter:
         self.router.add_api_route("/dataset-processing-status", self.get_dataset_processing_status, methods=["GET"])
         self.router.add_api_route("/delete-dataset", self.delete_dataset, methods=["DELETE"])
         self.router.add_api_route("/dataset-processing-info", self.get_dataset_processing_info, methods=["GET"])
+        self.router.add_api_route("/datasets-processing-existence", self.get_datasets_tracker_info, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -132,4 +133,12 @@ class DataRouter:
             return result
         except Exception as e:
             logger.error(f"Error getting dataset processing info: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_datasets_tracker_info(self):
+        try:
+            dataset_file_management = DatasetFileManagement()
+            return dataset_file_management.get_datasets_tracker_info()
+        except Exception as e:
+            logger.error(f"Error getting datasets with tracker info: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))

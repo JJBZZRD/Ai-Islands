@@ -180,3 +180,18 @@ class DatasetFileManagement:
             return True, None
         except FileNotFoundError:
             return False, f"Dataset {dataset_name} not found or has not been processed."
+
+    def get_datasets_tracker_info(self):
+        try:
+            with open(self.metadata_file, 'r') as f:
+                metadata = json.load(f)
+            
+            processed_datasets = {
+                name: info for name, info in metadata.items() 
+                if info.get('default', False) or info.get('chunked', False)
+            }
+            
+            return {"datasets": processed_datasets}
+        except Exception as e:
+            logger.error(f"Error getting datasets with processing info: {str(e)}")
+            raise
