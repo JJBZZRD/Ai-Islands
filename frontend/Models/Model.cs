@@ -62,6 +62,8 @@ namespace frontend.Models
         [JsonIgnore]
         public ICommand? LoadOrStopCommand { get; set; }
 
+        // public bool IsButtonEnabled { get; set; } = true;
+
         public string? DatasetFormat { get; set; }
 
         [JsonPropertyName("mapping")]

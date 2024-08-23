@@ -39,16 +39,16 @@ namespace frontend.Services
             return result?["active_models"] ?? new List<string>();
         }
 
-        public async Task<bool> LoadModel(string modelId)
+        public async Task<HttpResponseMessage> LoadModel(string modelId)
         {
             var response = await _httpClient.PostAsync($"model/load?model_id={modelId}", null);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
-        public async Task<bool> UnloadModel(string modelId)
+        public async Task<HttpResponseMessage> UnloadModel(string modelId)
         {
             var response = await _httpClient.PostAsync($"model/unload?model_id={modelId}", null);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
         public async Task<bool> DownloadModel(string modelId, string? authToken = null)
