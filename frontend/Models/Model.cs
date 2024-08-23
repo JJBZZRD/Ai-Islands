@@ -170,10 +170,10 @@ namespace frontend.Models
     public class ConversationMessage
     {
         [JsonPropertyName("role")]
-        public string Role { get; set; }
+        public string? Role { get; set; }
 
         [JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 
     public class PromptConfig
