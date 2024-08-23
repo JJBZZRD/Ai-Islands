@@ -8,6 +8,7 @@ from ibm_watson import NaturalLanguageUnderstandingV1, TextToSpeechV1, SpeechToT
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from pydub import AudioSegment
 from backend.utils.watson_settings_manager import watson_settings
+from backend.core.exceptions import ModelError
 
 logger = logging.getLogger(__name__)
 
@@ -16,23 +17,38 @@ LIBRARY_PATH = "data/library.json"
 class WatsonService(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
-        self.account_info = AccountInfo()
+        self.account_info = None
         self.nlu = None
         self.text_to_speech = None
         self.speech_to_text = None
-
+        self.api_key = None
+        self.is_loaded = False
+        
     @staticmethod
     def download(model_id: str, model_info: dict):
         try:
             logger.info(f"Attempting to download Watson service: {model_id}")
             logger.info(f"Original model info: {json.dumps(model_info, indent=2)}")
 
+            # Check if API key is available and valid
+            api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+            if not api_key:
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
+            
+            auth = Authentication()
+            if not auth.validate_api_key():
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
+
             # Check if the required service is available in the account
             account_info = AccountInfo()
             resources = account_info.get_resource_list()
 
+            # Create the downloads directory if it doesn't exist
+            base_dir = os.path.join('data', 'downloads', 'watson')
+            os.makedirs(base_dir, exist_ok=True)
+
             # Output resource list to JSON file
-            resource_list_path = os.path.join('data', 'downloads', 'watson', 'resource_list.json')
+            resource_list_path = os.path.join(base_dir, 'resource_list.json')
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")
@@ -48,12 +64,14 @@ class WatsonService(BaseModel):
                     break
 
             if not service_available:
-                logger.error(f"The required service '{service_name}' is not available in the account.")
+                formatted_service_name = format_service_name(service_name)
+                error_message = f"The required service '{formatted_service_name}' is missing from your IBM Cloud account.\n\nPlease go to your account and create this service instance."
+                logger.error(error_message)
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
-                return None
+                raise ModelError(error_message)
 
             # Create directory for the service
-            service_dir = os.path.join('data', 'downloads', 'watson', model_id)
+            service_dir = os.path.join(base_dir, model_id)
             os.makedirs(service_dir, exist_ok=True)
 
             # Save original model info to model_info.json in the service directory
@@ -72,53 +90,67 @@ class WatsonService(BaseModel):
 
             logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
             return new_entry
-        except Exception as e:
-            logger.error(f"Error adding Watson service {model_id}: {str(e)}")
+
+        except ModelError as e:
+            # Log the error for debugging purposes
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            return None
+            # Re-raise the original ModelError without adding extra context
+            raise
+
+        except Exception as e:
+            # For unexpected errors, we might want to keep a generic message
+            logger.error(f"Unexpected error downloading {model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
 
     def load(self, device: str, model_info: dict):
         try:
-            # Validate API key
-            api_key = watson_settings.get("IBM_CLOUD_API_KEY")
-            if not api_key:
-                logger.error("IBM_CLOUD_API_KEY not found in settings")
-                return False
+            self.api_key = watson_settings.get("IBM_CLOUD_API_KEY")
+            if not self.api_key:
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
 
-            valid = self.account_info.auth._validate_api_key(api_key)
-            if not valid:
-                logger.error("Invalid IBM Cloud API key")
-                return False
+            self.account_info = AccountInfo()
+            if not self.account_info.auth.validate_api_key():
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
 
             config = model_info.get("config", {})
             service_name = config.get("service_name")
 
             if not service_name:
-                logger.error(f"Service name not found for model ID: {self.model_id}")
-                return False
+                raise ModelError(f"Service name not found for model ID: {self.model_id}")
 
             if "natural-language-understanding" in service_name.lower():
                 self.nlu = self._init_nlu_service()
                 if self.nlu:
                     self.nlu_config = config.get("features", {})
-                return self.nlu is not None
+                # return self.nlu is not None
             elif "text-to-speech" in service_name.lower():
                 self.text_to_speech = self._init_text_to_speech_service()
                 if self.text_to_speech:
                     self.tts_config = config
-                return self.text_to_speech is not None
+                # return self.text_to_speech is not None
             elif "speech-to-text" in service_name.lower():
                 self.speech_to_text = self._init_speech_to_text_service()
                 if self.speech_to_text:
                     self.stt_config = config
-                return self.speech_to_text is not None
+                # return self.speech_to_text is not None
             else:
-                logger.error(f"Unknown service name: {service_name}")
-                return False
+                raise ModelError(f"Unknown service name: {service_name}")
+
+            self.is_loaded = True
+            return True
+
+        except ModelError as e:
+            logger.error(f"Error loading Watson service: {str(e)}")
+            self.is_loaded = False
+            raise  # Re-raise the ModelError without wrapping it in another ModelError
 
         except Exception as e:
-            logger.error(f"Error loading Watson service: {str(e)}")
-            return False
+            logger.error(f"Unexpected error loading Watson service: {str(e)}")
+            logger.exception("Full traceback:")
+            self.is_loaded = False
+            raise ModelError(f"Unexpected error loading Watson service: {str(e)}")
 
     def _init_nlu_service(self):
         try:
@@ -130,10 +162,10 @@ class WatsonService(BaseModel):
                 nlu.set_service_url(credentials['url'])
                 return nlu
             else:
-                raise Exception("Failed to retrieve or create NLU service credentials.")
+                raise ModelError("Failed to retrieve or create NLU service credentials.")
         except Exception as e:
             logger.error(f"Error initializing NLU service: {str(e)}")
-            return None
+            raise ModelError(f"Error initializing NLU service: {str(e)}")
 
     def _init_text_to_speech_service(self):
         try:
@@ -145,10 +177,10 @@ class WatsonService(BaseModel):
                 text_to_speech.set_service_url(credentials['url'])
                 return text_to_speech
             else:
-                raise Exception("Failed to retrieve or create Text to Speech service credentials.")
+                raise ModelError("Failed to retrieve or create Text to Speech service credentials.")
         except Exception as e:
             logger.error(f"Error initializing Text to Speech service: {str(e)}")
-            return None
+            raise ModelError(f"Error initializing Text to Speech service: {str(e)}")
 
     def _init_speech_to_text_service(self):
         try:
@@ -160,12 +192,15 @@ class WatsonService(BaseModel):
                 speech_to_text.set_service_url(credentials['url'])
                 return speech_to_text
             else:
-                raise Exception("Failed to retrieve or create Speech to Text service credentials.")
+                raise ModelError("Failed to retrieve or create Speech to Text service credentials.")
         except Exception as e:
             logger.error(f"Error initializing Speech to Text service: {str(e)}")
-            return None
-    
+            raise ModelError(f"Error initializing Speech to Text service: {str(e)}")
+
     def inference(self, data: dict):
+        if not self.is_loaded:
+            raise ModelError("Model is not loaded. Please load the model first.")
+
         try:
             if self.nlu:
                 text = data.get('payload')
@@ -188,16 +223,15 @@ class WatsonService(BaseModel):
                     raise ValueError("File path is required for speech-to-text transcription")
                 return self.transcribe_audio(file_path)
             else:
-                raise ValueError("No Watson service has been initialized")
+                raise ModelError("No Watson service has been initialized")
         except Exception as e:
             logger.error(f"Error during inference: {str(e)}")
-            return {"error": str(e)}
+            raise ModelError(f"Error during inference: {str(e)}")
 
     # NLU service method
     def analyze_text(self, text, analysis_type):
         if self.nlu is None:
-            logger.error("NLU service is not initialized.")
-            return None
+            raise ModelError("NLU service is not initialized.")
 
         features = {}
         if analysis_type == 'all':
@@ -207,25 +241,22 @@ class WatsonService(BaseModel):
         elif analysis_type in self.nlu_config and self.nlu_config[analysis_type]:
             features[analysis_type] = {}
         else:
-            logger.error(f"Invalid analysis type: {analysis_type}")
-            return None
+            raise ModelError(f"Invalid analysis type: {analysis_type}")
 
         if not features:
-            logger.error("No features enabled for analysis.")
-            return None
+            raise ModelError("No features enabled for analysis.")
 
         try:
             response = self.nlu.analyze(text=text, features=features).get_result()
             return response
         except Exception as e:
             logger.error(f"Error analyzing text: {str(e)}")
-            return None
+            raise ModelError(f"Error analyzing text: {str(e)}")
 
     # Text to Speech service method
     def synthesize_text(self, text, voice=None, accept='audio/wav', pitch=None, speed=None):
         if self.text_to_speech is None:
-            logger.error("Text to Speech service is not initialized.")
-            return {"error": "Text to Speech service is not initialized."}
+            raise ModelError("Text to Speech service is not initialized.")
 
         try:
             voice = voice or self.tts_config.get('voice', 'en-US_AllisonV3Voice')
@@ -255,26 +286,24 @@ class WatsonService(BaseModel):
             }
         except Exception as e:
             logger.error(f"Error synthesizing text: {str(e)}")
-            return {"error": f"Error synthesizing text: {str(e)}"}
-    
+            raise ModelError(f"Error synthesizing text: {str(e)}")
+
     # Text to Speech service method
     def list_voices(self):
         if self.text_to_speech is None:
-            logger.error("Text to Speech service is not initialized.")
-            return []
+            raise ModelError("Text to Speech service is not initialized.")
 
         try:
             voices = self.text_to_speech.list_voices().get_result()
             return [voice['name'] for voice in voices['voices']]
         except Exception as e:
             logger.error(f"Error listing voices: {str(e)}")
-            return []
-        
+            raise ModelError(f"Error listing voices: {str(e)}")
+
     # Audio to Text service method
     def transcribe_audio(self, file_path):
         if self.speech_to_text is None:
-            logger.error("Speech to Text service is not initialized.")
-            return {"error": "Speech to Text service is not initialized."}
+            raise ModelError("Speech to Text service is not initialized.")
 
         try:
             # Use the model from the config, or default to 'en-US_BroadbandModel'
@@ -305,25 +334,18 @@ class WatsonService(BaseModel):
             }
         except Exception as e:
             logger.error(f"Error transcribing audio: {str(e)}")
-            return {"error": f"Error transcribing audio: {str(e)}"}
-    
+            raise ModelError(f"Error transcribing audio: {str(e)}")
+
     # Speech to Text service method
     def list_stt_models(self):
         if self.speech_to_text is None:
-            logger.error("Speech to Text service is not initialized.")
-            return []
+            raise ModelError("Speech to Text service is not initialized.")
         try:
             models = self.speech_to_text.list_models().get_result()
             return [model['name'] for model in models['models']]
         except Exception as e:
             logger.error(f"Error listing STT models: {str(e)}")
-            return []
-    
-    
-
-    
-
-
+            raise ModelError(f"Error listing STT models: {str(e)}")
 
 # ------------- LOCAL METHODS -------------
 
@@ -331,3 +353,6 @@ def check_service(resource_name, service_keyword):
     resource_name_normalized = resource_name.lower().replace(' ', '').replace('-', '')
     service_keyword_normalized = service_keyword.lower().replace(' ', '').replace('-', '')
     return service_keyword_normalized in resource_name_normalized
+
+def format_service_name(service):
+    return ' '.join(word.capitalize() for word in service.split('-'))

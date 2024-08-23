@@ -103,28 +103,42 @@ class ModelControl:
         """
         # instantiate the model class with model_id
         model = model_class(model_id=model_id)
-        model.load(device=device, model_info=model_info)
-        conn.send("Model loaded")
-        
-        pid = os.getpid()
-        
+        try:
+            model.load(device=device, model_info=model_info)
+            conn.send("Model loaded")
+            pid = os.getpid()
+        except Exception as e:
+            logger.error(f"Failed to load model {model_id}: {str(e)}")
+            # Send error message to parent process
+            conn.send(f"error: Failed to load model {model_id}: {str(e)}")
+            return
+
+        # A loop to keep the process alive
         while True:
-            if conn.poll():
-                req = conn.recv()
+            try:
+                req = conn.recv()  # This will block until a message is received
+                
                 if req == "terminate":
                     conn.send("Terminating")
                     break
                 elif req == "get_usage":
-                    usage = get_hardware_usage(pid)
-                    conn.send(usage)
-                elif req["task"] in ["inference", "train"]:
-                    lock.acquire()
-                    if req["task"] == "inference":
-                        prediction = model.inference(req["data"])
-                    elif req["task"] == "train":
-                        prediction = model.train(req["data"])
-                    lock.release()
-                    conn.send(prediction)
+                    result = get_hardware_usage(pid)
+                    conn.send(result)
+                elif isinstance(req, dict) and req.get("task") in ["inference", "train"]:
+                    with lock:  # Use a context manager for the lock
+                        if req["task"] == "inference":
+                            logger.info(f"Running control inference for model {model_id}")
+                            result = model.inference(req["data"])
+                        else:  # req["task"] == "train"
+                            logger.info(f"Running control train for model {model_id}")
+                            result = model.train(req["data"])
+                        conn.send(result)
+                else:
+                    logger.warning(f"Received unknown request: {req}")
+                    conn.send({"error": "Unknown request"})
+            except Exception as e:
+                logger.error(f"Error in load process: {str(e)}")
+                conn.send({"error": str(e)})
 
     def _get_model_info(self, model_id: str, source: str = "library"):
         if source == "library":
@@ -243,11 +257,13 @@ class ModelControl:
                 self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
                 logger.info(f"Model {model_id} loaded and process started.")
                 return True
+            elif isinstance(response, dict) and "error" in response:
+                logger.error(f"Failed to load model {model_id}. Error: {response['error']}")
+                raise ModelError(f"Failed to load model {model_id}. Error: {response['error']}")
             else:
-                logger.error(f"Failed to load model {model_id}. Response: {response}")
-                raise ModelError(f"Failed to load model {model_id}. Response: {response}")
+                logger.error(f"Failed to load model {model_id}. Unexpected response: {response}")
+                raise ModelError(f"Failed to load model {model_id}. Unexpected response: {response}")
         except ValueError as e:
-            # ValueError is raised from get_model_info and get_model_class
             logger.error(str(e))
             raise e
 

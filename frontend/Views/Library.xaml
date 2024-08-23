@@ -11,6 +11,7 @@
         <converters:TextStatusToColorConverter x:Key="TextStatusToColorConverter"/>
         <converters:LoadUnloadTextConverter x:Key="LoadUnloadTextConverter" />
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <converters:BoolToImageConverter x:Key="BoolToImageConverter"/>
     </ContentPage.Resources>
 
     <AbsoluteLayout>
@@ -28,9 +29,11 @@
                        FontSize="17" TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
             </VerticalStackLayout>
 
-            <Grid Grid.Row="1" HorizontalOptions="Start" Margin="20,20,20,0">
+            <Grid Grid.Row="1" HorizontalOptions="Fill" Margin="20,20,20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -42,10 +45,7 @@
                            HorizontalTextAlignment="Start"
                            VerticalOptions="Center"
                            BackgroundColor="Transparent"
-                           HorizontalOptions="Start"
-                           MinimumWidthRequest="300"
-                           MaximumWidthRequest="500"
-                           WidthRequest="400"
+                           HorizontalOptions="Fill"
                            TextChanged="OnSearchTextChanged"/>
 
                 <Button Grid.Column="1" 
@@ -53,19 +53,33 @@
                         CornerRadius="10" 
                         Margin="10,0,0,0"
                         Clicked="OnFilterClicked"
-                        HeightRequest="20"
-                        WidthRequest="20">
+                        HeightRequest="40"
+                        WidthRequest="40">
                     <Button.ImageSource>
                         <FileImageSource File="{AppThemeBinding Light=filter_icon_black.png, Dark=filter_icon_white.png}"/>
                     </Button.ImageSource>
                 </Button>
+                <Button Grid.Column="2" 
+                        Text="Load All" 
+                        Clicked="OnLoadAllClicked" 
+                        Margin="10,0,0,0"
+                        HeightRequest="40"/>
+                <Button Grid.Column="3" 
+                        Text="Unload All" 
+                        Clicked="OnUnloadAllClicked" 
+                        Margin="10,0,0,0"
+                        HeightRequest="40"/>
             </Grid>
 
             <Frame Grid.Row="2" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" BackgroundColor="{AppThemeBinding Light=#cccccc, Dark=#3A3B3C}" CornerRadius="10" Padding="10" Margin="20,10,20,0" HasShadow="True">
-                <Grid ColumnDefinitions="3*, 1.5*, 1.4*">
+                <Grid ColumnDefinitions="3*, 2*, 0.8*, 20, 2*, 1.1*, 110, 20, 60">
                     <Label Text="Model" FontAttributes="Bold" Grid.Column="0" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                    <Label Text="Type" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
-                    <Label Text="Status" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Base Model" FontAttributes="Bold" Grid.Column="1" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                    <Label Text="Custom" FontAttributes="Bold" Grid.Column="2" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Type" FontAttributes="Bold" Grid.Column="4" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                    <Label Text="Status" FontAttributes="Bold" Grid.Column="5" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                    <Label Text="Action" FontAttributes="Bold" Grid.Column="6" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
+                    <Label Text="Delete" FontAttributes="Bold" Grid.Column="8" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" HorizontalOptions="Center"/>
                 </Grid>
             </Frame>
 
@@ -85,12 +99,29 @@
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnModelSelected" CommandParameter="{Binding .}"/>
                                 </Frame.GestureRecognizers>
-                                <Grid ColumnDefinitions="3*, 2*, 1.1*, Auto">
+                                <Grid ColumnDefinitions="3*, 2*, 0.8*, 20, 2*, 1.1*, 110, 20, 60">
                                     <Label Grid.Column="0" Text="{Binding ModelId}" FontAttributes="Bold" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
-                                    <Label Grid.Column="1" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                    <Label Grid.Column="1" Text="{Binding BaseModel}" VerticalOptions="Center"
                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
-                                    <Frame Grid.Column="2" 
+                                    <!-- <Image Grid.Column="2" 
+                                           Source="{Binding IsCustomised, Converter={StaticResource BoolToImageConverter}}"
+                                           HeightRequest="20" 
+                                           WidthRequest="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/> -->
+                                    <Label Grid.Column="2" 
+                                            FontFamily="FontAwesomeFreeSolid"
+                                            FontSize="20"
+                                            Text="&#xf7d9;"
+                                            HeightRequest="20" 
+                                            WidthRequest="20"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            TextColor="{Binding CustomLabelColor}"/>
+                                    <Label Grid.Column="4" Text="{Binding PipelineTag}" VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="10,0,0,0"/>
+                                    <Frame Grid.Column="5" 
                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
                                            BorderColor="Transparent"
                                            CornerRadius="18"
@@ -105,16 +136,33 @@
                                                VerticalOptions="Center"
                                                HorizontalOptions="Center"/>
                                     </Frame>
-                                    <Button Grid.Column="3" 
+                                    <Button Grid.Column="6" 
                                             Text="{Binding IsLoaded, Converter={StaticResource LoadUnloadTextConverter}}"
                                             BackgroundColor="{Binding IsLoaded, Converter={StaticResource BoolToColorConverter}}"
                                             TextColor="White"
                                             CornerRadius="15"
-                                            HeightRequest="20"
+                                            HeightRequest="33"
+                                            WidthRequest="90"
                                             Command="{Binding LoadOrStopCommand}"
+                                            CommandParameter="{Binding ModelId}"
+                                            IsEnabled="{Binding IsButtonEnabled}"
                                             VerticalOptions="Center"
                                             HorizontalOptions="Center"
-                                            Padding="10,5"/>
+                                            Padding="0"/>
+                                    <ImageButton Grid.Column="8" 
+                                                 HeightRequest="20"
+                                                 WidthRequest="20"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Clicked="OnDeleteModelClicked"
+                                                 CommandParameter="{Binding .}"
+                                                 BackgroundColor="Transparent">
+                                        <ImageButton.Source>
+                                            <FontImageSource Glyph="&#xf2ed;" 
+                                                                 FontFamily="FontAwesomeFreeRegular" 
+                                                                 Color="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}" />
+                                        </ImageButton.Source>
+                                    </ImageButton>
                                 </Grid>
                             </Frame>
                         </DataTemplate>
@@ -144,6 +192,46 @@
                            AllModels="{Binding AllModels}"
                            CloseRequested="OnCloseFilterPopup"
                            ApplyFiltersRequested="OnApplyFilters"
-                           ResetFiltersRequested="OnResetFilters"/>
+                           ResetFiltersRequested="OnResetFilters"
+                           BaseModelTypes="{Binding BaseModelTypes}"
+                           FilterCustom="{Binding FilterCustom}"
+                           FilterNonCustom="{Binding FilterNonCustom}"/>
+
+        <!-- OPTION 1 -->
+        <!-- Add this ActivityIndicator -->
+        <!-- <ActivityIndicator x:Name="LoadingIndicator" 
+                           IsRunning="False" 
+                           IsVisible="False"
+                           Color="{AppThemeBinding Light=Black, Dark=White}"
+                           AbsoluteLayout.LayoutFlags="PositionProportional"
+                           AbsoluteLayout.LayoutBounds="0.5, 0.5, AutoSize, AutoSize"/> -->
+
+        <!-- OPTION 2 -->
+        <!-- Replace the existing ActivityIndicator with this new layout -->
+        <Grid x:Name="LoadingOverlay" 
+            IsVisible="False"
+            AbsoluteLayout.LayoutFlags="All"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            BackgroundColor="#80000000">
+            <Frame CornerRadius="10" 
+                BackgroundColor="#CC000000" 
+                HorizontalOptions="Center" 
+                VerticalOptions="Center"
+                Padding="20">
+                <StackLayout>
+                    <ActivityIndicator x:Name="LoadingIndicator" 
+                                    IsRunning="False" 
+                                    Color="White"
+                                    HeightRequest="50"
+                                    WidthRequest="50"/>
+                    <Label x:Name="LoadingText"
+                        Text="Loading Model..."
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        Margin="0,10,0,0"/>
+                </StackLayout>
+            </Frame>
+        </Grid>
+
     </AbsoluteLayout>
 </ContentPage>

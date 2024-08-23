@@ -39,16 +39,16 @@ namespace frontend.Services
             return result?["active_models"] ?? new List<string>();
         }
 
-        public async Task<bool> LoadModel(string modelId)
+        public async Task<HttpResponseMessage> LoadModel(string modelId)
         {
             var response = await _httpClient.PostAsync($"model/load?model_id={modelId}", null);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
-        public async Task<bool> UnloadModel(string modelId)
+        public async Task<HttpResponseMessage> UnloadModel(string modelId)
         {
             var response = await _httpClient.PostAsync($"model/unload?model_id={modelId}", null);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
         public async Task<bool> DownloadModel(string modelId, string? authToken = null)
@@ -81,12 +81,12 @@ namespace frontend.Services
             return false;
         }
 
-        public async Task<object> Inference(string modelId, object data)
+        public async Task<Dictionary<string, object>> Inference(string modelId, object data)
         {
             var request = new { model_id = modelId, data = data };
             var response = await _httpClient.PostAsJsonAsync("model/inference", request);
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<object>())!;
+            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
         public async Task<string> ProcessImage(string imagePath, string rawJson, string task)

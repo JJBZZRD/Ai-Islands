@@ -62,6 +62,8 @@ namespace frontend.Models
         [JsonIgnore]
         public ICommand? LoadOrStopCommand { get; set; }
 
+        // public bool IsButtonEnabled { get; set; } = true;
+
         public string? DatasetFormat { get; set; }
 
         [JsonPropertyName("mapping")]
@@ -160,6 +162,9 @@ namespace frontend.Models
 
         [JsonPropertyName("speaker_embedding_config")]
         public string? SpeakerEmbeddingConfig { get; set; }
+
+        [JsonPropertyName("chat_history")]
+        public bool? ChatHistory { get; set; }
     }
 
     public class ConversationMessage
