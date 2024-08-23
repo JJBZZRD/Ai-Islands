@@ -162,6 +162,7 @@
                                IsVisible="false"
                                Title="Authentication Required"
                                FieldLabel="Enter Auth Token"
-                               IsPassword="True" />
+                               IsPassword="True"
+                               Description="Please visit https://huggingface.co/docs/hub/en/models-gated#access-gated-models-as-a-user for more information on how to access gated models." />
     </AbsoluteLayout>
 </ContentPage>

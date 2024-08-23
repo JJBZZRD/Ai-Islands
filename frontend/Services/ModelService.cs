@@ -81,12 +81,12 @@ namespace frontend.Services
             return false;
         }
 
-        public async Task<object> Inference(string modelId, object data)
+        public async Task<Dictionary<string, object>> Inference(string modelId, object data)
         {
             var request = new { model_id = modelId, data = data };
             var response = await _httpClient.PostAsJsonAsync("model/inference", request);
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<object>())!;
+            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
         public async Task<string> ProcessImage(string imagePath, string rawJson, string task)

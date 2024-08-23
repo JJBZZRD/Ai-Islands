@@ -18,7 +18,8 @@ namespace frontend.Converters
                        !string.IsNullOrEmpty(config.ContentType) ||
                        config.EmbeddingDimensions != null ||
                        config.MaxInputTokens != null ||
-                       !string.IsNullOrEmpty(config.SpeakerEmbeddingConfig);
+                       !string.IsNullOrEmpty(config.SpeakerEmbeddingConfig) ||
+                       config.ChatHistory.HasValue;
             }
             return false;
         }
