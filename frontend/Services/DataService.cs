@@ -105,5 +105,24 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
+
+        // Add this method to the DataService class
+        // public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsTrackerInfo()
+        // {
+        //     var response = await _httpClient.GetAsync("data/datasets-processing-existence");
+        //     response.EnsureSuccessStatusCode();
+        //     var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, Dictionary<string, bool>>>>();
+        //     return result["datasets"];
+        // }
+
+        // API Call: GET /data/datasets-processing-existence
+        // Note: Sends processed datasets ONLY along with their processing type booleans
+        public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsExistence()
+        {
+            var response = await _httpClient.GetAsync("data/datasets-processing-existence");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, Dictionary<string, bool>>>>();
+            return result["datasets"];
+        }
     }
 }
