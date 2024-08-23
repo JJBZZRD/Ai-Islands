@@ -54,7 +54,7 @@ namespace frontend.Views
             Debug.WriteLine(_isCandidateLabelsNull);
             Debug.WriteLine(_isStopSequencesNull);
 
-            await LoadDatasetNames();
+            LoadDatasetNames();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
@@ -70,7 +70,7 @@ namespace frontend.Views
             _configViewModel.InitialiseSelectedItemForPicker();
         }
 
-        private async void LoadDatasetNames()
+        private async Task LoadDatasetNames()
         {
             try
             {
@@ -404,7 +404,7 @@ namespace frontend.Views
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
 
-                        InitializeAsync();
+                        await InitializeAsync();
                     }
                     else
                     {
