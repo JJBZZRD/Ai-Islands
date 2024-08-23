@@ -349,11 +349,11 @@ namespace frontend.Models
         [JsonPropertyName("exponential_decay_length_penalty")]
         public float? ExponentialDecayLengthPenalty { get; set; }
 
-        [JsonPropertyName("suppress_tokens")]
-        public List<int>? SuppressTokens { get; set; }
+        // [JsonPropertyName("suppress_tokens")]
+        // public List<int>? SuppressTokens { get; set; }
 
-        [JsonPropertyName("begin_suppress_tokens")]
-        public List<int>? BeginSuppressTokens { get; set; }
+        // [JsonPropertyName("begin_suppress_tokens")]
+        // public List<int>? BeginSuppressTokens { get; set; }
 
         [JsonPropertyName("forced_bos_token_id")]
         public int? ForcedBosTokenId { get; set; }
