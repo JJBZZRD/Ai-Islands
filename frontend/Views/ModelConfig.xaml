@@ -266,7 +266,7 @@
                                         <Label Text="Use Dataset"
                                                VerticalOptions="Center"/>
                                     </HorizontalStackLayout>
-                                    <VerticalStackLayout IsVisible="{Binding Config.RagSettings.DatasetName}">
+                                    <VerticalStackLayout>
                                         <Label Text="Dataset Name"/>
                                         <Picker x:Name="DatasetNamePicker"
                                                 ItemsSource="{Binding DatasetNames}"
