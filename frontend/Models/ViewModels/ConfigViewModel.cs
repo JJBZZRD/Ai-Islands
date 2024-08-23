@@ -89,7 +89,10 @@ namespace frontend.Models.ViewModels
             {
                 SelectedPipelineConfigSrcLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.SrcLang);
                 SelectedPipelineConfigTgtLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.TgtLang);
-                SelectedGenerateKwargsLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.GenerateKwargs.Language);
+                if (Config.PipelineConfig.GenerateKwargs != null)
+                {
+                    SelectedGenerateKwargsLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.GenerateKwargs.Language);
+                }
             }
 
             if (Config.TranslationConfig != null)

@@ -731,7 +731,7 @@
                                         <Label Text="Generate Kwargs"
                                                FontSize="16"
                                                FontAttributes="Bold"/>
-                                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language}">
                                             <Label Text="Generate Kwargs Language"/>
                                             <Picker SelectedItem="{Binding SelectedGenerateKwargsLanguage}"
                                                     ItemsSource="{Binding LanguagesList}"
@@ -740,14 +740,14 @@
                                                     HorizontalOptions="Start">
                                             </Picker>
                                         </VerticalStackLayout>
-                                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task}">
                                             <Label Text="Task"/>
-                                            <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Task, Mode=TwoWay}"
+                                            <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Task}"
                                                     WidthRequest="200"
                                                     HorizontalOptions="Start">
                                                 <Picker.ItemsSource>
                                                     <x:Array Type="{x:Type x:String}">
-                                                        <x:String>null</x:String>
+                                                        <x:String>Null</x:String>
                                                         <x:String>translate</x:String>
                                                     </x:Array>
                                                 </Picker.ItemsSource>

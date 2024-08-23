@@ -2193,7 +2193,7 @@
       "Central Kanuri Arabic": "knc_Arab",
       "Central Kanuri Latin": "knc_Latn",
       "Kazakh": "kaz_Cyrl",
-      "Kabiy\u00c3\u00a8": "kbp_Latn",
+      "Kabiye": "kbp_Latn",
       "Kabuverdianu": "kea_Latn",
       "Khmer": "khm_Khmr",
       "Kikuyu": "kik_Latn",
@@ -2232,7 +2232,7 @@
       "Burmese": "mya_Mymr",
       "Dutch": "nld_Latn",
       "Norwegian Nynorsk": "nno_Latn",
-      "Norwegian Bokm\u00c3\u00a5l": "nob_Latn",
+      "Norwegian Bokmal": "nob_Latn",
       "Nepali": "npi_Deva",
       "Northern Sotho": "nso_Latn",
       "Nuer": "nus_Latn",
@@ -2338,6 +2338,7 @@
       "Multilingual"
     ],
     "languages": {
+      "Null": "null",
       "English": "en",
       "Chinese": "zh",
       "German": "de",
