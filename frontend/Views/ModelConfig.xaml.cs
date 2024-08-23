@@ -64,7 +64,7 @@ namespace frontend.Views
             _expanders = FindExpanders(this);
         }
 
-        private async void LoadDatasetNames()
+        public async Task LoadDatasetNames()
         {
             try
             {
@@ -331,6 +331,20 @@ namespace frontend.Views
                         _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                         _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
+                        // Update the SelectedDatasetName
+                        if (_configViewModel.Config.RagSettings != null && 
+                            !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName))
+                        {
+                            _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
+                        }
+                        else
+                        {
+                            _configViewModel.SelectedDatasetName = null;
+                        }
+
+                        // Reload the dataset names
+                        await LoadDatasetNames();
+
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
 
@@ -443,7 +457,12 @@ namespace frontend.Views
                     _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                     _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+                    // Update the SelectedDatasetName from the library data
+                    _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings?.DatasetName;
 
+                    // Reload the dataset names
+                    await LoadDatasetNames();
+                    
                     BindingContext = _configViewModel;
                     OnPropertyChanged(nameof(_configViewModel));
 
