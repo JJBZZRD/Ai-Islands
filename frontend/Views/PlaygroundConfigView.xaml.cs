@@ -1,11 +1,8 @@
-using System.Globalization;
 using frontend.Models;
 using frontend.Models.ViewModels;
-using System.Collections.ObjectModel;
 using frontend.Services;
 using System.Net.Http;
 using System.Text.Json;
-using Microsoft.Maui.Controls;
 using System.Diagnostics;
 
 namespace frontend.Views;
@@ -28,9 +25,9 @@ public partial class PlaygroundConfigView : ContentView
 
     private async void InitializeAsync()
     {
-        // dealy 100ms to make sure the picker is loaded
+        // dealy 500ms to make sure the picker is loaded
         // the delay time might have to be longer, depending on the time taken to load the picker
-        await Task.Delay(100);
+        await Task.Delay(500);
         _viewModel.SetPlaygroundChainForPicker();
 
         Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.SelectedModel?.ModelId))}");
