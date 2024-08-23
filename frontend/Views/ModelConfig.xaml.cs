@@ -31,10 +31,12 @@ namespace frontend.Views
                 Config = model.Config,
             };
 
-
-            foreach (var lang in _model.Languages)
+            if (_model.Languages != null)
             {
-                _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                foreach (var lang in _model.Languages)
+                {
+                    _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                }
             }
 
             BindingContext = _configViewModel;
@@ -377,11 +379,17 @@ namespace frontend.Views
                         _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                         _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
+                        if (_model.Languages != null)
+                        {
+                            foreach (var lang in _model.Languages)
+                            {
+                                _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                            }
+                        }
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
 
-                        // Manually trigger UI update for properties that might not be directly bound
-                        OnPropertyChanged(nameof(_configViewModel));
+                        InitializeAsync();
                     }
                     else
                     {
@@ -489,8 +497,16 @@ namespace frontend.Views
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                     _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
+                    if (_model.Languages != null)
+                    {
+                        foreach (var lang in _model.Languages)
+                        {
+                            _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                        }
+                    }
+
                     BindingContext = _configViewModel;
-                    OnPropertyChanged(nameof(_configViewModel));
+                    InitializeAsync();
 
                 }
                 else
