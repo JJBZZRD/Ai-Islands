@@ -1,10 +1,8 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+using frontend.Converters;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace frontend.Models.ViewModels
 {
@@ -16,44 +14,38 @@ namespace frontend.Models.ViewModels
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
         public ObservableCollection<StopSequence> StopSequences { get; }
-        public Dictionary<string, string> Languages { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> LanguagesDict { get; set; } = new Dictionary<string, string>();
+        public List<string> LanguagesList { get; }
 
-        private List<string> _datasetNames;
-        public List<string> DatasetNames
+        [ObservableProperty]
+        private List<string> datasetNames;
+
+        [ObservableProperty]
+        private string selectedDatasetName;
+
+        [ObservableProperty]
+        private string selectedPipelineConfigSrcLang;
+
+        [ObservableProperty]
+        private string selectedPipelineConfigTgtLang;
+
+        [ObservableProperty]
+        private string selectedTranslationConfigSrcLang;
+
+        [ObservableProperty]
+        private string selectedTranslationConfigTgtLang;
+
+        [ObservableProperty]
+        private string selectedTransationConfigTargetLanguage;
+
+        [ObservableProperty]
+        private string selectedGenerateKwargsLanguage;
+
+        public ConfigViewModel(Dictionary<string, string> languagesDict)
         {
-            get => _datasetNames;
-            set
-            {
-                if (_datasetNames != value)
-                {
-                    _datasetNames = value;
-                    OnPropertyChanged(nameof(DatasetNames));
-                }
-            }
-        }
+            LanguagesDict = languagesDict;
+            LanguagesList = LanguagesDict.Keys.ToList();
 
-        private string _selectedDatasetName;
-        public string SelectedDatasetName
-        {
-            get => _selectedDatasetName;
-            set
-            {
-                if (_selectedDatasetName != value)
-                {
-                    _selectedDatasetName = value;
-                    if (config?.RagSettings != null)
-                    {
-                        config.RagSettings.DatasetName = value;
-                    }
-                    OnPropertyChanged(nameof(SelectedDatasetName));
-                }
-            }
-        }
-
-        public IEnumerable<KeyValuePair<string, string>> LanguageList => Languages?.ToList() ?? new List<KeyValuePair<string, string>>();
-
-        public ConfigViewModel()
-        {
             ExampleConversation = new ObservableCollection<ConversationMessage>();
             CandidateLabels = new ObservableCollection<CandidateLabel>();
             StopSequences = new ObservableCollection<StopSequence>();
@@ -86,6 +78,29 @@ namespace frontend.Models.ViewModels
                 {
                     StopSequences.Add(new StopSequence(sequence));
                 }
+            }
+        }
+
+        public void InitialiseSelectedItemForPicker()
+        {
+            if (Config.RagSettings != null)
+            {
+                SelectedDatasetName = Config.RagSettings.DatasetName;
+            }
+
+            if (Config.PipelineConfig != null)
+            {
+                SelectedPipelineConfigSrcLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.SrcLang).Key;
+                SelectedPipelineConfigTgtLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.TgtLang).Key;
+                SelectedGenerateKwargsLanguage = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.GenerateKwargs.Language).Key;
+            }
+
+            if (Config.TranslationConfig != null)
+            {
+                SelectedTranslationConfigSrcLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.SrcLang).Key;
+                SelectedTranslationConfigTgtLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.TgtLang).Key;
+                SelectedTransationConfigTargetLanguage = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.TargetLanguage).Key;
+                Debug.WriteLine($"target language = {SelectedTransationConfigTargetLanguage}");
             }
         }
     }

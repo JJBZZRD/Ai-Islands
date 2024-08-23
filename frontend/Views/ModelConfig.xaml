@@ -9,8 +9,8 @@
     <ContentView.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:AnyPropertyExistsConverter x:Key="AnyPropertyExistsConverter"/>
-        <converters:LanguageConverter x:Key="LanguageConverter"/>
         <converters:ListToStringConverter x:Key="ListToStringConverter"/>
+        <converters:LanguageKeyToValueConverter x:Key="LanguageConverter"/>
     </ContentView.Resources>
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
@@ -242,7 +242,7 @@
                         <Label Text="Use Dataset"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
-                    <VerticalStackLayout IsVisible="{Binding Config.RagSettings.DatasetName, Converter={StaticResource NullToVisibilityConverter}}">
+                    <VerticalStackLayout>
                         <Label Text="Dataset Name"/>
                         <Picker x:Name="DatasetNamePicker"
                                ItemsSource="{Binding DatasetNames}"
@@ -540,23 +540,23 @@
                     </VerticalStackLayout>
 
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Source Language"/>
-                        <Picker SelectedItem="{Binding Config.PipelineConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                        </Picker>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Target Language"/>
-                        <Picker SelectedItem="{Binding Config.PipelineConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                        </Picker>
-                    </VerticalStackLayout>
+                         <Label Text="Source Language"/>
+                         <Picker SelectedItem="{Binding SelectedPipelineConfigSrcLang, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                 ItemsSource="{Binding LanguagesList}"
+                                 ItemDisplayBinding="{Binding .}"
+                                 WidthRequest="200"
+                                 HorizontalOptions="Start">
+                         </Picker>
+                     </VerticalStackLayout>
+                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
+                         <Label Text="Target Language"/>
+                         <Picker SelectedItem="{Binding SelectedPipelineConfigTgtLang, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                 ItemsSource="{Binding LanguagesList}"
+                                 ItemDisplayBinding="{Binding .}"
+                                 WidthRequest="200"
+                                 HorizontalOptions="Start">
+                         </Picker>
+                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.ChunkLengthS, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Chunk Length(s)"/>
                         <controls:OptimizedSlider Minimum="5"
@@ -589,15 +589,15 @@
                         <Label Text="Generate Kwargs"
                                FontSize="16"
                                FontAttributes="Bold"/>
-                        <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Label Text="Language"/>
-                            <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Language, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                            </Picker>
-                        </VerticalStackLayout>
+                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Language, Converter={StaticResource NullToVisibilityConverter}}">
+                         <Label Text="Generate Kwargs Language"/>
+                         <Picker SelectedItem="{Binding SelectedGenerateKwargsLanguage, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                 ItemsSource="{Binding LanguagesList}"
+                                 ItemDisplayBinding="{Binding .}"
+                                 WidthRequest="200"
+                                 HorizontalOptions="Start">
+                         </Picker>
+                     </VerticalStackLayout>
                         <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.GenerateKwargs.Task, Converter={StaticResource NullToVisibilityConverter}}">
                             <Label Text="Task"/>
                             <Picker SelectedItem="{Binding Config.PipelineConfig.GenerateKwargs.Task, Mode=TwoWay}"
@@ -709,29 +709,29 @@
                      </toolkit:Expander.Header>
                      <toolkit:Expander.Content>
                      <VerticalStackLayout>
-                    <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Source Language"/>
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.SrcLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                        </Picker>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Label Text="Target Language"/>
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.TgtLang, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
-                                WidthRequest="200"
-                                HorizontalOptions="Start">
-                        </Picker>
-                    </VerticalStackLayout>
+                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.SrcLang, Converter={StaticResource NullToVisibilityConverter}}">
+                         <Label Text="Translation Source Language"/>
+                         <Picker SelectedItem="{Binding SelectedTranslationConfigSrcLang, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                 ItemsSource="{Binding LanguagesList}"
+                                 ItemDisplayBinding="{Binding .}"
+                                 WidthRequest="200"
+                                 HorizontalOptions="Start">
+                         </Picker>
+                     </VerticalStackLayout>
+                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TgtLang, Converter={StaticResource NullToVisibilityConverter}}">
+                         <Label Text="Translation Target Language"/>
+                         <Picker SelectedItem="{Binding SelectedTranslationConfigTgtLang, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                 ItemsSource="{Binding LanguagesList}"
+                                 ItemDisplayBinding="{Binding .}"
+                                 WidthRequest="200"
+                                 HorizontalOptions="Start">
+                         </Picker>
+                     </VerticalStackLayout>
                     <VerticalStackLayout IsVisible="{Binding Config.TranslationConfig.TargetLanguage, Converter={StaticResource NullToVisibilityConverter}}">
                         <Label Text="Target Language"/>
-                        <Picker SelectedItem="{Binding Config.TranslationConfig.TargetLanguage, Mode=TwoWay, Converter={StaticResource LanguageConverter}, ConverterParameter={Binding LanguageList}}"
-                                ItemsSource="{Binding LanguageList}"
-                                ItemDisplayBinding="{Binding Value}"
+                        <Picker SelectedItem="{Binding SelectedTransationConfigTargetLanguage, Converter={StaticResource LanguageKeyToValueConverter}}"
+                                ItemsSource="{Binding LanguagesList}"
+                                ItemDisplayBinding="{Binding .}"
                                 WidthRequest="200"
                                 HorizontalOptions="Start">
                         </Picker>

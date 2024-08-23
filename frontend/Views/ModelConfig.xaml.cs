@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.Text.Json;
 using frontend.Services;
-using Microsoft.Maui.Graphics;
 using System.Reflection;
 using frontend.Models.ViewModels;
 using System.Diagnostics;
-using System.Collections.ObjectModel;
+using frontend.Converters;
 
 namespace frontend.Views
 {
@@ -25,24 +21,18 @@ namespace frontend.Views
 
         // Add these fields at the class level
         private bool _areExpandersExpanded = false;
-        private List<Microsoft.Maui.Controls.BindableObject> _expanders;
+        private List<BindableObject> _expanders;
 
         public ModelConfig(Model model)
         {
             InitializeComponent();
             _model = model;
-            _configViewModel = new ConfigViewModel 
+            _configViewModel = new ConfigViewModel(model.Languages ?? new Dictionary<string, string>())
             { 
                 Config = model.Config, 
-                Languages = model.Languages ?? new Dictionary<string, string>()
             };
             
-            // Add debug logging
-            System.Diagnostics.Debug.WriteLine($"Languages count: {_configViewModel.Languages.Count}");
-            foreach (var lang in _configViewModel.Languages)
-            {
-                System.Diagnostics.Debug.WriteLine($"Language: {lang.Key} - {lang.Value}");
-            }
+            BindingContext = _configViewModel;
 
             _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
             _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
@@ -56,12 +46,20 @@ namespace frontend.Views
             Debug.WriteLine(_isExampleConversationNull);
             Debug.WriteLine(_isCandidateLabelsNull);
             Debug.WriteLine(_isStopSequencesNull);
-            BindingContext = _configViewModel; // Set the BindingContext
 
             LoadDatasetNames();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
+            InitializeAsync();
+        }
+
+        private async void InitializeAsync()
+        {
+            // dealy 500ms to make sure the picker is loaded
+            // the delay time might have to be longer, depending on the time taken to load the picker
+            await Task.Delay(500);
+            _configViewModel.InitialiseSelectedItemForPicker();
         }
 
         private async void LoadDatasetNames()
@@ -78,9 +76,6 @@ namespace frontend.Views
                 {
                     _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
                 }
-
-                // Manually trigger UI update
-                OnPropertyChanged(nameof(_configViewModel.SelectedDatasetName));
             }
             catch (Exception ex)
             {
@@ -97,25 +92,7 @@ namespace frontend.Views
             try 
             {
                 // Update the _model's Config with the current ConfigViewModel's Config
-                if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
-                {
-                    _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-                } else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull) {
-                    _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
-                }
-                if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
-                {
-                    _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
-                } else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull) {
-                    _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
-                }
-                if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
-                {
-                    _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
-                } else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull) {
-                    _configViewModel.Config.Parameters.StopSequences = new List<string>();
-                }
-                _model.Config = _configViewModel.Config;
+                UpdateModelConfig();
 
                 await _modelService.ConfigureModel(_model.ModelId, _model.Config);
                 
@@ -132,6 +109,71 @@ namespace frontend.Views
                 // Re-enable the button
                 SaveConfigButton.IsEnabled = true;
             }
+        }
+
+        private void UpdateModelConfig()
+        {
+            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            }
+            else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
+            }
+            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            }
+            else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
+            }
+            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+            }
+            else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = new List<string>();
+            }
+
+            if (_configViewModel.SelectedDatasetName != null)
+            {
+                _configViewModel.Config.RagSettings.DatasetName = _configViewModel.SelectedDatasetName;
+            }
+
+            if (_configViewModel.SelectedPipelineConfigSrcLang != null)
+            {
+                _configViewModel.Config.PipelineConfig.SrcLang = _configViewModel.SelectedPipelineConfigSrcLang;
+            }
+
+            if (_configViewModel.SelectedPipelineConfigTgtLang != null)
+            {
+                _configViewModel.Config.PipelineConfig.TgtLang = _configViewModel.SelectedPipelineConfigTgtLang;
+            }
+
+            if (_configViewModel.SelectedTranslationConfigSrcLang != null)
+            {
+                _configViewModel.Config.TranslationConfig.SrcLang = _configViewModel.SelectedTranslationConfigSrcLang;
+            }
+
+            if (_configViewModel.SelectedTranslationConfigTgtLang != null)
+            {
+                _configViewModel.Config.TranslationConfig.TgtLang = _configViewModel.SelectedTranslationConfigTgtLang;
+            }
+
+            if (_configViewModel.SelectedTransationConfigTargetLanguage != null)
+            {
+                _configViewModel.Config.TranslationConfig.TargetLanguage = _configViewModel.SelectedTransationConfigTargetLanguage;
+            }
+
+            if (_configViewModel.SelectedGenerateKwargsLanguage != null)
+            {
+                _configViewModel.Config.PipelineConfig.GenerateKwargs.Language = _configViewModel.SelectedGenerateKwargsLanguage;
+            }
+
+            _model.Config = _configViewModel.Config;
         }
 
         private void OnAddExampleMessageClicked(object sender, EventArgs e)
@@ -265,13 +307,13 @@ namespace frontend.Views
             ToggleExpandersButton.Text = _areExpandersExpanded ? "Collapse All" : "Expand All";
         }
 
-        private List<Microsoft.Maui.Controls.BindableObject> FindExpanders(Element element)
+        private List<BindableObject> FindExpanders(Element element)
         {
-            var expanders = new List<Microsoft.Maui.Controls.BindableObject>();
+            var expanders = new List<BindableObject>();
 
             if (element.GetType().Name == "Expander")
             {
-                expanders.Add((Microsoft.Maui.Controls.BindableObject)element);
+                expanders.Add((BindableObject)element);
             }
 
             foreach (var child in element.LogicalChildren)
@@ -320,11 +362,10 @@ namespace frontend.Views
                         _model = updatedModel;
 
                         // Create a new ConfigViewModel with the updated data
-                        _configViewModel = new ConfigViewModel 
-                        { 
-                            Config = _model.Config, 
-                            Languages = _model.Languages ?? new Dictionary<string, string>()
-                        };
+            _configViewModel = new ConfigViewModel(_model.Languages ?? new Dictionary<string, string>())
+            { 
+                Config = _model.Config, 
+            };
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
@@ -434,11 +475,10 @@ namespace frontend.Views
                 if (updatedModel != null)
                 {
                     _model = updatedModel;
-                    _configViewModel = new ConfigViewModel 
-                    { 
-                        Config = _model.Config, 
-                        Languages = _model.Languages ?? new Dictionary<string, string>()
-                    };
+            _configViewModel = new ConfigViewModel(_model.Languages ?? new Dictionary<string, string>())
+            { 
+                Config = _model.Config, 
+            };
 
                     _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
@@ -457,35 +497,6 @@ namespace frontend.Views
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to refresh configuration: {ex.Message}", "OK");
             }
-        }
-
-        private void UpdateModelConfig()
-        {
-            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
-            {
-                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-            }
-            else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull)
-            {
-                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
-            }
-            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
-            {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
-            }
-            else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull)
-            {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
-            }
-            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
-            {
-                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
-            }
-            else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull)
-            {
-                _configViewModel.Config.Parameters.StopSequences = new List<string>();
-            }
-            _model.Config = _configViewModel.Config;
         }
 
         // Add this method to the ModelConfig class
@@ -515,7 +526,7 @@ namespace frontend.Views
                         // Reset the model and ConfigViewModel to the original state
                         _model = originalModel;
                         _configViewModel.Config = _model.Config;
-                        _configViewModel.Languages = _model.Languages ?? new Dictionary<string, string>();
+                        _configViewModel.LanguagesDict = _model.Languages ?? new Dictionary<string, string>();
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
