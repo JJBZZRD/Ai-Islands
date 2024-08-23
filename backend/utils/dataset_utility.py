@@ -16,6 +16,7 @@ import shutil
 from backend.utils.file_type_manager import FileTypeManager
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import CONFIG_PATH
+from backend.utils.dataset_management import DatasetFileManagement
 
 load_dotenv()
 
@@ -279,6 +280,12 @@ class DatasetManagement:
                 json.dump(model_info, f, indent=4)
             logger.info(f"Saved model info to {model_info_path}")
 
+            # process metadata too!
+            manage_dataset_metadata = DatasetFileManagement()
+            processing_type = "chunked" if self.chunking_settings["use_chunking"] else "default"
+            manage_dataset_metadata.update_dataset_metadata(file_path.stem, {processing_type: True})
+            # return to the function...
+
             return {"message": "Dataset processed successfully", "model_info": model_info}
 
         except Exception as e:
@@ -350,96 +357,185 @@ class DatasetManagement:
         paragraphs = text.split('\n\n')
         return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
-    def list_datasets_names(self):
-        try:
-            datasets_dir = Path("Datasets")
-            datasets = [d.name for d in datasets_dir.iterdir() if d.is_dir()]
-            logger.info(f"Found {len(datasets)} datasets")
-            return {"datasets": datasets}
-        except Exception as e:
-            logger.error(f"Error listing datasets: {e}")
-            return {"datasets": []}
 
-    def list_datasets(self):
-        try:
-            datasets_dir = Path("Datasets")
-            datasets = []
-            for d in datasets_dir.iterdir():
-                if d.is_dir():
-                    for file in d.iterdir():
-                        if file.is_file():
-                            datasets.append(f"{d.name}{file.suffix}")
-                            break  # Assume one file per dataset
-            logger.info(f"Found {len(datasets)} datasets")
-            return {"datasets": datasets}
-        except Exception as e:
-            logger.error(f"Error listing datasets: {e}")
-            return {"datasets": []}
+    # moved the following methods to dataset_management.py
+
+    # def list_datasets_names(self):
+    #     try:
+    #         datasets_dir = Path("Datasets")
+    #         datasets = [d.name for d in datasets_dir.iterdir() if d.is_dir()]
+    #         logger.info(f"Found {len(datasets)} datasets")
+    #         return {"datasets": datasets}
+    #     except Exception as e:
+    #         logger.error(f"Error listing datasets: {e}")
+    #         return {"datasets": []}
+
+    # def list_datasets(self):
+    #     try:
+    #         datasets_dir = Path("Datasets")
+    #         datasets = []
+    #         for d in datasets_dir.iterdir():
+    #             if d.is_dir():
+    #                 for file in d.iterdir():
+    #                     if file.is_file():
+    #                         datasets.append(f"{d.name}{file.suffix}")
+    #                         break  # Assume one file per dataset
+    #         logger.info(f"Found {len(datasets)} datasets")
+    #         return {"datasets": datasets}
+    #     except Exception as e:
+    #         logger.error(f"Error listing datasets: {e}")
+    #         return {"datasets": []}
+
+
+    # -----------------------THE FOLLOWING IS AN OLDER VERSION OF THE SEARCH FUNCTIONALITY BUT WORKS, THE NEW VERSION IS BELOW-----------------------------------
+
+
+    # def find_relevant_entries(self, query, dataset_name, use_chunking=False, similarity_threshold=0.5):
+    #     logger.info(f"Finding relevant entries for query: '{query}' in dataset: {dataset_name}")
+    #     dataset_dir = Path("Datasets") / dataset_name
+    #     method_folder = "chunked" if use_chunking else "default"
+    #     processing_dir = dataset_dir / method_folder
+
+    #     embedding_pickle_path = processing_dir / "embeddings.pkl"
+    #     data_pickle_path = processing_dir / "data.pkl"
+    #     model_info_path = processing_dir / "embedding_model_info.json"
+
+    #     with open(model_info_path, 'r') as f:
+    #         model_info = json.load(f)
+    #     logger.info(f"Loaded model info: {model_info}")
+
+    #     with open(embedding_pickle_path, 'rb') as f:
+    #         stored_embeddings = pickle.load(f)
+    #     logger.info(f"Loaded stored embeddings with shape: {stored_embeddings.shape}")
+
+    #     faiss_index_path = processing_dir / "faiss_index.bin"
+    #     index = faiss.read_index(str(faiss_index_path))
+    #     logger.info(f"Loaded FAISS index with {index.ntotal} vectors")
+
+    #     original_data = pd.read_pickle(data_pickle_path)
+    #     logger.info(f"Loaded original data with {len(original_data)} rows")
+
+    #     query_vector = self.generate_embeddings([query], model_info)
+    #     logger.info(f"Generated query embedding with shape: {query_vector.shape}")
+
+    #     faiss.normalize_L2(query_vector)
+    #     D, I = index.search(query_vector, index.ntotal)  # Search all vectors
+    #     logger.info(f"Searched all {index.ntotal} vectors")
+
+    #     relevant_indices = I[0][D[0] > similarity_threshold]
+    #     relevant_similarities = D[0][D[0] > similarity_threshold]
+    #     logger.info(f"Found {len(relevant_indices)} entries above similarity threshold {similarity_threshold}")
+
+    #     if len(relevant_indices) == 0:
+    #         logger.info("No relevant entries found above the similarity threshold")
+    #         return []  # Return an empty list if no relevant entries are found
+
+    #     if use_chunking:
+    #         chunks_pickle_path = processing_dir / "chunks.pkl"
+    #         if chunks_pickle_path.exists():
+    #             with open(chunks_pickle_path, 'rb') as f:
+    #                 chunks = pickle.load(f)
+    #             relevant_entries = [chunks[i] for i in relevant_indices]
+    #             logger.info(f"Using chunked data. Total chunks: {len(chunks)}, Relevant chunks: {len(relevant_entries)}")
+    #             logger.info("Sample relevant chunks:")
+    #             for i in range(min(3, len(relevant_entries))):
+    #                 logger.info(f"Chunk {i+1}: {relevant_entries[i]}")
+    #         else:
+    #             logger.warning("Chunks file not found. Falling back to full entries.")
+    #             relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
+    #     else:
+    #         relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
+    #         logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
+
+    #     # Sort entries by similarity (highest to lowest)
+    #     sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
+    #     relevant_entries = [entry for entry, _ in sorted_entries]
+
+    #     formatted_entries = [self.format_entry(entry) for entry in relevant_entries]
+    #     logger.info(f"Returning {len(formatted_entries)} formatted entries")
+    #     return formatted_entries
+
+
+    # -----------------------------NEW VERSION OF THE SEARCH FUNCTIONALITY WITH IMPROVED ERROR HANDLING-----------------------------------
 
     def find_relevant_entries(self, query, dataset_name, use_chunking=False, similarity_threshold=0.5):
         logger.info(f"Finding relevant entries for query: '{query}' in dataset: {dataset_name}")
-        dataset_dir = Path("Datasets") / dataset_name
-        method_folder = "chunked" if use_chunking else "default"
-        processing_dir = dataset_dir / method_folder
+        try:
+            dataset_dir = Path("Datasets") / dataset_name
+            if not dataset_dir.exists():
+                logger.error(f"Dataset not found: {dataset_name}")
+                return []
 
-        embedding_pickle_path = processing_dir / "embeddings.pkl"
-        data_pickle_path = processing_dir / "data.pkl"
-        model_info_path = processing_dir / "embedding_model_info.json"
+            method_folder = "chunked" if use_chunking else "default"
+            processing_dir = dataset_dir / method_folder
+            if not processing_dir.exists():
+                logger.error(f"Dataset {dataset_name} has not been processed with {'chunked' if use_chunking else 'default'} method.")
+                return []
 
-        with open(model_info_path, 'r') as f:
-            model_info = json.load(f)
-        logger.info(f"Loaded model info: {model_info}")
+            embedding_pickle_path = processing_dir / "embeddings.pkl"
+            data_pickle_path = processing_dir / "data.pkl"
+            model_info_path = processing_dir / "embedding_model_info.json"
+            faiss_index_path = processing_dir / "faiss_index.bin"
 
-        with open(embedding_pickle_path, 'rb') as f:
-            stored_embeddings = pickle.load(f)
-        logger.info(f"Loaded stored embeddings with shape: {stored_embeddings.shape}")
+            required_files = [embedding_pickle_path, data_pickle_path, model_info_path, faiss_index_path]
+            for file in required_files:
+                if not file.exists():
+                    logger.error(f"Required file not found: {file}")
+                    return []
 
-        faiss_index_path = processing_dir / "faiss_index.bin"
-        index = faiss.read_index(str(faiss_index_path))
-        logger.info(f"Loaded FAISS index with {index.ntotal} vectors")
+            with open(model_info_path, 'r') as f:
+                model_info = json.load(f)
+            logger.info(f"Loaded model info: {model_info}")
 
-        original_data = pd.read_pickle(data_pickle_path)
-        logger.info(f"Loaded original data with {len(original_data)} rows")
+            with open(embedding_pickle_path, 'rb') as f:
+                stored_embeddings = pickle.load(f)
+            logger.info(f"Loaded stored embeddings with shape: {stored_embeddings.shape}")
 
-        query_vector = self.generate_embeddings([query], model_info)
-        logger.info(f"Generated query embedding with shape: {query_vector.shape}")
+            index = faiss.read_index(str(faiss_index_path))
+            logger.info(f"Loaded FAISS index with {index.ntotal} vectors")
 
-        faiss.normalize_L2(query_vector)
-        D, I = index.search(query_vector, index.ntotal)  # Search all vectors
-        logger.info(f"Searched all {index.ntotal} vectors")
+            original_data = pd.read_pickle(data_pickle_path)
+            logger.info(f"Loaded original data with {len(original_data)} rows")
 
-        relevant_indices = I[0][D[0] > similarity_threshold]
-        relevant_similarities = D[0][D[0] > similarity_threshold]
-        logger.info(f"Found {len(relevant_indices)} entries above similarity threshold {similarity_threshold}")
+            query_vector = self.generate_embeddings([query], model_info)
+            logger.info(f"Generated query embedding with shape: {query_vector.shape}")
 
-        if len(relevant_indices) == 0:
-            logger.info("No relevant entries found above the similarity threshold")
-            return []  # Return an empty list if no relevant entries are found
+            faiss.normalize_L2(query_vector)
+            D, I = index.search(query_vector, index.ntotal)  # Search all vectors
+            logger.info(f"Searched all {index.ntotal} vectors")
 
-        if use_chunking:
-            chunks_pickle_path = processing_dir / "chunks.pkl"
-            if chunks_pickle_path.exists():
-                with open(chunks_pickle_path, 'rb') as f:
-                    chunks = pickle.load(f)
-                relevant_entries = [chunks[i] for i in relevant_indices]
-                logger.info(f"Using chunked data. Total chunks: {len(chunks)}, Relevant chunks: {len(relevant_entries)}")
-                logger.info("Sample relevant chunks:")
-                for i in range(min(3, len(relevant_entries))):
-                    logger.info(f"Chunk {i+1}: {relevant_entries[i]}")
+            relevant_indices = I[0][D[0] > similarity_threshold]
+            relevant_similarities = D[0][D[0] > similarity_threshold]
+            logger.info(f"Found {len(relevant_indices)} entries above similarity threshold {similarity_threshold}")
+
+            if len(relevant_indices) == 0:
+                logger.info("No relevant entries found above the similarity threshold")
+                return []
+
+            if use_chunking:
+                chunks_pickle_path = processing_dir / "chunks.pkl"
+                if chunks_pickle_path.exists():
+                    with open(chunks_pickle_path, 'rb') as f:
+                        chunks = pickle.load(f)
+                    relevant_entries = [chunks[i] for i in relevant_indices]
+                    logger.info(f"Using chunked data. Total chunks: {len(chunks)}, Relevant chunks: {len(relevant_entries)}")
+                else:
+                    logger.warning("Chunks file not found. Falling back to full entries.")
+                    relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
             else:
-                logger.warning("Chunks file not found. Falling back to full entries.")
                 relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
-        else:
-            relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
-            logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
+                logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
 
-        # Sort entries by similarity (highest to lowest)
-        sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
-        relevant_entries = [entry for entry, _ in sorted_entries]
+            # Sort entries by similarity (highest to lowest)
+            sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
+            relevant_entries = [entry for entry, _ in sorted_entries]
 
-        formatted_entries = [self.format_entry(entry) for entry in relevant_entries]
-        logger.info(f"Returning {len(formatted_entries)} formatted entries")
-        return formatted_entries
+            formatted_entries = [self.format_entry(entry) for entry in relevant_entries]
+            logger.info(f"Returning {len(formatted_entries)} formatted entries")
+            return formatted_entries
+        except Exception as e:
+            logger.error(f"Error in find_relevant_entries: {str(e)}", exc_info=True)
+            return []
 
     def format_entry(self, entry):
         if isinstance(entry, str):  # It's a chunk or a string entry

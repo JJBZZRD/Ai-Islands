@@ -54,14 +54,15 @@ namespace frontend.Views
             Debug.WriteLine(_isCandidateLabelsNull);
             Debug.WriteLine(_isStopSequencesNull);
 
-            LoadDatasetNames();
+            await LoadDatasetNames();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
+
             InitializeAsync();
         }
 
-        private async void InitializeAsync()
+        private async Task InitializeAsync()
         {
             // dealy 500ms to make sure the picker is loaded
             // the delay time might have to be longer, depending on the time taken to load the picker
@@ -379,6 +380,20 @@ namespace frontend.Views
                         _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                         _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
+                        // Update the SelectedDatasetName
+                        if (_configViewModel.Config.RagSettings != null && 
+                            !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName))
+                        {
+                            _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
+                        }
+                        else
+                        {
+                            _configViewModel.SelectedDatasetName = null;
+                        }
+
+                        // Reload the dataset names
+                        await LoadDatasetNames();
+
                         if (_model.Languages != null)
                         {
                             foreach (var lang in _model.Languages)
@@ -504,7 +519,12 @@ namespace frontend.Views
                             _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
                         }
                     }
+                    // Update the SelectedDatasetName from the library data
+                    _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings?.DatasetName;
 
+                    // Reload the dataset names
+                    await LoadDatasetNames();
+                    
                     BindingContext = _configViewModel;
                     InitializeAsync();
 
