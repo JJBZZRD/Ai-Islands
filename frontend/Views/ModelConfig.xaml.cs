@@ -383,6 +383,7 @@ namespace frontend.Views
                         // Reload the dataset names
                         await LoadDatasetNames();
 
+                        _configViewModel.LanguagesList.Clear();
                         if (_model.Languages != null)
                         {
                             foreach (var lang in _model.Languages)
@@ -501,6 +502,7 @@ namespace frontend.Views
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                     _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
+                    _configViewModel.LanguagesList.Clear();
                     if (_model.Languages != null)
                     {
                         foreach (var lang in _model.Languages)
@@ -556,10 +558,14 @@ namespace frontend.Views
                         // Reset the model and ConfigViewModel to the original state
                         _model = originalModel;
                         _configViewModel.Config = _model.Config;
+
+                        _configViewModel.LanguagesList.Clear();
+                                                if (_model.Languages != null)
+                        {
                         foreach (var lang in _model.Languages)
                         {
                             _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
-                        }
+                        }}
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
@@ -587,9 +593,6 @@ namespace frontend.Views
 
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
-
-                        // Manually trigger UI update for properties that might not be directly bound
-                        OnPropertyChanged(nameof(_configViewModel));
 
                         // Show success popup
                         await Application.Current.MainPage.DisplayAlert("Success", "Changes discarded successfully!", "OK");
