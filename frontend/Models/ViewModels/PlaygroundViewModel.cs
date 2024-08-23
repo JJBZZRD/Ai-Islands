@@ -20,12 +20,13 @@ namespace frontend.Models.ViewModels
 
         public void SetPlaygroundChainForPicker()
         {
-            for (int i = 0; i < PlaygroundChain.Count; i++)
+            for (int i = 0; i < playground.Chain.Count; i++)
             {
                 PlaygroundChain[i].SelectedModel = playground.Models[playground.Chain[i]];
             }
         }
 
+        // This method is called only when the entire Playground has been changed
         partial void OnPlaygroundChanged(Playground? oldValue, Playground? newValue)
         {
             System.Diagnostics.Debug.WriteLine($"======Playground changed");
@@ -35,7 +36,7 @@ namespace frontend.Models.ViewModels
             if (newValue?.Models != null)
             {
                 foreach (var model in newValue.Models.Values)
-                {
+                {   
                     PlaygroundModels.Add(model);
                 }
             }

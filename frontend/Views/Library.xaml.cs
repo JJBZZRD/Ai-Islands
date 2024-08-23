@@ -9,7 +9,10 @@ using frontend.Models;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using frontend.Services;
-
+using frontend.ViewModels;
+using static System.Net.Mime.MediaTypeNames;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace frontend.Views
 {
@@ -27,8 +30,8 @@ namespace frontend.Views
             }
         }
 
-        private ObservableCollection<Model> _models;
-        public ObservableCollection<Model> Models
+        private ObservableCollection<ModelListItemViewModel> _models;
+        public ObservableCollection<ModelListItemViewModel> Models
         {
             get => _models;
             set
@@ -41,20 +44,22 @@ namespace frontend.Views
         public ObservableCollection<ModelTypeFilter> ModelTypes { get; set; }
         public bool FilterOnline { get; set; }
         public bool FilterOffline { get; set; }
+        public ObservableCollection<ModelTypeFilter> BaseModelTypes { get; set; }
+        public bool FilterCustom { get; set; }
+        public bool FilterNonCustom { get; set; }
 
         public ICommand NavigateToModelInfoCommand { get; private set; }
 
         private readonly LibraryService _libraryService;
         private readonly ModelService _modelService;
 
-        private CancellationTokenSource _cts;
-
         public Library()
         {
             InitializeComponent();
-            Models = new ObservableCollection<Model>();
+            Models = new ObservableCollection<ModelListItemViewModel>();
             AllModels = new ObservableCollection<Model>();
             ModelTypes = new ObservableCollection<ModelTypeFilter>();
+            BaseModelTypes = new ObservableCollection<ModelTypeFilter>();
             BindingContext = this;
             _libraryService = new LibraryService();
             _modelService = new ModelService();
@@ -74,11 +79,21 @@ namespace frontend.Views
                 distinctTypes.Select(tag => new ModelTypeFilter { TypeName = tag, IsSelected = false })
             );
             FilterPopup.ModelTypes = ModelTypes;
+
+            var distinctBaseModels = AllModels.Select(m => m.BaseModel).Distinct().OrderBy(t => t).ToList();
+            BaseModelTypes = new ObservableCollection<ModelTypeFilter>(
+                distinctBaseModels.Select(baseModel => new ModelTypeFilter { TypeName = baseModel, IsSelected = false })
+            );
+            FilterPopup.BaseModelTypes = BaseModelTypes;
+
             FilterPopup.AllModels = AllModels;
             FilterPopup.FilterOnline = FilterOnline;
             FilterPopup.FilterOffline = FilterOffline;
+            FilterPopup.FilterCustom = FilterCustom;
+            FilterPopup.FilterNonCustom = FilterNonCustom;
 
             System.Diagnostics.Debug.WriteLine($"InitializeFilterPopup: ModelTypes count: {ModelTypes.Count}");
+            System.Diagnostics.Debug.WriteLine($"InitializeFilterPopup: BaseModelTypes count: {BaseModelTypes.Count}");
         }
 
         private void OnFilterClicked(object sender, EventArgs e)
@@ -98,25 +113,53 @@ namespace frontend.Views
 
         private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
         {
-            Models = new ObservableCollection<Model>(e.FilteredModels);
+            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m =>
+            {
+                var viewModel = new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                };
+                viewModel.UpdateCustomLabelColor();
+                return viewModel;
+            }));
             FilterOnline = FilterPopup.FilterOnline;
             FilterOffline = FilterPopup.FilterOffline;
+            FilterCustom = FilterPopup.FilterCustom;
+            FilterNonCustom = FilterPopup.FilterNonCustom;
             FilterPopup.IsVisible = false;
         }
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            Models = new ObservableCollection<Model>(AllModels);
+            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m =>
+            {
+                var viewModel = new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                };
+                viewModel.UpdateCustomLabelColor();
+                return viewModel;
+            }));
             FilterOnline = false;
             FilterOffline = false;
+            FilterCustom = false;
+            FilterNonCustom = false;
+            foreach (var type in ModelTypes)
+            {
+                type.IsSelected = false;
+            }
+            foreach (var baseModel in BaseModelTypes)
+            {
+                baseModel.IsSelected = false;
+            }
             FilterPopup.IsVisible = false;
         }
 
         private async void OnModelSelected(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is Model selectedModel)
+            if (e.Parameter is ModelListItemViewModel selectedViewModel)
             {
-                await Navigation.PushAsync(new LibraryTabbedPage(selectedModel));
+                await Navigation.PushAsync(new LibraryTabbedPage(selectedViewModel.Model));
             }
         }
 
@@ -124,6 +167,15 @@ namespace frontend.Views
         {
             base.OnAppearing();
             await RefreshLibraryModels();
+            Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
+        }
+
+        private void Current_RequestedThemeChanged(object sender, AppThemeChangedEventArgs e)
+        {
+            foreach (var model in Models)
+            {
+                model.UpdateCustomLabelColor();
+            }
         }
 
         private async Task RefreshLibraryModels()
@@ -147,14 +199,29 @@ namespace frontend.Views
 
                     // Check if the model is currently loaded e
                     bool isLoaded = await _modelService.IsModelLoaded(model.ModelId);
-                    model.IsLoaded = isLoaded; 
+                    model.IsLoaded = isLoaded;
                     System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsLoaded: {isLoaded}");
 
                     newModels.Add(model);
                 }
 
                 AllModels = newModels;
-                Models = new ObservableCollection<Model>(AllModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m =>
+                {
+                    var viewModel = new ModelListItemViewModel(m)
+                    {
+                        LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                    };
+                    viewModel.PropertyChanged += (sender, args) =>
+                    {
+                        if (args.PropertyName == nameof(ModelListItemViewModel.IsCustomised))
+                        {
+                            viewModel.UpdateCustomLabelColor();
+                        }
+                    };
+                    viewModel.UpdateCustomLabelColor(); // Set initial color
+                    return viewModel;
+                }));
                 System.Diagnostics.Debug.WriteLine($"Total models loaded: {Models.Count}");
 
                 InitializeFilterPopup();
@@ -170,7 +237,10 @@ namespace frontend.Views
         {
             if (string.IsNullOrWhiteSpace(e.NewTextValue))
             {
-                Models = new ObservableCollection<Model>(AllModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                }));
             }
             else
             {
@@ -180,76 +250,165 @@ namespace frontend.Views
                     (m.PipelineTag != null && m.PipelineTag.ToLower().Contains(searchTerm))
                 ).ToList();
 
-                Models = new ObservableCollection<Model>(filteredModels);
+                Models = new ObservableCollection<ModelListItemViewModel>(filteredModels.Select(m => new ModelListItemViewModel(m)
+                {
+                    LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
+                }));
+            }
+
+            // Add this line at the end of the method
+            foreach (var model in Models)
+            {
+                model.UpdateCustomLabelColor();
             }
         }
 
         private async void LoadOrStopModel(string ModelId)
         {
-            var model = Models.FirstOrDefault(m => m.ModelId == ModelId);
-            if (model == null) return;
+            var viewModel = Models.FirstOrDefault(vm => vm.ModelId == ModelId);
+            if (viewModel == null) return;
 
-            bool isLoaded = await _modelService.IsModelLoaded(ModelId);
-            string action = isLoaded ? "unload" : "load";
+            viewModel.IsButtonEnabled = false;
+            string action = viewModel.IsLoaded ? "unload" : "load";
 
             try
             {
-                var terminalPage = new TerminalPage($"{action.ToUpperInvariant()} MODEL: {ModelId}");
-                await Navigation.PushAsync(terminalPage);
+                LoadingOverlay.IsVisible = true;
+                LoadingIndicator.IsRunning = true;
+                LoadingText.Text = $"{char.ToUpper(action[0])}{action.Substring(1)}ing Model...";
 
-                if (isLoaded)
+                HttpResponseMessage response;
+                if (viewModel.IsLoaded)
                 {
-                    await terminalPage.ConnectAndStreamOutputForUnload(ModelId);
+                    response = await _modelService.UnloadModel(ModelId);
                 }
                 else
                 {
-                    await terminalPage.ConnectAndStreamOutputForLoad(ModelId);
+                    response = await _modelService.LoadModel(ModelId);
                 }
 
-                bool success;
-                if (isLoaded)
+                if (response.IsSuccessStatusCode)
                 {
-                    success = await _modelService.UnloadModel(ModelId);
+                    viewModel.IsLoaded = !viewModel.IsLoaded;
+                    LoadingText.Text = "Success!";
+                    await Task.Delay(1000); // Show success message for 1 second
                 }
                 else
                 {
-                    success = await _modelService.LoadModel(ModelId);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorJson = JsonSerializer.Deserialize<JsonElement>(errorContent);
+                    var errorMessage = errorJson.GetProperty("error").GetProperty("message").GetString();
+                    await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {errorMessage}", "OK");
                 }
-
-                bool operationCompleted = await terminalPage.WaitForCompletion();
-
-                if (success && operationCompleted)
-                {
-                    model.IsLoaded = !isLoaded; // Update the IsLoaded property
-                    terminalPage.AppendOutput($"Model {ModelId} has been successfully {action}ed.");
-                }
-                else
-                {
-                    terminalPage.AppendOutput($"Failed to {action} model {ModelId}.");
-                }
-
-                // Wait for few seconds after operation completion
-                await Task.Delay(3000);
-                await Navigation.PopAsync();
-                OnPropertyChanged(nameof(Models)); // Notify UI of changes
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Failed to {action} model {ModelId}: {ex.Message}", "OK");
             }
+            finally
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingOverlay.IsVisible = false;
+                viewModel.IsButtonEnabled = true;
+            }
         }
 
-        // close the terminal page when the library page is closed
-        protected override async void OnDisappearing()
+        private async void OnLoadAllClicked(object sender, EventArgs e)
+        {
+            await LoadOrUnloadAllModels(true);
+        }
+
+        private async void OnUnloadAllClicked(object sender, EventArgs e)
+        {
+            await LoadOrUnloadAllModels(false);
+        }
+
+        private async Task LoadOrUnloadAllModels(bool load)
+        {
+            LoadingOverlay.IsVisible = true;
+            LoadingIndicator.IsRunning = true;
+            LoadingText.Text = load ? "Loading All Models..." : "Unloading All Models...";
+
+            try
+            {
+                foreach (var viewModel in Models)
+                {
+                    if (load && !viewModel.IsLoaded || !load && viewModel.IsLoaded)
+                    {
+                        LoadingText.Text = $"{(load ? "Loading" : "Unloading")} Model {viewModel.ModelId}...";
+                        HttpResponseMessage response = load
+                            ? await _modelService.LoadModel(viewModel.ModelId)
+                            : await _modelService.UnloadModel(viewModel.ModelId);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            viewModel.IsLoaded = load;
+                        }
+                        else
+                        {
+                            var errorContent = await response.Content.ReadAsStringAsync();
+                            var errorJson = JsonSerializer.Deserialize<JsonElement>(errorContent);
+                            var errorMessage = errorJson.GetProperty("error").GetProperty("message").GetString();
+                            await DisplayAlert("Error", $"Failed to {(load ? "load" : "unload")} model {viewModel.ModelId}: {errorMessage}", "OK");
+                        }
+                    }
+                }
+
+                LoadingText.Text = "Operation Completed!";
+                await Task.Delay(1000); // Show completion message for 1 second
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
+            finally
+            {
+                LoadingIndicator.IsRunning = false;
+                LoadingOverlay.IsVisible = false;
+            }
+        }
+
+        protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            _cts?.Cancel();
+            WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
+            Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
         }
 
-        private Task CloseWebSocketAndTerminal()
+        private async void OnDeleteModelClicked(object sender, EventArgs e)
         {
-            // Implement the logic to close WebSocket and terminal
-            return Task.CompletedTask;
+            var button = sender as ImageButton;
+            var model = button?.CommandParameter as ModelListItemViewModel;
+
+            if (model != null)
+            {
+                bool confirm = await DisplayAlert(
+                    "Confirm Deletion",
+                    $"Are you sure you want to delete model {model.ModelId}?",
+                    "Yes", "No");
+
+                if (confirm)
+                {
+                    try
+                    {
+                        bool success = await _modelService.DeleteModel(model.ModelId);
+                        if (success)
+                        {
+                            Models.Remove(model);
+                            AllModels.Remove(model.Model);
+                            await DisplayAlert("Success", $"Model {model.ModelId} has been deleted.", "OK");
+                        }
+                        else
+                        {
+                            await DisplayAlert("Error", $"Failed to delete model {model.ModelId}.", "OK");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", $"An error occurred while deleting the model: {ex.Message}", "OK");
+                    }
+                }
+            }
         }
     }
 }

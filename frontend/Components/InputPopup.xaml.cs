@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.ApplicationModel;
 
 namespace frontend.Components
 {
@@ -17,6 +18,9 @@ namespace frontend.Components
         public static readonly BindableProperty IsPasswordProperty =
             BindableProperty.Create(nameof(IsPassword), typeof(bool), typeof(InputPopup), false, propertyChanged: OnIsPasswordChanged);
 
+        public static readonly BindableProperty DescriptionProperty =
+            BindableProperty.Create(nameof(Description), typeof(string), typeof(InputPopup), string.Empty, propertyChanged: OnDescriptionChanged);
+
         public string Title
         {
             get => (string)GetValue(TitleProperty);
@@ -33,6 +37,12 @@ namespace frontend.Components
         {
             get => (bool)GetValue(IsPasswordProperty);
             set => SetValue(IsPasswordProperty, value);
+        }
+
+        public string Description
+        {
+            get => (string)GetValue(DescriptionProperty);
+            set => SetValue(DescriptionProperty, value);
         }
 
         public InputPopup()
@@ -58,6 +68,12 @@ namespace frontend.Components
             popup.InputEntry.IsPassword = (bool)newValue;
         }
 
+        private static void OnDescriptionChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var popup = (InputPopup)bindable;
+            popup.DescriptionLabel.Text = (string)newValue;
+        }
+
         private void OnSubmitClicked(object sender, EventArgs e)
         {
             InputSubmitted?.Invoke(this, InputEntry.Text);
@@ -68,6 +84,12 @@ namespace frontend.Components
         {
             InputCancelled?.Invoke(this, EventArgs.Empty);
             InputEntry.Text = string.Empty;
+        }
+
+        private async void OnDescriptionDoubleTapped(object sender, EventArgs e)
+        {
+            await Clipboard.SetTextAsync(Description);
+            await Application.Current.MainPage.DisplayAlert("Copied", "Description copied to clipboard", "OK");
         }
     }
 }

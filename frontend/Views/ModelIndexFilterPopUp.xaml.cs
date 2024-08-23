@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using frontend.Models;
 
-public class ModelTypeFilter : INotifyPropertyChanged
+public class ModelIndexTypeFilter : INotifyPropertyChanged
 {
     public string TypeName { get; set; }
     private bool _isSelected;
@@ -27,40 +27,31 @@ public class ModelTypeFilter : INotifyPropertyChanged
 
 namespace frontend.Views
 {
-    public partial class FilterPopup : ContentView
+    public partial class ModelIndexFilterPopup : ContentView
     {
         public event EventHandler CloseRequested;
-        public event EventHandler<FilteredModelsEventArgs> ApplyFiltersRequested;
+        public event EventHandler<ModelIndexFilteredModelsEventArgs> ApplyFiltersRequested;
         public event EventHandler ResetFiltersRequested;
 
         public static readonly BindableProperty ModelTypesProperty =
-            BindableProperty.Create(nameof(ModelTypes), typeof(ObservableCollection<ModelTypeFilter>), typeof(FilterPopup), null);
+            BindableProperty.Create(nameof(ModelTypes), typeof(ObservableCollection<ModelIndexTypeFilter>), typeof(ModelIndexFilterPopup), null);
 
         public static readonly BindableProperty FilterOnlineProperty =
-            BindableProperty.Create(nameof(FilterOnline), typeof(bool), typeof(FilterPopup), false);
+            BindableProperty.Create(nameof(FilterOnline), typeof(bool), typeof(ModelIndexFilterPopup), false);
 
         public static readonly BindableProperty FilterOfflineProperty =
-            BindableProperty.Create(nameof(FilterOffline), typeof(bool), typeof(FilterPopup), false);
+            BindableProperty.Create(nameof(FilterOffline), typeof(bool), typeof(ModelIndexFilterPopup), false);
 
         public static readonly BindableProperty AllModelsProperty =
-            BindableProperty.Create(nameof(AllModels), typeof(ObservableCollection<Model>), typeof(FilterPopup), null);
+            BindableProperty.Create(nameof(AllModels), typeof(ObservableCollection<Model>), typeof(ModelIndexFilterPopup), null);
 
-        public static readonly BindableProperty BaseModelTypesProperty =
-            BindableProperty.Create(nameof(BaseModelTypes), typeof(ObservableCollection<ModelTypeFilter>), typeof(FilterPopup), null);
-
-        public static readonly BindableProperty FilterCustomProperty =
-            BindableProperty.Create(nameof(FilterCustom), typeof(bool), typeof(FilterPopup), false);
-
-        public static readonly BindableProperty FilterNonCustomProperty =
-            BindableProperty.Create(nameof(FilterNonCustom), typeof(bool), typeof(FilterPopup), false);
-
-        public ObservableCollection<ModelTypeFilter> ModelTypes
+        public ObservableCollection<ModelIndexTypeFilter> ModelTypes
         {
-            get => (ObservableCollection<ModelTypeFilter>)GetValue(ModelTypesProperty);
+            get => (ObservableCollection<ModelIndexTypeFilter>)GetValue(ModelTypesProperty);
             set
             {
                 SetValue(ModelTypesProperty, value);
-                System.Diagnostics.Debug.WriteLine($"ModelTypes set in FilterPopup. Count: {value?.Count ?? 0}");
+                System.Diagnostics.Debug.WriteLine($"ModelTypes set in ModelIndexFilterPopup. Count: {value?.Count ?? 0}");
                 if (value != null)
                 {
                     foreach (var type in value)
@@ -89,25 +80,7 @@ namespace frontend.Views
             set => SetValue(AllModelsProperty, value);
         }
 
-        public ObservableCollection<ModelTypeFilter> BaseModelTypes
-        {
-            get => (ObservableCollection<ModelTypeFilter>)GetValue(BaseModelTypesProperty);
-            set => SetValue(BaseModelTypesProperty, value);
-        }
-
-        public bool FilterCustom
-        {
-            get => (bool)GetValue(FilterCustomProperty);
-            set => SetValue(FilterCustomProperty, value);
-        }
-
-        public bool FilterNonCustom
-        {
-            get => (bool)GetValue(FilterNonCustomProperty);
-            set => SetValue(FilterNonCustomProperty, value);
-        }
-
-        public FilterPopup()
+        public ModelIndexFilterPopup()
         {
             InitializeComponent();
             BindingContext = this;
@@ -121,7 +94,7 @@ namespace frontend.Views
         private void OnApplyFilters(object sender, EventArgs e)
         {
             var filteredModels = ApplyFilters();
-            ApplyFiltersRequested?.Invoke(this, new FilteredModelsEventArgs(filteredModels));
+            ApplyFiltersRequested?.Invoke(this, new ModelIndexFilteredModelsEventArgs(filteredModels));
         }
 
         private void OnResetFilters(object sender, EventArgs e)
@@ -133,17 +106,12 @@ namespace frontend.Views
         private ObservableCollection<Model> ApplyFilters()
         {
             var selectedTypes = ModelTypes.Where(mt => mt.IsSelected).Select(mt => mt.TypeName).ToList();
-            var selectedBaseModels = BaseModelTypes.Where(bmt => bmt.IsSelected).Select(bmt => bmt.TypeName).ToList();
 
             var filteredModels = AllModels.Where(m =>
                 (selectedTypes.Count == 0 || selectedTypes.Contains(m.PipelineTag)) &&
-                (selectedBaseModels.Count == 0 || selectedBaseModels.Contains(m.BaseModel)) &&
                 ((!FilterOnline && !FilterOffline) ||
                  (FilterOnline && m.Status == "Online") ||
-                 (FilterOffline && m.Status == "Offline")) &&
-                ((!FilterCustom && !FilterNonCustom) ||
-                 (FilterCustom && m.IsCustomised == true) ||
-                 (FilterNonCustom && m.IsCustomised != true))
+                 (FilterOffline && m.Status == "Offline"))
             ).ToList();
 
             return new ObservableCollection<Model>(filteredModels);
@@ -155,22 +123,16 @@ namespace frontend.Views
             {
                 modelType.IsSelected = false;
             }
-            foreach (var baseModelType in BaseModelTypes)
-            {
-                baseModelType.IsSelected = false;
-            }
             FilterOnline = false;
             FilterOffline = false;
-            FilterCustom = false;
-            FilterNonCustom = false;
         }
     }
 
-    public class FilteredModelsEventArgs : EventArgs
+    public class ModelIndexFilteredModelsEventArgs : EventArgs
     {
         public ObservableCollection<Model> FilteredModels { get; }
 
-        public FilteredModelsEventArgs(ObservableCollection<Model> filteredModels)
+        public ModelIndexFilteredModelsEventArgs(ObservableCollection<Model> filteredModels)
         {
             FilteredModels = filteredModels;
         }

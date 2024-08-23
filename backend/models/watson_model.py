@@ -13,6 +13,8 @@ from backend.utils.dataset_utility import DatasetManagement
 from dotenv import load_dotenv
 from backend.utils.watson_settings_manager import watson_settings
 
+from backend.core.exceptions import ModelError
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -22,19 +24,16 @@ class WatsonModel(BaseModel):
     def __init__(self, model_id: str):
         self.model_id = model_id
         self.config = None
-        self.auth = Authentication()
-        self.resource_service = ResourceService()
-        self.account_info = AccountInfo()
+        self.auth = None
+        self.resource_service = None
+        self.account_info = None
         self.model_inference = None
         self.embeddings = None
         self.is_loaded = False
-        self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
-        self.project_id = watson_settings.get('USER_PROJECT_ID')
+        self.api_key = None
+        self.project_id = None
         
-        if not self.project_id:
-            self.select_project()
-        
-        logger.info(f"Initialized WatsonModel with API_KEY: {self.api_key[:5]}... and PROJECT_ID: {self.project_id}")
+        logger.info(f"Initialized WatsonModel with ID: {self.model_id}")
 
     def select_project(self):
         projects = get_projects()
@@ -59,12 +58,24 @@ class WatsonModel(BaseModel):
             logger.info(f"Attempting to download model: {model_id}")
             logger.info(f"Original model info: {json.dumps(model_info, indent=2)}")
 
+            # Check if API key is available and valid
+            api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+            if not api_key:
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
+            
+            auth = Authentication()
+            if not auth.validate_api_key():
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
+
             # Check if required services are available in the account
             account_info = AccountInfo()
             resources = account_info.get_resource_list()
             
             # Output resource list to JSON file
-            resource_list_path = os.path.join('data', 'downloads', 'watson', 'resource_list.json')
+            base_dir = os.path.join('data', 'downloads', 'watson')
+            # Create the downloads directory if it doesn't exist
+            os.makedirs(base_dir, exist_ok=True)
+            resource_list_path = os.path.join(base_dir, 'resource_list.json')
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")
@@ -87,61 +98,83 @@ class WatsonModel(BaseModel):
             
             missing_services = [service for service, available in required_services.items() if not available]
             if missing_services:
-                logger.error(f"The following required services are missing: {', '.join(missing_services)}")
+                # formatted_missing_services = ", ".join(format_service_name(service) for service in missing_services)
+                formatted_missing_services = format_service_name_to_list(missing_services)
+                error_message = f"The following required services are missing from your IBM Cloud account resource list:\n\n{formatted_missing_services}"
+                logger.error(error_message)
                 logger.error(f"Available services: {[resource['name'] for resource in resources]}")
-                return None
-            
-            # Create directory for the model
-            model_dir = os.path.join('data', 'downloads', 'watson', model_id)
-            os.makedirs(model_dir, exist_ok=True)
+                raise ModelError(error_message)
 
-            # Save original model info to model_info.json in the model directory
-            with open(os.path.join(model_dir, 'model_info.json'), 'w') as f:
-                json.dump(model_info, f, indent=4)
+            if api_key and auth.validate_api_key():
+                # Create directory for the model
+                model_dir = os.path.join(base_dir, model_id)
+                os.makedirs(model_dir, exist_ok=True)
+                logger.info(f"Created directory for model: {model_dir}")
 
-            # Create the new entry for library.json
-            logger.info(f"Creating library entry for Watson model {model_id}")
+                # Save original model info to model_info.json in the model directory
+                model_info_path = os.path.join(model_dir, 'model_info.json')
+                with open(model_info_path, 'w') as f:
+                    json.dump(model_info, f, indent=4)
+                logger.info(f"Saved model info to {model_info_path}")
 
-            new_entry = model_info.copy()
-            new_entry.update({
-                "base_model": model_id,
-                "dir": model_dir,
-                "is_customised": False,
-            })
+                # Create the new entry for library.json
+                logger.info(f"Creating library entry for Watson model {model_id}...")
 
-            logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
-            return new_entry
-        except Exception as e:
-            logger.error(f"Error adding model {model_id}: {str(e)}")
+                new_entry = model_info.copy()
+                new_entry.update({
+                    "base_model": model_id,
+                    "dir": model_dir,
+                    "is_customised": False,
+                })
+
+                logger.info(f"New library entry: {json.dumps(new_entry, indent=2)}")
+                return new_entry
+            else:
+                error_message = f"No valid API key found. Skipping model download and library entry creation for model {model_id}"
+                logger.warning(error_message)
+                raise ModelError(error_message)
+
+        except ModelError as e:
+            # Log the error for debugging purposes
+            logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            return None
+            # Re-raise the original ModelError without adding extra context
+            raise
+
+        except Exception as e:
+            # For unexpected errors, we might want to keep a generic message
+            logger.error(f"Unexpected error downloading model {model_id}: {str(e)}")
+            logger.exception("Full traceback:")
+            raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
 
     def load(self, device: str, model_info: dict):
         try:
-            # Validate API key
-            api_key = os.getenv("IBM_CLOUD_API_KEY")
-            if not api_key:
-                raise ValueError("IBM_CLOUD_API_KEY not found in environment variables")
+            self.api_key = watson_settings.get('IBM_CLOUD_API_KEY')
+            self.project_id = watson_settings.get('USER_PROJECT_ID')
 
-            # Validate API key using the Authentication class
-            if not self.auth._validate_api_key(api_key):
-                raise ValueError("Invalid IBM_CLOUD_API_KEY")
+            if not self.api_key:
+                raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
 
-            # Get the URL from environment variable
-            url = os.getenv("IBM_CLOUD_MODELS_URL")
+            self.auth = Authentication()
+            if not self.auth.validate_api_key():
+                raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
+
+            url = watson_settings.get("IBM_CLOUD_MODELS_URL")
             if not url:
-                raise ValueError("IBM_CLOUD_MODELS_URL not found in environment variables")
+                raise ModelError("IBM_CLOUD_MODELS_URL not found in environment variables")
 
             self.config = model_info.get("config", {})
             
-            # Check for USER_PROJECT_ID in .env file
-            self.project_id = os.getenv("USER_PROJECT_ID")
             if not self.project_id:
                 logger.info("No USER_PROJECT_ID found or it's empty. Selecting a project...")
                 if not self.select_project():
-                    raise ValueError("Failed to select a project")
+                    raise ModelError("Failed to select a project.\n\nGo to your IBM Cloud account and create a project in Watson Studio.")
             else:
-                logger.info(f"Using project ID from .env file: {self.project_id}")
+                logger.info(f"Validating project ID: {self.project_id}")
+                if not self.auth.validate_project(self.project_id):
+                    raise ModelError(f"Invalid project ID:\n\n\t{self.project_id}\n\nPlease set another project in Settings.")
+
+            logger.info(f"Using valid project ID: {self.project_id}")
 
             logger.info(f"Connecting to Watson WML model with ID {self.model_id}")
             logger.info(f"Using project ID: {self.project_id}")
@@ -155,7 +188,7 @@ class WatsonModel(BaseModel):
                 self.embeddings = WatsonxEmbeddings(
                     model_id=embedding_type,
                     url=url,
-                    apikey=api_key,
+                    apikey=self.api_key,
                     project_id=self.project_id
                 )
                 logger.info(f"Connected to Watson embedding model {self.model_id}")
@@ -163,6 +196,7 @@ class WatsonModel(BaseModel):
                 logger.info(f"Max input tokens: {self.config.get('max_input_tokens')}")
                 self.is_loaded = True
             else:
+                self.account_info = AccountInfo()
                 self.model_inference = ModelInference(
                     model_id=self.model_id,
                     credentials=self.account_info.credentials,
@@ -173,16 +207,17 @@ class WatsonModel(BaseModel):
                 self.is_loaded = True
 
             return True
-        except AttributeError as e:
-            logger.error(f"AttributeError while loading model {self.model_id}: {str(e)}")
-            logger.exception("Full traceback:")
-            self.is_loaded = False
-            return False
-        except Exception as e:
+
+        except ModelError as e:
             logger.error(f"Error loading model {self.model_id}: {str(e)}")
+            self.is_loaded = False
+            raise
+
+        except Exception as e:
+            logger.error(f"Unexpected error loading model {self.model_id}: {str(e)}")
             logger.exception("Full traceback:")
             self.is_loaded = False
-            return False
+            raise ModelError(f"Unexpected error occurred while downloading the model. Please try again later.")
 
     def _get_embedding_type(self, model_id):
         embedding_types = {
@@ -285,7 +320,7 @@ class WatsonModel(BaseModel):
                         result = result.split(stop_seq)[0]
                         logger.info(f"Applied stop sequence: {stop_seq}")
                 
-                final_result = {"result": result.strip()}
+                final_result = result.strip()
                 logger.info(f"Final result: {final_result}")
                 return final_result
             else:
@@ -304,3 +339,11 @@ class WatsonModel(BaseModel):
 
 def check_service(resource_name, service_keyword):
     return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
+
+def format_service_name(service):
+    return ' '.join(word.capitalize() for word in service.split('_'))
+
+def format_service_name_to_list(services):
+    if isinstance(services, str):
+        services = [services]
+    return '\n'.join(f"- {' '.join(word.capitalize() for word in service.replace('_', ' ').split())}" for service in services)

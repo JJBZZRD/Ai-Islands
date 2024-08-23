@@ -28,8 +28,8 @@ namespace frontend.Views
         }
 
         // public ICommand NavigateToModelInfoCommand { get; private set; }
-        private ObservableCollection<ModelTypeFilter> _modelTypes;
-        public ObservableCollection<ModelTypeFilter> ModelTypes
+        private ObservableCollection<ModelIndexTypeFilter> _modelTypes;
+        public ObservableCollection<ModelIndexTypeFilter> ModelTypes
         {
             get => _modelTypes;
             set
@@ -49,7 +49,7 @@ namespace frontend.Views
             InitializeComponent();
             Models = new ObservableCollection<Model>();
             AllModels = new ObservableCollection<Model>();
-            ModelTypes = new ObservableCollection<ModelTypeFilter>();
+            ModelTypes = new ObservableCollection<ModelIndexTypeFilter>();
             FilterOnline = FilterOffline = false;
             BindingContext = this;
             _libraryService = new LibraryService();
@@ -61,43 +61,43 @@ namespace frontend.Views
 
         private void OnFilterClicked(object sender, EventArgs e)
         {
-            FilterPopup.IsVisible = true;
+            ModelIndexFilterPopup.IsVisible = true;
         }
 
         private void OnCloseFilterPopup(object sender, EventArgs e)
         {
-            FilterPopup.IsVisible = false;
+            ModelIndexFilterPopup.IsVisible = false;
         }
 
         private void OnOverlayTapped(object sender, EventArgs e)
         {
-            FilterPopup.IsVisible = false;
+            ModelIndexFilterPopup.IsVisible = false;
         }
 
         private void InitializeFilterPopup()
         {
             var distinctTypes = AllModels.Select(m => m.PipelineTag).Distinct().OrderBy(t => t).ToList();
-            FilterPopup.ModelTypes = new ObservableCollection<ModelTypeFilter>(
-                distinctTypes.Select(tag => new ModelTypeFilter { TypeName = tag, IsSelected = false })
+            ModelIndexFilterPopup.ModelTypes = new ObservableCollection<ModelIndexTypeFilter>(
+                distinctTypes.Select(tag => new ModelIndexTypeFilter { TypeName = tag, IsSelected = false })
             );
-            FilterPopup.AllModels = AllModels;
+            ModelIndexFilterPopup.AllModels = AllModels;
 
-            System.Diagnostics.Debug.WriteLine($"Initialized FilterPopup with {FilterPopup.ModelTypes.Count} types");
-            foreach (var type in FilterPopup.ModelTypes)
+            System.Diagnostics.Debug.WriteLine($"Initialized FilterPopup with {ModelIndexFilterPopup.ModelTypes.Count} types");
+            foreach (var type in ModelIndexFilterPopup.ModelTypes)
             {
                 System.Diagnostics.Debug.WriteLine($"Type: {type.TypeName}");
             }
         }
 
-        private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
+        private void OnApplyFilters(object sender, ModelIndexFilteredModelsEventArgs e)
         {
-            FilterPopup.IsVisible = false;
+            ModelIndexFilterPopup.IsVisible = false;
             Models = e.FilteredModels;
         }
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            FilterPopup.IsVisible = false;
+            ModelIndexFilterPopup.IsVisible = false;
             Models = new ObservableCollection<Model>(AllModels);
         }
 
@@ -246,7 +246,7 @@ namespace frontend.Views
                 ModelTypes.Clear();
                 foreach (var type in types)
                 {
-                    ModelTypes.Add(new ModelTypeFilter { TypeName = type, IsSelected = false });
+                    ModelTypes.Add(new ModelIndexTypeFilter { TypeName = type, IsSelected = false });
                     System.Diagnostics.Debug.WriteLine($"Added ModelType: {type}");
                 }
                 System.Diagnostics.Debug.WriteLine($"Total ModelTypes: {ModelTypes.Count}");
@@ -360,7 +360,7 @@ namespace frontend.Views
         }
     }
 
-    public class ModelTypeFilter : INotifyPropertyChanged
+    public class ModelIndexTypeFilter : INotifyPropertyChanged
     {
         public string TypeName { get; set; }
         private bool _isSelected;
