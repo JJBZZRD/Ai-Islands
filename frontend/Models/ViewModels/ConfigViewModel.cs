@@ -80,10 +80,16 @@ namespace frontend.Models.ViewModels
 
         public void InitialiseSelectedItemForPicker()
         {
-            if (Config.RagSettings != null)
-            {
-                SelectedDatasetName = Config.RagSettings.DatasetName;
-            }
+                        // Update the SelectedDatasetName
+                        if (Config.RagSettings != null && 
+                            !string.IsNullOrEmpty(Config.RagSettings.DatasetName))
+                        {
+                            SelectedDatasetName = Config.RagSettings.DatasetName;
+                        }
+                        else
+                        {
+                            SelectedDatasetName = null;
+                        }
 
             if (Config.PipelineConfig != null)
             {
