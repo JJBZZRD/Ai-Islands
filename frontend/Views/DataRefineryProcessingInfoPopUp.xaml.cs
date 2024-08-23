@@ -15,7 +15,7 @@ namespace frontend.Views
         public string ModelType { get; set; }
         public string ModelName { get; set; }
         public int EmbeddingDimensions { get; set; }
-        public int MaxInputTokens { get; set; }
+        public int? MaxInputTokens { get; set; }
         private bool _hasChunkingSettings;
         public bool HasChunkingSettings
         {
@@ -76,14 +76,22 @@ namespace frontend.Views
 
             if (processingInfo.TryGetValue("max_input_tokens", out var maxInputTokens))
             {
-                if (maxInputTokens is JsonElement jsonElement)
+                if (maxInputTokens is JsonElement jsonElement && jsonElement.ValueKind != JsonValueKind.Null)
                 {
                     MaxInputTokens = jsonElement.GetInt32();
                 }
-                else if (int.TryParse(maxInputTokens.ToString(), out int result))
+                else if (maxInputTokens != null && int.TryParse(maxInputTokens.ToString(), out int result))
                 {
                     MaxInputTokens = result;
                 }
+                else
+                {
+                    MaxInputTokens = null;
+                }
+            }
+            else
+            {
+                MaxInputTokens = null;
             }
 
             if (processingInfo.TryGetValue("chunking_settings", out var chunkingSettingsObj) && chunkingSettingsObj is JsonElement chunkingSettingsElement)
