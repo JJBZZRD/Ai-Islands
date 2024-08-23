@@ -15,8 +15,10 @@ async def start_console_stream_server(websocket: WebSocket, model_id: str, actio
             command,
             shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # Combine stdout and stderr
             text=True,
+            encoding='utf-8',  # Using UTF-8 encoding
+            errors='replace',  # Replace characters that can't be decoded
             bufsize=1
         )
 
@@ -24,14 +26,9 @@ async def start_console_stream_server(websocket: WebSocket, model_id: str, actio
             output = process.stdout.readline()
             if output:
                 await websocket.send_text(output)
-            else:
+            elif process.poll() is not None:  # If the process has finished
                 break
 
-        error_output = process.stderr.read()
-        if error_output:
-            await websocket.send_text(error_output)
-
-        process.wait()
         await websocket.send_text("Task Completed and Model Updated in Library")
 
     except Exception as e:
@@ -41,6 +38,9 @@ async def start_console_stream_server(websocket: WebSocket, model_id: str, actio
             await websocket.close()
         except RuntimeError:
             pass
+
+
+
         
 async def start_load_model_server(websocket: WebSocket, model_id: str):
     await websocket.accept()

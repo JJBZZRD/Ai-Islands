@@ -46,7 +46,7 @@ namespace frontend.Views
             try
             {
                 await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/load-model/{modelId}"), _cts.Token);
-                AppendOutput($"Connected to WebSocket for loading model {modelId}");
+                // AppendOutput($"Connected to WebSocket for loading model {modelId}");
                 _ = ReceiveMessages();
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace frontend.Views
             try
             {
                 await _webSocket.ConnectAsync(new Uri($"ws://localhost:8000/ws/unload-model/{modelId}"), _cts.Token);
-                AppendOutput($"Connected to WebSocket for unloading model {modelId}");
+                // AppendOutput($"Connected to WebSocket for unloading model {modelId}");
                 _ = ReceiveMessages();
             }
             catch (Exception ex)
@@ -95,7 +95,6 @@ namespace frontend.Views
                         {
                             taskComplete = true;
                             _operationCompletionSource.SetResult(true);
-                            AppendOutput("Operation completed successfully.");
                         }
                     }
                     else if (result.MessageType == WebSocketMessageType.Close)
@@ -139,12 +138,32 @@ namespace frontend.Views
 
         public void AppendOutput(string text)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
+                // Handle special characters and escape sequences
+                text = text.Replace("\r", ""); // Remove carriage return characters
+                text = System.Text.RegularExpressions.Regex.Replace(text, @"\x1b\[[0-9;]*[a-zA-Z]", ""); // Removing ANSI escape codes
+                text = System.Text.RegularExpressions.Regex.Replace(text, @"[^\x20-\x7E]", ""); // Keeping printable ASCII characters
+
+                // Get the current scroll position and the height of the scroll view content
+                double scrollPosition = ((ScrollView)OutputLabel.Parent).ScrollY;
+                double contentHeight = OutputLabel.Height;
+
+                // Checking if the user is at the bottom of the scroll view
+                bool isAtBottom = Math.Abs(scrollPosition - (contentHeight - ((ScrollView)OutputLabel.Parent).Height)) < 1.0;
+
+                // Append the new text
                 OutputLabel.Text += text + Environment.NewLine;
-                ((ScrollView)OutputLabel.Parent).ScrollToAsync(OutputLabel, ScrollToPosition.End, true);
+
+                // Scroll only if the user was previously at the bottom
+                if (isAtBottom)
+                {
+                    await ((ScrollView)OutputLabel.Parent).ScrollToAsync(OutputLabel, ScrollToPosition.End, true);
+                }
             });
         }
+
+
 
         public Task<bool> WaitForCompletion()
         {
