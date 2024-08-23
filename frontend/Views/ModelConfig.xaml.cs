@@ -4,7 +4,6 @@ using frontend.Services;
 using System.Reflection;
 using frontend.Models.ViewModels;
 using System.Diagnostics;
-using frontend.Converters;
 
 namespace frontend.Views
 {
@@ -27,11 +26,17 @@ namespace frontend.Views
         {
             InitializeComponent();
             _model = model;
-            _configViewModel = new ConfigViewModel(model.Languages ?? new Dictionary<string, string>())
-            { 
-                Config = model.Config, 
+            _configViewModel = new ConfigViewModel
+            {
+                Config = model.Config,
             };
-            
+
+
+            foreach (var lang in _model.Languages)
+            {
+                _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+            }
+
             BindingContext = _configViewModel;
 
             _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
@@ -70,7 +75,7 @@ namespace frontend.Views
                 _configViewModel.DatasetNames = new List<string>(datasetNames);
 
                 // Set the selected dataset name after populating the list
-                if (_configViewModel.Config.RagSettings != null && 
+                if (_configViewModel.Config.RagSettings != null &&
                     !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName) &&
                     datasetNames.Contains(_configViewModel.Config.RagSettings.DatasetName))
                 {
@@ -89,13 +94,13 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             SaveConfigButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Update the _model's Config with the current ConfigViewModel's Config
                 UpdateModelConfig();
 
                 await _modelService.ConfigureModel(_model.ModelId, _model.Config);
-                
+
                 // Show success popup
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully!", "OK");
             }
@@ -145,32 +150,32 @@ namespace frontend.Views
 
             if (_configViewModel.SelectedPipelineConfigSrcLang != null)
             {
-                _configViewModel.Config.PipelineConfig.SrcLang = _configViewModel.SelectedPipelineConfigSrcLang;
+                _configViewModel.Config.PipelineConfig.SrcLang = _configViewModel.SelectedPipelineConfigSrcLang.ShortForm;
             }
 
             if (_configViewModel.SelectedPipelineConfigTgtLang != null)
             {
-                _configViewModel.Config.PipelineConfig.TgtLang = _configViewModel.SelectedPipelineConfigTgtLang;
+                _configViewModel.Config.PipelineConfig.TgtLang = _configViewModel.SelectedPipelineConfigTgtLang.ShortForm;
             }
 
             if (_configViewModel.SelectedTranslationConfigSrcLang != null)
             {
-                _configViewModel.Config.TranslationConfig.SrcLang = _configViewModel.SelectedTranslationConfigSrcLang;
+                _configViewModel.Config.TranslationConfig.SrcLang = _configViewModel.SelectedTranslationConfigSrcLang.ShortForm;
             }
 
             if (_configViewModel.SelectedTranslationConfigTgtLang != null)
             {
-                _configViewModel.Config.TranslationConfig.TgtLang = _configViewModel.SelectedTranslationConfigTgtLang;
+                _configViewModel.Config.TranslationConfig.TgtLang = _configViewModel.SelectedTranslationConfigTgtLang.ShortForm;
             }
 
             if (_configViewModel.SelectedTransationConfigTargetLanguage != null)
             {
-                _configViewModel.Config.TranslationConfig.TargetLanguage = _configViewModel.SelectedTransationConfigTargetLanguage;
+                _configViewModel.Config.TranslationConfig.TargetLanguage = _configViewModel.SelectedTransationConfigTargetLanguage.ShortForm;
             }
 
             if (_configViewModel.SelectedGenerateKwargsLanguage != null)
             {
-                _configViewModel.Config.PipelineConfig.GenerateKwargs.Language = _configViewModel.SelectedGenerateKwargsLanguage;
+                _configViewModel.Config.PipelineConfig.GenerateKwargs.Language = _configViewModel.SelectedGenerateKwargsLanguage.ShortForm;
             }
 
             _model.Config = _configViewModel.Config;
@@ -333,7 +338,7 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             ResetDefaultsButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Show confirmation popup
                 bool shouldRestore = await Application.Current.MainPage.DisplayAlert(
@@ -345,27 +350,27 @@ namespace frontend.Views
                 if (shouldRestore)
                 {
                     await _modelService.ResetDefaultConfig(_model.ModelId);
-                    
+
                     // Show success popup
                     await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
-                    
+
                     // Fetch the updated library data
                     var libraryService = new LibraryService();
                     var updatedModels = await libraryService.GetLibrary();
-                    
+
                     // Find the updated model in the list
                     var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
-                    
+
                     if (updatedModel != null)
                     {
                         // Update the local model
                         _model = updatedModel;
 
                         // Create a new ConfigViewModel with the updated data
-            _configViewModel = new ConfigViewModel(_model.Languages ?? new Dictionary<string, string>())
-            { 
-                Config = _model.Config, 
-            };
+                        _configViewModel = new ConfigViewModel
+                        {
+                            Config = _model.Config,
+                        };
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
@@ -401,7 +406,7 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             SaveAsNewModelButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Prompt the user for a new model name
                 string newModelId = await Application.Current.MainPage.DisplayPromptAsync(
@@ -466,19 +471,19 @@ namespace frontend.Views
 
         private async Task RefreshModelConfig()
         {
-            try 
+            try
             {
                 var libraryService = new LibraryService();
                 var updatedModels = await libraryService.GetLibrary();
                 var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
-                
+
                 if (updatedModel != null)
                 {
                     _model = updatedModel;
-            _configViewModel = new ConfigViewModel(_model.Languages ?? new Dictionary<string, string>())
-            { 
-                Config = _model.Config, 
-            };
+                    _configViewModel = new ConfigViewModel
+                    {
+                        Config = _model.Config,
+                    };
 
                     _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
@@ -505,7 +510,7 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             ResetButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Show warning popup
                 bool shouldReset = await Application.Current.MainPage.DisplayAlert(
@@ -526,7 +531,10 @@ namespace frontend.Views
                         // Reset the model and ConfigViewModel to the original state
                         _model = originalModel;
                         _configViewModel.Config = _model.Config;
-                        _configViewModel.LanguagesDict = _model.Languages ?? new Dictionary<string, string>();
+                        foreach (var lang in _model.Languages)
+                        {
+                            _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                        }
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;

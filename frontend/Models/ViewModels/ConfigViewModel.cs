@@ -1,6 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Generic;
-using frontend.Converters;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -14,8 +12,7 @@ namespace frontend.Models.ViewModels
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
         public ObservableCollection<StopSequence> StopSequences { get; }
-        public Dictionary<string, string> LanguagesDict { get; set; } = new Dictionary<string, string>();
-        public List<string> LanguagesList { get; }
+        public ObservableCollection<Language> LanguagesList { get; }
 
         [ObservableProperty]
         private List<string> datasetNames;
@@ -24,31 +21,29 @@ namespace frontend.Models.ViewModels
         private string selectedDatasetName;
 
         [ObservableProperty]
-        private string selectedPipelineConfigSrcLang;
+        private Language selectedPipelineConfigSrcLang;
 
         [ObservableProperty]
-        private string selectedPipelineConfigTgtLang;
+        private Language selectedPipelineConfigTgtLang;
 
         [ObservableProperty]
-        private string selectedTranslationConfigSrcLang;
+        private Language selectedTranslationConfigSrcLang;
 
         [ObservableProperty]
-        private string selectedTranslationConfigTgtLang;
+        private Language selectedTranslationConfigTgtLang;
 
         [ObservableProperty]
-        private string selectedTransationConfigTargetLanguage;
+        private Language selectedTransationConfigTargetLanguage;
 
         [ObservableProperty]
-        private string selectedGenerateKwargsLanguage;
+        private Language selectedGenerateKwargsLanguage;
 
-        public ConfigViewModel(Dictionary<string, string> languagesDict)
+        public ConfigViewModel()
         {
-            LanguagesDict = languagesDict;
-            LanguagesList = LanguagesDict.Keys.ToList();
-
             ExampleConversation = new ObservableCollection<ConversationMessage>();
             CandidateLabels = new ObservableCollection<CandidateLabel>();
             StopSequences = new ObservableCollection<StopSequence>();
+            LanguagesList = new ObservableCollection<Language>(); // Initialize LanguagesList
         }
 
         partial void OnConfigChanged(Config? oldValue, Config? newValue)
@@ -79,6 +74,8 @@ namespace frontend.Models.ViewModels
                     StopSequences.Add(new StopSequence(sequence));
                 }
             }
+
+            InitialiseSelectedItemForPicker();
         }
 
         public void InitialiseSelectedItemForPicker()
@@ -90,17 +87,17 @@ namespace frontend.Models.ViewModels
 
             if (Config.PipelineConfig != null)
             {
-                SelectedPipelineConfigSrcLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.SrcLang).Key;
-                SelectedPipelineConfigTgtLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.TgtLang).Key;
-                SelectedGenerateKwargsLanguage = LanguagesDict.FirstOrDefault(x => x.Value == Config.PipelineConfig.GenerateKwargs.Language).Key;
+                SelectedPipelineConfigSrcLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.SrcLang);
+                SelectedPipelineConfigTgtLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.TgtLang);
+                SelectedGenerateKwargsLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.GenerateKwargs.Language);
             }
 
             if (Config.TranslationConfig != null)
             {
-                SelectedTranslationConfigSrcLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.SrcLang).Key;
-                SelectedTranslationConfigTgtLang = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.TgtLang).Key;
-                SelectedTransationConfigTargetLanguage = LanguagesDict.FirstOrDefault(x => x.Value == Config.TranslationConfig.TargetLanguage).Key;
-                Debug.WriteLine($"target language = {SelectedTransationConfigTargetLanguage}");
+                SelectedTranslationConfigSrcLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.SrcLang);
+                SelectedTranslationConfigTgtLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.TgtLang);
+                SelectedTransationConfigTargetLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.TargetLanguage);
+                Debug.WriteLine($"target language = {SelectedTransationConfigTargetLanguage?.FullForm}");
             }
         }
     }
@@ -125,5 +122,14 @@ namespace frontend.Models.ViewModels
         {
             Value = value;
         }
+    }
+
+    public partial class Language : ObservableObject
+    {
+        [ObservableProperty]
+        private string? fullForm;
+
+        [ObservableProperty]
+        private string? shortForm;
     }
 }
