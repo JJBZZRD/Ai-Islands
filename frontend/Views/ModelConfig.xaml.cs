@@ -593,6 +593,9 @@ namespace frontend.Views
 
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
+                        
+                        // Set the selected item for picker
+                        await InitializeAsync();
 
                         // Show success popup
                         await Application.Current.MainPage.DisplayAlert("Success", "Changes discarded successfully!", "OK");
