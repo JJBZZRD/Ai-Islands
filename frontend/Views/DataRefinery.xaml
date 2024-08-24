@@ -61,51 +61,62 @@
                         HorizontalOptions="Fill"
                         SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
                 
-                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
-                    <Label Text="Default Processed " VerticalOptions="Center"/>
-                    <Image Source="check.png"
-                           IsVisible="{Binding DefaultProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Image Source="cross.png"
-                           IsVisible="{Binding IsNotDefaultProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
+                <Grid Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="1"
+                      RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*,*">
+                    <Grid.Background>
+                        <SolidColorBrush Color="{AppThemeBinding Light=#F2F2F2, Dark=#303134}" />
+                    </Grid.Background>
+                    
+                    <Label Text="Type" Grid.Row="0" Grid.Column="0" FontAttributes="Bold"/>
+                    <Label Text="Status" Grid.Row="0" Grid.Column="1" FontAttributes="Bold"/>
+                    <Label Text="Detail" Grid.Row="0" Grid.Column="2" FontAttributes="Bold"/>
+                    
+                    <Label Text="Default Processed" Grid.Row="1" Grid.Column="0" VerticalOptions="Center"/>
+                    <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+                        <Image Source="check.png"
+                               IsVisible="{Binding DefaultProcessed}"
+                               HeightRequest="20" 
+                               WidthRequest="20"
+                               Margin="5,0,0,0"/>
+                        <Image Source="cross.png"
+                               IsVisible="{Binding IsNotDefaultProcessed}"
+                               HeightRequest="20" 
+                               WidthRequest="20"
+                               Margin="5,0,0,0"/>
+                    </StackLayout>
                     <Label Text="See Info"
                            TextColor="Blue"
                            TextDecorations="Underline"
                            IsVisible="{Binding DefaultProcessed}"
-                           Margin="10,0,0,0">
+                           Grid.Row="1" Grid.Column="2">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnDefaultInfoClicked"/>
                         </Label.GestureRecognizers>
                     </Label>
-                </StackLayout>
-                
-                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
-                    <Label Text="Chunked Processed " VerticalOptions="Center"/>
-                    <Image Source="check.png"
-                           IsVisible="{Binding ChunkedProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Image Source="cross.png"
-                           IsVisible="{Binding IsNotChunkedProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
+                    
+                    <Label Text="Chunked Processed" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
+                    <StackLayout Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+                        <Image Source="check.png"
+                               IsVisible="{Binding ChunkedProcessed}"
+                               HeightRequest="20" 
+                               WidthRequest="20"
+                               Margin="5,0,0,0"/>
+                        <Image Source="cross.png"
+                               IsVisible="{Binding IsNotChunkedProcessed}"
+                               HeightRequest="20" 
+                               WidthRequest="20"
+                               Margin="5,0,0,0"/>
+                    </StackLayout>
                     <Label Text="See Info"
                            TextColor="Blue"
                            TextDecorations="Underline"
                            IsVisible="{Binding ChunkedProcessed}"
-                           Margin="10,0,0,0">
+                           Grid.Row="2" Grid.Column="2">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnChunkedInfoClicked"/>
                         </Label.GestureRecognizers>
                     </Label>
-                </StackLayout>
+                </Grid>
                 
                 <Label Text="Select Embedding Type:" VerticalOptions="Center" Grid.Column="0" Grid.Row="3"/>
                 <Picker x:Name="EmbeddingTypePicker"
