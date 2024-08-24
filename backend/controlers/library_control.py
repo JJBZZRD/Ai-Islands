@@ -246,6 +246,9 @@ class LibraryControl:
                 if isinstance(value, dict) and key in original_config:
                     original_config[key] = self._merge_configs(original_config[key], value)
                 else:
+                    if isinstance(value, str) and value.lower() == "null":
+                        logger.info(f"Setting {key} to None")
+                        value = None
                     original_config[key] = value
         return original_config
     

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace frontend.Models.ViewModels
 {
@@ -16,47 +12,38 @@ namespace frontend.Models.ViewModels
         public ObservableCollection<ConversationMessage> ExampleConversation { get; }
         public ObservableCollection<CandidateLabel> CandidateLabels { get; }
         public ObservableCollection<StopSequence> StopSequences { get; }
-        public Dictionary<string, string> Languages { get; set; } = new Dictionary<string, string>();
+        public ObservableCollection<Language> LanguagesList { get; }
 
-        private List<string> _datasetNames;
-        public List<string> DatasetNames
-        {
-            get => _datasetNames;
-            set
-            {
-                if (_datasetNames != value)
-                {
-                    _datasetNames = value;
-                    OnPropertyChanged(nameof(DatasetNames));
-                }
-            }
-        }
+        [ObservableProperty]
+        private List<string> datasetNames;
 
-        private string _selectedDatasetName;
-        public string SelectedDatasetName
-        {
-            get => _selectedDatasetName;
-            set
-            {
-                if (_selectedDatasetName != value)
-                {
-                    _selectedDatasetName = value;
-                    if (config?.RagSettings != null)
-                    {
-                        config.RagSettings.DatasetName = value;
-                    }
-                    OnPropertyChanged(nameof(SelectedDatasetName));
-                }
-            }
-        }
+        [ObservableProperty]
+        private string selectedDatasetName;
 
-        public IEnumerable<KeyValuePair<string, string>> LanguageList => Languages?.ToList() ?? new List<KeyValuePair<string, string>>();
+        [ObservableProperty]
+        private Language selectedPipelineConfigSrcLang;
+
+        [ObservableProperty]
+        private Language selectedPipelineConfigTgtLang;
+
+        [ObservableProperty]
+        private Language selectedTranslationConfigSrcLang;
+
+        [ObservableProperty]
+        private Language selectedTranslationConfigTgtLang;
+
+        [ObservableProperty]
+        private Language selectedTransationConfigTargetLanguage;
+
+        [ObservableProperty]
+        private Language selectedGenerateKwargsLanguage;
 
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();
             CandidateLabels = new ObservableCollection<CandidateLabel>();
             StopSequences = new ObservableCollection<StopSequence>();
+            LanguagesList = new ObservableCollection<Language>(); // Initialize LanguagesList
         }
 
         partial void OnConfigChanged(Config? oldValue, Config? newValue)
@@ -87,6 +74,40 @@ namespace frontend.Models.ViewModels
                     StopSequences.Add(new StopSequence(sequence));
                 }
             }
+
+            InitialiseSelectedItemForPicker();
+        }
+
+        public void InitialiseSelectedItemForPicker()
+        {
+                        // Update the SelectedDatasetName
+                        if (Config.RagSettings != null && 
+                            !string.IsNullOrEmpty(Config.RagSettings.DatasetName))
+                        {
+                            SelectedDatasetName = Config.RagSettings.DatasetName;
+                        }
+                        else
+                        {
+                            SelectedDatasetName = null;
+                        }
+
+            if (Config.PipelineConfig != null)
+            {
+                SelectedPipelineConfigSrcLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.SrcLang);
+                SelectedPipelineConfigTgtLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.TgtLang);
+                if (Config.PipelineConfig.GenerateKwargs != null)
+                {
+                    SelectedGenerateKwargsLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.PipelineConfig.GenerateKwargs.Language);
+                }
+            }
+
+            if (Config.TranslationConfig != null)
+            {
+                SelectedTranslationConfigSrcLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.SrcLang);
+                SelectedTranslationConfigTgtLang = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.TgtLang);
+                SelectedTransationConfigTargetLanguage = LanguagesList.FirstOrDefault(x => x.ShortForm == Config.TranslationConfig.TargetLanguage);
+                Debug.WriteLine($"target language = {SelectedTransationConfigTargetLanguage?.FullForm}");
+            }
         }
     }
 
@@ -110,5 +131,14 @@ namespace frontend.Models.ViewModels
         {
             Value = value;
         }
+    }
+
+    public partial class Language : ObservableObject
+    {
+        [ObservableProperty]
+        private string? fullForm;
+
+        [ObservableProperty]
+        private string? shortForm;
     }
 }

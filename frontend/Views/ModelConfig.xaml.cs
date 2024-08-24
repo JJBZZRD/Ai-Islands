@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Maui.Controls;
 using frontend.Models;
 using System.Text.Json;
 using frontend.Services;
-using Microsoft.Maui.Graphics;
 using System.Reflection;
 using frontend.Models.ViewModels;
 using System.Diagnostics;
-using System.Collections.ObjectModel;
 
 namespace frontend.Views
 {
@@ -25,24 +20,26 @@ namespace frontend.Views
 
         // Add these fields at the class level
         private bool _areExpandersExpanded = false;
-        private List<Microsoft.Maui.Controls.BindableObject> _expanders;
+        private List<BindableObject> _expanders;
 
         public ModelConfig(Model model)
         {
             InitializeComponent();
             _model = model;
-            _configViewModel = new ConfigViewModel 
-            { 
-                Config = model.Config, 
-                Languages = model.Languages ?? new Dictionary<string, string>()
-            };
-            
-            // Add debug logging
-            System.Diagnostics.Debug.WriteLine($"Languages count: {_configViewModel.Languages.Count}");
-            foreach (var lang in _configViewModel.Languages)
+            _configViewModel = new ConfigViewModel
             {
-                System.Diagnostics.Debug.WriteLine($"Language: {lang.Key} - {lang.Value}");
+                Config = model.Config,
+            };
+
+            if (_model.Languages != null)
+            {
+                foreach (var lang in _model.Languages)
+                {
+                    _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                }
             }
+
+            BindingContext = _configViewModel;
 
             _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
             _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
@@ -56,15 +53,24 @@ namespace frontend.Views
             Debug.WriteLine(_isExampleConversationNull);
             Debug.WriteLine(_isCandidateLabelsNull);
             Debug.WriteLine(_isStopSequencesNull);
-            BindingContext = _configViewModel; // Set the BindingContext
 
             LoadDatasetNames();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
+
+            InitializeAsync();
         }
 
-        public async Task LoadDatasetNames()
+        private async Task InitializeAsync()
+        {
+            // dealy 500ms to make sure the picker is loaded
+            // the delay time might have to be longer, depending on the time taken to load the picker
+            await Task.Delay(500);
+            _configViewModel.InitialiseSelectedItemForPicker();
+        }
+
+        private async Task LoadDatasetNames()
         {
             try
             {
@@ -72,15 +78,12 @@ namespace frontend.Views
                 _configViewModel.DatasetNames = new List<string>(datasetNames);
 
                 // Set the selected dataset name after populating the list
-                if (_configViewModel.Config.RagSettings != null && 
+                if (_configViewModel.Config.RagSettings != null &&
                     !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName) &&
                     datasetNames.Contains(_configViewModel.Config.RagSettings.DatasetName))
                 {
                     _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
                 }
-
-                // Manually trigger UI update
-                OnPropertyChanged(nameof(_configViewModel.SelectedDatasetName));
             }
             catch (Exception ex)
             {
@@ -94,31 +97,13 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             SaveConfigButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Update the _model's Config with the current ConfigViewModel's Config
-                if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
-                {
-                    _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-                } else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull) {
-                    _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
-                }
-                if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
-                {
-                    _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
-                } else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull) {
-                    _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
-                }
-                if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
-                {
-                    _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
-                } else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull) {
-                    _configViewModel.Config.Parameters.StopSequences = new List<string>();
-                }
-                _model.Config = _configViewModel.Config;
+                UpdateModelConfig();
 
                 await _modelService.ConfigureModel(_model.ModelId, _model.Config);
-                
+
                 // Show success popup
                 await Application.Current.MainPage.DisplayAlert("Success", "Configuration saved successfully!", "OK");
             }
@@ -132,6 +117,71 @@ namespace frontend.Views
                 // Re-enable the button
                 SaveConfigButton.IsEnabled = true;
             }
+        }
+
+        private void UpdateModelConfig()
+        {
+            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
+            }
+            else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull)
+            {
+                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
+            }
+            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
+            }
+            else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull)
+            {
+                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
+            }
+            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
+            }
+            else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull)
+            {
+                _configViewModel.Config.Parameters.StopSequences = new List<string>();
+            }
+
+            if (_configViewModel.SelectedDatasetName != null)
+            {
+                _configViewModel.Config.RagSettings.DatasetName = _configViewModel.SelectedDatasetName;
+            }
+
+            if (_configViewModel.SelectedPipelineConfigSrcLang != null)
+            {
+                _configViewModel.Config.PipelineConfig.SrcLang = _configViewModel.SelectedPipelineConfigSrcLang.ShortForm;
+            }
+
+            if (_configViewModel.SelectedPipelineConfigTgtLang != null)
+            {
+                _configViewModel.Config.PipelineConfig.TgtLang = _configViewModel.SelectedPipelineConfigTgtLang.ShortForm;
+            }
+
+            if (_configViewModel.SelectedTranslationConfigSrcLang != null)
+            {
+                _configViewModel.Config.TranslationConfig.SrcLang = _configViewModel.SelectedTranslationConfigSrcLang.ShortForm;
+            }
+
+            if (_configViewModel.SelectedTranslationConfigTgtLang != null)
+            {
+                _configViewModel.Config.TranslationConfig.TgtLang = _configViewModel.SelectedTranslationConfigTgtLang.ShortForm;
+            }
+
+            if (_configViewModel.SelectedTransationConfigTargetLanguage != null)
+            {
+                _configViewModel.Config.TranslationConfig.TargetLanguage = _configViewModel.SelectedTransationConfigTargetLanguage.ShortForm;
+            }
+
+            if (_configViewModel.SelectedGenerateKwargsLanguage != null)
+            {
+                _configViewModel.Config.PipelineConfig.GenerateKwargs.Language = _configViewModel.SelectedGenerateKwargsLanguage.ShortForm;
+            }
+
+            _model.Config = _configViewModel.Config;
         }
 
         private void OnAddExampleMessageClicked(object sender, EventArgs e)
@@ -265,13 +315,13 @@ namespace frontend.Views
             ToggleExpandersButton.Text = _areExpandersExpanded ? "Collapse All" : "Expand All";
         }
 
-        private List<Microsoft.Maui.Controls.BindableObject> FindExpanders(Element element)
+        private List<BindableObject> FindExpanders(Element element)
         {
-            var expanders = new List<Microsoft.Maui.Controls.BindableObject>();
+            var expanders = new List<BindableObject>();
 
             if (element.GetType().Name == "Expander")
             {
-                expanders.Add((Microsoft.Maui.Controls.BindableObject)element);
+                expanders.Add((BindableObject)element);
             }
 
             foreach (var child in element.LogicalChildren)
@@ -291,7 +341,7 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             ResetDefaultsButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Show confirmation popup
                 bool shouldRestore = await Application.Current.MainPage.DisplayAlert(
@@ -303,27 +353,26 @@ namespace frontend.Views
                 if (shouldRestore)
                 {
                     await _modelService.ResetDefaultConfig(_model.ModelId);
-                    
+
                     // Show success popup
                     await Application.Current.MainPage.DisplayAlert("Success", "Configuration reset to defaults successfully!", "OK");
-                    
+
                     // Fetch the updated library data
                     var libraryService = new LibraryService();
                     var updatedModels = await libraryService.GetLibrary();
-                    
+
                     // Find the updated model in the list
                     var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
-                    
+
                     if (updatedModel != null)
                     {
                         // Update the local model
                         _model = updatedModel;
 
                         // Create a new ConfigViewModel with the updated data
-                        _configViewModel = new ConfigViewModel 
-                        { 
-                            Config = _model.Config, 
-                            Languages = _model.Languages ?? new Dictionary<string, string>()
+                        _configViewModel = new ConfigViewModel
+                        {
+                            Config = _model.Config,
                         };
 
                         // Reinitialize other properties
@@ -331,25 +380,21 @@ namespace frontend.Views
                         _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                         _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
 
-                        // Update the SelectedDatasetName
-                        if (_configViewModel.Config.RagSettings != null && 
-                            !string.IsNullOrEmpty(_configViewModel.Config.RagSettings.DatasetName))
-                        {
-                            _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings.DatasetName;
-                        }
-                        else
-                        {
-                            _configViewModel.SelectedDatasetName = null;
-                        }
-
                         // Reload the dataset names
                         await LoadDatasetNames();
 
+                        _configViewModel.LanguagesList.Clear();
+                        if (_model.Languages != null)
+                        {
+                            foreach (var lang in _model.Languages)
+                            {
+                                _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                            }
+                        }
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
 
-                        // Manually trigger UI update for properties that might not be directly bound
-                        OnPropertyChanged(nameof(_configViewModel));
+                        await InitializeAsync();
                     }
                     else
                     {
@@ -374,7 +419,7 @@ namespace frontend.Views
             // Disable the button to prevent multiple clicks
             SaveAsNewModelButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Prompt the user for a new model name
                 string newModelId = await Application.Current.MainPage.DisplayPromptAsync(
@@ -439,24 +484,32 @@ namespace frontend.Views
 
         private async Task RefreshModelConfig()
         {
-            try 
+            try
             {
                 var libraryService = new LibraryService();
                 var updatedModels = await libraryService.GetLibrary();
                 var updatedModel = updatedModels.FirstOrDefault(m => m.ModelId == _model.ModelId);
-                
+
                 if (updatedModel != null)
                 {
                     _model = updatedModel;
-                    _configViewModel = new ConfigViewModel 
-                    { 
-                        Config = _model.Config, 
-                        Languages = _model.Languages ?? new Dictionary<string, string>()
+                    _configViewModel = new ConfigViewModel
+                    {
+                        Config = _model.Config,
                     };
 
                     _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
                     _isCandidateLabelsNull = _configViewModel.Config.PipelineConfig == null || _configViewModel.Config.PipelineConfig.CandidateLabels == null;
                     _isStopSequencesNull = _configViewModel.Config.Parameters == null || _configViewModel.Config.Parameters.StopSequences == null;
+
+                    _configViewModel.LanguagesList.Clear();
+                    if (_model.Languages != null)
+                    {
+                        foreach (var lang in _model.Languages)
+                        {
+                            _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                        }
+                    }
                     // Update the SelectedDatasetName from the library data
                     _configViewModel.SelectedDatasetName = _configViewModel.Config.RagSettings?.DatasetName;
 
@@ -464,7 +517,7 @@ namespace frontend.Views
                     await LoadDatasetNames();
                     
                     BindingContext = _configViewModel;
-                    OnPropertyChanged(nameof(_configViewModel));
+                    InitializeAsync();
 
                 }
                 else
@@ -478,42 +531,13 @@ namespace frontend.Views
             }
         }
 
-        private void UpdateModelConfig()
-        {
-            if (_configViewModel.ExampleConversation.Count != 0 && !_isExampleConversationNull)
-            {
-                _configViewModel.Config.ExampleConversation = _configViewModel.ExampleConversation.ToList();
-            }
-            else if (_configViewModel.ExampleConversation.Count == 0 && !_isExampleConversationNull)
-            {
-                _configViewModel.Config.ExampleConversation = new List<ConversationMessage>();
-            }
-            if (_configViewModel.CandidateLabels.Count != 0 && !_isCandidateLabelsNull)
-            {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = _configViewModel.CandidateLabels.Select(cl => cl.Value).ToList();
-            }
-            else if (_configViewModel.CandidateLabels.Count == 0 && !_isCandidateLabelsNull)
-            {
-                _configViewModel.Config.PipelineConfig.CandidateLabels = new List<string>();
-            }
-            if (_configViewModel.StopSequences.Count != 0 && !_isStopSequencesNull)
-            {
-                _configViewModel.Config.Parameters.StopSequences = _configViewModel.StopSequences.Select(ss => ss.Value).ToList();
-            }
-            else if (_configViewModel.StopSequences.Count == 0 && !_isStopSequencesNull)
-            {
-                _configViewModel.Config.Parameters.StopSequences = new List<string>();
-            }
-            _model.Config = _configViewModel.Config;
-        }
-
         // Add this method to the ModelConfig class
         private async void OnResetClicked(object sender, EventArgs e)
         {
             // Disable the button to prevent multiple clicks
             ResetButton.IsEnabled = false;
 
-            try 
+            try
             {
                 // Show warning popup
                 bool shouldReset = await Application.Current.MainPage.DisplayAlert(
@@ -534,7 +558,14 @@ namespace frontend.Views
                         // Reset the model and ConfigViewModel to the original state
                         _model = originalModel;
                         _configViewModel.Config = _model.Config;
-                        _configViewModel.Languages = _model.Languages ?? new Dictionary<string, string>();
+
+                        _configViewModel.LanguagesList.Clear();
+                                                if (_model.Languages != null)
+                        {
+                        foreach (var lang in _model.Languages)
+                        {
+                            _configViewModel.LanguagesList.Add(new Language { FullForm = lang.Key, ShortForm = lang.Value });
+                        }}
 
                         // Reinitialize other properties
                         _isExampleConversationNull = _configViewModel.Config.ExampleConversation == null;
@@ -562,9 +593,9 @@ namespace frontend.Views
 
                         // Update the BindingContext to refresh the UI
                         BindingContext = _configViewModel;
-
-                        // Manually trigger UI update for properties that might not be directly bound
-                        OnPropertyChanged(nameof(_configViewModel));
+                        
+                        // Set the selected item for picker
+                        await InitializeAsync();
 
                         // Show success popup
                         await Application.Current.MainPage.DisplayAlert("Success", "Changes discarded successfully!", "OK");

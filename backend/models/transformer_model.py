@@ -268,9 +268,6 @@ class TransformerModel(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             raise ModelError(f"Error during inference: {str(e)}")
 
-    def configure(self, data: dict):
-        pass
-
     def train(self, data_path: str, epochs: int = 3):
         logger.warning("Training method not implemented for TransformerModel")
     
@@ -288,7 +285,7 @@ class TransformerModel(BaseModel):
             raise ValueError(f"Translation pipeline not available for {src} to {tgt}")
         
     def _is_languages_supported(self, lang: str):
-        return lang in self.languages
+        return lang in self.languages.values()
     
     def _append_language_token(self, data: dict):
         target_language_token = None
