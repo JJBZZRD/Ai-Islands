@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace frontend.Services
 {
@@ -16,6 +17,7 @@ namespace frontend.Services
         {
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient.Timeout = TimeSpan.FromMinutes(10);
         }
 
         // API Call: POST /data/upload-dataset
@@ -106,6 +108,16 @@ namespace frontend.Services
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
+        // API Call: POST /data/upload-image-dataset
+        // Request Body: { "file_path": "path/to/dataset.zip", "model_name": "model1" }
+        public async Task<Dictionary<string, object>> UploadImageDataset(string filePath, string modelId)
+        {
+            var request = new { file_path = filePath, model_name = modelId };
+            var response = await _httpClient.PostAsJsonAsync("data/upload-image-dataset", request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        }
+
         // Add this method to the DataService class
         // public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsTrackerInfo()
         // {
@@ -115,6 +127,8 @@ namespace frontend.Services
         //     return result["datasets"];
         // }
 
+        // API Call: GET /data/datasets-processing-existence
+        // Note: Sends processed datasets ONLY along with their processing type booleans
         // API Call: GET /data/datasets-processing-existence
         // Note: Sends processed datasets ONLY along with their processing type booleans
         public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsExistence()

@@ -9,7 +9,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 
 from backend.controlers.model_control import ModelControl
-from backend.data_utils.dataset_processor import process_dataset
+from backend.data_utils.dataset_processor import process_vis_dataset
 from backend.data_utils.training_handler import handle_training_request
 from backend.utils.process_vis_out import process_vision_output, _ensure_json_serializable
 from PIL import Image
@@ -17,6 +17,7 @@ from io import BytesIO
 import base64
 from backend.core.exceptions import FileReadError, ModelError, ModelNotAvailableError
 from backend.utils.api_response import error_response, success_response
+from backend.utils.console_train_stream import start_console_stream_server
 
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,7 @@ class ModelRouter:
 
         self.router.add_api_route("/delete-model", self.delete_model, methods=["DELETE"])
         self.router.add_websocket_route("/ws/predict-live/{model_id}", self.predict_live)
+        self.router.add_websocket_route("/ws/console-stream/{model_id}/{action}/{epochs}/{batch_size}/{learning_rate}/{dataset_id}/{imgsz}", self.console_stream)
         
     
     async def download_model(self, model_id: str = Query(...), auth_token: str = Query(None)):
@@ -173,6 +175,9 @@ class ModelRouter:
         except Exception as e:
             logger.error(f"Error resetting model configuration: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
+        
+    async def console_stream(self, websocket: WebSocket, model_id: str, action: str, epochs: int, batch_size: int, learning_rate: float, dataset_id: str, imgsz: int):
+        await start_console_stream_server(websocket, model_id, action, epochs, batch_size, learning_rate, dataset_id, imgsz)
 
     #async def predict_live(self, websocket: WebSocket, model_id: str):
     #    await websocket.accept()

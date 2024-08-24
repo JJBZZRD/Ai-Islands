@@ -81,6 +81,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Include="Resources\ExampleDataset\example_yolo_dataset.zip" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="Views\Library.xaml.cs">
 	    <DependentUpon>Library.xaml</DependentUpon>
 	  </Compile>
@@ -92,6 +96,9 @@
 	  </Compile>
 	  <Compile Update="Views\Models.xaml.cs">
 	    <DependentUpon>Models.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\UploadProgressPopUp.xaml.cs">
+	    <DependentUpon>UploadProgressPopUp.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\PlaygroundConfigView.xaml.cs">
 	    <DependentUpon>PlaygroundConfigView.xaml</DependentUpon>
@@ -169,6 +176,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Models.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\UploadProgressPopUp.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\PlaygroundConfigView.xaml">

@@ -1,11 +1,16 @@
 {
-    "hardware": "cpu",
+    "hardware": "gpu",
     "chunking": {
         "use_chunking": false,
         "chunk_size": 1000,
         "chunk_overlap": 100,
         "chunk_method": "sentence",
         "rows_per_chunk": 1,
-        "csv_columns": ["population", "colony_name", "primary_resource", "average_temperature"]
+        "csv_columns": [
+            "population",
+            "colony_name",
+            "primary_resource",
+            "average_temperature"
+        ]
     }
 }

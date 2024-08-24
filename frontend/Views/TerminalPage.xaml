@@ -9,9 +9,9 @@
                FontAttributes="Bold"
                HorizontalOptions="Center"
                Margin="0,20,0,20" />
-        <ScrollView VerticalOptions="FillAndExpand">
+        <ScrollView VerticalOptions="FillAndExpand" HeightRequest="400">
             <Label x:Name="OutputLabel"
-                   FontFamily="Courier New"
+                   FontFamily="Courier New, Consolas, monospace"
                    FontSize="14"
                    TextColor="White"
                    BackgroundColor="Black"
