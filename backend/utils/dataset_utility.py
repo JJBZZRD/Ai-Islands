@@ -17,6 +17,8 @@ from backend.utils.file_type_manager import FileTypeManager
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import CONFIG_PATH
 from backend.utils.dataset_management import DatasetFileManagement
+# import datetime
+# from tabulate import tabulate
 
 load_dotenv()
 
@@ -222,7 +224,11 @@ class DatasetManagement:
             if is_csv:
                 df = pd.read_csv(file_path)
                 if self.chunking_settings["use_chunking"] and self.chunking_settings["chunk_method"] == 'csv_row':
-                    texts = self._process_csv_rows(df)
+                    try:
+                        texts = self._process_csv_rows(df)
+                    except Exception as e:
+                        logger.error(f"Error processing CSV rows: {e}")
+                        return {"message": "Error processing CSV rows", "error": str(e)}
                     # Save chunks separately
                     chunks_pickle_path = processing_dir / "chunks.pkl"
                     with open(chunks_pickle_path, 'wb') as f:
@@ -286,6 +292,13 @@ class DatasetManagement:
             manage_dataset_metadata.update_dataset_metadata(file_path.stem, {processing_type: True})
             # return to the function...
 
+
+            # #------------------------------------------------------------------------
+            # # Generate and save the processing report
+            # chunks = texts if self.chunking_settings["use_chunking"] else None
+            # self.generate_processing_report(file_path, texts, chunks)
+            # #------------------------------------------------------------------------
+
             return {"message": "Dataset processed successfully", "model_info": model_info}
 
         except Exception as e:
@@ -322,19 +335,35 @@ class DatasetManagement:
 
     def _process_csv_rows(self, df):
         rows_per_chunk = self.chunking_settings.get('rows_per_chunk', 1)
-        columns = self.chunking_settings.get('csv_columns', df.columns.tolist())
+        specified_columns = self.chunking_settings.get('csv_columns', [])
+        
+        # Remove leading/trailing whitespace from specified columns
+        specified_columns = [col.strip() for col in specified_columns]
+        
+        # Filter out columns that don't exist in the DataFrame
+        valid_columns = [col for col in specified_columns if col in df.columns]
+        
+        # If no valid columns are specified or found, use all columns
+        columns = valid_columns if valid_columns else df.columns.tolist()
+        
+        logger.info(f"CSV columns in DataFrame: {df.columns.tolist()}")
+        logger.info(f"Specified columns in settings: {specified_columns}")
+        logger.info(f"Columns being used for processing: {columns}")
         
         chunks = []
         for i in range(0, len(df), rows_per_chunk):
             chunk_rows = df.iloc[i:i+rows_per_chunk]
             chunk_text = []
-            for j, row in chunk_rows.iterrows():
+            for _, row in chunk_rows.iterrows():
                 row_text = ', '.join([f"{col}: {row[col]}" for col in columns])
-                chunk_text.append(f"Row {j+1}: {row_text}")
+                chunk_text.append(row_text)
             chunks.append('\n'.join(chunk_text))
         
         logger.info(f"Created {len(chunks)} chunks from CSV data")
-        logger.info(f"Sample chunk: {chunks[0][:200]}...")  # Log a sample chunk for verification
+        if chunks:
+            logger.info(f"Sample chunk: {chunks[0][:200]}...")  # Log a sample chunk for verification
+        else:
+            logger.warning("No chunks were created from the CSV data")
         return chunks
 
     def _fixed_length_chunks(self, text, chunk_size, chunk_overlap):
@@ -357,34 +386,47 @@ class DatasetManagement:
         paragraphs = text.split('\n\n')
         return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
+    # def generate_processing_report(self, file_path: Path, texts, chunks=None):
+    #     logger.info("Generating processing report")
+    #     report = []
+    #     report.append(f"Dataset Processing Report for: {file_path.name}")
+    #     report.append(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    #     report.append(f"\nOriginal Data:")
+    #     report.append(f"Total entries: {len(texts)}")
+    #     report.append(f"Sample entries:")
+    #     for i in range(min(3, len(texts))):
+    #         report.append(f"Entry {i+1}: {texts[i]}")
 
-    # moved the following methods to dataset_management.py
+    #     if chunks:
+    #         report.append(f"\nChunked Data:")
+    #         report.append(f"Total chunks: {len(chunks)}")
+    #         report.append(f"Chunking method: {self.chunking_settings['chunk_method']}")
+    #         report.append(f"Chunk size: {self.chunking_settings['chunk_size']}")
+    #         report.append(f"Chunk overlap: {self.chunking_settings['chunk_overlap']}")
+    #         report.append(f"Sample chunks:")
+    #         for i in range(min(3, len(chunks))):
+    #             report.append(f"Chunk {i+1}: {chunks[i]}")
 
-    # def list_datasets_names(self):
-    #     try:
-    #         datasets_dir = Path("Datasets")
-    #         datasets = [d.name for d in datasets_dir.iterdir() if d.is_dir()]
-    #         logger.info(f"Found {len(datasets)} datasets")
-    #         return {"datasets": datasets}
-    #     except Exception as e:
-    #         logger.error(f"Error listing datasets: {e}")
-    #         return {"datasets": []}
+    #         # Create a table to show how chunks split the data
+    #         chunk_table = []
+    #         for i in range(min(5, len(texts))):
+    #             original_text = texts[i]
+    #             related_chunks = [chunk for chunk in chunks if chunk.startswith(original_text[:50])]
+    #             chunk_table.append([f"Entry {i+1}", original_text, len(related_chunks)])
 
-    # def list_datasets(self):
-    #     try:
-    #         datasets_dir = Path("Datasets")
-    #         datasets = []
-    #         for d in datasets_dir.iterdir():
-    #             if d.is_dir():
-    #                 for file in d.iterdir():
-    #                     if file.is_file():
-    #                         datasets.append(f"{d.name}{file.suffix}")
-    #                         break  # Assume one file per dataset
-    #         logger.info(f"Found {len(datasets)} datasets")
-    #         return {"datasets": datasets}
-    #     except Exception as e:
-    #         logger.error(f"Error listing datasets: {e}")
-    #         return {"datasets": []}
+    #         report.append("\nChunk Distribution:")
+    #         report.append(tabulate(chunk_table, headers=["Entry", "Original Text", "Number of Chunks"], tablefmt="grid"))
+        
+    #     report_content = "\n".join(report)
+        
+    #     # Save the report
+    #     data_dir = Path("data")
+    #     data_dir.mkdir(exist_ok=True)
+    #     report_path = data_dir / "dataset_processing_report.txt"
+    #     with open(report_path, 'w') as f:
+    #         f.write(report_content)
+        
+    #     logger.info(f"Processing report saved to {report_path}")
 
 
     # -----------------------THE FOLLOWING IS AN OLDER VERSION OF THE SEARCH FUNCTIONALITY BUT WORKS, THE NEW VERSION IS BELOW-----------------------------------
