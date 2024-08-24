@@ -117,47 +117,26 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
+
+        // Add this method to the DataService class
+        // public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsTrackerInfo()
+        // {
+        //     var response = await _httpClient.GetAsync("data/datasets-processing-existence");
+        //     response.EnsureSuccessStatusCode();
+        //     var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, Dictionary<string, bool>>>>();
+        //     return result["datasets"];
+        // }
+
+        // API Call: GET /data/datasets-processing-existence
+        // Note: Sends processed datasets ONLY along with their processing type booleans
+        // API Call: GET /data/datasets-processing-existence
+        // Note: Sends processed datasets ONLY along with their processing type booleans
+        public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsExistence()
+        {
+            var response = await _httpClient.GetAsync("data/datasets-processing-existence");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, Dictionary<string, bool>>>>();
+            return result["datasets"];
+        }
     }
-
-    // public class ProgressableStreamContent : HttpContent
-    // {
-    //     private readonly HttpContent _content;
-    //     private readonly Action<long, long> _progress;
-
-    //     public ProgressableStreamContent(HttpContent content, Action<long, long> progress)
-    //     {
-    //         _content = content;
-    //         _progress = progress;
-    //         foreach (var header in _content.Headers)
-    //         {
-    //             Headers.TryAddWithoutValidation(header.Key, header.Value);
-    //         }
-    //     }
-
-    //     protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
-    //     {
-    //         var buffer = new byte[8192];
-    //         TryComputeLength(out var size);
-    //         var uploaded = 0L;
-
-    //         using (var contentStream = await _content.ReadAsStreamAsync())
-    //         {
-    //             while (true)
-    //             {
-    //                 var length = await contentStream.ReadAsync(buffer, 0, buffer.Length);
-    //                 if (length <= 0) break;
-    //                 uploaded += length;
-    //                 _progress?.Invoke(uploaded, size);
-    //                 await stream.WriteAsync(buffer, 0, length);
-    //                 await stream.FlushAsync();
-    //             }
-    //         }
-    //     }
-
-    //     protected override bool TryComputeLength(out long length)
-    //     {
-    //         length = _content.Headers.ContentLength ?? -1;
-    //         return length != -1;
-    //     }
-    // }
 }
