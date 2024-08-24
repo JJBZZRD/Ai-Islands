@@ -167,7 +167,7 @@ namespace frontend.Views
         {
             base.OnAppearing();
             await RefreshLibraryModels();
-            Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
+            Microsoft.Maui.Controls.Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
         }
 
         private void Current_RequestedThemeChanged(object sender, AppThemeChangedEventArgs e)
@@ -372,7 +372,7 @@ namespace frontend.Views
         {
             base.OnDisappearing();
             WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
-            Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
+            Microsoft.Maui.Controls.Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
         }
 
         private async void OnDeleteModelClicked(object sender, EventArgs e)
