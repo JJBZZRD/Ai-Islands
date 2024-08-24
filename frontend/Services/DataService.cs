@@ -138,5 +138,26 @@ namespace frontend.Services
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Dictionary<string, Dictionary<string, bool>>>>();
             return result["datasets"];
         }
+
+        // API Call: GET /speaker-embedding/list
+        // Response: { "data": ["embedding1", "embedding2"] }
+        public async Task<List<string>> GetSpeakerEmbedding()
+        {
+            var response = await _httpClient.GetAsync("speaker-embedding/list");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
+            return result["data"];
+        }
+
+        // API Call: POST /speaker-embedding/configure
+        // Request Body: { "speaker_embeddings": { "embedding_id": [0.1, 0.2, ...] } }
+        public async Task<string> ConfigureSpeakerEmbeddings(Dictionary<string, List<float>> speakerEmbeddings)
+        {
+            var request = new { speaker_embeddings = speakerEmbeddings };
+            var response = await _httpClient.PostAsJsonAsync("speaker-embedding/configure", request);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            return result["message"].ToString();
+        }
     }
 }

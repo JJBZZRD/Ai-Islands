@@ -38,6 +38,9 @@ namespace frontend.Models.ViewModels
         [ObservableProperty]
         private Language selectedGenerateKwargsLanguage;
 
+        [ObservableProperty]
+        private List<string> speakerEmbeddings;
+
         public ConfigViewModel()
         {
             ExampleConversation = new ObservableCollection<ConversationMessage>();

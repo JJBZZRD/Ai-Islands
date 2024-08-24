@@ -55,6 +55,7 @@ namespace frontend.Views
             Debug.WriteLine(_isStopSequencesNull);
 
             LoadDatasetNames();
+            LoadSpeakerEmbeddings();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
@@ -89,6 +90,21 @@ namespace frontend.Views
             {
                 // Handle any errors, e.g., show an alert to the user
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load dataset names: {ex.Message}", "OK");
+            }
+        }
+
+        // Add this method to load speaker embeddings
+        private async Task LoadSpeakerEmbeddings()
+        {
+            try
+            {
+                var speakerEmbeddings = await _dataService.GetSpeakerEmbedding();
+                _configViewModel.SpeakerEmbeddings = new List<string>(speakerEmbeddings);
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors, e.g., show an alert to the user
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load speaker embeddings: {ex.Message}", "OK");
             }
         }
 
@@ -382,6 +398,7 @@ namespace frontend.Views
 
                         // Reload the dataset names
                         await LoadDatasetNames();
+                        await LoadSpeakerEmbeddings();
 
                         _configViewModel.LanguagesList.Clear();
                         if (_model.Languages != null)
@@ -515,6 +532,7 @@ namespace frontend.Views
 
                     // Reload the dataset names
                     await LoadDatasetNames();
+                    await LoadSpeakerEmbeddings();
                     
                     BindingContext = _configViewModel;
                     InitializeAsync();
