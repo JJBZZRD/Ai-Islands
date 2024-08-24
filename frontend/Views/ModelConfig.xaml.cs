@@ -55,6 +55,7 @@ namespace frontend.Views
             Debug.WriteLine(_isStopSequencesNull);
 
             LoadDatasetNames();
+            LoadSpeakerEmbeddings();
 
             // Find all Expanders in the view
             _expanders = FindExpanders(this);
@@ -89,6 +90,28 @@ namespace frontend.Views
             {
                 // Handle any errors, e.g., show an alert to the user
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load dataset names: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task LoadSpeakerEmbeddings()
+        {
+            try
+            {
+                var speakerEmbeddings = await _dataService.GetSpeakerEmbedding();
+
+                _configViewModel.SpeakerEmbeddingsList = new List<string>(speakerEmbeddings.Keys.ToList());
+
+                // Set the selected speaker embedding after populating the list
+                if (!string.IsNullOrEmpty(_configViewModel.Config.SpeakerEmbeddingConfig) &&
+                    _configViewModel.SpeakerEmbeddingsList.Contains(_configViewModel.Config.SpeakerEmbeddingConfig))
+                {
+                    _configViewModel.SelectedSpeakerEmbedding = _configViewModel.Config.SpeakerEmbeddingConfig;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors, e.g., show an alert to the user
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to load speaker embeddings: {ex.Message}", "OK");
             }
         }
 
@@ -149,6 +172,11 @@ namespace frontend.Views
             if (_configViewModel.SelectedDatasetName != null)
             {
                 _configViewModel.Config.RagSettings.DatasetName = _configViewModel.SelectedDatasetName;
+            }
+
+            if (_configViewModel.Config.SpeakerEmbeddingConfig != null)
+            {
+                _configViewModel.Config.SpeakerEmbeddingConfig = _configViewModel.SelectedSpeakerEmbedding;
             }
 
             if (_configViewModel.SelectedPipelineConfigSrcLang != null)
@@ -382,6 +410,7 @@ namespace frontend.Views
 
                         // Reload the dataset names
                         await LoadDatasetNames();
+                        await LoadSpeakerEmbeddings();
 
                         _configViewModel.LanguagesList.Clear();
                         if (_model.Languages != null)
@@ -515,6 +544,7 @@ namespace frontend.Views
 
                     // Reload the dataset names
                     await LoadDatasetNames();
+                    await LoadSpeakerEmbeddings();
                     
                     BindingContext = _configViewModel;
                     InitializeAsync();
