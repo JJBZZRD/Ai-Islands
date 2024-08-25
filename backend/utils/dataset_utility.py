@@ -17,8 +17,11 @@ from backend.utils.file_type_manager import FileTypeManager
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import CONFIG_PATH
 from backend.utils.dataset_management import DatasetFileManagement
-# import datetime
-# from tabulate import tabulate
+import datetime
+from jinja2 import Template
+import base64
+import matplotlib.pyplot as plt
+import io
 
 load_dotenv()
 
@@ -293,13 +296,11 @@ class DatasetManagement:
             # return to the function...
 
 
-            # #------------------------------------------------------------------------
-            # # Generate and save the processing report
-            # chunks = texts if self.chunking_settings["use_chunking"] else None
-            # self.generate_processing_report(file_path, texts, chunks)
-            # #------------------------------------------------------------------------
+            # Generate and save the processing report
+            chunks = texts if self.chunking_settings["use_chunking"] else None
+            report_path = self.generate_processing_report(file_path, texts, chunks)
 
-            return {"message": "Dataset processed successfully", "model_info": model_info}
+            return {"message": "Dataset processed successfully", "model_info": model_info, "report_path": report_path}
 
         except Exception as e:
             logger.error(f"Error processing dataset: {e}", exc_info=True)
@@ -386,119 +387,157 @@ class DatasetManagement:
         paragraphs = text.split('\n\n')
         return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
-    # def generate_processing_report(self, file_path: Path, texts, chunks=None):
-    #     logger.info("Generating processing report")
-    #     report = []
-    #     report.append(f"Dataset Processing Report for: {file_path.name}")
-    #     report.append(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    #     report.append(f"\nOriginal Data:")
-    #     report.append(f"Total entries: {len(texts)}")
-    #     report.append(f"Sample entries:")
-    #     for i in range(min(3, len(texts))):
-    #         report.append(f"Entry {i+1}: {texts[i]}")
-
-    #     if chunks:
-    #         report.append(f"\nChunked Data:")
-    #         report.append(f"Total chunks: {len(chunks)}")
-    #         report.append(f"Chunking method: {self.chunking_settings['chunk_method']}")
-    #         report.append(f"Chunk size: {self.chunking_settings['chunk_size']}")
-    #         report.append(f"Chunk overlap: {self.chunking_settings['chunk_overlap']}")
-    #         report.append(f"Sample chunks:")
-    #         for i in range(min(3, len(chunks))):
-    #             report.append(f"Chunk {i+1}: {chunks[i]}")
-
-    #         # Create a table to show how chunks split the data
-    #         chunk_table = []
-    #         for i in range(min(5, len(texts))):
-    #             original_text = texts[i]
-    #             related_chunks = [chunk for chunk in chunks if chunk.startswith(original_text[:50])]
-    #             chunk_table.append([f"Entry {i+1}", original_text, len(related_chunks)])
-
-    #         report.append("\nChunk Distribution:")
-    #         report.append(tabulate(chunk_table, headers=["Entry", "Original Text", "Number of Chunks"], tablefmt="grid"))
+    def generate_processing_report(self, file_path: Path, texts, chunks=None):
+        logger.info("Generating processing report")
         
-    #     report_content = "\n".join(report)
+        # Prepare data for the report
+        report_data = {
+            "file_name": file_path.name,
+            "generated_on": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "total_entries": len(texts),
+            "sample_entries": texts[:3],
+            "chunking_used": chunks is not None,
+            "total_chunks": len(chunks) if chunks else None,
+            "chunking_method": self.chunking_settings['chunk_method'] if chunks else None,
+            "chunk_size": self.chunking_settings['chunk_size'] if chunks else None,
+            "chunk_overlap": self.chunking_settings['chunk_overlap'] if chunks else None,
+            "sample_chunks": chunks[:3] if chunks else None,
+            "chunk_distribution": self._get_chunk_distribution(texts, chunks) if chunks else None,
+            "embedding_model": self.model_name,
+            "embedding_type": self.model_type,
+        }
+
+        # Generate visualizations
+        report_data["length_distribution_plot"] = self._generate_length_distribution_plot(texts)
+        if chunks:
+            report_data["chunk_distribution_plot"] = self._generate_chunk_distribution_plot(texts, chunks)
+
+        # Render HTML template
+        html_content = self._render_html_template(report_data)
+
+        # Determine the appropriate folder for saving the report
+        dataset_dir = Path("Datasets") / file_path.stem
+        method_folder = "chunked" if chunks else "default"
+        processing_dir = dataset_dir / method_folder
+
+        # Save the report
+        report_filename = f"{file_path.stem}_processing_report.html"
+        report_path = processing_dir / report_filename
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
         
-    #     # Save the report
-    #     data_dir = Path("data")
-    #     data_dir.mkdir(exist_ok=True)
-    #     report_path = data_dir / "dataset_processing_report.txt"
-    #     with open(report_path, 'w') as f:
-    #         f.write(report_content)
+        logger.info(f"Processing report saved to {report_path}")
+        return report_path
+
+    def _get_chunk_distribution(self, texts, chunks):
+        chunk_distribution = []
+        for i, text in enumerate(texts[:5]):  # Limit to first 5 entries for brevity
+            related_chunks = [chunk for chunk in chunks if chunk.startswith(text[:50])]
+            chunk_distribution.append({
+                "entry_id": i + 1,
+                "original_text": text[:100] + "..." if len(text) > 100 else text,
+                "num_chunks": len(related_chunks)
+            })
+        return chunk_distribution
+
+    def _generate_length_distribution_plot(self, texts):
+        lengths = [len(text) for text in texts]
+        plt.figure(figsize=(10, 5))
+        plt.hist(lengths, bins=50)
+        plt.title("Distribution of Text Lengths")
+        plt.xlabel("Length")
+        plt.ylabel("Frequency")
         
-    #     logger.info(f"Processing report saved to {report_path}")
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        return base64.b64encode(buf.getvalue()).decode('utf-8')
 
+    def _generate_chunk_distribution_plot(self, texts, chunks):
+        chunk_counts = [sum(1 for chunk in chunks if chunk.startswith(text[:50])) for text in texts]
+        plt.figure(figsize=(10, 5))
+        plt.hist(chunk_counts, bins=max(chunk_counts))
+        plt.title("Distribution of Chunks per Text")
+        plt.xlabel("Number of Chunks")
+        plt.ylabel("Frequency")
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        return base64.b64encode(buf.getvalue()).decode('utf-8')
 
-    # -----------------------THE FOLLOWING IS AN OLDER VERSION OF THE SEARCH FUNCTIONALITY BUT WORKS, THE NEW VERSION IS BELOW-----------------------------------
+    def _render_html_template(self, data):
+        template = Template("""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Dataset Processing Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+                h1, h2 { color: #2c3e50; }
+                table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                img { max-width: 100%; height: auto; }
+            </style>
+        </head>
+        <body>
+            <h1>Dataset Processing Report</h1>
+            <p><strong>File Name:</strong> {{ file_name }}</p>
+            <p><strong>Generated on:</strong> {{ generated_on }}</p>
+            <p><strong>Total Entries:</strong> {{ total_entries }}</p>
+            <p><strong>Embedding Model:</strong> {{ embedding_model }} ({{ embedding_type }})</p>
 
+            <h2>Sample Entries</h2>
+            <ul>
+            {% for entry in sample_entries %}
+                <li>{{ entry[:100] }}{% if entry|length > 100 %}...{% endif %}</li>
+            {% endfor %}
+            </ul>
 
-    # def find_relevant_entries(self, query, dataset_name, use_chunking=False, similarity_threshold=0.5):
-    #     logger.info(f"Finding relevant entries for query: '{query}' in dataset: {dataset_name}")
-    #     dataset_dir = Path("Datasets") / dataset_name
-    #     method_folder = "chunked" if use_chunking else "default"
-    #     processing_dir = dataset_dir / method_folder
+            <h2>Text Length Distribution</h2>
+            <img src="data:image/png;base64,{{ length_distribution_plot }}" alt="Text Length Distribution">
 
-    #     embedding_pickle_path = processing_dir / "embeddings.pkl"
-    #     data_pickle_path = processing_dir / "data.pkl"
-    #     model_info_path = processing_dir / "embedding_model_info.json"
+            {% if chunking_used %}
+            <h2>Chunking Information</h2>
+            <p><strong>Total Chunks:</strong> {{ total_chunks }}</p>
+            <p><strong>Chunking Method:</strong> {{ chunking_method }}</p>
+            <p><strong>Chunk Size:</strong> {{ chunk_size }}</p>
+            <p><strong>Chunk Overlap:</strong> {{ chunk_overlap }}</p>
 
-    #     with open(model_info_path, 'r') as f:
-    #         model_info = json.load(f)
-    #     logger.info(f"Loaded model info: {model_info}")
+            <h3>Sample Chunks</h3>
+            <ul>
+            {% for chunk in sample_chunks %}
+                <li>{{ chunk[:100] }}{% if chunk|length > 100 %}...{% endif %}</li>
+            {% endfor %}
+            </ul>
 
-    #     with open(embedding_pickle_path, 'rb') as f:
-    #         stored_embeddings = pickle.load(f)
-    #     logger.info(f"Loaded stored embeddings with shape: {stored_embeddings.shape}")
+            <h3>Chunk Distribution</h3>
+            <table>
+                <tr>
+                    <th>Entry ID</th>
+                    <th>Original Text</th>
+                    <th>Number of Chunks</th>
+                </tr>
+                {% for item in chunk_distribution %}
+                <tr>
+                    <td>{{ item.entry_id }}</td>
+                    <td>{{ item.original_text }}</td>
+                    <td>{{ item.num_chunks }}</td>
+                </tr>
+                {% endfor %}
+            </table>
 
-    #     faiss_index_path = processing_dir / "faiss_index.bin"
-    #     index = faiss.read_index(str(faiss_index_path))
-    #     logger.info(f"Loaded FAISS index with {index.ntotal} vectors")
-
-    #     original_data = pd.read_pickle(data_pickle_path)
-    #     logger.info(f"Loaded original data with {len(original_data)} rows")
-
-    #     query_vector = self.generate_embeddings([query], model_info)
-    #     logger.info(f"Generated query embedding with shape: {query_vector.shape}")
-
-    #     faiss.normalize_L2(query_vector)
-    #     D, I = index.search(query_vector, index.ntotal)  # Search all vectors
-    #     logger.info(f"Searched all {index.ntotal} vectors")
-
-    #     relevant_indices = I[0][D[0] > similarity_threshold]
-    #     relevant_similarities = D[0][D[0] > similarity_threshold]
-    #     logger.info(f"Found {len(relevant_indices)} entries above similarity threshold {similarity_threshold}")
-
-    #     if len(relevant_indices) == 0:
-    #         logger.info("No relevant entries found above the similarity threshold")
-    #         return []  # Return an empty list if no relevant entries are found
-
-    #     if use_chunking:
-    #         chunks_pickle_path = processing_dir / "chunks.pkl"
-    #         if chunks_pickle_path.exists():
-    #             with open(chunks_pickle_path, 'rb') as f:
-    #                 chunks = pickle.load(f)
-    #             relevant_entries = [chunks[i] for i in relevant_indices]
-    #             logger.info(f"Using chunked data. Total chunks: {len(chunks)}, Relevant chunks: {len(relevant_entries)}")
-    #             logger.info("Sample relevant chunks:")
-    #             for i in range(min(3, len(relevant_entries))):
-    #                 logger.info(f"Chunk {i+1}: {relevant_entries[i]}")
-    #         else:
-    #             logger.warning("Chunks file not found. Falling back to full entries.")
-    #             relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
-    #     else:
-    #         relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
-    #         logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
-
-    #     # Sort entries by similarity (highest to lowest)
-    #     sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
-    #     relevant_entries = [entry for entry, _ in sorted_entries]
-
-    #     formatted_entries = [self.format_entry(entry) for entry in relevant_entries]
-    #     logger.info(f"Returning {len(formatted_entries)} formatted entries")
-    #     return formatted_entries
-
-
-    # -----------------------------NEW VERSION OF THE SEARCH FUNCTIONALITY WITH IMPROVED ERROR HANDLING-----------------------------------
+            <img src="data:image/png;base64,{{ chunk_distribution_plot }}" alt="Chunk Distribution">
+            {% endif %}
+        </body>
+        </html>
+        """)
+        
+        return template.render(data)
 
     def find_relevant_entries(self, query, dataset_name, use_chunking=False, similarity_threshold=0.5):
         logger.info(f"Finding relevant entries for query: '{query}' in dataset: {dataset_name}")

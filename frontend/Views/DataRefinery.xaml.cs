@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using frontend.Services;
 using System.Text.Json;
 using CommunityToolkit.Maui.Views;
+using System.Diagnostics;
 
 namespace frontend.Views
 {
@@ -266,6 +267,37 @@ namespace frontend.Views
             }
 
             return "Error: Unable to format preview content";
+        }
+
+        private async void OnDefaultReportClicked(object sender, EventArgs e)
+        {
+            await OpenReport("default");
+        }
+
+        private async void OnChunkedReportClicked(object sender, EventArgs e)
+        {
+            await OpenReport("chunked");
+        }
+
+        private async Task OpenReport(string processingType)
+        {
+            if (DatasetPicker.SelectedItem is string selectedDataset)
+            {
+                try
+                {
+                    var reportContent = await _dataService.GetDatasetReport(selectedDataset, processingType);
+                    var tempFilePath = Path.GetTempFileName() + ".html";
+                    File.WriteAllText(tempFilePath, reportContent);
+                    await Launcher.OpenAsync(new OpenFileRequest
+                    {
+                        File = new ReadOnlyFile(tempFilePath)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to open report: {ex.Message}", "OK");
+                }
+            }
         }
 
         protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)

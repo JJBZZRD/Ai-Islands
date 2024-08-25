@@ -12,6 +12,7 @@ from typing import List
 from pathlib import Path
 import json
 from backend.utils.file_type_manager import FileTypeManager
+from fastapi.responses import FileResponse
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class DataRouter:
         self.router.add_api_route("/delete-dataset", self.delete_dataset, methods=["DELETE"])
         self.router.add_api_route("/dataset-processing-info", self.get_dataset_processing_info, methods=["GET"])
         self.router.add_api_route("/datasets-processing-existence", self.get_datasets_tracker_info, methods=["GET"])
+        self.router.add_api_route("/get-dataset-report", self.get_dataset_report, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -141,4 +143,24 @@ class DataRouter:
             return dataset_file_management.get_datasets_tracker_info()
         except Exception as e:
             logger.error(f"Error getting datasets with tracker info: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    # async def get_dataset_report(self, dataset_name: str, processing_type: str):
+    #     try:
+    #         dataset_file_management = DatasetFileManagement()
+    #         result = dataset_file_management.get_dataset_report(dataset_name, processing_type)
+    #         return result
+    #     except Exception as e:
+    #         logger.error(f"Error getting dataset report: {str(e)}")
+    #         raise HTTPException(status_code=500, detail=str(e))
+    
+    async def get_dataset_report(self, dataset_name: str, processing_type: str):
+        try:
+            dataset_file_management = DatasetFileManagement()
+            report_path = dataset_file_management.get_dataset_report(dataset_name, processing_type)
+            if report_path is None:
+                raise HTTPException(status_code=404, detail="Report not found")
+            return FileResponse(report_path, media_type="text/html")
+        except Exception as e:
+            logger.error(f"Error getting dataset report: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))

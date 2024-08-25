@@ -1,11 +1,15 @@
 {
     "hardware": "cpu",
     "chunking": {
-        "use_chunking": false,
-        "chunk_size": 1000,
-        "chunk_overlap": 100,
-        "chunk_method": "sentence",
-        "rows_per_chunk": 1,
-        "csv_columns": ["population", "colony_name", "primary_resource", "average_temperature"]
+        "use_chunking": true,
+        "chunk_size": 150,
+        "chunk_overlap": 20,
+        "chunk_method": "fixed_length",
+        "rows_per_chunk": 2,
+        "csv_columns": [
+            "colony_name",
+            " population",
+            " primary_resource"
+        ]
     }
 }

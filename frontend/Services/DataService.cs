@@ -106,6 +106,14 @@ namespace frontend.Services
             return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         }
 
+        public async Task<string> GetDatasetReport(string datasetFileName, string processingType)
+        {
+            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+            var response = await _httpClient.GetAsync($"data/get-dataset-report?dataset_name={datasetName}&processing_type={processingType}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
         // Add this method to the DataService class
         // public async Task<Dictionary<string, Dictionary<string, bool>>> GetDatasetsTrackerInfo()
         // {
