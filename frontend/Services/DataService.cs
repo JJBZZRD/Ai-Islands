@@ -95,12 +95,79 @@ namespace frontend.Services
 
         // API Call: GET /data/preview-dataset?dataset_name=dataset
         // Note: Sends dataset name without extension
+        // public async Task<string> GetDatasetPreview(string datasetFileName)
+        // {
+        //     var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+        //     var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
+        //     response.EnsureSuccessStatusCode();
+        //     return await response.Content.ReadAsStringAsync();
+        // }
+
+        // public async Task<string> GetDatasetPreview(string datasetFileName)
+        // {
+        //     try
+        //     {
+        //         var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+        //         var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
+                
+        //         if (response.IsSuccessStatusCode)
+        //         {
+        //             return await response.Content.ReadAsStringAsync();
+        //         }
+        //         else
+        //         {
+        //             var errorContent = await response.Content.ReadAsStringAsync();
+        //             return $"Error: {response.StatusCode}. Details: {errorContent}";
+        //         }
+        //     }
+        //     catch (HttpRequestException e)
+        //     {
+        //         return $"Network error: {e.Message}";
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return $"Unexpected error: {e.Message}";
+        //     }
+        // }
+
         public async Task<string> GetDatasetPreview(string datasetFileName)
         {
-            var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
-            var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            try
+            {
+                var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+                var response = await _httpClient.GetAsync($"data/preview-dataset?dataset_name={datasetName}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    
+                    // Check if the error is about an unsupported file type
+                    if (errorContent.Contains("Unsupported file type"))
+                    {
+                        return "No preview available.";
+                    }
+                    else
+                    {
+                        // For other errors, you might want to log them or handle differently
+                        Console.WriteLine($"Error: {response.StatusCode}. Details: {errorContent}");
+                        return "No preview available.";
+                    }
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Network error: {e.Message}");
+                return "No preview available.";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unexpected error: {e.Message}");
+                return "No preview available.";
+            }
         }
 
         // API Call: GET /data/dataset-processing-status?dataset_name=dataset
