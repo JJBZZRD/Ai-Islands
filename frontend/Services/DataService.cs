@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Diagnostics;
 
 namespace frontend.Services
 {
@@ -163,6 +164,21 @@ namespace frontend.Services
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
             return result["message"].ToString();
+        }
+
+        public async Task<Dictionary<string, List<double>>> ResetSpeakerEmbeddings()
+        {
+            var response = await _httpClient.PostAsync("data/speaker-embedding/reset", null);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+            // Log the response for debugging purposes
+            Debug.WriteLine($"ResetSpeakerEmbeddings response: {JsonSerializer.Serialize(result)}");
+
+            // Extract the "data" field from the response
+            var data = JsonSerializer.Deserialize<Dictionary<string, List<double>>>(result["data"].ToString());
+
+            return data;
         }
     }
 }

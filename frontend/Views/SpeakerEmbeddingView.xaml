@@ -5,7 +5,7 @@
              x:Class="frontend.Views.SpeakerEmbeddingView"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
         <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
             <Label Text="Speaker Embeddings" 
                    FontSize="24" 
@@ -85,6 +85,15 @@
                 Clicked="OnSaveEmbeddingsClicked"
                 Margin="0,20,0,20"
                 BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                TextColor="White"/>
+
+        <Button Grid.Row="4" 
+                Text="Restore Default" 
+                VerticalOptions="End" 
+                HorizontalOptions="Center" 
+                Clicked="OnRestoreDefaultClicked"
+                Margin="0,20,0,20"
+                BackgroundColor="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}"
                 TextColor="White"/>
     </Grid>
 </ContentView>

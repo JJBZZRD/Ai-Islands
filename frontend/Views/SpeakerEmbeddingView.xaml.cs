@@ -57,5 +57,26 @@ namespace frontend.Views
                 await Application.Current.MainPage.DisplayAlert("Error", $"Failed to save embeddings: {ex.Message}", "OK");
             }
         }
+
+        private async void OnRestoreDefaultClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                string response = await speakerEmbeddingViewModel.ResetSpeakerEmbeddings();
+
+                if (response == "Successfully Reset All Speaker Embeddings")
+                {
+                    await Application.Current.MainPage.DisplayAlert("Success", response, "OK");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", response, "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to restore default embeddings: {ex.Message}", "OK");
+            }
+        }
     }
 }

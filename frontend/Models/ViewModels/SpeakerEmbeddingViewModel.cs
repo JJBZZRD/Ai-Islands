@@ -69,6 +69,23 @@ namespace frontend.Models.ViewModels
             var response = await _dataService.ConfigureSpeakerEmbeddings(embeddingsDict);
             return response;
         }
+
+        public async Task<string> ResetSpeakerEmbeddings()
+        {
+            var embeddingsDict = await _dataService.ResetSpeakerEmbeddings();
+            EmbeddingsList.Clear();
+
+            foreach (var embedding in embeddingsDict)
+            {
+                EmbeddingsList.Add(new SpeakerEmbedding
+                {
+                    Id = embedding.Key,
+                    EmbeddingArray = embedding.Value
+                });
+            }
+
+            return "Successfully Reset All Speaker Embeddings";
+        }
     }
 
     public partial class SpeakerEmbedding : ObservableObject
