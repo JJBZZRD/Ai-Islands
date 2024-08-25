@@ -130,6 +130,32 @@ namespace frontend.Views
                 }
             }
         }
+        // ORIGINAL:
+        // private async void OnProcessClicked(object sender, EventArgs e)
+        // {
+        //     if (DatasetPicker.SelectedItem is string selectedDataset &&
+        //         ModelPicker.SelectedItem is string selectedModel)
+        //     {
+        //         try
+        //         {
+        //             var result = await _dataService.ProcessDataset(selectedDataset, selectedModel);
+        //             await DisplayAlert("Success", "Dataset processed successfully!", "OK");
+
+        //             // Update processing status
+        //             var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
+        //             DefaultProcessed = processingStatus["default_processed"];
+        //             ChunkedProcessed = processingStatus["chunked_processed"];
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             await DisplayAlert("Error", $"Failed to process dataset: {ex.Message}", "OK");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         await DisplayAlert("Error", "Please select a dataset and a model.", "OK");
+        //     }
+        // }
 
         private async void OnProcessClicked(object sender, EventArgs e)
         {
@@ -145,10 +171,15 @@ namespace frontend.Views
                     var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
                     DefaultProcessed = processingStatus["default_processed"];
                     ChunkedProcessed = processingStatus["chunked_processed"];
+                    // ... rest of the success handling ...
+                }
+                catch (HttpRequestException ex)
+                {
+                    await DisplayAlert("Error", ex.Message, "OK");
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to process dataset: {ex.Message}", "OK");
+                    await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
                 }
             }
             else

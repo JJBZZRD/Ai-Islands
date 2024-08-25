@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 
 namespace frontend.Services
 {
@@ -57,13 +58,37 @@ namespace frontend.Services
 
         // API Call: POST /data/process-dataset
         // Request Body: { "file_path": "Datasets/dataset_name/dataset_name.extension", "model_name": "model1" }
+        // public async Task<Dictionary<string, object>> ProcessDataset(string datasetFileName, string modelName)
+        // {
+        //     var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
+        //     var request = new { file_path = $"Datasets/{datasetName}/{datasetFileName}", model_name = modelName };
+        //     var response = await _httpClient.PostAsJsonAsync("data/process-dataset", request);
+        //     response.EnsureSuccessStatusCode();
+        //     return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+        // }
+        
         public async Task<Dictionary<string, object>> ProcessDataset(string datasetFileName, string modelName)
         {
             var datasetName = Path.GetFileNameWithoutExtension(datasetFileName);
             var request = new { file_path = $"Datasets/{datasetName}/{datasetFileName}", model_name = modelName };
             var response = await _httpClient.PostAsJsonAsync("data/process-dataset", request);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<Dictionary<string, object>>(content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (result.ContainsKey("error") && result["error"] is JsonElement errorElement)
+                {
+                    var errorMessage = errorElement.TryGetProperty("message", out var messageElement) 
+                        ? messageElement.GetString() 
+                        : "An unknown error occurred";
+                    throw new HttpRequestException(errorMessage);
+                }
+                throw new HttpRequestException("An unexpected error occurred");
+            }
+
+            return result;
         }
 
         // API Call: GET /data/preview-dataset?dataset_name=dataset

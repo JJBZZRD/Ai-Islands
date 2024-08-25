@@ -14,6 +14,9 @@ import json
 from backend.utils.file_type_manager import FileTypeManager
 from fastapi.responses import FileResponse
 
+from backend.core.exceptions import FileReadError, ModelError, ModelNotAvailableError
+from backend.utils.api_response import error_response, success_response
+
 logger = logging.getLogger(__name__)
 
 class DatasetProcessRequest(BaseModel):
@@ -73,10 +76,16 @@ class DataRouter:
             dataset_manager = DatasetManagement(model_name=request.model_name)
             file_path = Path(request.file_path)
             result = dataset_manager.process_dataset(file_path)
-            return result
+            return success_response(message="Dataset processed successfully", data=result)
+        except ModelError as e:
+            logger.error(f"ModelError in process_dataset: {str(e)}")
+            return error_response(message=str(e), status_code=400)
+        except ValueError as e:
+            logger.error(f"ValueError in process_dataset: {str(e)}")
+            return error_response(message=str(e), status_code=400)
         except Exception as e:
-            logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Error processing dataset: {str(e)}")
+            logger.error(f"Unexpected error in process_dataset: {str(e)}", exc_info=True)
+            return error_response(message=f"An unexpected error occurred: {str(e)}", status_code=500)
 
     async def list_datasets(self):
         try:

@@ -22,6 +22,7 @@ from jinja2 import Template
 import base64
 import matplotlib.pyplot as plt
 import io
+from backend.core.exceptions import ModelError
 
 load_dotenv()
 
@@ -100,6 +101,15 @@ class DatasetManagement:
 
         logger.info(f"Initial project ID from settings: {project_id}")
 
+        if not api_key:
+            logger.error("No IBM API key found")
+            raise ModelError("No IBM API key found.\n\nPlease set your key in Settings.")
+
+        auth = Authentication()
+        if not auth.validate_api_key():
+            logger.error("Invalid IBM API key")
+            raise ModelError("Invalid IBM API key.\n\nPlease check your key in Settings.")
+
         if not project_id:
             project_id = self._get_or_create_project_id()
             watson_settings.set("USER_PROJECT_ID", project_id)
@@ -107,9 +117,13 @@ class DatasetManagement:
 
         logger.info(f"Final project ID being used: {project_id}")
 
+        if not auth.validate_project(project_id):
+            logger.error(f"Invalid project ID: {project_id}")
+            raise ModelError(f"Invalid project ID:\n\n\t{project_id}\n\nPlease set another project in Settings.")
+
         if not all([api_key, url, project_id]):
             logger.error("Missing required Watson credentials")
-            raise ValueError("API key, URL, and project ID are required for Watson models")
+            raise ModelError("API key, URL, and project ID are required for Watson models")
 
         self._check_required_services()
 
@@ -126,12 +140,26 @@ class DatasetManagement:
             raise ValueError(f"Unsupported Watson embedding model: {model_name}")
 
         logger.info(f"Using embedding type: {embedding_type}")
-        return WatsonxEmbeddings(
-            model_id=embedding_type.value if isinstance(embedding_type, EmbeddingTypes) else embedding_type,
-            url=url,
-            apikey=api_key,
-            project_id=project_id
-        )
+        # return WatsonxEmbeddings(
+        #     model_id=embedding_type.value if isinstance(embedding_type, EmbeddingTypes) else embedding_type,
+        #     url=url,
+        #     apikey=api_key,
+        #     project_id=project_id
+        # )
+
+        # Add in a try/except block to catch any errors NEW
+        try:
+            return WatsonxEmbeddings(
+                model_id=embedding_type.value if isinstance(embedding_type, EmbeddingTypes) else embedding_type,
+                url=url,
+                apikey=api_key,
+                project_id=project_id
+            )
+        except Exception as e:
+            logger.error(f"Error initializing Watson embeddings: {str(e)}")
+            if "invalid_instance_status_error" in str(e):
+                raise ModelError(f"The project (ID: {project_id}) is not properly set up or associated with a WML instance.\n\nPlease check your IBM Cloud account and ensure the project is correctly configured.")
+            raise ModelError(f"Unexpected error initializing Watson embeddings: {str(e)}")
 
     def _check_service(self, resource_name, service_keyword):
         return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
@@ -158,8 +186,10 @@ class DatasetManagement:
         
         missing_services = [service for service, available in required_services.items() if not available]
         if missing_services:
-            logger.error(f"Missing required services: {', '.join(missing_services)}")
-            raise ValueError(f"The following required services are missing: {', '.join(missing_services)}")
+            formatted_missing_services = format_service_name_to_list(missing_services)
+            error_message = f"The following required services are missing from your IBM Cloud account resource list:\n\n{formatted_missing_services}"
+            logger.error(error_message)
+            raise ModelError(error_message)
         logger.info("All required services are available")
 
     def _get_or_create_project_id(self):
@@ -172,7 +202,7 @@ class DatasetManagement:
         projects = get_projects()
         if not projects:
             logger.error("No projects available")
-            raise ValueError("No projects available. Please create a project in IBM Watson Studio.")
+            raise ModelError("No projects available. Please create a project in IBM Watson Studio.")
         
         project_id = projects[0]["id"]
         watson_settings.set("USER_PROJECT_ID", project_id)
@@ -198,14 +228,29 @@ class DatasetManagement:
             logger.info(f"Initializing embedding model with provided info: {model_info}")
             self.embeddings = self._initialize_embedding_model(model_info)
 
-        if isinstance(self.embeddings, WatsonxEmbeddings):
-            embeddings = self.embeddings.embed_documents(texts)
-        else:  # SentenceTransformer
-            embeddings = self.embeddings.encode(texts, show_progress_bar=True)
+        # if isinstance(self.embeddings, WatsonxEmbeddings):
+        #     embeddings = self.embeddings.embed_documents(texts)
+        # else:  # SentenceTransformer
+        #     embeddings = self.embeddings.encode(texts, show_progress_bar=True)
         
-        embeddings = np.array(embeddings).astype('float32')
-        logger.info(f"Generated embeddings with shape: {embeddings.shape}")
-        return embeddings
+        # embeddings = np.array(embeddings).astype('float32')
+        # logger.info(f"Generated embeddings with shape: {embeddings.shape}")
+        # return embeddings
+        try:
+            if isinstance(self.embeddings, WatsonxEmbeddings):
+                embeddings = self.embeddings.embed_documents(texts)
+            else:  # SentenceTransformer
+                embeddings = self.embeddings.encode(texts, show_progress_bar=True)
+            
+            embeddings = np.array(embeddings).astype('float32')
+            logger.info(f"Generated embeddings with shape: {embeddings.shape}")
+            return embeddings
+        except Exception as e:
+            logger.error(f"Error generating embeddings: {str(e)}")
+            if "invalid_instance_status_error" in str(e):
+                raise ModelError(f"The project is not properly set up or associated with a WML instance.\n\nPlease check your IBM Cloud account and ensure the project is correctly configured.")
+            raise ModelError(f"Unexpected error generating embeddings: {str(e)}")
+
 
     def process_dataset(self, file_path: Path):
         logger.info(f"Processing dataset: {file_path}")
@@ -300,11 +345,18 @@ class DatasetManagement:
             chunks = texts if self.chunking_settings["use_chunking"] else None
             report_path = self.generate_processing_report(file_path, texts, chunks)
 
-            return {"message": "Dataset processed successfully", "model_info": model_info, "report_path": report_path}
+            return {"message": "Dataset processed successfully", "model_info": model_info, "report_generated": True}
 
+        except ModelError as e:
+            logger.error(f"ModelError in processing dataset: {str(e)}")
+            raise ModelError(f"Error processing dataset: {str(e)}")
         except Exception as e:
-            logger.error(f"Error processing dataset: {e}", exc_info=True)
-            return {"message": "Error processing dataset", "error": str(e)}
+            logger.error(f"Unexpected error processing dataset: {str(e)}")
+            raise ModelError(f"Unexpected error processing dataset: {str(e)}")
+
+        # except Exception as e:
+        #     logger.error(f"Error processing dataset: {e}", exc_info=True)
+        #     return {"message": "Error processing dataset", "error": str(e)}
 
     def _create_chunks(self, texts):
         chunk_method = self.chunking_settings.get('chunk_method', 'fixed_length')
