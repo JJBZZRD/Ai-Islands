@@ -377,9 +377,9 @@ class DatasetManagement:
                 if chunk_method == 'fixed_length':
                     chunks.extend(self._fixed_length_chunks(text, chunk_size, chunk_overlap))
                 elif chunk_method == 'sentence':
-                    chunks.extend(self._sentence_chunks(text))
+                    chunks.extend(self._sentence_chunks(text, chunk_size, chunk_overlap))
                 elif chunk_method == 'paragraph':
-                    chunks.extend(self._paragraph_chunks(text))
+                    chunks.extend(self._paragraph_chunks(text, chunk_size, chunk_overlap))
                 else:
                     logger.warning(f"Unknown chunking method: {chunk_method}. Falling back to fixed_length.")
                     chunks.extend(self._fixed_length_chunks(text, chunk_size, chunk_overlap))
@@ -423,7 +423,71 @@ class DatasetManagement:
             logger.warning("No chunks were created from the CSV data")
         return chunks
 
-    def _fixed_length_chunks(self, text, chunk_size, chunk_overlap):
+    def _sentence_chunks(self, text, chunk_size=0, chunk_overlap=0):
+        if chunk_size > 0 and chunk_overlap >= chunk_size:
+            raise ValueError("Chunk overlap must be less than chunk size")
+        
+        sentences = text.replace('!', '.').replace('?', '.').split('.')
+        sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+        
+        if chunk_size == 0:
+            return sentences
+        
+        chunks = []
+        current_chunk = []
+        current_length = 0
+        
+        for sentence in sentences:
+            if current_length + len(sentence) > chunk_size and current_chunk:
+                chunks.append('. '.join(current_chunk) + '.')
+                overlap_sentences = current_chunk[-chunk_overlap:] if chunk_overlap > 0 else []
+                current_chunk = overlap_sentences
+                current_length = sum(len(s) for s in current_chunk)
+            
+            current_chunk.append(sentence)
+            current_length += len(sentence)
+        
+        if current_chunk:
+            chunks.append('. '.join(current_chunk) + '.')
+        
+        return chunks
+
+    def _paragraph_chunks(self, text, chunk_size=0, chunk_overlap=0):
+        if chunk_size > 0 and chunk_overlap >= chunk_size:
+            raise ValueError("Chunk overlap must be less than chunk size")
+        
+        paragraphs = text.split('\n\n')
+        paragraphs = [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
+        
+        if chunk_size == 0:
+            return paragraphs
+        
+        chunks = []
+        current_chunk = []
+        current_length = 0
+        
+        for paragraph in paragraphs:
+            if current_length + len(paragraph) > chunk_size and current_chunk:
+                chunks.append('\n\n'.join(current_chunk))
+                overlap_paragraphs = current_chunk[-chunk_overlap:] if chunk_overlap > 0 else []
+                current_chunk = overlap_paragraphs
+                current_length = sum(len(p) for p in current_chunk)
+            
+            current_chunk.append(paragraph)
+            current_length += len(paragraph)
+        
+        if current_chunk:
+            chunks.append('\n\n'.join(current_chunk))
+        
+        return chunks
+
+    def _fixed_length_chunks(self, text, chunk_size=0, chunk_overlap=0):
+        if chunk_size == 0:
+            chunk_size = 200  # Default chunk size
+        
+        if chunk_overlap >= chunk_size:
+            raise ValueError("Chunk overlap must be less than chunk size")
+        
         chunks = []
         start = 0
         while start < len(text):
@@ -431,17 +495,28 @@ class DatasetManagement:
             chunk = text[start:end]
             chunks.append(chunk)
             start += chunk_size - chunk_overlap
+        
         return chunks
 
-    def _sentence_chunks(self, text):
-        # Simple sentence splitting using periods, question marks, and exclamation points
-        sentences = text.replace('!', '.').replace('?', '.').split('.')
-        return [sentence.strip() for sentence in sentences if sentence.strip()]
+    # def _fixed_length_chunks(self, text, chunk_size, chunk_overlap):
+    #     chunks = []
+    #     start = 0
+    #     while start < len(text):
+    #         end = start + chunk_size
+    #         chunk = text[start:end]
+    #         chunks.append(chunk)
+    #         start += chunk_size - chunk_overlap
+    #     return chunks
 
-    def _paragraph_chunks(self, text):
-        # Simple paragraph splitting using double newlines
-        paragraphs = text.split('\n\n')
-        return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
+    # def _sentence_chunks(self, text):
+    #     # Simple sentence splitting using periods, question marks, and exclamation points
+    #     sentences = text.replace('!', '.').replace('?', '.').split('.')
+    #     return [sentence.strip() for sentence in sentences if sentence.strip()]
+
+    # def _paragraph_chunks(self, text):
+    #     # Simple paragraph splitting using double newlines
+    #     paragraphs = text.split('\n\n')
+    #     return [paragraph.strip() for paragraph in paragraphs if paragraph.strip()]
 
     def generate_processing_report(self, file_path: Path, texts, chunks=None):
         logger.info("Generating processing report")
