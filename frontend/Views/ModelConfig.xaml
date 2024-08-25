@@ -9,7 +9,7 @@
     <ContentView.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:AnyPropertyExistsConverter x:Key="AnyPropertyExistsConverter"/>
-        <converters:ListToStringConverter x:Key="ListToStringConverter"/>
+        <converters:IntListToStringConverter x:Key="IntListToStringConverter"/>
     </ContentView.Resources>
     <ScrollView>
         <VerticalStackLayout Padding="20"
@@ -596,12 +596,12 @@
 
                                     <!-- <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource NullToVisibilityConverter}}">
                                         <Label Text="Suppress Tokens"/>
-                                        <Entry Text="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource ListToStringConverter}}"
+                                        <Entry Text="{Binding Config.PipelineConfig.SuppressTokens, Converter={StaticResource IntListToStringConverter}}"
                                                Placeholder="Enter token IDs separated by commas"/>
                                     </VerticalStackLayout>
                                     <VerticalStackLayout IsVisible="{Binding Config.PipelineConfig.BeginSuppressTokens, Converter={StaticResource NullToVisibilityConverter}}">
                                         <Label Text="Begin Suppress Tokens"/>
-                                        <Entry Text="{Binding Config.PipelineConfig.BeginSuppressTokens, Converter={StaticResource ListToStringConverter}}"
+                                        <Entry Text="{Binding Config.PipelineConfig.BeginSuppressTokens, Converter={StaticResource IntListToStringConverter}}"
                                                Placeholder="Enter token IDs separated by commas"/>
                                     </VerticalStackLayout> -->
 

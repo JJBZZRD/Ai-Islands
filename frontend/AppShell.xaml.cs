@@ -28,14 +28,12 @@ namespace frontend.Views
                 }
             });
             Routing.RegisterRoute("Playground", typeof(PlaygroundPage));
-            Routing.RegisterRoute("DataRefinery", typeof(DataRefinery));
+            Routing.RegisterRoute("DataTabbedPage", typeof(DataTabbedPage));
             Routing.RegisterRoute("Setting", typeof(Setting));
             Routing.RegisterRoute(nameof(LibraryTabbedPage), typeof(LibraryTabbedPage));
             NavigateCommand = new Command<string>(async (route) => await Shell.Current.GoToAsync(route));
             BindingContext = this;
         }
-
-        
 
         private async void OnGettingStartedClicked(object sender, EventArgs e)
         {

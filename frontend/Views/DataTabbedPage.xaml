@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.DataTabbedPage"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="TabButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="HeightRequest" Value="20" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="#3366FF" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <BoxView Grid.Row="0" Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+        <StackLayout Grid.Row="1">
+            <HorizontalStackLayout HorizontalOptions="Start" Spacing="30" Margin="10,0,0,10" HeightRequest="30">
+                <Button Text="Data Refinery" Clicked="OnDataRefineryClicked" Style="{StaticResource TabButtonStyle}" />
+                <Button Text="Speaker Embedding" Clicked="OnSpeakerEmbeddingClicked" Style="{StaticResource TabButtonStyle}" />
+            </HorizontalStackLayout>
+            <BoxView Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
+            <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />
+        </StackLayout>
+    </Grid>
+</ContentPage>

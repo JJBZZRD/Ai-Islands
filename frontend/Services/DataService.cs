@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Diagnostics;
 
 namespace frontend.Services
 {
@@ -156,13 +157,28 @@ namespace frontend.Services
 
         // API Call: POST /speaker-embedding/configure
         // Request Body: { "speaker_embeddings": { "embedding_id": [0.1, 0.2, ...] } }
-        public async Task<string> ConfigureSpeakerEmbeddings(Dictionary<string, List<float>> speakerEmbeddings)
+        public async Task<string> ConfigureSpeakerEmbeddings(Dictionary<string, List<double>> speakerEmbeddings)
         {
             var request = new { speaker_embeddings = speakerEmbeddings };
-            var response = await _httpClient.PostAsJsonAsync("speaker-embedding/configure", request);
+            var response = await _httpClient.PostAsJsonAsync("data/speaker-embedding/configure", request);
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
             return result["message"].ToString();
+        }
+
+        public async Task<Dictionary<string, List<double>>> ResetSpeakerEmbeddings()
+        {
+            var response = await _httpClient.PostAsync("data/speaker-embedding/reset", null);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+            // Log the response for debugging purposes
+            Debug.WriteLine($"ResetSpeakerEmbeddings response: {JsonSerializer.Serialize(result)}");
+
+            // Extract the "data" field from the response
+            var data = JsonSerializer.Deserialize<Dictionary<string, List<double>>>(result["data"].ToString());
+
+            return data;
         }
     }
 }
