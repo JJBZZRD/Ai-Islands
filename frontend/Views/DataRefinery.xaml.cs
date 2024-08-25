@@ -11,7 +11,7 @@ using CommunityToolkit.Maui.Views;
 
 namespace frontend.Views
 {
-    public partial class DataRefinery : ContentPage, INotifyPropertyChanged
+    public partial class DataRefinery : ContentView, INotifyPropertyChanged
     {
         private readonly DataService _dataService;
         private Dictionary<string, List<string>> _availableModels;
@@ -72,7 +72,7 @@ namespace frontend.Views
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Unable to pick file: {ex.Message}", "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Unable to pick file: {ex.Message}", "OK");
             }
         }
 
@@ -80,20 +80,20 @@ namespace frontend.Views
         {
             if (string.IsNullOrEmpty(FilePathEntry.Text))
             {
-                await DisplayAlert("Error", "Please select a file first.", "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", "Please select a file first.", "OK");
                 return;
             }
 
             try
             {
                 var result = await _dataService.UploadDataset(FilePathEntry.Text);
-                await DisplayAlert("Success", "Dataset uploaded successfully!", "OK");
+                await Application.Current.MainPage.DisplayAlert("Success", "Dataset uploaded successfully!", "OK");
                 FilePathEntry.Text = string.Empty; // Clear the file path
                 await LoadDatasets();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
             }
         }
 
@@ -138,7 +138,7 @@ namespace frontend.Views
                 try
                 {
                     var result = await _dataService.ProcessDataset(selectedDataset, selectedModel);
-                    await DisplayAlert("Success", "Dataset processed successfully!", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Success", "Dataset processed successfully!", "OK");
 
                     // Update processing status
                     var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
@@ -147,12 +147,12 @@ namespace frontend.Views
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to process dataset: {ex.Message}", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to process dataset: {ex.Message}", "OK");
                 }
             }
             else
             {
-                await DisplayAlert("Error", "Please select a dataset and a model.", "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", "Please select a dataset and a model.", "OK");
             }
         }
 
@@ -175,22 +175,22 @@ namespace frontend.Views
         private async void OnRemoveDatasetsClicked(object sender, EventArgs e)
         {
             var datasets = await _dataService.ListDatasets();
-            var result = await DisplayActionSheet("Select dataset to delete", "Cancel", null, datasets.ToArray());
+            var result = await Application.Current.MainPage.DisplayActionSheet("Select dataset to delete", "Cancel", null, datasets.ToArray());
 
             if (result != null && result != "Cancel")
             {
-                bool confirm = await DisplayAlert("Confirm Deletion", $"Are you sure you want to delete the dataset '{result}'?", "Yes", "No");
+                bool confirm = await Application.Current.MainPage.DisplayAlert("Confirm Deletion", $"Are you sure you want to delete the dataset '{result}'?", "Yes", "No");
                 if (confirm)
                 {
                     try
                     {
                         await _dataService.DeleteDataset(result);
-                        await DisplayAlert("Success", $"Dataset '{result}' deleted successfully", "OK");
+                        await Application.Current.MainPage.DisplayAlert("Success", $"Dataset '{result}' deleted successfully", "OK");
                         await LoadDatasets(); // Refresh the dataset list
                     }
                     catch (Exception ex)
                     {
-                        await DisplayAlert("Error", $"Failed to delete dataset: {ex.Message}", "OK");
+                        await Application.Current.MainPage.DisplayAlert("Error", $"Failed to delete dataset: {ex.Message}", "OK");
                     }
                 }
             }
@@ -202,7 +202,8 @@ namespace frontend.Views
             {
                 var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "default");
                 var popUp = new DataRefineryProcessingInfoPopUp(info, "Default Processing Info");
-                await this.ShowPopupAsync(popUp);
+                var currentPage = Application.Current.MainPage;
+                await currentPage.ShowPopupAsync(popUp);
             }
         }
 
@@ -212,7 +213,8 @@ namespace frontend.Views
             {
                 var info = await _dataService.GetDatasetProcessingInfo(selectedDataset, "chunked");
                 var popUp = new DataRefineryProcessingInfoPopUp(info, "Chunked Processing Info");
-                await this.ShowPopupAsync(popUp);
+                var currentPage = Application.Current.MainPage;
+                await currentPage.ShowPopupAsync(popUp);
             }
         }
 
