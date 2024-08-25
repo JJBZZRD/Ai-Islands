@@ -49,7 +49,7 @@ namespace frontend.Views
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to save embeddings", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", response, "OK");
                 }
             }
             catch (Exception ex)

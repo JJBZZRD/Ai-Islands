@@ -38,11 +38,32 @@ namespace frontend.Models.ViewModels
 
             foreach (var embedding in EmbeddingsList)
             {
-                if (embedding.EmbeddingArray == null || embedding.EmbeddingArray.Any(e => !double.TryParse(e.ToString(), out _)))
+                if (string.IsNullOrWhiteSpace(embedding.EmbeddingArrayString))
                 {
-                    return $"Invalid embedding array for ID: {embedding.Id}";
+                    return $"Empty or null embedding array for ID: {embedding.Id}";
                 }
-                embeddingsDict[embedding.Id] = embedding.EmbeddingArray;
+
+                var parsedArray = new List<double>();
+                var items = embedding.EmbeddingArrayString.Split(", ");
+
+                foreach (var item in items)
+                {
+                    if (string.IsNullOrWhiteSpace(item))
+                    {
+                        return $"Empty value found in embedding array for ID: {embedding.Id}";
+                    }
+
+                    if (!double.TryParse(item.Trim(), out double value))
+                    {
+                        return $"Invalid value '{item}' in embedding array for ID: {embedding.Id}";
+                    }
+
+                    parsedArray.Add(value);
+                }
+
+                // If we've made it here, all values are valid
+                embedding.EmbeddingArray = parsedArray;  // Update the EmbeddingArray
+                embeddingsDict[embedding.Id] = parsedArray;
             }
 
             var response = await _dataService.ConfigureSpeakerEmbeddings(embeddingsDict);
@@ -50,10 +71,34 @@ namespace frontend.Models.ViewModels
         }
     }
 
-    public class SpeakerEmbedding
+    public partial class SpeakerEmbedding : ObservableObject
     {
-        public string? Id { get; set; }
+        [ObservableProperty]
+        private string? id;
 
-        public List<double>? EmbeddingArray { get; set; }
+        [ObservableProperty]
+        private List<double>? embeddingArray;
+
+        [ObservableProperty]
+        private string? embeddingArrayString;
+
+        partial void OnEmbeddingArrayChanged(List<double>? value)
+        {
+            if (value == null)
+            {
+                EmbeddingArrayString = null;
+            }
+            else
+            {
+                EmbeddingArrayString = string.Join(", ", value.Select(d => d.ToString()));
+            }
+        }
+
+        partial void OnEmbeddingArrayStringChanged(string? value)
+        {
+            // This method is called when EmbeddingArrayString is set
+            // We don't update EmbeddingArray here to avoid circular updates
+            // EmbeddingArray will be updated in the ConfigureEmbeddings method
+        }
     }
 }
