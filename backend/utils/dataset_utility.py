@@ -436,7 +436,8 @@ class DatasetManagement:
             related_chunks = [chunk for chunk in chunks if chunk.startswith(text[:50])]
             chunk_distribution.append({
                 "entry_id": i + 1,
-                "original_text": text[:100] + "..." if len(text) > 100 else text,
+                # "original_text": text, # Show the full text
+                "original_text": text[:300] + "..." if len(text) > 300 else text,
                 "num_chunks": len(related_chunks)
             })
         return chunk_distribution
