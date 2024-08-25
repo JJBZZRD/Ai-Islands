@@ -78,22 +78,26 @@
             </CollectionView>
         </ScrollView>
 
-        <Button Grid.Row="3" 
-                Text="Save Embeddings" 
-                VerticalOptions="End" 
-                HorizontalOptions="Center" 
-                Clicked="OnSaveEmbeddingsClicked"
-                Margin="0,20,0,20"
-                BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
-                TextColor="White"/>
+        <HorizontalStackLayout Grid.Row="3" HorizontalOptions="Center" Spacing="20" Margin="0,20,0,20">
+            <Button Text="Save Embeddings" 
+                    Clicked="OnSaveEmbeddingsClicked"
+                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                    TextColor="White">
+                <Button.ImageSource>
+                    <FontImageSource Glyph="&#xf0c7;" 
+                                     FontFamily="FontAwesomeFreeSolid"/>
+                </Button.ImageSource>
+            </Button>
 
-        <Button Grid.Row="4" 
-                Text="Restore Default" 
-                VerticalOptions="End" 
-                HorizontalOptions="Center" 
-                Clicked="OnRestoreDefaultClicked"
-                Margin="0,20,0,20"
-                BackgroundColor="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}"
-                TextColor="White"/>
+            <Button Text="Restore Default" 
+                    Clicked="OnRestoreDefaultClicked"
+                    BackgroundColor="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}"
+                    TextColor="White">
+                <Button.ImageSource>
+                    <FontImageSource Glyph="&#xf2f9;" 
+                                     FontFamily="FontAwesomeFreeSolid"/>
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
     </Grid>
 </ContentView>
