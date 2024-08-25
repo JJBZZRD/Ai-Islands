@@ -1455,8 +1455,11 @@
                                     </VerticalStackLayout>
                                     <VerticalStackLayout IsVisible="{Binding Config.SpeakerEmbeddingConfig, Converter={StaticResource NullToVisibilityConverter}}">
                                         <Label Text="Speaker Embedding Config"/>
-                                        <Entry Text="{Binding Config.SpeakerEmbeddingConfig}"
-                                               Placeholder="Speaker Embedding Config"/>
+                                        <Picker Title="Select Speaker Embedding"
+                                                ItemsSource="{Binding SpeakerEmbeddingsList}"
+                                                SelectedItem="{Binding SelectedSpeakerEmbedding}"
+                                                WidthRequest="300"
+                                                HorizontalOptions="Start"/>
                                     </VerticalStackLayout>
                                     <VerticalStackLayout IsVisible="{Binding Config.ChatHistory, Converter={StaticResource NullToVisibilityConverter}}">
                                         <Label Text="Chat History"/>

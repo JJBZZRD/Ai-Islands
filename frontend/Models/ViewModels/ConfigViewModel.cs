@@ -39,7 +39,10 @@ namespace frontend.Models.ViewModels
         private Language selectedGenerateKwargsLanguage;
 
         [ObservableProperty]
-        private List<string> speakerEmbeddings;
+        private List<string> speakerEmbeddingsList;
+
+        [ObservableProperty]
+        private string selectedSpeakerEmbedding;
 
         public ConfigViewModel()
         {
@@ -83,16 +86,26 @@ namespace frontend.Models.ViewModels
 
         public void InitialiseSelectedItemForPicker()
         {
-                        // Update the SelectedDatasetName
-                        if (Config.RagSettings != null && 
-                            !string.IsNullOrEmpty(Config.RagSettings.DatasetName))
-                        {
-                            SelectedDatasetName = Config.RagSettings.DatasetName;
-                        }
-                        else
-                        {
-                            SelectedDatasetName = null;
-                        }
+            // Update the SelectedDatasetName
+            if (Config.RagSettings != null &&
+                !string.IsNullOrEmpty(Config.RagSettings.DatasetName))
+            {
+                SelectedDatasetName = Config.RagSettings.DatasetName;
+            }
+            else
+            {
+                SelectedDatasetName = null;
+            }
+
+            // Update the SelectedSpeakerEmbedding
+            if (!string.IsNullOrEmpty(Config.SpeakerEmbeddingConfig))
+            {
+                SelectedSpeakerEmbedding = Config.SpeakerEmbeddingConfig;
+            }
+            else
+            {
+                SelectedSpeakerEmbedding = null;
+            }
 
             if (Config.PipelineConfig != null)
             {

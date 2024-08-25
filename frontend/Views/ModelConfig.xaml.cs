@@ -93,13 +93,20 @@ namespace frontend.Views
             }
         }
 
-        // Add this method to load speaker embeddings
         private async Task LoadSpeakerEmbeddings()
         {
             try
             {
                 var speakerEmbeddings = await _dataService.GetSpeakerEmbedding();
-                _configViewModel.SpeakerEmbeddings = new List<string>(speakerEmbeddings);
+
+                _configViewModel.SpeakerEmbeddingsList = new List<string>(speakerEmbeddings.Keys.ToList());
+
+                // Set the selected speaker embedding after populating the list
+                if (!string.IsNullOrEmpty(_configViewModel.Config.SpeakerEmbeddingConfig) &&
+                    _configViewModel.SpeakerEmbeddingsList.Contains(_configViewModel.Config.SpeakerEmbeddingConfig))
+                {
+                    _configViewModel.SelectedSpeakerEmbedding = _configViewModel.Config.SpeakerEmbeddingConfig;
+                }
             }
             catch (Exception ex)
             {
@@ -165,6 +172,11 @@ namespace frontend.Views
             if (_configViewModel.SelectedDatasetName != null)
             {
                 _configViewModel.Config.RagSettings.DatasetName = _configViewModel.SelectedDatasetName;
+            }
+
+            if (_configViewModel.Config.SpeakerEmbeddingConfig != null)
+            {
+                _configViewModel.Config.SpeakerEmbeddingConfig = _configViewModel.SelectedSpeakerEmbedding;
             }
 
             if (_configViewModel.SelectedPipelineConfigSrcLang != null)

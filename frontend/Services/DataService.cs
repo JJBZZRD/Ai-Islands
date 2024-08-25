@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
@@ -141,12 +142,16 @@ namespace frontend.Services
 
         // API Call: GET /speaker-embedding/list
         // Response: { "data": ["embedding1", "embedding2"] }
-        public async Task<List<string>> GetSpeakerEmbedding()
+        public async Task<Dictionary<string, List<double>>> GetSpeakerEmbedding()
         {
-            var response = await _httpClient.GetAsync("speaker-embedding/list");
+            var response = await _httpClient.GetAsync("data/speaker-embedding/list");
             response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
-            return result["data"];
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+
+            // Extract the "data" field from the response
+            var data = JsonSerializer.Deserialize<Dictionary<string, List<double>>>(result["data"].ToString());
+
+            return data;
         }
 
         // API Call: POST /speaker-embedding/configure
