@@ -156,10 +156,10 @@ namespace frontend.Services
 
         // API Call: POST /speaker-embedding/configure
         // Request Body: { "speaker_embeddings": { "embedding_id": [0.1, 0.2, ...] } }
-        public async Task<string> ConfigureSpeakerEmbeddings(Dictionary<string, List<float>> speakerEmbeddings)
+        public async Task<string> ConfigureSpeakerEmbeddings(Dictionary<string, List<double>> speakerEmbeddings)
         {
             var request = new { speaker_embeddings = speakerEmbeddings };
-            var response = await _httpClient.PostAsJsonAsync("speaker-embedding/configure", request);
+            var response = await _httpClient.PostAsJsonAsync("data/speaker-embedding/configure", request);
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
             return result["message"].ToString();

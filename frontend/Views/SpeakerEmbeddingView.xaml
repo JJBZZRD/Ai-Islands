@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:frontend.Views"
+             x:Class="frontend.Views.SpeakerEmbeddingView"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
+
+    <ScrollView>
+        <StackLayout Padding="20">
+            <!-- Title and Description -->
+            <Label Text="Speaker Embeddings" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" 
+                   Margin="0,0,0,10"/>
+            <Label Text="Manage and configure speaker embeddings. You can edit the embeddings and save the changes." 
+                   FontSize="17" 
+                   TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" 
+                   Margin="0,0,0,20"/>
+
+            <!-- CollectionView for EmbeddingsList -->
+            <CollectionView ItemsSource="{Binding EmbeddingsList}" Margin="0,0,0,20">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="{AppThemeBinding Light=LightGray, Dark=#444444}" 
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}" 
+                               CornerRadius="10" 
+                               Padding="10" 
+                               HasShadow="True"
+                               Margin="0,20">
+                            <Grid ColumnDefinitions="100, *, Auto">
+                                <Entry Grid.Column="0" Text="{Binding Id}" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
+                                <ScrollView Grid.Column="1" VerticalOptions="Center">
+                                    <Editor Text="{Binding EmbeddingArrayString}" 
+                                            HeightRequest="100" 
+                                            AutoSize="TextChanges" 
+                                            MaxLength="500" 
+                                            BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}"
+                                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
+                                </ScrollView>
+                                <ImageButton Grid.Column="2"
+                                             HeightRequest="20"
+                                             WidthRequest="20"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Clicked="OnDeleteEmbeddingClicked"
+                                             CommandParameter="{Binding .}"
+                                             BackgroundColor="Transparent">
+                                    <ImageButton.Source>
+                                        <FontImageSource Glyph="&#xf2ed;" 
+                                                         FontFamily="FontAwesomeFreeRegular" 
+                                                         Color="{AppThemeBinding Light=#FF4136, Dark=#FF6B6B}" />
+                                    </ImageButton.Source>
+                                </ImageButton>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Save Button -->
+            <Button Text="Save Embeddings" 
+                    Clicked="OnSaveEmbeddingsClicked" 
+                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}" 
+                    TextColor="White" 
+                    Margin="0,20,0,0" />
+        </StackLayout>
+    </ScrollView>
+
+</ContentView>

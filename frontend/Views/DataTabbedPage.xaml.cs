@@ -14,25 +14,23 @@ namespace frontend.Views
             ShowDataRefineryPage(); // Show Data Refinery page by default
         }
 
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            Title = "Data Management";
-        }
+        // protected override void OnAppearing()
+        // {
+        //     base.OnAppearing();
+        //     Title = "Data Management";
+        // }
 
         private void OnDataRefineryClicked(object sender, EventArgs e) => ShowDataRefineryPage();
-        private void OnSpeakerEmbeddingClicked(object sender, EventArgs e) => ShowSpeakerEmbeddingPage();
+        private void OnSpeakerEmbeddingClicked(object sender, EventArgs e) => ShowSpeakerEmbeddingView();
 
         private void ShowDataRefineryPage()
         {
-            var dataRefineryView = new DataRefinery();
-            ContentContainer.Content = dataRefineryView.Content;
+            ContentContainer.Content = new DataRefinery();
         }
 
-        private void ShowSpeakerEmbeddingPage()
+        private void ShowSpeakerEmbeddingView()
         {
-            var speakerEmbeddingView = new SpeakerEmbedding();
-            ContentContainer.Content = speakerEmbeddingView.Content;
+            ContentContainer.Content =  new SpeakerEmbeddingView();
         }
     }
 }
