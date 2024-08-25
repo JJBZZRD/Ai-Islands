@@ -71,6 +71,8 @@ namespace frontend.Models
 
         [JsonPropertyName("languages")]
         public Dictionary<string, string>? Languages { get; set; }
+
+        public Dictionary<string, string> FineTuningParameters { get; set; } = new Dictionary<string, string>();
     }
 
         public class Mapping
@@ -170,10 +172,10 @@ namespace frontend.Models
     public class ConversationMessage
     {
         [JsonPropertyName("role")]
-        public string Role { get; set; }
+        public string? Role { get; set; }
 
         [JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 
     public class PromptConfig
@@ -349,11 +351,11 @@ namespace frontend.Models
         [JsonPropertyName("exponential_decay_length_penalty")]
         public float? ExponentialDecayLengthPenalty { get; set; }
 
-        [JsonPropertyName("suppress_tokens")]
-        public List<int>? SuppressTokens { get; set; }
+        // [JsonPropertyName("suppress_tokens")]
+        // public List<int>? SuppressTokens { get; set; }
 
-        [JsonPropertyName("begin_suppress_tokens")]
-        public List<int>? BeginSuppressTokens { get; set; }
+        // [JsonPropertyName("begin_suppress_tokens")]
+        // public List<int>? BeginSuppressTokens { get; set; }
 
         [JsonPropertyName("forced_bos_token_id")]
         public int? ForcedBosTokenId { get; set; }

@@ -10,6 +10,9 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using frontend.Services;
 using frontend.ViewModels;
+using static System.Net.Mime.MediaTypeNames;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace frontend.Views
 {
@@ -60,7 +63,7 @@ namespace frontend.Views
             BindingContext = this;
             _libraryService = new LibraryService();
             _modelService = new ModelService();
-            
+
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
                 await MainThread.InvokeOnMainThreadAsync(async () => await RefreshLibraryModels());
@@ -110,7 +113,7 @@ namespace frontend.Views
 
         private void OnApplyFilters(object sender, FilteredModelsEventArgs e)
         {
-            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m => 
+            Models = new ObservableCollection<ModelListItemViewModel>(e.FilteredModels.Select(m =>
             {
                 var viewModel = new ModelListItemViewModel(m)
                 {
@@ -128,7 +131,7 @@ namespace frontend.Views
 
         private void OnResetFilters(object sender, EventArgs e)
         {
-            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => 
+            Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m =>
             {
                 var viewModel = new ModelListItemViewModel(m)
                 {
@@ -164,7 +167,7 @@ namespace frontend.Views
         {
             base.OnAppearing();
             await RefreshLibraryModels();
-            Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
+            Microsoft.Maui.Controls.Application.Current.RequestedThemeChanged += Current_RequestedThemeChanged;
         }
 
         private void Current_RequestedThemeChanged(object sender, AppThemeChangedEventArgs e)
@@ -196,20 +199,20 @@ namespace frontend.Views
 
                     // Check if the model is currently loaded e
                     bool isLoaded = await _modelService.IsModelLoaded(model.ModelId);
-                    model.IsLoaded = isLoaded; 
+                    model.IsLoaded = isLoaded;
                     System.Diagnostics.Debug.WriteLine($"Model: {model.ModelId}, PipelineTag: {model.PipelineTag}, IsLoaded: {isLoaded}");
 
                     newModels.Add(model);
                 }
 
                 AllModels = newModels;
-                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m => 
+                Models = new ObservableCollection<ModelListItemViewModel>(AllModels.Select(m =>
                 {
                     var viewModel = new ModelListItemViewModel(m)
                     {
                         LoadOrStopCommand = new Command(() => LoadOrStopModel(m.ModelId))
                     };
-                    viewModel.PropertyChanged += (sender, args) => 
+                    viewModel.PropertyChanged += (sender, args) =>
                     {
                         if (args.PropertyName == nameof(ModelListItemViewModel.IsCustomised))
                         {
@@ -369,7 +372,7 @@ namespace frontend.Views
         {
             base.OnDisappearing();
             WeakReferenceMessenger.Default.Unregister<RefreshLibraryMessage>(this);
-            Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
+            Microsoft.Maui.Controls.Application.Current.RequestedThemeChanged -= Current_RequestedThemeChanged;
         }
 
         private async void OnDeleteModelClicked(object sender, EventArgs e)
@@ -380,8 +383,8 @@ namespace frontend.Views
             if (model != null)
             {
                 bool confirm = await DisplayAlert(
-                    "Confirm Deletion", 
-                    $"Are you sure you want to delete model {model.ModelId}?", 
+                    "Confirm Deletion",
+                    $"Are you sure you want to delete model {model.ModelId}?",
                     "Yes", "No");
 
                 if (confirm)

@@ -4,7 +4,7 @@ import shutil
 import uuid
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from backend.core.config import UPLOAD_DATASET_DIR, DATASETS_DIR
-from backend.data_utils.dataset_processor import process_dataset
+from backend.data_utils.dataset_processor import process_vis_dataset
 from pydantic import BaseModel
 from backend.utils.dataset_utility import DatasetManagement
 from backend.utils.dataset_management import DatasetFileManagement
@@ -50,19 +50,43 @@ class DataRouter:
             logger.error(f"Error uploading dataset: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def upload_image_dataset(self, file: UploadFile = File(...), model_id: str = Query(...)):
+    # async def upload_image_dataset(self, file: UploadFile = File(...), model_id: str = Query(...)):
+    #     dataset_dir = ""
+    #     try:
+    #         dataset_id = str(uuid.uuid4())
+    #         dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
+
+    #         os.makedirs(dataset_dir, exist_ok=True)
+    #         file_path = os.path.join(dataset_dir, file.filename)
+
+    #         with open(file_path, "wb") as buffer:
+    #             shutil.copyfileobj(file.file, buffer)
+
+    #         result = process_dataset(file_path, dataset_dir, dataset_id)
+
+    #         return result
+    #     except Exception as e:
+    #         logger.error(f"Error uploading dataset: {str(e)}")
+    #         if os.path.exists(dataset_dir):
+    #             shutil.rmtree(dataset_dir)
+    #         raise HTTPException(status_code=500, detail=str(e))
+
+    async def upload_image_dataset(self, request: DatasetProcessRequest):
         dataset_dir = ""
         try:
+            source_path = Path(request.file_path)
+            if not source_path.exists():
+                raise FileNotFoundError(f"File not found: {request.file_path}")
+
             dataset_id = str(uuid.uuid4())
             dataset_dir = os.path.join(UPLOAD_DATASET_DIR, dataset_id)
 
             os.makedirs(dataset_dir, exist_ok=True)
-            file_path = os.path.join(dataset_dir, file.filename)
+            destination_path = os.path.join(dataset_dir, source_path.name)
 
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+            shutil.copy2(source_path, destination_path)
 
-            result = process_dataset(file_path, dataset_dir, dataset_id)
+            result = process_vis_dataset(destination_path, dataset_dir, dataset_id)
 
             return result
         except Exception as e:

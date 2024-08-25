@@ -24,9 +24,9 @@ public partial class PlaygroundConfigView : ContentView
 
     private async void InitializeAsync()
     {
-        // dealy 100ms to make sure the picker is loaded
+        // dealy 500ms to make sure the picker is loaded
         // the delay time might have to be longer, depending on the time taken to load the picker
-        await Task.Delay(100);
+        await Task.Delay(500);
         _viewModel.SetPlaygroundChainForPicker();
 
         Debug.WriteLine($"Current chain: {string.Join(", ", _viewModel.PlaygroundChain.Select(m => m.SelectedModel?.ModelId))}");

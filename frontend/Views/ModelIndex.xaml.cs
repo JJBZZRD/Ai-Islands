@@ -287,7 +287,7 @@ namespace frontend.Views
                         // simulate download progress. I guess this should be modified to reflect actual download progress
                         for (int i = 0; i <= 100; i++)
                         {
-                            alertPage.UpdateProgress(i / 100.0);
+                            alertPage.UpdateDownloadProgress(i / 100.0);
                             await Task.Delay(50); // adjust this delay to control the speed of the simulation
                         }
 

@@ -14,6 +14,9 @@ from backend.controlers.model_control import ModelControl
 from backend.controlers.playground_control import PlaygroundControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.controlers.library_control import LibraryControl
+from backend.utils.console_train_stream import start_console_stream_server
+from backend.utils.console_train_stream import start_load_model_server
+from backend.utils.console_train_stream import start_unload_model_server
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
@@ -73,6 +76,21 @@ app.include_router(playground_router.router, prefix="/playground", tags=["playgr
 @app.websocket("/ws/predict-live/{model_id}")
 async def predict_live(websocket: WebSocket, model_id: str):
     await model_router.predict_live(websocket, model_id)
+
+# Establish WebSocket route for training
+@app.websocket("/ws/console-stream/{model_id}/{action}/{epochs}/{batch_size}/{learning_rate}/{dataset_id}/{imgsz}")
+async def console_stream(websocket: WebSocket, model_id: str, action: str, epochs: int, batch_size: int, learning_rate: float, dataset_id: str, imgsz: int):
+    await start_console_stream_server(websocket, model_id, action, epochs, batch_size, learning_rate, dataset_id, imgsz)
+
+# Establish WebSocket route for loading models
+@app.websocket("/ws/load-model/{model_id}")
+async def load_model(websocket: WebSocket, model_id: str):
+    await start_load_model_server(websocket, model_id)
+
+# Establish WebSocket route for unloading models
+@app.websocket("/ws/unload-model/{model_id}")
+async def unload_model(websocket: WebSocket, model_id: str):
+    await start_unload_model_server(websocket, model_id)
 
 if __name__ == "__main__":
     import uvicorn

@@ -5,20 +5,13 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="Fine-Tuning Parameters" 
+            <Label Text="Fine-tune Models" 
                    FontSize="24" 
                    FontAttributes="Bold" 
                    TextColor="#333333"/>
 
             <ContentView x:Name="TaskSpecificContent" />
 
-            <Button Text="Start Fine-Tuning" 
-        BackgroundColor="#3366FF"
-        TextColor="White"
-        CornerRadius="5"
-        HeightRequest="50"
-        FontAttributes="Bold"
-        IsVisible="{Binding IsFineTuningAvailable}"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentView>
