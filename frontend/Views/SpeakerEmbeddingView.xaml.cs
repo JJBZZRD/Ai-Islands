@@ -14,7 +14,16 @@ namespace frontend.Views
             InitializeComponent();
             speakerEmbeddingViewModel = new SpeakerEmbeddingViewModel();
             BindingContext = speakerEmbeddingViewModel;
-            
+        }
+
+        private void OnAddEmbeddingClicked(object sender, EventArgs e)
+        {
+            var newEmbedding = new SpeakerEmbedding
+            {
+                Id = $"New Embedding {speakerEmbeddingViewModel.EmbeddingsList.Count + 1}",
+                EmbeddingArray = new List<double>() // Initialize with empty list or default values
+            };
+            speakerEmbeddingViewModel.EmbeddingsList.Add(newEmbedding);
         }
 
         private void OnDeleteEmbeddingClicked(object sender, EventArgs e)

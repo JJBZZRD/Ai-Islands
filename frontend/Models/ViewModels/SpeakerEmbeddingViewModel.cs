@@ -34,29 +34,26 @@ namespace frontend.Models.ViewModels
 
         internal async Task<string> ConfigureEmbeddings()
         {
-            var embeddingsDict = EmbeddingsList.ToDictionary(e => e.Id, e => e.EmbeddingArray);
+            var embeddingsDict = new Dictionary<string, List<double>>();
+
+            foreach (var embedding in EmbeddingsList)
+            {
+                if (embedding.EmbeddingArray == null || embedding.EmbeddingArray.Any(e => !double.TryParse(e.ToString(), out _)))
+                {
+                    return $"Invalid embedding array for ID: {embedding.Id}";
+                }
+                embeddingsDict[embedding.Id] = embedding.EmbeddingArray;
+            }
+
             var response = await _dataService.ConfigureSpeakerEmbeddings(embeddingsDict);
             return response;
         }
     }
 
-    public class SpeakerEmbedding : ObservableObject
+    public class SpeakerEmbedding
     {
         public string? Id { get; set; }
 
         public List<double>? EmbeddingArray { get; set; }
-
-        public string EmbeddingArrayString
-        {
-            get => string.Join(", ", EmbeddingArray);
-            set
-            {
-                if (value != null)
-                {
-                    EmbeddingArray = value.Split(',').Select(double.Parse).ToList();
-                    OnPropertyChanged();
-                }
-            }
-        }
     }
 }

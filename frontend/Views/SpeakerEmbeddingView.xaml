@@ -2,24 +2,42 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:frontend.Views"
+             xmlns:converters="clr-namespace:frontend.Converters"
              x:Class="frontend.Views.SpeakerEmbeddingView"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
-    <ScrollView>
-        <StackLayout Padding="20">
-            <!-- Title and Description -->
+    <ContentView.Resources>
+        <converters:DoubleListToStringConverter x:Key="DoubleListToStringConverter"/>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
             <Label Text="Speaker Embeddings" 
                    FontSize="24" 
                    FontAttributes="Bold" 
-                   TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" 
-                   Margin="0,0,0,10"/>
+                   TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
             <Label Text="Manage and configure speaker embeddings. You can edit the embeddings and save the changes." 
                    FontSize="17" 
-                   TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" 
-                   Margin="0,0,0,20"/>
+                   TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}"/>
+        </VerticalStackLayout>
 
-            <!-- CollectionView for EmbeddingsList -->
-            <CollectionView ItemsSource="{Binding EmbeddingsList}" Margin="0,0,0,20">
+        <ImageButton Grid.Row="1" 
+                     HorizontalOptions="End" 
+                     VerticalOptions="Start" 
+                     Margin="0,20,20,20"
+                     HeightRequest="24"
+                     WidthRequest="24"
+                     Clicked="OnAddEmbeddingClicked"
+                     BackgroundColor="Transparent">
+            <ImageButton.Source>
+                <FontImageSource Glyph="&#xf055;" 
+                                 FontFamily="FontAwesomeFreeSolid" 
+                                 Color="{AppThemeBinding Light=#28A745, Dark=#34D058}" />
+            </ImageButton.Source>
+        </ImageButton>
+
+        <ScrollView Grid.Row="2">
+            <CollectionView ItemsSource="{Binding EmbeddingsList}" Margin="20,0,20,20">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
                 </CollectionView.ItemsLayout>
@@ -30,25 +48,28 @@
                                CornerRadius="10" 
                                Padding="10" 
                                HasShadow="True"
-                               Margin="0,20">
-                            <Grid ColumnDefinitions="100, *, Auto">
-                                <Entry Grid.Column="0" Text="{Binding Id}" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
-                                <ScrollView Grid.Column="1" VerticalOptions="Center">
-                                    <Editor Text="{Binding EmbeddingArrayString}" 
-                                            HeightRequest="100" 
-                                            AutoSize="TextChanges" 
-                                            MaxLength="500" 
+                               Margin="0,5">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto, *, Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Text="Name:" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
+                                <Entry Grid.Row="0" Grid.Column="1" Text="{Binding Id}" VerticalOptions="Center" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
+                                
+                                <Label Grid.Row="1" Grid.Column="0" Text="Embedding:" VerticalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" Margin="0,10,0,0" />
+                                <ScrollView Grid.Row="1" Grid.Column="1" VerticalOptions="Center" Margin="0,10,0,0">
+                                    <Editor Text="{Binding EmbeddingArray, Converter={StaticResource DoubleListToStringConverter}}" 
+                                            HeightRequest="100"  
                                             BackgroundColor="{AppThemeBinding Light=White, Dark=#38393B}"
                                             TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}" />
                                 </ScrollView>
-                                <ImageButton Grid.Column="2"
+                                
+                                <ImageButton Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
                                              HeightRequest="20"
                                              WidthRequest="20"
-                                             HorizontalOptions="Center"
+                                             HorizontalOptions="End"
                                              VerticalOptions="Center"
                                              Clicked="OnDeleteEmbeddingClicked"
                                              CommandParameter="{Binding .}"
-                                             BackgroundColor="Transparent">
+                                             BackgroundColor="Transparent"
+                                             Margin="10,0,0,0">
                                     <ImageButton.Source>
                                         <FontImageSource Glyph="&#xf2ed;" 
                                                          FontFamily="FontAwesomeFreeRegular" 
@@ -60,14 +81,15 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+        </ScrollView>
 
-            <!-- Save Button -->
-            <Button Text="Save Embeddings" 
-                    Clicked="OnSaveEmbeddingsClicked" 
-                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}" 
-                    TextColor="White" 
-                    Margin="0,20,0,0" />
-        </StackLayout>
-    </ScrollView>
-
+        <Button Grid.Row="3" 
+                Text="Save Embeddings" 
+                VerticalOptions="End" 
+                HorizontalOptions="Center" 
+                Clicked="OnSaveEmbeddingsClicked"
+                Margin="0,20,0,20"
+                BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                TextColor="White"/>
+    </Grid>
 </ContentView>

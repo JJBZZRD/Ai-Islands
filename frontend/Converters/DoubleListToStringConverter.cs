@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using Microsoft.Maui.Controls;
 
 namespace frontend.Converters
 {
-    public class ListToStringConverter : IValueConverter
+    public class DoubleListToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is List<int> list)
+            if (value is List<double> list)
             {
                 return string.Join(",", list);
             }
@@ -21,25 +17,20 @@ namespace frontend.Converters
         {
             if (value is string str)
             {
-                var result = new List<int>();
+                var result = new List<double>();
                 var tokens = str.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var token in tokens)
                 {
-                    if (int.TryParse(token.Trim(), out int number))
+                    if (double.TryParse(token.Trim(), out double number))
                     {
                         result.Add(number);
-                    }
-                    else
-                    {
-                        // Handle invalid input gracefully, e.g., log the error or ignore the invalid token
-                        // For now, we'll just ignore invalid tokens
                     }
                 }
 
                 return result;
             }
-            return new List<int>();
+            return new List<double>();
         }
     }
 }
