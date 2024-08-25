@@ -125,7 +125,11 @@ class DatasetManagement:
             logger.error("Missing required Watson credentials")
             raise ModelError("API key, URL, and project ID are required for Watson models")
 
-        self._check_required_services()
+        try:
+            self._check_required_services()
+        except ModelError as e:
+            logger.error(f"Error checking required services: {str(e)}")
+            raise 
 
         embedding_type_map = {
             "ibm/slate-30m-english-rtrvr": EmbeddingTypes.IBM_SLATE_30M_ENG,
@@ -682,3 +686,16 @@ class DatasetManagement:
             return ', '.join([f"{key}: {value}" for key, value in entry.items()])
         else:
             return str(entry)  # Fallback for any other type
+
+# ------------- LOCAL METHODS -------------
+
+# def check_service(resource_name, service_keyword):
+#     return service_keyword.lower().replace(' ', '') in resource_name.lower().replace(' ', '')
+
+# def format_service_name(service):
+#     return ' '.join(word.capitalize() for word in service.split('_'))
+
+def format_service_name_to_list(services):
+    if isinstance(services, str):
+        services = [services]
+    return '\n'.join(f"- {' '.join(word.capitalize() for word in service.replace('_', ' ').split())}" for service in services)
