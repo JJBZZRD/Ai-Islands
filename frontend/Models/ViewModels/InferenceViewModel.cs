@@ -255,46 +255,6 @@ namespace frontend.Models.ViewModels
             }
         }
 
-        
-
-        // private object PrepareInferenceData()
-        // {
-        //     switch (Model.PipelineTag?.ToLower())
-        //     {
-        //         case "object-detection":
-        //         case "image-segmentation":
-        //             if (string.IsNullOrEmpty(SelectedFilePath))
-        //             {
-        //                 Application.Current.MainPage.DisplayAlert("Error", "Please select an image file.", "OK");
-        //                 return null;
-        //             }
-        //             return new { image_path = SelectedFilePath };
-
-        //         case "zero-shot-object-detection":
-        //             if (string.IsNullOrEmpty(SelectedFilePath) || string.IsNullOrEmpty(InputText))
-        //             {
-        //                 Application.Current.MainPage.DisplayAlert("Error", "Please select an image file and enter text.", "OK");
-        //                 return null;
-        //             }
-        //             return new { payload = new { image = SelectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
-
-        //         case "text-generation":
-        //         case "text-to-speech":
-        //         case "text-classification":
-        //         case "zero-shot-classification":
-        //         case "translation":
-        //             if (string.IsNullOrEmpty(InputText))
-        //             {
-        //                 Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
-        //                 return null;
-        //             }
-        //             return new { payload = InputText };
-
-        //         default:
-        //             Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
-        //             return null;
-        //     }
-        // }
 
         public async Task ViewImageOutput()
         {
