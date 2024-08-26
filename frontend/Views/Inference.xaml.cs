@@ -337,7 +337,6 @@ namespace frontend.Views
             {
                 Placeholder = "Enter your input here...",
                 PlaceholderColor = Colors.Gray,
-                TextColor = Colors.Black,
                 HeightRequest = 150,
                 Text = InputText
             };

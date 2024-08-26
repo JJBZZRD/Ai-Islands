@@ -33,6 +33,7 @@ class WatsonModel(BaseModel):
         self.is_loaded = False
         self.api_key = None
         self.project_id = None
+        self.chat_history = []
         
         logger.info(f"Initialized WatsonModel with ID: {self.model_id}")
 
@@ -254,10 +255,12 @@ class WatsonModel(BaseModel):
                 prompt_info = self.config.get("prompt", {})
                 parameters = self.config.get("parameters", {})
                 rag_settings = self.config.get("rag_settings", {})
+                use_chat_history = self.config.get("chat_history", False)
 
                 logger.info(f"Prompt info: {prompt_info}")
                 logger.info(f"Parameters: {parameters}")
                 logger.info(f"RAG settings: {rag_settings}")
+                logger.info(f"Use chat history: {use_chat_history}")
 
                 full_prompt = ""
                 if prompt_info.get("system_prompt"):
@@ -295,6 +298,11 @@ class WatsonModel(BaseModel):
                         logger.warning("RAG is enabled but no dataset name provided")
                 else:
                     logger.info("RAG is not enabled")
+                
+                if use_chat_history:
+                    for message in self.chat_history:
+                        full_prompt += f"{message['role'].capitalize()}: {message['content']}\n"
+                    logger.info(f"Added chat history to prompt")
                 
                 full_prompt += f"Human: {payload}\n\nAI:"
                 logger.info(f"Final full prompt: {full_prompt}")
@@ -335,6 +343,11 @@ class WatsonModel(BaseModel):
                 
                 final_result = result.strip()
                 logger.info(f"Final result: {final_result}")
+
+                if use_chat_history:
+                    self.chat_history.append({"role": "human", "content": payload})
+                    self.chat_history.append({"role": "ai", "content": final_result})
+
                 return final_result
             else:
                 raise ValueError("Neither embeddings nor model_inference is initialized.")
@@ -350,6 +363,10 @@ class WatsonModel(BaseModel):
 
     def predict(self, text: str):
         return self.inference({"payload": text})
+
+    def clear_chat_history(self):
+        self.chat_history = []
+        logger.info("Chat history cleared")
 
 # ------------- LOCAL METHODS -------------
 
