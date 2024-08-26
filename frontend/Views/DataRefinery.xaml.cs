@@ -175,7 +175,7 @@ namespace frontend.Views
                 }
                 catch (HttpRequestException ex)
                 {
-                    await DisplayAlert("Error", ex.Message, "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
                 }
                 catch (Exception ex)
                 {
@@ -328,7 +328,7 @@ namespace frontend.Views
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to open report: {ex.Message}", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to open report: {ex.Message}", "OK");
                 }
             }
         }
