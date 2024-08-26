@@ -17,6 +17,10 @@ from pathlib import Path
 import json
 from backend.utils.file_type_manager import FileTypeManager
 from backend.utils.api_response import success_response, error_response
+from fastapi.responses import FileResponse
+
+from backend.core.exceptions import FileReadError, ModelError, ModelNotAvailableError
+from backend.utils.api_response import error_response, success_response
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +49,7 @@ class DataRouter:
         self.router.add_api_route("/speaker-embedding/list", self.list_speaker_embedding, methods=["GET"])
         self.router.add_api_route("/speaker-embedding/reset", self.reset_speaker_embedding, methods=["POST"])
         self.router.add_api_route("/speaker-embedding/configure", self.configure_speaker_embeddings, methods=["POST"])
+        self.router.add_api_route("/get-dataset-report", self.get_dataset_report, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
         try:
@@ -105,10 +110,16 @@ class DataRouter:
             dataset_manager = DatasetManagement(model_name=request.model_name)
             file_path = Path(request.file_path)
             result = dataset_manager.process_dataset(file_path)
-            return result
+            return success_response(message="Dataset processed successfully", data=result)
+        except ModelError as e:
+            logger.error(f"ModelError in process_dataset: {str(e)}")
+            return error_response(message=str(e), status_code=400)
+        except ValueError as e:
+            logger.error(f"ValueError in process_dataset: {str(e)}")
+            return error_response(message=str(e), status_code=400)
         except Exception as e:
-            logger.error(f"Error processing dataset: {str(e)}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Error processing dataset: {str(e)}")
+            logger.error(f"Unexpected error in process_dataset: {str(e)}", exc_info=True)
+            return error_response(message=f"An unexpected error occurred: {str(e)}", status_code=500)
 
     async def list_datasets(self):
         try:
@@ -205,3 +216,24 @@ class DataRouter:
     async def configure_speaker_embeddings(self, speaker_embeddings: Annotated[dict[str, list[float]], Body(embed=True)] = ...):
         SpeakerEmbeddingManager.configure_speaker_embeddings(speaker_embeddings)
         return success_response(message="Successfully Overwrite Speaker Embeddings")
+
+    
+    # async def get_dataset_report(self, dataset_name: str, processing_type: str):
+    #     try:
+    #         dataset_file_management = DatasetFileManagement()
+    #         result = dataset_file_management.get_dataset_report(dataset_name, processing_type)
+    #         return result
+    #     except Exception as e:
+    #         logger.error(f"Error getting dataset report: {str(e)}")
+    #         raise HTTPException(status_code=500, detail=str(e))
+    
+    async def get_dataset_report(self, dataset_name: str, processing_type: str):
+        try:
+            dataset_file_management = DatasetFileManagement()
+            report_path = dataset_file_management.get_dataset_report(dataset_name, processing_type)
+            if report_path is None:
+                raise HTTPException(status_code=404, detail="Report not found")
+            return FileResponse(report_path, media_type="text/html")
+        except Exception as e:
+            logger.error(f"Error getting dataset report: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))

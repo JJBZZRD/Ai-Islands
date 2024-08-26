@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from backend.utils.watson_settings_manager import watson_settings
 
 from backend.core.exceptions import ModelError
+from ibm_watsonx_ai.wml_client_error import ApiRequestFailure
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -232,7 +233,7 @@ class WatsonModel(BaseModel):
     def inference(self, data: dict):
         if not self.is_loaded:
             logger.error(f"Model {self.model_id} not initialized. Please call load() before inference.")
-            return {"error": "Model not initialized. Please call load() before inference."}
+            raise ModelError("Model not initialized. Please call load() before inference.")
 
         try:
             if self.embeddings:
@@ -247,7 +248,7 @@ class WatsonModel(BaseModel):
                 payload = data.get("payload", "")
                 if not payload:
                     logger.error("No payload found in the input data")
-                    return {"error": "No payload found in the input data"}
+                    raise ModelError("No payload found in the input data")
                 
                 logger.info(f"Extracted payload: {payload}")
 
@@ -320,7 +321,19 @@ class WatsonModel(BaseModel):
                 
                 logger.info(f"Using parameters: {params}")
                 
-                result = self.model_inference.generate_text(prompt=full_prompt, params=params)
+                # result = self.model_inference.generate_text(prompt=full_prompt, params=params)
+
+                try:
+                    result = self.model_inference.generate_text(prompt=full_prompt, params=params)
+                except ApiRequestFailure as e:
+                    if "the number of input tokens" in str(e) and "cannot exceed the total tokens limit" in str(e):
+                        raise ModelError(f"Input exceeds model's token limit. Please reduce the input size.")
+                    raise ModelError(f"API request failed: {str(e)}")
+                except ModelError:
+                    raise
+                except Exception as e:
+                    raise ModelError(f"An unexpected error occurred during inference: {str(e)}")
+                
                 logger.info(f"Raw result from model: {result}")
                 
                 for stop_seq in parameters.get("stop_sequences", []):
@@ -338,9 +351,12 @@ class WatsonModel(BaseModel):
                 return final_result
             else:
                 raise ValueError("Neither embeddings nor model_inference is initialized.")
+        except ModelError as e:
+            logger.error(f"ModelError during inference: {str(e)}")
+            raise
         except Exception as e:
-            logger.error(f"Error during inference: {e}", exc_info=True)
-            return {"error": str(e)}
+            logger.error(f"Unexpected error during inference: {e}", exc_info=True)
+            raise ModelError(f"An unexpected error occurred during inference: {str(e)}")
 
     def process_request(self, payload: dict):
         return self.inference(payload)

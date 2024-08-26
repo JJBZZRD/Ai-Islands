@@ -4,6 +4,7 @@ from typing import List
 import pandas as pd
 import docx
 import logging
+import PyPDF2
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,12 @@ class DOCXHandler(FileHandler):
         doc = docx.Document(file_path)
         return ['\n'.join([paragraph.text for paragraph in doc.paragraphs])]
 
+class PDFHandler(FileHandler):
+    def read_file(self, file_path: Path) -> List[str]:
+        with open(file_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            return [' '.join([page.extract_text() for page in reader.pages])]
+
 class FileTypeManager:
     def __init__(self):
         self.handlers = {
@@ -35,6 +42,7 @@ class FileTypeManager:
             'md': TXTHandler(),
             'docx': DOCXHandler(),
             'doc': DOCXHandler(),
+            'pdf': PDFHandler(),
         }
 
     def get_handler(self, file_extension: str) -> FileHandler:

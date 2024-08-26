@@ -39,7 +39,7 @@
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Processing Details:" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
                         <Label Text="{Binding EmbeddingDimensions, StringFormat='Embedding Dimensions: {0}'}" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                        <Label Text="{Binding MaxInputTokens, StringFormat='Max Input Tokens: {0}'}" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                        <Label Text="{Binding MaxInputTokens, StringFormat='Max Input Tokens: {0}', TargetNullValue='Max Input Tokens: Null'}" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
                     </VerticalStackLayout>
                 </Frame>
 

@@ -195,3 +195,30 @@ class DatasetFileManagement:
         except Exception as e:
             logger.error(f"Error getting datasets with processing info: {str(e)}")
             raise
+    
+    # def get_dataset_report(self, dataset_name: str, processing_type: str):
+    #     logger.info(f"Retrieving report for dataset: {dataset_name}, processing type: {processing_type}")
+    #     dataset_dir = Path("Datasets") / dataset_name
+    #     processing_dir = dataset_dir / processing_type
+    #     report_path = processing_dir / f"{dataset_name}_processing_report.html"
+
+    #     if not report_path.exists():
+    #         logger.error(f"Report not found for dataset: {dataset_name}, processing type: {processing_type}")
+    #         return None
+
+    #     with open(report_path, 'r', encoding='utf-8') as f:
+    #         report_content = f.read()
+
+    #     return report_content
+
+    def get_dataset_report(self, dataset_name: str, processing_type: str):
+        logger.info(f"Retrieving report for dataset: {dataset_name}, processing type: {processing_type}")
+        dataset_dir = Path(DATASETS_DIR) / dataset_name
+        processing_dir = dataset_dir / processing_type
+        report_path = processing_dir / f"{dataset_name}_processing_report.html"
+
+        if not report_path.exists():
+            logger.error(f"Report not found for dataset: {dataset_name}, processing type: {processing_type}")
+            return None
+
+        return report_path

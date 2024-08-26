@@ -60,51 +60,99 @@
                         HorizontalOptions="Fill"
                         SelectedIndexChanged="OnDatasetPickerSelectedIndexChanged"/>
                 
-                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
-                    <Label Text="Default Processed " VerticalOptions="Center"/>
-                    <Image Source="check.png"
-                           IsVisible="{Binding DefaultProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Image Source="cross.png"
-                           IsVisible="{Binding IsNotDefaultProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Label Text="See Info"
-                           TextColor="Blue"
-                           TextDecorations="Underline"
-                           IsVisible="{Binding DefaultProcessed}"
-                           Margin="10,0,0,0">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnDefaultInfoClicked"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </StackLayout>
-                
-                <StackLayout Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
-                    <Label Text="Chunked Processed " VerticalOptions="Center"/>
-                    <Image Source="check.png"
-                           IsVisible="{Binding ChunkedProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Image Source="cross.png"
-                           IsVisible="{Binding IsNotChunkedProcessed}"
-                           HeightRequest="20" 
-                           WidthRequest="20"
-                           Margin="5,0,0,0"/>
-                    <Label Text="See Info"
-                           TextColor="Blue"
-                           TextDecorations="Underline"
-                           IsVisible="{Binding ChunkedProcessed}"
-                           Margin="10,0,0,0">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnChunkedInfoClicked"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </StackLayout>
+                <Frame Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="1" Grid.RowSpan="1"
+                       BorderColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"
+                       CornerRadius="5"
+                       Margin="0,10,0,0"
+                       Padding="0"
+                       HasShadow="False">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto,*,Auto,*,Auto,*">
+                        <Grid.Background>
+                            <SolidColorBrush Color="{AppThemeBinding Light=#F2F2F2, Dark=#303134}" />
+                        </Grid.Background>
+                        
+                        <Label Text="Type" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" Padding="5"/>
+                        <BoxView Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" WidthRequest="1" 
+                                 Color="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                        <Label Text="Status" Grid.Row="0" Grid.Column="2" FontAttributes="Bold" Padding="5"/>
+                        <BoxView Grid.Row="0" Grid.RowSpan="5" Grid.Column="3" WidthRequest="1" 
+                                 Color="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                        <Label Text="Detail" Grid.Row="0" Grid.Column="4" FontAttributes="Bold" Padding="5"/>
+                        <BoxView Grid.Row="0" Grid.RowSpan="5" Grid.Column="5" WidthRequest="1" 
+                                 Color="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                        <Label Text="Report" Grid.Row="0" Grid.Column="6" FontAttributes="Bold" Padding="5"/>
+                        
+                        <BoxView Grid.Row="1" Grid.ColumnSpan="7" HeightRequest="1" 
+                                 Color="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                        
+                        <Label Text="Default Processed" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" Padding="5"/>
+                        <StackLayout Orientation="Horizontal" Grid.Row="2" Grid.Column="2" Padding="5">
+                            <Image Source="check.png"
+                                   IsVisible="{Binding DefaultProcessed}"
+                                   HeightRequest="20" 
+                                   WidthRequest="20"/>
+                            <Image Source="cross.png"
+                                   IsVisible="{Binding IsNotDefaultProcessed}"
+                                   HeightRequest="20" 
+                                   WidthRequest="20"/>
+                        </StackLayout>
+                        <Label Text="See Info"
+                               TextColor="Blue"
+                               TextDecorations="Underline"
+                               IsVisible="{Binding DefaultProcessed}"
+                               Grid.Row="2" Grid.Column="4"
+                               Padding="5">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDefaultInfoClicked"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Text="View Report"
+                               TextColor="Blue"
+                               TextDecorations="Underline"
+                               IsVisible="{Binding DefaultProcessed}"
+                               Grid.Row="2" Grid.Column="6"
+                               Padding="5">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDefaultReportClicked"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        
+                        <BoxView Grid.Row="3" Grid.ColumnSpan="7" HeightRequest="1" 
+                                 Color="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
+                        
+                        <Label Text="Chunked Processed" Grid.Row="4" Grid.Column="0" VerticalOptions="Center" Padding="5"/>
+                        <StackLayout Orientation="Horizontal" Grid.Row="4" Grid.Column="2" Padding="5">
+                            <Image Source="check.png"
+                                   IsVisible="{Binding ChunkedProcessed}"
+                                   HeightRequest="20" 
+                                   WidthRequest="20"/>
+                            <Image Source="cross.png"
+                                   IsVisible="{Binding IsNotChunkedProcessed}"
+                                   HeightRequest="20" 
+                                   WidthRequest="20"/>
+                        </StackLayout>
+                        <Label Text="See Info"
+                               TextColor="Blue"
+                               TextDecorations="Underline"
+                               IsVisible="{Binding ChunkedProcessed}"
+                               Grid.Row="4" Grid.Column="4"
+                               Padding="5">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnChunkedInfoClicked"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Text="View Report"
+                               TextColor="Blue"
+                               TextDecorations="Underline"
+                               IsVisible="{Binding ChunkedProcessed}"
+                               Grid.Row="4" Grid.Column="6"
+                               Padding="5">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnChunkedReportClicked"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Frame>
                 
                 <Label Text="Select Embedding Type:" VerticalOptions="Center" Grid.Column="0" Grid.Row="3"/>
                 <Picker x:Name="EmbeddingTypePicker"
