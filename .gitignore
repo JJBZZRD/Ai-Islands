@@ -509,3 +509,7 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 >>>>>>> main
+/Datasets
+data/settings.json
+data/metadata.json
+data/dataset_processing_report.txt

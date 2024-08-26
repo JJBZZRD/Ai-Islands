@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using frontend.Services;
 using System.Text.Json;
 using CommunityToolkit.Maui.Views;
+using System.Diagnostics;
 
 namespace frontend.Views
 {
@@ -129,6 +130,32 @@ namespace frontend.Views
                 }
             }
         }
+        // ORIGINAL:
+        // private async void OnProcessClicked(object sender, EventArgs e)
+        // {
+        //     if (DatasetPicker.SelectedItem is string selectedDataset &&
+        //         ModelPicker.SelectedItem is string selectedModel)
+        //     {
+        //         try
+        //         {
+        //             var result = await _dataService.ProcessDataset(selectedDataset, selectedModel);
+        //             await DisplayAlert("Success", "Dataset processed successfully!", "OK");
+
+        //             // Update processing status
+        //             var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
+        //             DefaultProcessed = processingStatus["default_processed"];
+        //             ChunkedProcessed = processingStatus["chunked_processed"];
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             await DisplayAlert("Error", $"Failed to process dataset: {ex.Message}", "OK");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         await DisplayAlert("Error", "Please select a dataset and a model.", "OK");
+        //     }
+        // }
 
         private async void OnProcessClicked(object sender, EventArgs e)
         {
@@ -144,6 +171,11 @@ namespace frontend.Views
                     var processingStatus = await _dataService.GetDatasetProcessingStatus(selectedDataset);
                     DefaultProcessed = processingStatus["default_processed"];
                     ChunkedProcessed = processingStatus["chunked_processed"];
+                    // ... rest of the success handling ...
+                }
+                catch (HttpRequestException ex)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
                 }
                 catch (Exception ex)
                 {
@@ -268,6 +300,37 @@ namespace frontend.Views
             }
 
             return "Error: Unable to format preview content";
+        }
+
+        private async void OnDefaultReportClicked(object sender, EventArgs e)
+        {
+            await OpenReport("default");
+        }
+
+        private async void OnChunkedReportClicked(object sender, EventArgs e)
+        {
+            await OpenReport("chunked");
+        }
+
+        private async Task OpenReport(string processingType)
+        {
+            if (DatasetPicker.SelectedItem is string selectedDataset)
+            {
+                try
+                {
+                    var reportContent = await _dataService.GetDatasetReport(selectedDataset, processingType);
+                    var tempFilePath = Path.GetTempFileName() + ".html";
+                    File.WriteAllText(tempFilePath, reportContent);
+                    await Launcher.OpenAsync(new OpenFileRequest
+                    {
+                        File = new ReadOnlyFile(tempFilePath)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to open report: {ex.Message}", "OK");
+                }
+            }
         }
 
         protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
