@@ -2,9 +2,13 @@ import logging
 import os
 import shutil
 import uuid
+from typing import Annotated
+
+from fastapi import Body
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 from backend.core.config import UPLOAD_DATASET_DIR, DATASETS_DIR
 from backend.data_utils.dataset_processor import process_vis_dataset
+from backend.data_utils.speaker_embedding_manager import SpeakerEmbeddingManager
 from pydantic import BaseModel
 from backend.utils.dataset_utility import DatasetManagement
 from backend.utils.dataset_management import DatasetFileManagement
@@ -12,6 +16,7 @@ from typing import List
 from pathlib import Path
 import json
 from backend.utils.file_type_manager import FileTypeManager
+from backend.utils.api_response import success_response, error_response
 from fastapi.responses import FileResponse
 
 from backend.core.exceptions import FileReadError, ModelError, ModelNotAvailableError
@@ -39,6 +44,11 @@ class DataRouter:
         self.router.add_api_route("/delete-dataset", self.delete_dataset, methods=["DELETE"])
         self.router.add_api_route("/dataset-processing-info", self.get_dataset_processing_info, methods=["GET"])
         self.router.add_api_route("/datasets-processing-existence", self.get_datasets_tracker_info, methods=["GET"])
+        self.router.add_api_route("/speaker-embedding/add", self.add_speaker_embedding, methods=["POST"])
+        self.router.add_api_route("/speaker-embedding/remove/{embedding_id}", self.remove_speaker_embedding, methods=["DELETE"])
+        self.router.add_api_route("/speaker-embedding/list", self.list_speaker_embedding, methods=["GET"])
+        self.router.add_api_route("/speaker-embedding/reset", self.reset_speaker_embedding, methods=["POST"])
+        self.router.add_api_route("/speaker-embedding/configure", self.configure_speaker_embeddings, methods=["POST"])
         self.router.add_api_route("/get-dataset-report", self.get_dataset_report, methods=["GET"])
     
     async def upload_dataset(self, request: DatasetProcessRequest):
@@ -177,6 +187,36 @@ class DataRouter:
         except Exception as e:
             logger.error(f"Error getting datasets with tracker info: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
+        
+    async def add_speaker_embedding(self, 
+                                    embedding_id: Annotated[str, Body()] = ...,
+                                    embedding: Annotated[list, Body()] = ...):
+        try:
+            SpeakerEmbeddingManager.add_speaker_embedding(embedding_id, embedding)
+            return success_response(message="Successfully added new speaker embedding")
+        except Exception as e:
+            return error_response(message=f"Unexpected Error: {str(e)}", status_code=500)
+
+    async def remove_speaker_embedding(self, embedding_id: str):
+        try:
+            SpeakerEmbeddingManager.remove_speaker_embedding(embedding_id)
+            return success_response(status_code=204)
+        except KeyError:
+            return error_response(message=f"Speaker Embedding {embedding_id} does not exist.", status_code=404)
+        
+    async def list_speaker_embedding(self):
+        embeddings = SpeakerEmbeddingManager.list_speaker_embedding()
+        return success_response(data=embeddings)
+
+    async def reset_speaker_embedding(self):
+        embeddings = SpeakerEmbeddingManager.reset_speaker_embedding()
+        return success_response(message="Successfully Reset All Speaker Embeddings",
+                                data=embeddings)
+        
+    async def configure_speaker_embeddings(self, speaker_embeddings: Annotated[dict[str, list[float]], Body(embed=True)] = ...):
+        SpeakerEmbeddingManager.configure_speaker_embeddings(speaker_embeddings)
+        return success_response(message="Successfully Overwrite Speaker Embeddings")
+
     
     # async def get_dataset_report(self, dataset_name: str, processing_type: str):
     #     try:

@@ -6,7 +6,7 @@
        FlyoutBehavior="Flyout"
        BackgroundColor="{AppThemeBinding Light=Gray, Dark=Gray}"
        FlyoutBackgroundColor="{AppThemeBinding Light=Black, Dark=Black}"
-       FlyoutWidth="180">
+       FlyoutWidth="220">
 
     <Shell.TitleView>
         <Grid Padding="15,0,0,0" BackgroundColor="{AppThemeBinding Light=Black, Dark=Black}">
@@ -86,13 +86,13 @@
             Route="Playground"/>
     </FlyoutItem>
 
-    <!-- Data Refinery Page -->
-	<FlyoutItem Title="Data Refinery" Icon="datagrid.png">
-		<ShellContent
-            Title="Data Refinery"
-            ContentTemplate="{DataTemplate local:DataRefinery}"
-            Route="DataRefinery"/>
-	</FlyoutItem>
+    <!-- Data Management Page -->
+    <FlyoutItem Title="Data Management" Icon="datagrid.png">
+        <ShellContent
+            Title="Data Management"
+            ContentTemplate="{DataTemplate local:DataTabbedPage}"
+            Route="DataTabbedPage"/>
+    </FlyoutItem>
 
 	<!-- Settings Page -->
 	<FlyoutItem Title="Settings" Icon="settings.png">
@@ -107,15 +107,6 @@
             <Label Text="AI Islands v1.0" TextColor="{AppThemeBinding Light=White, Dark=White}" HorizontalOptions="Center" />
         </Grid>
     </Shell.FlyoutFooter>
-
-    <!-- <TabBar Route="LibraryTabbedPage">
-        <Tab Title="Inference">
-            <ShellContent ContentTemplate="{DataTemplate local:Inference}" />
-        </Tab>
-        <Tab Title="Fine-tune">
-            <ShellContent ContentTemplate="{DataTemplate local:FineTune}" />
-        </Tab>
-    </TabBar> -->
 
     <Shell.ToolbarItems>
             <ToolbarItem Text="Getting Started" Clicked="OnGettingStartedClicked" Order="Secondary"/>

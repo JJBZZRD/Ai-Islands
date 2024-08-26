@@ -6,7 +6,7 @@ using Microsoft.Maui.Controls;
 
 namespace frontend.Converters
 {
-    public class ListToStringConverter : IValueConverter
+    public class IntListToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
