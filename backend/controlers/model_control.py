@@ -390,7 +390,7 @@ class ModelControl:
         response = conn.recv()
         # Check if the response contains an error. If there is an error, raise it
         if "error" in response:
-            raise response["error"]
+            raise ModelError(response["error"])
         
         return response
         
