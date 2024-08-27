@@ -200,5 +200,25 @@ namespace frontend.Services
 
             await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Completed", cancellationToken);
         }
+
+        public async Task<HttpResponseMessage> FineTuneModel(string modelId, string datasetPath, Dictionary<string, double> tokenizerArgs, Dictionary<string, double> trainingArgs)
+        {
+            var fineTuneParams = new
+            {
+                model_id = modelId,
+                data = new
+                {
+                    data = datasetPath,
+                    tokenizer_args = tokenizerArgs,
+                    training_args = trainingArgs
+                }
+            };
+
+            var jsonContent = JsonSerializer.Serialize(fineTuneParams);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("model/train", content);
+            return response;
+        }
     }
 }

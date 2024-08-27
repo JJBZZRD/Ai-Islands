@@ -290,7 +290,7 @@ class TransformerModel(BaseModel):
         dataset_path = data.get("data")
         model_info = data.get("model_info")
         hardware_preference = str(data.get("hardware_preference"))
-        # hardware_preference = "gpu"
+        
         tokenizer_args = data.get("tokenizer_args", {})
         training_args = data.get("training_args", {})
 

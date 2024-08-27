@@ -81,7 +81,7 @@ namespace frontend.Views
                     case "text-classification":
                         if (_model.IsOnline == false)
                         {
-                            fineTunePage = new FineTuneNLPView();
+                            fineTunePage = new FineTuneNLPView(_model);
                             break;
                         }
                         else
