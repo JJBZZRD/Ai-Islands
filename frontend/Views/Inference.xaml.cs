@@ -199,7 +199,11 @@ namespace frontend.Views
                 HeightRequest = 150,
                 Text = _viewModel.InputText
             };
-            editor.TextChanged += (sender, e) => _viewModel.InputText = ((Editor)sender)?.Text ?? string.Empty;
+            editor.TextChanged += (sender, e) => 
+            {
+                _viewModel.InputText = ((Editor)sender)?.Text ?? string.Empty;
+                System.Diagnostics.Debug.WriteLine($"Text input changed. New value: '{_viewModel.InputText}'");
+            };
             return editor;
         }
 
@@ -222,6 +226,7 @@ namespace frontend.Views
 
         private async void OnRunInferenceClicked(object sender, EventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"OnRunInferenceClicked called. ViewModel.InputText: '{_viewModel.InputText}'");
             await _viewModel.RunInference();
         }
 

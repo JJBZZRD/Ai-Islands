@@ -188,8 +188,18 @@ namespace frontend.Models.ViewModels
             try
             {
                 object data;
-                switch (_model.PipelineTag?.ToLower())
+                switch (Model.PipelineTag?.ToLower())
                 {
+                    case "text-classification":
+                        data = new { payload = InputText };
+                        System.Diagnostics.Debug.WriteLine($"Text classification data: {JsonSerializer.Serialize(data)}");
+                        break;
+                    case "zero-shot-classification":
+                        data = new { text = InputText };
+                        break;
+                    case "text-generation":
+                        data = new { payload = InputText };
+                        break;
                     case "object-detection":
                         if (string.IsNullOrEmpty(_selectedFilePath))
                         {
@@ -220,28 +230,19 @@ namespace frontend.Models.ViewModels
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
-                    case "text-generation":
-                        if (string.IsNullOrEmpty(InputText))
-                        {
-                            await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
-                            return;
-                        }
-                        data = new { payload = InputText };
-                        break;
-                    case "text-to-speech":
-                    
                     default:
-                        await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
-                        return;
+                        throw new ArgumentException("Unsupported model type for inference.");
                 }
 
-                Dictionary<string, object> result = await _modelService.Inference(_model.ModelId, data);
+                Dictionary<string, object> result = await _modelService.Inference(Model.ModelId, data);
+                System.Diagnostics.Debug.WriteLine($"Received inference result: {JsonSerializer.Serialize(result)}");
 
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     RawJsonText = FormatJsonString(dataValue);
-                    OutputText = dataValue.ToString(); // Use OutputText instead of RawJsonText for formatted output
-                    System.Diagnostics.Debug.WriteLine($"Extracted data: {OutputText}");
+                    OutputText = Model.PipelineTag?.ToLower() == "text-generation" 
+                        ? dataValue.ToString() 
+                        : RawJsonText;
                 }
                 else
                 {
@@ -249,8 +250,15 @@ namespace frontend.Models.ViewModels
                     return;
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HttpRequestException in RunInference: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Network error during inference: {ex.Message}", "OK");
+            }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error in RunInference: {ex}");
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
             }
         }
