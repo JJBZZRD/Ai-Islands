@@ -319,13 +319,12 @@ class TransformerModel(BaseModel):
                 json.dump(script_args, f, indent=4)
 
         if os.name == 'nt':  # Windows
-            # command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
-            command = ['python', script_path] 
+            command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
         else:  # Unix-like systems
             command = ['gnome-terminal', '--wait', '--', 'python', script_path]
         
         logger.info("checkpoint 3")
-        process = subprocess.Popen(command, creationflags=subprocess.CREATE_NEW_CONSOLE)
+        process = subprocess.Popen(command)
         process.wait()  # Wait for the process to complete
 
         new_model_info = {
