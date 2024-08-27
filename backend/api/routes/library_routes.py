@@ -73,7 +73,7 @@ class LibraryRouter:
         raise HTTPException(status_code=404, detail=f"Model {model_id} not found in library")
 
     async def add_fine_tuned_model(self, new_entry: NewModelEntry):
-        new_model_id = self.library_control.add_fine_tuned_model(new_entry.dict())
+        new_model_id = self.library_control.add_fine_tuned_model(new_entry.model_dump())
         return {"message": f"Fine-tuned model {new_model_id} added to library"}
 
     async def update_model_config(self, request: ConfigUpdateRequest):

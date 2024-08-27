@@ -1,14 +1,22 @@
 import os
 import torch
 import transformers
+import evaluate
+import shutil
+import numpy as np
+import logging
 
+from datasets import load_dataset
+from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
+from accelerate import Accelerator
+from PIL import Image
+
+from backend.core.config import ROOT_DIR
+from backend.utils.helpers import get_next_suffix
 from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
-import logging
 from backend.data_utils.speaker_embedding_manager import SpeakerEmbeddingManager
-from accelerate import Accelerator
-from PIL import Image
 from backend.utils.process_vis_out import _ensure_json_serializable
 from backend.core.exceptions import ModelError
 
@@ -22,9 +30,11 @@ class TransformerModel(BaseModel):
         self.pipeline = None
         self.config = None
         self.device = None
+        self.model_dir = None
         self.languages = {}
         self.accelerator = None
         self.model_instance_data = []
+        self.is_trained = False
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -89,6 +99,7 @@ class TransformerModel(BaseModel):
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
             
+            self.model_dir = model_dir
             logger.info(f"Loading model from {model_dir}")
             logger.info(f"Model info: {model_info}")
             
@@ -125,6 +136,9 @@ class TransformerModel(BaseModel):
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             
+            # for trained mode;s, they have to be loaded differently
+            self.is_trained = model_info.get("is_trained", False)
+            
             # for loop to load all the required classes
             for class_type, class_name in required_classes.items():
                 
@@ -136,15 +150,22 @@ class TransformerModel(BaseModel):
                 
                 # read the corresponding config for the class_type
                 obj_config = self.config.get(f'{class_type}_config', {})
-                # load the class object from the local model directory
-                obj = class_.from_pretrained(
-                    self.model_id,
-                    cache_dir=model_dir,
-                    local_files_only=True,
-                    **obj_config
-                )
-        
                 
+                if not self.is_trained:
+                    # load the class object from the local model directory
+                    obj = class_.from_pretrained(
+                        self.model_id,
+                        cache_dir=model_dir,
+                        local_files_only=True,
+                        **obj_config
+                    )
+                else:
+                    obj = class_.from_pretrained(
+                        self.model_dir,
+                        local_files_only=True,
+                        **obj_config
+                    ) 
+
                 # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
                 logger.info(f"succesfully loaded {class_type} from {model_dir}")
@@ -268,8 +289,103 @@ class TransformerModel(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             raise ModelError(f"Error during inference: {str(e)}")
 
-    def train(self, data_path: str, epochs: int = 3):
-        logger.warning("Training method not implemented for TransformerModel")
+    def train(self, data: dict):
+        dataset_path = data.get("data")
+        tokenizer_args = data.get("tokenizer_args", {})
+        training_args = data.get("training_args", {})
+
+        if not dataset_path:
+            return {"error": "Dataset path not provided in the request data"}
+
+        dataset = load_dataset('csv', data_files=dataset_path)
+        dataset = dataset["train"]
+
+        model = self.pipeline_args.get("model")
+        tokenizer = self.pipeline_args.get("tokenizer")
+
+        def _preprocess_function(data_entry):
+            tokenizer_params = {
+                "padding": "max_length",
+                "truncation": True,
+                "max_length": 128
+            }
+            tokenizer_params.update(tokenizer_args)
+            return tokenizer(data_entry['text'], **tokenizer_params)
+
+        dataset = dataset.map(_preprocess_function)
+
+        dataset = dataset.train_test_split(test_size=0.2)
+
+        data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+        accuracy = evaluate.load("accuracy")
+
+        def compute_metrics(eval_pred):
+            predictions, labels = eval_pred
+            predictions = np.argmax(predictions, axis=1)
+            return accuracy.compute(predictions=predictions, references=labels)
+
+        suffix = get_next_suffix(self.model_id)
+        trained_model_dir = os.path.join(f"{self.model_dir}_{suffix}")
+        temp_output_dir = os.path.join(ROOT_DIR, "temp")
+
+        os.makedirs(temp_output_dir, exist_ok=True)
+
+        default_training_args = {
+            "output_dir": temp_output_dir,
+            "save_only_model": True,
+            "learning_rate": 1e-7,
+            "num_train_epochs": 5,
+            "weight_decay": 0.01,
+            "eval_strategy": "epoch",
+            "save_strategy": "epoch",
+            "save_total_limit": 3,
+            "load_best_model_at_end": True
+        }
+
+        default_training_args.update(training_args)
+
+        training_args = TrainingArguments(
+            **default_training_args
+        )
+
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=dataset["train"],
+            eval_dataset=dataset["test"],
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            compute_metrics=compute_metrics,
+        )
+
+        # Open a new terminal and display progress
+        terminal_process = self._open_terminal_and_display_progress(trainer)
+
+        trainer.train()
+        trainer.save_model(trained_model_dir)
+
+        # Close the terminal
+        terminal_process.terminate()
+
+        shutil.rmtree(temp_output_dir, ignore_errors=True)
+
+        new_model_info = {
+            "model_id": f"{self.model_id}_{suffix}",
+            "base_model": f"{self.model_id}_{suffix}",
+            "dir": trained_model_dir,
+            "model_desc": f"Fine-tuned {self.model_id} model",
+            "is_customised": False,
+            "is_trained": True
+        }
+
+        return {
+            "message": "Training completed successfully",
+            "data": {
+                "trained_model_path": trained_model_dir,
+                "new_model_info": new_model_info
+            }
+        }
     
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
