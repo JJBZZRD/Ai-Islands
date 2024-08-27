@@ -33,7 +33,15 @@ namespace frontend.Models.ViewModels
         public string InputText
         {
             get => _inputText;
-            set { SetProperty(ref _inputText, value); }
+            set 
+            {
+                // Normalize line endings
+                // var normalizedText = value?.Replace("\r\n", "\n").Replace("\r", "\n");
+                // SetProperty(ref _inputText, normalizedText);
+
+                // No normalization - we can use the method NormalizeLineEndings below in the format section...
+                SetProperty(ref _inputText, value); 
+            }
         }
 
         private string _outputText;
@@ -190,16 +198,9 @@ namespace frontend.Models.ViewModels
                 object data;
                 switch (Model.PipelineTag?.ToLower())
                 {
-                    case "text-classification":
-                        data = new { payload = InputText };
-                        System.Diagnostics.Debug.WriteLine($"Text classification data: {JsonSerializer.Serialize(data)}");
-                        break;
-                    case "zero-shot-classification":
-                        data = new { text = InputText };
-                        break;
-                    case "text-generation":
-                        data = new { payload = InputText };
-                        break;
+                    // ------------------------------------------- INPUT FORMAT CASE SWITCH ---------------------------- (See input format section below)
+                    
+                    // ------------------------- COMPUTER VISION MODELS -------------------------
                     case "object-detection":
                         if (string.IsNullOrEmpty(_selectedFilePath))
                         {
@@ -230,6 +231,36 @@ namespace frontend.Models.ViewModels
                         }
                         data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
+
+                    // ------------------------- NLP MODELS -------------------------
+
+                    case "text-classification":
+                        data = new { payload = InputText };
+                        System.Diagnostics.Debug.WriteLine($"Text classification data: {JsonSerializer.Serialize(data)}");
+                        break;
+                    case "zero-shot-classification":
+                        data = new { text = InputText };
+                        break;
+                    case "translation":
+                        var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
+                        data = translationPayload;
+                        // Store originalStructure for later use
+                        break;
+
+                    // ------------------------- OTHER -------------------------
+
+                    case "feature-extraction":
+                        data = new { payload = InputText };
+                        System.Diagnostics.Debug.WriteLine($"Text input data: {JsonSerializer.Serialize(data)}");
+                        break;
+
+                    // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
+
+                    case "text-generation":
+                        data = new { payload = InputText };
+                        break;
+
+
                     default:
                         throw new ArgumentException("Unsupported model type for inference.");
                 }
@@ -237,12 +268,27 @@ namespace frontend.Models.ViewModels
                 Dictionary<string, object> result = await _modelService.Inference(Model.ModelId, data);
                 System.Diagnostics.Debug.WriteLine($"Received inference result: {JsonSerializer.Serialize(result)}");
 
+                // ------------------------------------------- OUTPUT FORMAT CASE SWITCH ---------------------------- (See output format section below)
+
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     RawJsonText = FormatJsonString(dataValue);
-                    OutputText = Model.PipelineTag?.ToLower() == "text-generation" 
-                        ? dataValue.ToString() 
-                        : RawJsonText;
+                    switch (Model.PipelineTag?.ToLower())
+                    {
+                        case "translation":
+                            var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
+                            data = translationPayload;
+                            // ... (after getting the result)
+                            OutputText = FormatTranslationOutput(dataValue, originalStructure);
+                            break;
+                        case "text-generation":
+                            OutputText = dataValue.ToString();
+                            break;
+                        // ... (handle other cases as needed)
+                        default:
+                            OutputText = RawJsonText; // If output format not specified, always return raw json
+                            break;
+                    }
                 }
                 else
                 {
@@ -473,6 +519,33 @@ namespace frontend.Models.ViewModels
             }
         }
 
+
+
+        // ------------------------- FORMATTING METHODS ------------------------- (See case switch above in run inference method)
+
+        // INPUT FORMATS
+        
+        // General methods:
+
+        private string NormalizeLineEndings(string text)
+        {
+            return text?.Replace("\r\n", "\n").Replace("\r", "\n");
+        }
+
+        // Case specific methods:
+        private (object payload, List<string> originalStructure) FormatTranslationInput(string inputText)
+        {
+            var normalizedText = NormalizeLineEndings(inputText);
+            var inputLines = normalizedText.Split('\n', StringSplitOptions.None).ToList();
+            var nonEmptyLines = inputLines.Where(line => !string.IsNullOrWhiteSpace(line)).ToList();
+            return (new { payload = nonEmptyLines }, inputLines);
+        }
+
+
+        // OUTPUT FORMATS
+
+        // General methods:
+
         private string FormatJsonString(object obj)
         {
             var options = new JsonSerializerOptions
@@ -509,6 +582,46 @@ namespace frontend.Models.ViewModels
                 $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
 
             return text;
+        }
+
+        // Case specific methods:
+
+
+        private string FormatTranslationOutput(object dataValue, List<string> originalStructure)
+        {
+            System.Diagnostics.Debug.WriteLine($"FormatTranslationOutput received: {JsonSerializer.Serialize(dataValue)}");
+            
+            if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
+            {
+                var translatedLines = jsonElement.EnumerateArray()
+                    .Select(element => element.TryGetProperty("translation_text", out var translationText) 
+                        ? translationText.GetString() 
+                        : null)
+                    .Where(text => text != null)
+                    .ToList();
+
+                var result = new List<string>();
+                int translationIndex = 0;
+                foreach (var line in originalStructure)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        result.Add(string.Empty);
+                    }
+                    else if (translationIndex < translatedLines.Count)
+                    {
+                        result.Add(translatedLines[translationIndex]);
+                        translationIndex++;
+                    }
+                }
+
+                var formattedResult = string.Join("\n", result);
+                System.Diagnostics.Debug.WriteLine($"Formatted translation result: {formattedResult}");
+                return formattedResult;
+            }
+            
+            System.Diagnostics.Debug.WriteLine("Translation data not in expected format");
+            return "No translation available.";
         }
 
 

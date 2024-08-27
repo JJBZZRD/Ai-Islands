@@ -40,6 +40,7 @@ namespace frontend.Views
 
             switch (_viewModel.Model.PipelineTag?.ToLower())
             {
+                // ------------------------- COMPUTER VISION MODELS -------------------------
                 case "object-detection":
                     System.Diagnostics.Debug.WriteLine("Creating UI for object-detection");
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
@@ -67,6 +68,8 @@ namespace frontend.Views
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;
                     break;
+
+                // ------------------------- NLP MODELS -------------------------
                 case "text-classification":
                     InputContainer.Children.Add(CreateTextInputUI());
                     _viewModel.IsOutputTextVisible = true;
@@ -95,6 +98,32 @@ namespace frontend.Views
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;
                     break;
+
+
+                case "feature-extraction":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsChatHistoryVisible = false;
+                    _viewModel.IsInputFrameVisible = true;
+                    _viewModel.IsOutputFrameVisible = true;
+                    _viewModel.IsRunInferenceButtonVisible = true;
+                    break;
+                
+                case "token-classification":
+
+                case "question-answering":
+
+                case "summarization":
+                
+                case "automatic-speech-recognition":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsChatHistoryVisible = false;
+                    _viewModel.IsInputFrameVisible = true;
+                    _viewModel.IsOutputFrameVisible = true;
+                    break;
+
+
                 case "text-generation":
                     if (_viewModel.Model.Config.ChatHistory == true)
                     {
@@ -112,16 +141,10 @@ namespace frontend.Views
                         _viewModel.IsRunInferenceButtonVisible = true;
                     }
                     break;
-                case "token-classification":
-                case "question-answering":
-                case "summarization":
-                case "automatic-speech-recognition":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
-                    _viewModel.IsOutputTextVisible = true;
-                    _viewModel.IsChatHistoryVisible = false;
-                    _viewModel.IsInputFrameVisible = true;
-                    _viewModel.IsOutputFrameVisible = true;
-                    break;
+                
+
+
+
                 default:
                     System.Diagnostics.Debug.WriteLine("Creating default UI");
                     InputContainer.Children.Add(new Label { Text = "Input type not supported for this model.", TextColor = Colors.Gray });
