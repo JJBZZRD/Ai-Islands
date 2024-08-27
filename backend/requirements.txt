@@ -30,3 +30,4 @@ torchaudio
 Pillow
 python-dotenv
 python-multipart
+PyPDF2

@@ -185,6 +185,6 @@ namespace frontend.Services
             var response = await _httpClient.PostAsJsonAsync("library/update-model-id", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
-        }
+        }        
     }
 }

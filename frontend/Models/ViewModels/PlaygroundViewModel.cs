@@ -53,5 +53,16 @@ namespace frontend.Models.ViewModels
                 }
             }
         }
+
+        private string _instructionText;
+        public string InstructionText
+        {
+            get => _instructionText;
+            set
+            {
+                _instructionText = value;
+                OnPropertyChanged(nameof(InstructionText));
+            }
+        }
     }
 }

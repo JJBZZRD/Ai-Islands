@@ -460,7 +460,7 @@ class PlaygroundControl:
             data = {
                 "payload": str(inference_result)
             }
-            
+        
         return inference_result
 
     def _initialise_playground(self, playground_id: str):

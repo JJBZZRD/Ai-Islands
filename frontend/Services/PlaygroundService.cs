@@ -263,7 +263,8 @@ namespace frontend.Services
 
         public async Task<Dictionary<string, object>> LoadPlaygroundChain(string playgroundId)
         {
-            var response = await _httpClient.PostAsync($"playground/load-chain?playground_id={playgroundId}", null);
+            var request = new { playground_id = playgroundId };
+            var response = await _httpClient.PostAsJsonAsync("playground/load-chain", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
