@@ -74,23 +74,6 @@ def train_transformer(transformer_model, dataset_path, tokenizer_args, training_
 
     shutil.rmtree(temp_output_dir, ignore_errors=True)
 
-    new_model_info = {
-        "model_id": f"{model_id}_{suffix}",
-        "base_model": f"{model_id}_{suffix}",
-        "dir": trained_model_dir,
-        "model_desc": f"Fine-tuned {model_id} model",
-        "is_customised": False,
-        "is_trained": True
-    }
-
-    return {
-        "message": "Training completed successfully",
-        "data": {
-            "trained_model_path": trained_model_dir,
-            "new_model_info": new_model_info
-        }
-    }
-
 if __name__ == "__main__":
 
     
@@ -106,6 +89,8 @@ if __name__ == "__main__":
     transformer_model = TransformerModel(model_id=model_id)
     transformer_model.load(device=device, model_info=model_info)
     
-    result = train_transformer(transformer_model, **args)
+    train_transformer(transformer_model, **args)
     print("=====training complete=====")
-    print(result)
+
+    # Delete the temp_train_args.json file
+    os.remove("data/temp_train_args.json")
