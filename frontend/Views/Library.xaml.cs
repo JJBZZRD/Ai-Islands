@@ -13,6 +13,7 @@ using frontend.ViewModels;
 using static System.Net.Mime.MediaTypeNames;
 using System.Linq;
 using System.Threading.Tasks;
+using Plugin.Maui.Audio;
 
 namespace frontend.Views
 {
@@ -53,7 +54,10 @@ namespace frontend.Views
         private readonly LibraryService _libraryService;
         private readonly ModelService _modelService;
 
-        public Library()
+        private readonly IAudioManager _audioManager;
+
+        public Library(IAudioManager audioManager)
+
         {
             InitializeComponent();
             Models = new ObservableCollection<ModelListItemViewModel>();
@@ -63,7 +67,7 @@ namespace frontend.Views
             BindingContext = this;
             _libraryService = new LibraryService();
             _modelService = new ModelService();
-
+            _audioManager = audioManager;
             WeakReferenceMessenger.Default.Register<RefreshLibraryMessage>(this, async (r, m) =>
             {
                 await MainThread.InvokeOnMainThreadAsync(async () => await RefreshLibraryModels());
@@ -159,7 +163,7 @@ namespace frontend.Views
         {
             if (e.Parameter is ModelListItemViewModel selectedViewModel)
             {
-                await Navigation.PushAsync(new LibraryTabbedPage(selectedViewModel.Model));
+                await Navigation.PushAsync(new LibraryTabbedPage(selectedViewModel.Model, _audioManager));
             }
         }
 

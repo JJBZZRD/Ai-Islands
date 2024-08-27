@@ -3,6 +3,7 @@ using Microsoft.Maui.Controls.Xaml;
 using frontend.Views;
 using System;
 using System.Threading.Tasks;
+using Plugin.Maui.Audio;
 
 // Part of the code to check for active models before closing the app
 // using frontend.Services;

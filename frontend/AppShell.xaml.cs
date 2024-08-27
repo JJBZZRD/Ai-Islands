@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui.Controls;
 using System.Windows.Input;
 using System.Diagnostics;
+using Plugin.Maui.Audio;
 
 namespace frontend.Views
 {
@@ -8,11 +9,12 @@ namespace frontend.Views
     {
         public ICommand NavigateCommand { get; }
         private Library libraryPage;
+        private IAudioManager _audioManager;
+
         public AppShell()
         {
             InitializeComponent();
             Routing.RegisterRoute("ModelIndex", typeof(ModelIndex));
-            libraryPage = new Library();
             Routing.RegisterRoute("Library", typeof(Library));
 
             NavigateCommand = new Command<string>(async (route) =>
@@ -33,6 +35,11 @@ namespace frontend.Views
             Routing.RegisterRoute(nameof(LibraryTabbedPage), typeof(LibraryTabbedPage));
             NavigateCommand = new Command<string>(async (route) => await Shell.Current.GoToAsync(route));
             BindingContext = this;
+        }
+
+        public void SetAudioManager(IAudioManager audioManager)
+        {
+            _audioManager = audioManager;
         }
 
         private async void OnGettingStartedClicked(object sender, EventArgs e)

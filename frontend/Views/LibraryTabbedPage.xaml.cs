@@ -3,6 +3,7 @@ using frontend.Models;
 using frontend.ViewModels;
 using Microsoft.Maui.Controls;
 using System;
+using Plugin.Maui.Audio;
 
 namespace frontend.Views
 {
@@ -12,11 +13,13 @@ namespace frontend.Views
         private ButtonViewModel ViewModel => BindingContext as ButtonViewModel;
         public string ModelId { get; set; } = string.Empty;
         private Model? _model;
+        private readonly IAudioManager _audioManager;
 
-        public LibraryTabbedPage(Model model)
+        public LibraryTabbedPage(Model model, IAudioManager audioManager)
         {
             InitializeComponent();
             _model = model;
+            _audioManager = audioManager;
             var viewModel = new ButtonViewModel { Model = _model };
             BindingContext = viewModel;
         }
@@ -64,7 +67,7 @@ namespace frontend.Views
         {
             if (_model != null)
             {
-                ContentContainer.Content = new Inference(_model);
+                ContentContainer.Content = new Inference(_model, _audioManager);
             }
         }
 
