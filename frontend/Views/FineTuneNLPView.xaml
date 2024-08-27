@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.FineTuneNLPView"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <!-- Page Title -->
+            <Label 
+                Text="{Binding ModelId, StringFormat='Fine Tuning for {0}'}"
+                FontSize="30"
+                FontAttributes="Bold"
+                VerticalOptions="Center" 
+                HorizontalOptions="Start" />
+
+            <!-- Page Description -->
+            <Label 
+                Text="This page allows you to fine-tune the NLP model by adjusting various training and tokenizer parameters."
+                FontSize="16"
+                VerticalOptions="Center" 
+                HorizontalOptions="Start"
+                Margin="0,0,0,20" />
+
+            <!-- File Selector Button and Display Selected File Path -->
+            <Frame BorderColor="LightGray" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Select Dataset" FontSize="20" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" />
+                    <Label Text="Please select a CSV file for fine-tuning the model." FontSize="14" VerticalOptions="Center" HorizontalOptions="Start" Margin="0,0,0,10" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Dataset:" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                        <Frame BorderColor="LightGray" Padding="5" CornerRadius="5" HorizontalOptions="FillAndExpand">
+                            <Label Text="{Binding SelectedFilePath, TargetNullValue='No file selected'}" FontSize="14" VerticalOptions="Center" />
+                        </Frame>
+                        <Button Text="Select CSV File" Clicked="OnSelectCsvFileClicked" HorizontalOptions="End" />
+                    </HorizontalStackLayout>
+                    <Button Text="Download Example Dataset" Clicked="OnDownloadExampleDatasetClicked" HorizontalOptions="Start" Margin="0,10,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Training Arguments Frame -->
+            <Frame BorderColor="LightGray" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Training Arguments" FontSize="20" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" />
+
+                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="10">
+                        <Label Text="Learning Rate:" FontAttributes="Bold" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                        <Entry Placeholder="Learning Rate" Text="{Binding LearningRate}" Keyboard="Numeric" Grid.Column="1" Grid.Row="0" />
+
+                        <Label Text="Number of Train Epochs:" FontAttributes="Bold" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+                        <Entry Placeholder="Number of Train Epochs" Text="{Binding NumTrainEpochs}" Grid.Column="1" Grid.Row="1" />
+
+                        <Label Text="Weight Decay:" FontAttributes="Bold" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+                        <Entry Placeholder="Weight Decay" Text="{Binding WeightDecay}" Grid.Column="1" Grid.Row="2" />
+
+                        <Label Text="Save Total Limit:" FontAttributes="Bold" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+                        <Entry Placeholder="Save Total Limit" Text="{Binding SaveTotalLimit}" Grid.Column="1" Grid.Row="3" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Tokenizer Arguments Frame -->
+            <Frame BorderColor="LightGray" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Tokenizer Arguments" FontSize="20" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" />
+
+                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto" RowSpacing="10">
+                        <Label Text="Max Length:" FontAttributes="Bold" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                        <Entry Placeholder="Max Length" Text="{Binding MaxLength}" Grid.Column="1" Grid.Row="0" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Begin Fine Tuning" Clicked="OnBeginFineTuningClicked" HorizontalOptions="Center" BackgroundColor="#3366FF" TextColor="White" CornerRadius="5" Padding="10,5" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

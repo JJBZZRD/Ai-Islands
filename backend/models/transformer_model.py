@@ -1,14 +1,20 @@
 import os
 import torch
 import transformers
+import logging
+import json
+import subprocess
+import shutil
 
+from accelerate import Accelerator
+from PIL import Image
+
+from backend.core.config import ROOT_DIR
+from backend.utils.helpers import get_next_suffix
 from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
-import logging
 from backend.data_utils.speaker_embedding_manager import SpeakerEmbeddingManager
-from accelerate import Accelerator
-from PIL import Image
 from backend.utils.process_vis_out import _ensure_json_serializable
 from backend.core.exceptions import ModelError
 
@@ -22,9 +28,11 @@ class TransformerModel(BaseModel):
         self.pipeline = None
         self.config = None
         self.device = None
+        self.model_dir = None
         self.languages = {}
         self.accelerator = None
         self.model_instance_data = []
+        self.is_trained = False
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -84,11 +92,12 @@ class TransformerModel(BaseModel):
 
     def load(self, device: torch.device, model_info: dict):
         try:
-            #Get the model directory
+            # Get the model directory
             model_dir = model_info['dir']
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
             
+            self.model_dir = model_dir
             logger.info(f"Loading model from {model_dir}")
             logger.info(f"Model info: {model_info}")
             
@@ -125,6 +134,9 @@ class TransformerModel(BaseModel):
             # for translation models to check if the languages are supported
             self.languages = model_info.get('languages', {})
             
+            # for trained mode;s, they have to be loaded differently
+            self.is_trained = model_info.get("is_trained", False)
+            
             # for loop to load all the required classes
             for class_type, class_name in required_classes.items():
                 
@@ -136,15 +148,22 @@ class TransformerModel(BaseModel):
                 
                 # read the corresponding config for the class_type
                 obj_config = self.config.get(f'{class_type}_config', {})
-                # load the class object from the local model directory
-                obj = class_.from_pretrained(
-                    self.model_id,
-                    cache_dir=model_dir,
-                    local_files_only=True,
-                    **obj_config
-                )
-        
                 
+                if not self.is_trained:
+                    # load the class object from the local model directory
+                    obj = class_.from_pretrained(
+                        self.model_id,
+                        cache_dir=model_dir,
+                        local_files_only=True,
+                        **obj_config
+                    )
+                else:
+                    obj = class_.from_pretrained(
+                        self.model_dir,
+                        local_files_only=True,
+                        **obj_config
+                    ) 
+
                 # store the class object in the pipeline_args dictionary
                 self.pipeline_args.update({class_type: obj})
                 logger.info(f"succesfully loaded {class_type} from {model_dir}")
@@ -268,8 +287,69 @@ class TransformerModel(BaseModel):
             logger.error(f"Error during inference: {str(e)}")
             raise ModelError(f"Error during inference: {str(e)}")
 
-    def train(self, data_path: str, epochs: int = 3):
-        logger.warning("Training method not implemented for TransformerModel")
+    def train(self, data: dict):
+        dataset_path = data.get("data")
+        model_info = data.get("model_info")
+        hardware_preference = str(data.get("hardware_preference"))
+        
+        tokenizer_args = data.get("tokenizer_args", {})
+        training_args = data.get("training_args", {})
+
+        if not dataset_path:
+            return {"error": "Dataset path not provided in the request data"}
+
+        suffix = get_next_suffix(self.model_id)
+        model_dir = model_info.get("dir")
+        trained_model_dir = os.path.join(f"{model_dir}_{suffix}")
+        
+        script_args = {
+            "model_id": self.model_id,
+            "hardware_preference": hardware_preference,
+            "model_info": model_info,
+            "dataset_path": dataset_path,
+            "tokenizer_args": tokenizer_args,
+            "training_args": training_args,
+            "trained_model_dir": trained_model_dir
+        }
+        logger.info(script_args)
+        script_path = os.path.join(ROOT_DIR, "backend", "utils", "train_transformer.py")
+        
+        with open("data/temp_train_args.json", 'w') as f:
+                json.dump(script_args, f, indent=4)
+
+        if os.name == 'nt':  # Windows
+            command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
+        else:  # Unix-like systems
+            command = ['gnome-terminal', '--wait', '--', 'python', script_path]
+        
+        process = subprocess.Popen(command)
+        process.wait()  # Wait for the process to complete
+
+        temp_output_dir = os.path.join(ROOT_DIR, "temp")
+        
+        # If the training script was terminated early due to an error, 
+        # the temp_output_dir will not be deleted and the trained model will not be saved
+        # In such cases, assess the temp_output_dir and return an error message
+        if os.path.exists(temp_output_dir):
+            shutil.rmtree(temp_output_dir, ignore_errors=True)
+            raise ModelError("Training failed, please check the training datasets to ensure they are correctly formatted")
+        
+        new_model_info = {
+            "model_id": f"{self.model_id}_{suffix}",
+            "base_model": f"{self.model_id}_{suffix}",
+            "dir": trained_model_dir,
+            "model_desc": f"Fine-tuned {self.model_id} model",
+            "is_customised": False,
+            "is_trained": True
+        }
+
+        return {
+            "message": "Training completed successfully",
+            "data": {
+                "trained_model_path": trained_model_dir,
+                "new_model_info": new_model_info
+            }
+        }
     
     def _construct_pipeline(self, pipeline_tag: str):
         pipeline_config = self.config.get('pipeline_config', {})
