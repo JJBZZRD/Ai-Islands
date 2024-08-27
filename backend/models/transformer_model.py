@@ -301,7 +301,6 @@ class TransformerModel(BaseModel):
         model_dir = model_info.get("dir")
         trained_model_dir = os.path.join(f"{model_dir}_{suffix}")
         
-        logger.info("checkpoint 2")
         script_args = {
             "model_id": self.model_id,
             "hardware_preference": hardware_preference,
@@ -312,7 +311,6 @@ class TransformerModel(BaseModel):
             "trained_model_dir": trained_model_dir
         }
         logger.info(script_args)
-        logger.info("checkpoint 2.1")
         script_path = os.path.join(ROOT_DIR, "backend", "utils", "train_transformer.py")
         
         with open("data/temp_train_args.json", 'w') as f:
@@ -323,7 +321,6 @@ class TransformerModel(BaseModel):
         else:  # Unix-like systems
             command = ['gnome-terminal', '--wait', '--', 'python', script_path]
         
-        logger.info("checkpoint 3")
         process = subprocess.Popen(command)
         process.wait()  # Wait for the process to complete
 

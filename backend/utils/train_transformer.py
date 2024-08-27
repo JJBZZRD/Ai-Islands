@@ -7,7 +7,6 @@ import evaluate
 from backend.core.config import ROOT_DIR
 from backend.utils.helpers import get_next_suffix
 from backend.models.transformer_model import TransformerModel
-import sys
 import json
 import torch
 

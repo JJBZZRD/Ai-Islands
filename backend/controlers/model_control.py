@@ -407,20 +407,12 @@ class ModelControl:
         logger.info("train request:", train_request)
         model_id = train_request['model_id']
         data = train_request["data"]
-        # active_model = self.get_active_model(model_id)
-        # conn = active_model['conn']
-        # req = train_request
-        # req['task'] = "train"
-        # conn.send(req)
-        # result = conn.recv()
-        logger.info(self.hardware_preference)
         model_info = self._get_model_info(model_id)
         data["model_info"] = model_info
         data["hardware_preference"] = self.hardware_preference
         model_class = self._get_model_class(model_id, "library") 
         model = model_class(model_id=model_id) 
 
-        logger.info("checkpoint 1")
         result = model.train(data)
         
         logger.info("print result from train")
@@ -437,7 +429,6 @@ class ModelControl:
             updated_model_info.update(new_model_info)
         
             # Ensure that these fields are correctly set for the new model
-            updated_model_info["is_customised"] = True
             updated_model_info["base_model"] = new_model_id  
         
             # Add the new model to the library
