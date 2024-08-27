@@ -1,0 +1,43 @@
+{
+    "model_id": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "hardware_preference": "gpu",
+    "model_info": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "Text Classification",
+            "Sentiment Analysis"
+        ],
+        "languages": {
+            "English": "en"
+        },
+        "labels": [
+            "positive",
+            "neutral",
+            "negative"
+        ],
+        "pipeline_tag": "text-classification",
+        "model_desc": "This is a RoBERTa-base model trained on ~124M tweets from January 2018 to December 2021, and finetuned for sentiment analysis with the TweetEval benchmark. This model is suitable for English. ",
+        "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForSequenceClassification",
+                "tokenizer": "AutoTokenizer"
+            }
+        },
+        "auth_token": null,
+        "base_model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "dir": "data\\downloads\\transformers\\cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "is_customised": false,
+        "config": {}
+    },
+    "dataset_path": "C:\\Users\\benny\\Desktop\\train_clean_text_classification_3.csv",
+    "tokenizer_args": {},
+    "training_args": {},
+    "trained_model_dir": "data\\downloads\\transformers\\cardiffnlp/twitter-roberta-base-sentiment-latest_23"
+}

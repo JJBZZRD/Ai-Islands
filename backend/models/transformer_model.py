@@ -1,13 +1,10 @@
 import os
 import torch
 import transformers
-import evaluate
-import shutil
-import numpy as np
 import logging
+import json
+import subprocess
 
-from datasets import load_dataset
-from transformers import DataCollatorWithPadding, Trainer, TrainingArguments
 from accelerate import Accelerator
 from PIL import Image
 
@@ -94,7 +91,7 @@ class TransformerModel(BaseModel):
 
     def load(self, device: torch.device, model_info: dict):
         try:
-            #Get the model directory
+            # Get the model directory
             model_dir = model_info['dir']
             if not os.path.exists(model_dir):
                 raise FileNotFoundError(f"Model directory not found: {model_dir}")
@@ -291,84 +288,44 @@ class TransformerModel(BaseModel):
 
     def train(self, data: dict):
         dataset_path = data.get("data")
+        model_info = data.get("model_info")
+        # hardware_preference = data.get("hardware_preference")
+        hardware_preference = "gpu"
         tokenizer_args = data.get("tokenizer_args", {})
         training_args = data.get("training_args", {})
 
         if not dataset_path:
             return {"error": "Dataset path not provided in the request data"}
 
-        dataset = load_dataset('csv', data_files=dataset_path)
-        dataset = dataset["train"]
-
-        model = self.pipeline_args.get("model")
-        tokenizer = self.pipeline_args.get("tokenizer")
-
-        def _preprocess_function(data_entry):
-            tokenizer_params = {
-                "padding": "max_length",
-                "truncation": True,
-                "max_length": 128
-            }
-            tokenizer_params.update(tokenizer_args)
-            return tokenizer(data_entry['text'], **tokenizer_params)
-
-        dataset = dataset.map(_preprocess_function)
-
-        dataset = dataset.train_test_split(test_size=0.2)
-
-        data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-
-        accuracy = evaluate.load("accuracy")
-
-        def compute_metrics(eval_pred):
-            predictions, labels = eval_pred
-            predictions = np.argmax(predictions, axis=1)
-            return accuracy.compute(predictions=predictions, references=labels)
-
         suffix = get_next_suffix(self.model_id)
-        trained_model_dir = os.path.join(f"{self.model_dir}_{suffix}")
-        temp_output_dir = os.path.join(ROOT_DIR, "temp")
-
-        os.makedirs(temp_output_dir, exist_ok=True)
-
-        default_training_args = {
-            "output_dir": temp_output_dir,
-            "save_only_model": True,
-            "learning_rate": 1e-7,
-            "num_train_epochs": 5,
-            "weight_decay": 0.01,
-            "eval_strategy": "epoch",
-            "save_strategy": "epoch",
-            "save_total_limit": 3,
-            "load_best_model_at_end": True
+        model_dir = model_info.get("dir")
+        trained_model_dir = os.path.join(f"{model_dir}_{suffix}")
+        
+        logger.info("checkpoint 2")
+        script_args = {
+            "model_id": self.model_id,
+            "hardware_preference": hardware_preference,
+            "model_info": model_info,
+            "dataset_path": dataset_path,
+            "tokenizer_args": tokenizer_args,
+            "training_args": training_args,
+            "trained_model_dir": trained_model_dir
         }
+        logger.info(script_args)
+        logger.info("checkpoint 2.1")
+        script_path = os.path.join(ROOT_DIR, "backend", "utils", "train_transformer.py")
+        
+        with open("data/temp_train_args.json", 'w') as f:
+                json.dump(script_args, f, indent=4)
 
-        default_training_args.update(training_args)
-
-        training_args = TrainingArguments(
-            **default_training_args
-        )
-
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=dataset["train"],
-            eval_dataset=dataset["test"],
-            tokenizer=tokenizer,
-            data_collator=data_collator,
-            compute_metrics=compute_metrics,
-        )
-
-        # Open a new terminal and display progress
-        terminal_process = self._open_terminal_and_display_progress(trainer)
-
-        trainer.train()
-        trainer.save_model(trained_model_dir)
-
-        # Close the terminal
-        terminal_process.terminate()
-
-        shutil.rmtree(temp_output_dir, ignore_errors=True)
+        if os.name == 'nt':  # Windows
+            command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
+        else:  # Unix-like systems
+            command = ['gnome-terminal', '--wait', '--', 'python', script_path]
+        
+        logger.info("checkpoint 3")
+        process = subprocess.Popen(command)
+        process.wait()  # Wait for the process to complete
 
         new_model_info = {
             "model_id": f"{self.model_id}_{suffix}",

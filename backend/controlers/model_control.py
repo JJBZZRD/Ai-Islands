@@ -128,9 +128,6 @@ class ModelControl:
                         if req["task"] == "inference":
                             logger.info(f"Running control inference for model {model_id}")
                             result = model.inference(req["data"])
-                        else:  # req["task"] == "train"
-                            logger.info(f"Running control train for model {model_id}")
-                            result = model.train(req["data"])
                         conn.send(result)
                 else:
                     logger.warning(f"Received unknown request: {req}")
@@ -221,7 +218,6 @@ class ModelControl:
             model_dir = model_info['dir']
             is_online = model_info.get('is_online', False)
             base_model = model_info['base_model']
-
 
             if not os.path.exists(model_dir) and not is_online:
                 logger.error(f"Model directory not found: {model_dir}")
@@ -410,14 +406,23 @@ class ModelControl:
         """
         logger.info("train request:", train_request)
         model_id = train_request['model_id']
-        train_request = train_request
-        active_model = self.get_active_model(model_id)
-        conn = active_model['conn']
-        req = train_request
-        req['task'] = "train"
-        conn.send(req)
-        result = conn.recv()
+        data = train_request["data"]
+        # active_model = self.get_active_model(model_id)
+        # conn = active_model['conn']
+        # req = train_request
+        # req['task'] = "train"
+        # conn.send(req)
+        # result = conn.recv()
+        logger.info(self.hardware_preference)
+        model_info = self._get_model_info(model_id)
+        data["model_info"] = model_info
+        data["hardware_preference"] = self.hardware_preference
+        model_class = self._get_model_class(model_id, "library") 
+        model = model_class(model_id=model_id) 
 
+        logger.info("checkpoint 1")
+        result = model.train(data)
+        
         logger.info("print result from train")
         logger.info(result)
         if "error" not in result:
