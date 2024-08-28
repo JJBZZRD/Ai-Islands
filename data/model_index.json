@@ -39,7 +39,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "google/flan-t5-xl": {
@@ -86,7 +87,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "google/flan-t5-xxl": {
@@ -134,7 +136,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "google/flan-ul2": {
@@ -182,7 +185,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "ibm-mistralai/merlinite-7b": {
@@ -230,7 +234,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "ibm/granite-13b-chat-v2": {
@@ -325,7 +330,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "ibm/granite-20b-multilingual": {
@@ -373,7 +379,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "ibm/granite-7b-lab": {
@@ -421,7 +428,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "meta-llama/llama-2-13b-chat": {
@@ -470,7 +478,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "meta-llama/llama-3-70b-instruct": {
@@ -519,7 +528,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "meta-llama/llama-3-8b-instruct": {
@@ -568,7 +578,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "mistralai/mixtral-8x7b-instruct-v01": {
@@ -616,7 +627,8 @@
         "dataset_name": null,
         "similarity_threshold": 0.5,
         "use_chunking": false
-      }
+      },
+      "chat_history": false
     }
   },
   "ibm/natural-language-understanding": {
