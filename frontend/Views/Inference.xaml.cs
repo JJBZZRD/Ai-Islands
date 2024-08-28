@@ -21,10 +21,13 @@ namespace frontend.Views
         public Inference(Model model)
         {
             InitializeComponent();
-            _viewModel = new InferenceViewModel(model, new ModelService(), AudioPlayer);
+            _viewModel = new InferenceViewModel(model, new ModelService());
             BindingContext = _viewModel;
             _viewModel.SetImagePopup(_imagePopupView);
             CreateInputUI();
+            // Initialize AudioPlayer
+            AudioPlayer.ShouldAutoPlay = false;
+            AudioPlayer.ShouldShowPlaybackControls = true;
         }
 
         private void CreateInputUI()
@@ -108,12 +111,7 @@ namespace frontend.Views
                     _viewModel.IsOutputFrameVisible = true;
                     _viewModel.IsRunInferenceButtonVisible = true;
                     break;
-                
-                case "token-classification":
-
-                case "question-answering":
-
-                case "summarization":
+            
                 
                 case "automatic-speech-recognition":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
@@ -293,9 +291,5 @@ namespace frontend.Views
             }
         }
 
-        private void OnPlayPauseClicked(object sender, EventArgs e)
-        {
-            _viewModel.TogglePlayPause();
-        }
     }
 }

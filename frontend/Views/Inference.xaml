@@ -89,15 +89,8 @@
                 <Label Text="Audio Output" FontSize="18" FontAttributes="Bold" Margin="0,0,0,10"/>
                 <toolkit:MediaElement x:Name="AudioPlayer" 
                             Source="{Binding AudioSource}"
-                            ShouldAutoPlay="False" />
-                <Button Text="{Binding PlayPauseButtonText}" 
-                        Clicked="OnPlayPauseClicked"
-                        BackgroundColor="#3366FF"
-                        TextColor="White"
-                        CornerRadius="5"
-                        Padding="10"
-                        HorizontalOptions="Center"
-                        Margin="0,10,0,0"/>
+                            ShouldShowPlaybackControls="True"
+                            Height="50"/>
             </StackLayout>
         </Frame>
 

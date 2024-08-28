@@ -16,7 +16,6 @@ using System.Threading;
 using System.Text;
 using OpenCvSharp;
 using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Core.Primitives;
 
 namespace frontend.Models.ViewModels
 {
@@ -146,25 +145,11 @@ namespace frontend.Models.ViewModels
             }
         }
 
-        private string _playPauseButtonText = "Play";
-        public string PlayPauseButtonText
-        {
-            get => _playPauseButtonText;
-            set
-            {
-                _playPauseButtonText = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private MediaElement _audioPlayer;
-
-        public InferenceViewModel(Model model, ModelService modelService, MediaElement audioPlayer)
+        public InferenceViewModel(Model model, ModelService modelService)
         {
             _model = model;
             _modelService = modelService;
             ChatHistory = new ObservableCollection<ChatMessage>();
-            _audioPlayer = audioPlayer;
         }
 
         public async Task<bool> SelectFile(string fileType)
@@ -330,10 +315,13 @@ namespace frontend.Models.ViewModels
                         case "text-to-speech":
                             if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
                             {
-                                var audioPath = jsonElement.GetProperty("audio_path").GetString();
-                                if (!string.IsNullOrEmpty(audioPath))
+                                var audioContentBase64 = jsonElement.GetProperty("audio_content").GetString();
+                                if (!string.IsNullOrEmpty(audioContentBase64))
                                 {
-                                    AudioSource = audioPath;
+                                    var audioBytes = Convert.FromBase64String(audioContentBase64);
+                                    var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
+                                    await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                                    AudioSource = tempFilePath;
                                     IsAudioPlayerVisible = true;
                                 }
                             }
@@ -443,20 +431,6 @@ namespace frontend.Models.ViewModels
         public void SetImagePopup(ImagePopupView imagePopup)
         {
             _imagePopUp = imagePopup;
-        }
-
-        public void TogglePlayPause()
-        {
-            if (_audioPlayer.CurrentState == MediaElementState.Playing)
-            {
-                _audioPlayer.Pause();
-                PlayPauseButtonText = "Play";
-            }
-            else
-            {
-                _audioPlayer.Play();
-                PlayPauseButtonText = "Pause";
-            }
         }
 
 
