@@ -352,7 +352,15 @@ namespace frontend.Models.ViewModels
                             }
                             break;
                         case "automatic-speech-recognition":
-                            OutputText = dataValue.ToString();
+                            if (dataValue is JsonElement asrJsonElement && asrJsonElement.ValueKind == JsonValueKind.Object)
+                            {
+                                var transcription = asrJsonElement.GetProperty("text").GetString();
+                                OutputText = transcription;
+                            }
+                            else
+                            {
+                                OutputText = "Unexpected response format for automatic speech recognition.";
+                            }
                             break;
 
 
