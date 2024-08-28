@@ -85,7 +85,18 @@ namespace frontend.Models.ViewModels
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                return $"Error: {response.ReasonPhrase}, Content: {errorContent}";
+                    var errorJson = JsonDocument.Parse(errorContent);
+                    if (errorJson.RootElement.TryGetProperty("error", out JsonElement errorElement) &&
+                        errorElement.TryGetProperty("message", out JsonElement messageElement))
+                    {
+                        var errorMessage = messageElement.GetString();
+                        return $"Error: {errorMessage}";
+                    }
+                    else
+                    {
+                        return $"Error: {response.ReasonPhrase}, Content: {errorContent}";
+                    }
+                
             }
         }
     }

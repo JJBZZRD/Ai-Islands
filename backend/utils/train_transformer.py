@@ -75,9 +75,11 @@ def train_transformer(transformer_model, dataset_path, tokenizer_args, training_
 
 if __name__ == "__main__":
 
-    
-    with open("data/temp_train_args.json", 'r') as f:
+    train_args_path = "data/temp_train_args.json"
+    with open(train_args_path, 'r') as f:
         args = json.load(f)
+    
+    shutil.rmtree(train_args_path, ignore_errors=True)
     
     model_id = args.pop('model_id')
     hardware_preference = args.pop('hardware_preference')

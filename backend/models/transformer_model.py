@@ -4,6 +4,7 @@ import transformers
 import logging
 import json
 import subprocess
+import shutil
 
 from accelerate import Accelerator
 from PIL import Image
@@ -324,6 +325,15 @@ class TransformerModel(BaseModel):
         process = subprocess.Popen(command)
         process.wait()  # Wait for the process to complete
 
+        temp_output_dir = os.path.join(ROOT_DIR, "temp")
+        
+        # If the training script was terminated early due to an error, 
+        # the temp_output_dir will not be deleted and the trained model will not be saved
+        # In such cases, assess the temp_output_dir and return an error message
+        if os.path.exists(temp_output_dir):
+            shutil.rmtree(temp_output_dir, ignore_errors=True)
+            raise ModelError("Training failed, please check the training datasets to ensure they are correctly formatted")
+        
         new_model_info = {
             "model_id": f"{self.model_id}_{suffix}",
             "base_model": f"{self.model_id}_{suffix}",
