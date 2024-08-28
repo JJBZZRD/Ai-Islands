@@ -21,7 +21,7 @@ namespace frontend.Views
         public Inference(Model model)
         {
             InitializeComponent();
-            _viewModel = new InferenceViewModel(model, new ModelService());
+            _viewModel = new InferenceViewModel(model, new ModelService(), AudioPlayer);
             BindingContext = _viewModel;
             _viewModel.SetImagePopup(_imagePopupView);
             CreateInputUI();
@@ -93,12 +93,12 @@ namespace frontend.Views
                     break;
                 case "text-to-speech":
                     InputContainer.Children.Add(CreateTextInputUI());
-                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsOutputTextVisible = false;
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
-                    _viewModel.IsOutputFrameVisible = true;
+                    _viewModel.IsOutputFrameVisible = false;
+                    _viewModel.IsAudioPlayerVisible = true;
                     break;
-
 
                 case "feature-extraction":
                     InputContainer.Children.Add(CreateTextInputUI());
@@ -291,6 +291,11 @@ namespace frontend.Views
                 fileNameLabel.Text = fileName;
                 fileNameLabel.IsVisible = true;
             }
+        }
+
+        private void OnPlayPauseClicked(object sender, EventArgs e)
+        {
+            _viewModel.TogglePlayPause();
         }
     }
 }

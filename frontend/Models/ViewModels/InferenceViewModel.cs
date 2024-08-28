@@ -15,6 +15,8 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Text;
 using OpenCvSharp;
+using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Core.Primitives;
 
 namespace frontend.Models.ViewModels
 {
@@ -121,11 +123,48 @@ namespace frontend.Models.ViewModels
             set { SetProperty(ref _chatHistory, value); }
         }
 
-        public InferenceViewModel(Model model, ModelService modelService)
+        // Add these properties
+        private bool _isAudioPlayerVisible;
+        public bool IsAudioPlayerVisible
+        {
+            get => _isAudioPlayerVisible;
+            set
+            {
+                _isAudioPlayerVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _audioSource;
+        public string AudioSource
+        {
+            get => _audioSource;
+            set
+            {
+                _audioSource = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _playPauseButtonText = "Play";
+        public string PlayPauseButtonText
+        {
+            get => _playPauseButtonText;
+            set
+            {
+                _playPauseButtonText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private MediaElement _audioPlayer;
+
+        public InferenceViewModel(Model model, ModelService modelService, MediaElement audioPlayer)
         {
             _model = model;
             _modelService = modelService;
             ChatHistory = new ObservableCollection<ChatMessage>();
+            _audioPlayer = audioPlayer;
         }
 
         public async Task<bool> SelectFile(string fileType)
@@ -260,6 +299,10 @@ namespace frontend.Models.ViewModels
                         data = new { payload = InputText };
                         break;
 
+                    // Add this case for text-to-speech
+                    case "text-to-speech":
+                        data = new { payload = InputText };
+                        break;
 
                     default:
                         throw new ArgumentException("Unsupported model type for inference.");
@@ -283,6 +326,17 @@ namespace frontend.Models.ViewModels
                             break;
                         case "text-generation":
                             OutputText = dataValue.ToString();
+                            break;
+                        case "text-to-speech":
+                            if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
+                            {
+                                var audioPath = jsonElement.GetProperty("audio_path").GetString();
+                                if (!string.IsNullOrEmpty(audioPath))
+                                {
+                                    AudioSource = audioPath;
+                                    IsAudioPlayerVisible = true;
+                                }
+                            }
                             break;
                         // ... (handle other cases as needed)
                         default:
@@ -389,6 +443,20 @@ namespace frontend.Models.ViewModels
         public void SetImagePopup(ImagePopupView imagePopup)
         {
             _imagePopUp = imagePopup;
+        }
+
+        public void TogglePlayPause()
+        {
+            if (_audioPlayer.CurrentState == MediaElementState.Playing)
+            {
+                _audioPlayer.Pause();
+                PlayPauseButtonText = "Play";
+            }
+            else
+            {
+                _audioPlayer.Play();
+                PlayPauseButtonText = "Pause";
+            }
         }
 
 
