@@ -174,6 +174,20 @@ namespace frontend.Models.ViewModels
                 set => SetProperty(ref _jsonOutputText, value ?? "No data available.");
         }
 
+        private ImageSource _processedImageSource;
+        public ImageSource ProcessedImageSource
+        {
+            get => _processedImageSource;
+            set => SetProperty(ref _processedImageSource, value);
+        }
+
+        private bool _isProcessedImageVisible;
+        public bool IsProcessedImageVisible
+        {
+            get => _isProcessedImageVisible;
+            set => SetProperty(ref _isProcessedImageVisible, value);
+        }
+
         public InferenceViewModel(Model model, ModelService modelService)
         {
             _model = model;
@@ -351,6 +365,15 @@ namespace frontend.Models.ViewModels
 
                     switch (Model.PipelineTag?.ToLower())
                     {
+                        case "object-detection":
+                            await ViewImageOutput();
+                            break;
+                        case "image-segmentation":
+                            await ViewImageOutput();
+                            break;
+                        case "zero-shot-object-detection":
+                            await ViewImageOutput();
+                            break;
                         case "translation":
                             var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
                             data = translationPayload;
@@ -466,21 +489,8 @@ namespace frontend.Models.ViewModels
                     return;
                 }
 
-                var imageSource = ImageSource.FromFile(imageFullPath);
-
-                if (_imagePopUp == null)
-                {
-                    _imagePopUp = new ImagePopupView();
-                    Grid.SetRowSpan(_imagePopUp, 2);
-                    Grid.SetColumnSpan(_imagePopUp, 2);
-                    if (Application.Current.MainPage is ContentPage contentPage)
-                    {
-                        ((Grid)contentPage.Content).Children.Add(_imagePopUp);
-                    }
-                }
-
-                _imagePopUp.SetImage(imageSource);
-                _imagePopUp.IsVisible = true;
+                ProcessedImageSource = ImageSource.FromFile(imageFullPath);
+                IsProcessedImageVisible = true;
             }
             catch (Exception ex)
             {

@@ -52,7 +52,7 @@ namespace frontend.Views
                     System.Diagnostics.Debug.WriteLine("Creating UI for object-detection");
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image or Video"));
                     _viewModel.IsViewImageOutputButtonVisible = true;
-                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsOutputTextVisible = false;
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;
@@ -61,7 +61,7 @@ namespace frontend.Views
                     System.Diagnostics.Debug.WriteLine("Creating UI for image-segmentation");
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     _viewModel.IsViewImageOutputButtonVisible = true;
-                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsOutputTextVisible = false;
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;
@@ -70,7 +70,7 @@ namespace frontend.Views
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
                     InputContainer.Children.Add(CreateTextInputUI());
                     _viewModel.IsViewImageOutputButtonVisible = true;
-                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsOutputTextVisible = false;
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;

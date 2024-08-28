@@ -101,8 +101,11 @@
                         Margin="0,0,0,10"/> -->
 
                 <Frame Grid.Row="1" BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=Black}">
-                <ScrollView Grid.Row="1">
-                    <Label TextType="Html" Text="{Binding OutputText}" />
+                <ScrollView>
+                    <Grid>
+                        <Label TextType="Html" Text="{Binding OutputText}" IsVisible="{Binding IsOutputTextVisible}" />
+                        <Image Source="{Binding ProcessedImageSource}" Aspect="AspectFit" IsVisible="{Binding IsProcessedImageVisible}" />
+                    </Grid>
                 </ScrollView>
                 </Frame>
             </Grid>
