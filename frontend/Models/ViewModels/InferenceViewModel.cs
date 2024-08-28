@@ -281,6 +281,14 @@ namespace frontend.Models.ViewModels
                         }
                         data = new { file_path = _selectedFilePath };
                         break;
+                    case "automatic-speech-recognition":
+                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an audio file.", "OK");
+                            return;
+                        }
+                        data = new { payload = _selectedFilePath };
+                        break;
 
                     // ------------------------- OTHER -------------------------
 
@@ -342,6 +350,9 @@ namespace frontend.Models.ViewModels
                             {
                                 OutputText = "Unexpected response format for speech-to-text.";
                             }
+                            break;
+                        case "automatic-speech-recognition":
+                            OutputText = dataValue.ToString();
                             break;
 
 

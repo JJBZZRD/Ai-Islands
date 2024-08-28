@@ -177,6 +177,9 @@ namespace frontend.Views
                 case "speech-to-text":
                     instructionText = "Select audio file and click 'Submit' to preview the output.";
                     break;
+                case "automatic-speech-recognition":
+                    instructionText = "Select audio file and click 'Submit' to preview the output.";
+                    break;
                 // other cases
             }
 
