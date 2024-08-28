@@ -155,17 +155,23 @@ namespace frontend.Models.ViewModels
                 {
                     OnPropertyChanged(nameof(IsPrimaryOutputVisible));
                     System.Diagnostics.Debug.WriteLine($"IsSecondaryOutputVisible changed to: {value}");
+                    
+                    // Ensure JsonOutputText is not null when switching to JSON view
+                    if (value && string.IsNullOrEmpty(JsonOutputText))
+                    {
+                        JsonOutputText = "No data available. Please run inference first.";
+                    }
                 }
             }
         }
 
         public bool IsPrimaryOutputVisible => !IsSecondaryOutputVisible;
 
-        private string _jsonOutputText;
+        private string _jsonOutputText = "No data available. Please run inference first.";
         public string JsonOutputText
         {
             get => _jsonOutputText;
-            set { SetProperty(ref _jsonOutputText, value); }
+                set => SetProperty(ref _jsonOutputText, value ?? "No data available.");
         }
 
         public InferenceViewModel(Model model, ModelService modelService)
@@ -174,6 +180,7 @@ namespace frontend.Models.ViewModels
             _modelService = modelService;
             ChatHistory = new ObservableCollection<ChatMessage>();
             IsSecondaryOutputVisible = false; // Ensure it's set to false initially
+            JsonOutputText = "No data available. Please run inference first.";
         }
 
         public async Task<bool> SelectFile(string fileType)
@@ -340,7 +347,7 @@ namespace frontend.Models.ViewModels
                 {
                     RawJsonText = FormatJsonString(dataValue);
                     // Store raw JSON output for alt view
-                    JsonOutputText = FormatJsonString(dataValue);
+                    JsonOutputText = FormatJsonString(dataValue) ?? "No data available.";
 
                     switch (Model.PipelineTag?.ToLower())
                     {
@@ -400,6 +407,7 @@ namespace frontend.Models.ViewModels
                 else
                 {
                     await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
+                    JsonOutputText = "No data available.";
                     return;
                 }
             }
@@ -412,6 +420,7 @@ namespace frontend.Models.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in RunInference: {ex}");
+                JsonOutputText = $"An error occurred: {ex.Message}";
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
             }
         }

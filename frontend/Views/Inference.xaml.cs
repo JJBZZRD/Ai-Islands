@@ -315,6 +315,12 @@ namespace frontend.Views
                     _viewModel.IsSecondaryOutputVisible = e.Value;
                     SecondaryOutputToggle.IsToggled = e.Value;
                     System.Diagnostics.Debug.WriteLine($"Primary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
+                    
+                    // Add this check to ensure JsonOutputText is not null
+                    if (e.Value && string.IsNullOrEmpty(_viewModel.JsonOutputText))
+                    {
+                        _viewModel.JsonOutputText = "No data available. Please run inference first.";
+                    }
                 }
                 else
                 {
@@ -336,6 +342,7 @@ namespace frontend.Views
                     _viewModel.IsSecondaryOutputVisible = e.Value;
                     PrimaryOutputToggle.IsToggled = e.Value;
                     System.Diagnostics.Debug.WriteLine($"Secondary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
+                    
                 }
                 else
                 {

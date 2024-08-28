@@ -69,7 +69,7 @@
 
                     <Label Grid.Column="0" Text="Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
 
-                    <StackLayout Grid.Column="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,-80,10">
                         <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
                         <Switch x:Name="PrimaryOutputToggle" 
                                 IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}" 
@@ -100,10 +100,11 @@
                         HorizontalOptions="End" 
                         Margin="0,0,0,10"/> -->
 
-
-                <ScrollView Grid.Row="1" x:Name="OutputScrollView">
+                <Frame Grid.Row="1" BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=Black}">
+                <ScrollView Grid.Row="1">
                     <Label TextType="Html" Text="{Binding OutputText}" />
                 </ScrollView>
+                </Frame>
             </Grid>
         </Frame>
 
@@ -112,7 +113,6 @@
         <Frame Grid.Row="0" Grid.Column="1" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" IsVisible="{Binding IsSecondaryOutputVisible}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
@@ -125,7 +125,7 @@
 
                     <Label Grid.Column="0" Text="JSON Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
 
-                    <StackLayout Grid.Column="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,-80,10">
                         <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
                         <Switch x:Name="SecondaryOutputToggle" 
                                 IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}"
@@ -142,10 +142,11 @@
                             IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}"
                             Toggled="OnSecondaryOutputToggleChanged" />
                 </StackLayout> -->
-
-                <ScrollView Grid.Row="1">
-                    <Label TextType="Html" Text="{Binding JsonOutputText}"/>
-                </ScrollView>
+                <Frame Grid.Row="1" BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=Black}" Padding="10">
+                    <ScrollView>
+                        <Label TextType="Html" Text="{Binding JsonOutputText}" />
+                    </ScrollView>
+                </Frame>
             </Grid>
         </Frame>
 
@@ -156,7 +157,7 @@
                 <toolkit:MediaElement x:Name="AudioPlayer" 
                             Source="{Binding AudioSource}"
                             ShouldShowPlaybackControls="True"
-                            Height="50"/>
+                            />
             </StackLayout>
         </Frame>
 
