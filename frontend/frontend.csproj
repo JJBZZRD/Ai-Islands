@@ -85,6 +85,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Include="Resources\ExampleDataset\train_text_classification_dataset.csv" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="Views\Library.xaml.cs">
 	    <DependentUpon>Library.xaml</DependentUpon>
 	  </Compile>

@@ -1,6 +1,8 @@
 using frontend.Models;
 using frontend.Models.ViewModels;
 using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace frontend.Views;
 
@@ -69,6 +71,29 @@ public partial class FineTuneNLPView : ContentView
 		catch (Exception ex)
 		{
 			Debug.WriteLine($"Error selecting file: {ex.Message}");
+		}
+	}
+
+	private async void OnDownloadExampleDatasetClicked(object sender, EventArgs e)
+	{
+		try
+		{
+			string fileName = "train_text_classification_dataset.csv";
+			using var stream = await FileSystem.Current.OpenAppPackageFileAsync($"Resources/ExampleDataset/{fileName}");
+			var downloadsFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+			downloadsFolder = Path.Combine(downloadsFolder, "Downloads");
+			var targetFile = Path.Combine(downloadsFolder, fileName);
+
+			using (var fileStream = File.Create(targetFile))
+			{
+				await stream.CopyToAsync(fileStream);
+			}
+
+			await Application.Current.MainPage.DisplayAlert("Success", $"Example dataset downloaded to:\n{targetFile}", "OK");
+		}
+		catch (Exception ex)
+		{
+			await Application.Current.MainPage.DisplayAlert("Error", $"Failed to download example dataset: {ex.Message}", "OK");
 		}
 	}
 }
