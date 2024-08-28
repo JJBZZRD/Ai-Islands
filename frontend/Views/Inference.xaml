@@ -61,7 +61,31 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Text="Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+                <Grid Grid.Row="0" HeightRequest="70">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                        <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
+                        <Switch x:Name="PrimaryOutputToggle" 
+                                IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}" 
+                                Toggled="OnPrimaryOutputToggleChanged" />
+                    </StackLayout>
+        
+                </Grid>
+
+                <!-- <Label Grid.Row="0" Text="Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+
+                <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Switch x:Name="PrimaryOutputToggle" 
+                            IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}" 
+                            Toggled="OnPrimaryOutputToggleChanged" />
+                </StackLayout> -->
                 
                 <!-- <Button Grid.Row="0" 
                         x:Name="ViewImageOutputButton" 
@@ -76,12 +100,6 @@
                         HorizontalOptions="End" 
                         Margin="0,0,0,10"/> -->
 
-                <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
-                    <Label Text="Show JSON" VerticalOptions="Center" Margin="0,0,10,0"/>
-                    <Switch x:Name="PrimaryOutputToggle" 
-                            IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}" 
-                            Toggled="OnPrimaryOutputToggleChanged" />
-                </StackLayout>
 
                 <ScrollView Grid.Row="1" x:Name="OutputScrollView">
                     <Label TextType="Html" Text="{Binding OutputText}" />
@@ -99,17 +117,34 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Text="JSON Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+                <Grid Grid.Row="0" HeightRequest="70">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
-                    <Label Text="Show Main" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Label Grid.Column="0" Text="JSON Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+
+                    <StackLayout Grid.Column="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                        <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
+                        <Switch x:Name="SecondaryOutputToggle" 
+                                IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}"
+                                Toggled="OnSecondaryOutputToggleChanged" />
+                    </StackLayout>
+        
+                </Grid>
+
+                <!-- <Label Grid.Row="0" Text="JSON Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+
+                <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
                     <Switch x:Name="SecondaryOutputToggle" 
                             IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}"
                             Toggled="OnSecondaryOutputToggleChanged" />
-                </StackLayout>
+                </StackLayout> -->
 
-                <ScrollView Grid.Row="2">
-                    <Label TextType="Html" Text="{Binding JsonOutputText}" FontFamily="Monospace" />
+                <ScrollView Grid.Row="1">
+                    <Label TextType="Html" Text="{Binding JsonOutputText}"/>
                 </ScrollView>
             </Grid>
         </Frame>
