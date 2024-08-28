@@ -102,7 +102,20 @@ namespace frontend.Views
                     _viewModel.IsOutputFrameVisible = false;
                     _viewModel.IsAudioPlayerVisible = true;
                     break;
-
+                case "speech-to-text":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsChatHistoryVisible = false;
+                    _viewModel.IsInputFrameVisible = true;
+                    _viewModel.IsOutputFrameVisible = true;
+                    break;
+                case "automatic-speech-recognition":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsChatHistoryVisible = false;
+                    _viewModel.IsInputFrameVisible = true;
+                    _viewModel.IsOutputFrameVisible = true;
+                    break;
                 case "feature-extraction":
                     InputContainer.Children.Add(CreateTextInputUI());
                     _viewModel.IsOutputTextVisible = true;
@@ -112,15 +125,7 @@ namespace frontend.Views
                     _viewModel.IsRunInferenceButtonVisible = true;
                     break;
             
-                
-                case "automatic-speech-recognition":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
-                    _viewModel.IsOutputTextVisible = true;
-                    _viewModel.IsChatHistoryVisible = false;
-                    _viewModel.IsInputFrameVisible = true;
-                    _viewModel.IsOutputFrameVisible = true;
-                    break;
-
+                // ------------------------- LLM MODELS -------------------------        
 
                 case "text-generation":
                     if (_viewModel.Model.Config.ChatHistory == true)
@@ -156,18 +161,21 @@ namespace frontend.Views
 
         private View CreateFileSelectionUI(string buttonText)
         {
-            var instructionText = "Enter input data and 'Run Inference' to preview the output.";
+            var instructionText = "Enter input data and 'Submit' to preview the output.";
             
             switch (_viewModel.Model.PipelineTag?.ToLower())
             {
                 case "object-detection":
-                    instructionText = "Select image or video file and click 'Run Inference' to preview the output.";
+                    instructionText = "Select image or video file and click 'Submit' to preview the output.";
                     break;
                 case "image-segmentation":
-                    instructionText = "Select image file and click 'Run Inference' to preview the output.";
+                    instructionText = "Select image file and click 'Submit' to preview the output.";
                     break;
                 case "zero-shot-object-detection":
-                    instructionText = "Select image file and enter text, then click 'Run Inference' to preview the output.";
+                    instructionText = "Select image file and enter text, then click 'Submit' to preview the output.";
+                    break;
+                case "speech-to-text":
+                    instructionText = "Select audio file and click 'Submit' to preview the output.";
                     break;
                 // other cases
             }

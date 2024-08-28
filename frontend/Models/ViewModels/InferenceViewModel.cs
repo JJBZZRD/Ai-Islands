@@ -270,6 +270,17 @@ namespace frontend.Models.ViewModels
                         data = translationPayload;
                         // Store originalStructure for later use
                         break;
+                    case "text-to-speech":
+                        data = new { payload = InputText };
+                        break;
+                    case "speech-to-text":
+                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an audio file.", "OK");
+                            return;
+                        }
+                        data = new { file_path = _selectedFilePath };
+                        break;
 
                     // ------------------------- OTHER -------------------------
 
@@ -281,11 +292,6 @@ namespace frontend.Models.ViewModels
                     // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
 
                     case "text-generation":
-                        data = new { payload = InputText };
-                        break;
-
-                    // Add this case for text-to-speech
-                    case "text-to-speech":
                         data = new { payload = InputText };
                         break;
 
@@ -326,6 +332,19 @@ namespace frontend.Models.ViewModels
                                 }
                             }
                             break;
+                        case "speech-to-text":
+                            if (dataValue is JsonElement sttJsonElement && sttJsonElement.ValueKind == JsonValueKind.Object)
+                            {
+                                var transcription = sttJsonElement.GetProperty("transcription").GetString();
+                                OutputText = $"Transcription: {transcription}";
+                            }
+                            else
+                            {
+                                OutputText = "Unexpected response format for speech-to-text.";
+                            }
+                            break;
+
+
                         // ... (handle other cases as needed)
                         default:
                             OutputText = RawJsonText; // If output format not specified, always return raw json

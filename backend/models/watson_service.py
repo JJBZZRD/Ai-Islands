@@ -299,10 +299,19 @@ class WatsonService(BaseModel):
 
     # Audio to Text service method
     def transcribe_audio(self, file_path):
+        logger.info(f"Transcribe audio called with file path: {file_path}")
         if self.speech_to_text is None:
             raise ModelError("Speech to Text service is not initialized.")
 
         try:
+            # Check if file_path is provided and valid
+            if not file_path:
+                raise ValueError("File path is required for speech-to-text transcription")
+            
+            logger.info(f"Checking if file exists at path: {file_path}")
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Audio file not found at path: {file_path}")
+
             # Use the model from the config, or default to 'en-US_BroadbandModel'
             model = self.stt_config.get('model', 'en-US_BroadbandModel')
             content_type = self.stt_config.get('content_type', 'audio/wav')
