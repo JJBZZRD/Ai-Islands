@@ -54,8 +54,7 @@
 
 
         <!-- OUTPUT FRAME -->
-
-        <Frame Grid.Row="0" Grid.Column="1" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" IsVisible="{Binding IsOutputFrameVisible}">
+        <Frame Grid.Row="0" Grid.Column="1" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" IsVisible="{Binding IsPrimaryOutputVisible}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -64,7 +63,7 @@
 
                 <Label Grid.Row="0" Text="Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
                 
-                <Button Grid.Row="0" 
+                <!-- <Button Grid.Row="0" 
                         x:Name="ViewImageOutputButton" 
                         Text="View Image Output" 
                         Clicked="OnViewImageOutputClicked" 
@@ -75,7 +74,14 @@
                         CornerRadius="5" 
                         IsVisible="{Binding IsViewImageOutputButtonVisible}" 
                         HorizontalOptions="End" 
-                        Margin="0,0,0,10"/>
+                        Margin="0,0,0,10"/> -->
+
+                <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Label Text="Show JSON" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Switch x:Name="PrimaryOutputToggle" 
+                            IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}" 
+                            Toggled="OnPrimaryOutputToggleChanged" />
+                </StackLayout>
 
                 <ScrollView Grid.Row="1" x:Name="OutputScrollView">
                     <Label TextType="Html" Text="{Binding OutputText}" />
@@ -83,7 +89,32 @@
             </Grid>
         </Frame>
 
-        <!-- Add this inside the existing Grid, after the existing Frames -->
+
+        <!-- JSON OUTPUT FRAME -->
+        <Frame Grid.Row="0" Grid.Column="1" Padding="20" CornerRadius="10" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="10" IsVisible="{Binding IsSecondaryOutputVisible}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Text="JSON Output" FontSize="18" FontAttributes="Bold" HeightRequest="70"/>
+
+                <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Label Text="Show Main" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Switch x:Name="SecondaryOutputToggle" 
+                            IsToggled="{Binding IsSecondaryOutputVisible, Mode=TwoWay}"
+                            Toggled="OnSecondaryOutputToggleChanged" />
+                </StackLayout>
+
+                <ScrollView Grid.Row="2">
+                    <Label TextType="Html" Text="{Binding JsonOutputText}" FontFamily="Monospace" />
+                </ScrollView>
+            </Grid>
+        </Frame>
+
+        <!-- AUDIO OUTPUT FRAME (unchanged) -->
         <Frame Grid.Row="0" Grid.Column="1" Padding="20" CornerRadius="10" Margin="10" IsVisible="{Binding IsAudioPlayerVisible}">
             <StackLayout>
                 <Label Text="Audio Output" FontSize="18" FontAttributes="Bold" Margin="0,0,0,10"/>

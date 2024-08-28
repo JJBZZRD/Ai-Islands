@@ -28,6 +28,10 @@ namespace frontend.Views
             // Initialize AudioPlayer
             AudioPlayer.ShouldAutoPlay = false;
             AudioPlayer.ShouldShowPlaybackControls = true;
+            // Ensure the secondary output (JSON) toggle is off by default
+            _viewModel.IsSecondaryOutputVisible = false;
+            PrimaryOutputToggle.IsToggled = false;
+            SecondaryOutputToggle.IsToggled = false;
         }
 
         private void CreateInputUI()
@@ -302,5 +306,46 @@ namespace frontend.Views
             }
         }
 
+        private void OnPrimaryOutputToggleChanged(object sender, ToggledEventArgs e)
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.IsSecondaryOutputVisible = e.Value;
+                    SecondaryOutputToggle.IsToggled = e.Value;
+                    System.Diagnostics.Debug.WriteLine($"Primary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("ViewModel is null in OnPrimaryOutputToggleChanged");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in OnPrimaryOutputToggleChanged: {ex.Message}");
+            }
+        }
+
+        private void OnSecondaryOutputToggleChanged(object sender, ToggledEventArgs e)
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.IsSecondaryOutputVisible = e.Value;
+                    PrimaryOutputToggle.IsToggled = e.Value;
+                    System.Diagnostics.Debug.WriteLine($"Secondary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("ViewModel is null in OnSecondaryOutputToggleChanged");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in OnSecondaryOutputToggleChanged: {ex.Message}");
+            }
+        }
     }
 }

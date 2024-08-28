@@ -145,11 +145,35 @@ namespace frontend.Models.ViewModels
             }
         }
 
+        private bool _isSecondaryOutputVisible = false;
+        public bool IsSecondaryOutputVisible
+        {
+            get => _isSecondaryOutputVisible;
+            set
+            {
+                if (SetProperty(ref _isSecondaryOutputVisible, value))
+                {
+                    OnPropertyChanged(nameof(IsPrimaryOutputVisible));
+                    System.Diagnostics.Debug.WriteLine($"IsSecondaryOutputVisible changed to: {value}");
+                }
+            }
+        }
+
+        public bool IsPrimaryOutputVisible => !IsSecondaryOutputVisible;
+
+        private string _jsonOutputText;
+        public string JsonOutputText
+        {
+            get => _jsonOutputText;
+            set { SetProperty(ref _jsonOutputText, value); }
+        }
+
         public InferenceViewModel(Model model, ModelService modelService)
         {
             _model = model;
             _modelService = modelService;
             ChatHistory = new ObservableCollection<ChatMessage>();
+            IsSecondaryOutputVisible = false; // Ensure it's set to false initially
         }
 
         public async Task<bool> SelectFile(string fileType)
@@ -315,6 +339,9 @@ namespace frontend.Models.ViewModels
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     RawJsonText = FormatJsonString(dataValue);
+                    // Store raw JSON output for alt view
+                    JsonOutputText = FormatJsonString(dataValue);
+
                     switch (Model.PipelineTag?.ToLower())
                     {
                         case "translation":
