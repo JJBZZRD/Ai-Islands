@@ -15,6 +15,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Text;
 using OpenCvSharp;
+using Plugin.Maui.Audio;
 
 namespace frontend.Models.ViewModels
 {
@@ -121,11 +122,74 @@ namespace frontend.Models.ViewModels
             set { SetProperty(ref _chatHistory, value); }
         }
 
-        public InferenceViewModel(Model model, ModelService modelService)
+        private const string AUDIO_FILE_PATH = "Resources/Audio/Output.wav";
+
+        private bool _isAudioPlayerVisible;
+        public bool IsAudioPlayerVisible
+        {
+            get => _isAudioPlayerVisible;
+            set { SetProperty(ref _isAudioPlayerVisible, value); }
+        }
+
+        private bool _isNewAudioAvailable;
+        public bool IsNewAudioAvailable
+        {
+            get => _isNewAudioAvailable;
+            set { SetProperty(ref _isNewAudioAvailable, value); }
+        }
+
+        private string _audioFilePath;
+        public string AudioFilePath
+        {
+            get => _audioFilePath;
+            set { SetProperty(ref _audioFilePath, value); }
+        }
+
+        private bool _isJsonOutputVisible = true;
+        public bool IsJsonOutputVisible
+        {
+            get => _isJsonOutputVisible;
+            set { SetProperty(ref _isJsonOutputVisible, value); }
+        }
+
+        private bool _isAudioOutputAvailable;
+        public bool IsAudioOutputAvailable
+        {
+            get => _isAudioOutputAvailable;
+            set { SetProperty(ref _isAudioOutputAvailable, value); }
+        }
+
+        public string ToggleOutputButtonText => IsJsonOutputVisible ? "View Audio Player" : "View JSON Output";
+
+        private IAudioPlayer _audioPlayer;
+        private readonly IAudioManager _audioManager;
+
+        private bool _isPlaying;
+        public bool IsPlaying
+        {
+            get => _isPlaying;
+            set
+            {
+                if (SetProperty(ref _isPlaying, value))
+                {
+                    OnPropertyChanged(nameof(AudioButtonText));
+                }
+            }
+        }
+
+        private string _audioButtonText = "Play";
+        public string AudioButtonText
+        {
+            get => _audioButtonText;
+            set { SetProperty(ref _audioButtonText, value); }
+        }
+
+        public InferenceViewModel(Model model, ModelService modelService, IAudioManager audioManager)
         {
             _model = model;
             _modelService = modelService;
             ChatHistory = new ObservableCollection<ChatMessage>();
+            _audioManager = audioManager;
         }
 
         public async Task<bool> SelectFile(string fileType)
@@ -246,6 +310,9 @@ namespace frontend.Models.ViewModels
                         data = translationPayload;
                         // Store originalStructure for later use
                         break;
+                    case "text-to-speech":
+                        data = new { payload = InputText };
+                        break;
 
                     // ------------------------- OTHER -------------------------
 
@@ -270,6 +337,9 @@ namespace frontend.Models.ViewModels
 
                 // ------------------------------------------- OUTPUT FORMAT CASE SWITCH ---------------------------- (See output format section below)
 
+                // Set IsAudioPlayerVisible to false by default
+                IsAudioPlayerVisible = false;
+
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     RawJsonText = FormatJsonString(dataValue);
@@ -284,7 +354,19 @@ namespace frontend.Models.ViewModels
                         case "text-generation":
                             OutputText = dataValue.ToString();
                             break;
-                        // ... (handle other cases as needed)
+                        case "text-to-speech":
+                            if (dataValue is JsonElement jsonElement)
+                            {
+                                await HandleTextToSpeechResponse(jsonElement);
+                            }
+                            else
+                            {
+                                OutputText = "Invalid text-to-speech result format.";
+                                IsAudioPlayerVisible = false;
+                                IsAudioOutputAvailable = false;
+                            }
+                            break;
+                            
                         default:
                             OutputText = RawJsonText; // If output format not specified, always return raw json
                             break;
@@ -294,6 +376,19 @@ namespace frontend.Models.ViewModels
                 {
                     await Application.Current.MainPage.DisplayAlert("Error", "Invalid result format.", "OK");
                     return;
+                }
+
+                if (Model.PipelineTag?.ToLower() == "text-to-speech")
+                {
+                    IsAudioOutputAvailable = true;
+                    IsAudioPlayerVisible = true;
+                    IsJsonOutputVisible = false;
+                }
+                else
+                {
+                    IsAudioOutputAvailable = false;
+                    IsAudioPlayerVisible = false;
+                    IsJsonOutputVisible = true;
                 }
             }
             catch (HttpRequestException ex)
@@ -391,6 +486,195 @@ namespace frontend.Models.ViewModels
             _imagePopUp = imagePopup;
         }
 
+        public void ToggleOutputView()
+        {
+            IsJsonOutputVisible = !IsJsonOutputVisible;
+            IsAudioPlayerVisible = !IsJsonOutputVisible;
+            OnPropertyChanged(nameof(IsJsonOutputVisible));
+            OnPropertyChanged(nameof(IsAudioPlayerVisible));
+            OnPropertyChanged(nameof(ToggleOutputButtonText));
+        }
+
+        public async Task PlayPauseAudio()
+        {
+            if (_audioPlayer == null || IsNewAudioAvailable)
+            {
+                await CreateAudioPlayer();
+            }
+
+            if (_audioPlayer != null)
+            {
+                if (_audioPlayer.IsPlaying)
+                {
+                    _audioPlayer.Pause();
+                    AudioButtonText = "Play";
+                }
+                else
+                {
+                    _audioPlayer.Play();
+                    AudioButtonText = "Pause";
+                }
+                IsPlaying = _audioPlayer.IsPlaying;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Audio player is null");
+            }
+        }
+
+        private async Task HandleTextToSpeechResponse(JsonElement dataValue)
+        {
+            if (dataValue.TryGetProperty("audio_path", out var audioPathElement))
+            {
+                string apiAudioPath = audioPathElement.GetString();
+                System.Diagnostics.Debug.WriteLine($"API audio path: {apiAudioPath}");
+
+                try
+                {
+                    string fileName = Path.GetFileName(apiAudioPath);
+                    string[] possiblePaths = new[]
+                    {
+                        Path.Combine(FileSystem.AppDataDirectory, fileName),
+                        Path.Combine(FileSystem.CacheDirectory, fileName),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), fileName),
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, apiAudioPath)
+                    };
+
+                    string audioFilePath = possiblePaths.FirstOrDefault(File.Exists);
+
+                    if (!string.IsNullOrEmpty(audioFilePath))
+                    {
+                        AudioFilePath = audioFilePath;
+                        System.Diagnostics.Debug.WriteLine($"Audio file found at: {AudioFilePath}");
+
+                        IsNewAudioAvailable = true;
+                        IsAudioPlayerVisible = true;
+                        IsAudioOutputAvailable = true;
+                        OutputText = FormatJsonString(dataValue);
+
+                        await CreateAudioPlayer();
+                    }
+                    else
+                    {
+                        HandleAudioError($"Audio file not found. Checked paths: {string.Join(", ", possiblePaths)}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleAudioError($"Error handling audio file: {ex.Message}");
+                }
+            }
+            else
+            {
+                HandleAudioError("Audio path is missing from the response");
+            }
+        }
+
+        private async Task CreateAudioPlayer()
+        {
+            if (_audioManager != null && !string.IsNullOrEmpty(AudioFilePath))
+            {
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine($"Attempting to load audio file: {AudioFilePath}");
+                    System.Diagnostics.Debug.WriteLine($"File exists: {File.Exists(AudioFilePath)}");
+
+                    if (!File.Exists(AudioFilePath))
+                    {
+                        throw new FileNotFoundException($"Audio file not found at {AudioFilePath}");
+                    }
+
+                    var fileInfo = new FileInfo(AudioFilePath);
+                    System.Diagnostics.Debug.WriteLine($"Audio file size: {fileInfo.Length} bytes");
+
+                    if (fileInfo.Length == 0)
+                    {
+                        throw new InvalidOperationException("Audio file is empty");
+                    }
+
+                    byte[] fileHeader = new byte[12];
+                    using (var fileStream = File.OpenRead(AudioFilePath))
+                    {
+                        await fileStream.ReadAsync(fileHeader, 0, 12);
+                    }
+                    System.Diagnostics.Debug.WriteLine($"File header: {BitConverter.ToString(fileHeader)}");
+
+                    _audioPlayer?.Dispose();
+                    _audioPlayer = _audioManager.CreatePlayer(AudioFilePath);
+                    IsNewAudioAvailable = false;
+
+                    System.Diagnostics.Debug.WriteLine("Audio player created successfully");
+
+                    _audioPlayer.Volume = 1.0;
+                    System.Diagnostics.Debug.WriteLine($"Audio duration: {_audioPlayer.Duration} seconds");
+
+                    if (_audioPlayer.Duration == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Warning: Audio duration is 0 seconds");
+                    }
+
+                    var playbackTask = Task.Run(async () =>
+                    {
+                        _audioPlayer.Play();
+                        AudioButtonText = "Pause";
+                        IsPlaying = true;
+                        System.Diagnostics.Debug.WriteLine("Audio playback started");
+
+                        var startTime = DateTime.Now;
+                        var lastPosition = -1.0;
+                        var samePositionCount = 0;
+                        while (_audioPlayer.IsPlaying)
+                        {
+                            await Task.Delay(100);
+                            var elapsed = (DateTime.Now - startTime).TotalSeconds;
+                            var currentPosition = _audioPlayer.CurrentPosition;
+                            System.Diagnostics.Debug.WriteLine($"Audio is playing. Elapsed time: {elapsed:F2} seconds, Current position: {currentPosition:F2}");
+
+                            if (Math.Abs(currentPosition - lastPosition) < 0.001)
+                            {
+                                samePositionCount++;
+                                if (samePositionCount > 50) // 5 seconds of no progress
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Audio playback seems to be stuck. Stopping.");
+                                    _audioPlayer.Stop();
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                samePositionCount = 0;
+                            }
+                            lastPosition = currentPosition;
+                        }
+
+                        var totalPlayTime = (DateTime.Now - startTime).TotalSeconds;
+                        System.Diagnostics.Debug.WriteLine($"Audio playback finished. Total play time: {totalPlayTime:F2} seconds");
+                    });
+
+                    await Task.WhenAny(playbackTask, Task.Delay(TimeSpan.FromSeconds(30)));
+
+                    if (_audioPlayer.IsPlaying)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Audio playback timed out after 30 seconds");
+                        _audioPlayer.Stop();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in CreateAudioPlayer: {ex}");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Unable to load audio: {ex.Message}", "OK");
+                }
+            }
+        }
+
+        private void HandleAudioError(string errorMessage)
+        {
+            System.Diagnostics.Debug.WriteLine(errorMessage);
+            IsAudioPlayerVisible = false;
+            IsAudioOutputAvailable = false;
+            OutputText = $"Error: {errorMessage}";
+        }
+
 
 
         // Private methods -----------------------------------------------------------------------------------------------------
@@ -427,7 +711,7 @@ namespace frontend.Models.ViewModels
 
                             var buffer = new byte[8192];
                             var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
-                            var predictionJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
+                            var predictionJson = System.Text.Encoding.UTF8.GetString(buffer, 0, response.Count);
                             var prediction = JsonSerializer.Deserialize<Dictionary<string, object>>(predictionJson);
                             
                             Device.BeginInvokeOnMainThread(() =>

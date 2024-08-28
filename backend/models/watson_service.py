@@ -270,8 +270,10 @@ class WatsonService(BaseModel):
                 accept=accept
             ).get_result().content
 
-            model_dir = os.path.join('data', 'downloads', 'watson', self.model_id)
+            model_dir = os.path.join('frontend', 'Resources', 'Audio')
             audio_path = os.path.join(model_dir, "output.wav")
+
+            out_choice = os.path.join('Resources', 'Audio', "output.wav")
 
             os.makedirs(os.path.dirname(audio_path), exist_ok=True)
             with open(audio_path, "wb") as audio_file:

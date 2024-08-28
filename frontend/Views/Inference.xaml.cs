@@ -11,21 +11,28 @@ using OpenCvSharp;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using Plugin.Maui.Audio;
 
 namespace frontend.Views
 {
     public partial class Inference : ContentView
     {
         private readonly InferenceViewModel _viewModel;
+        private IAudioManager _audioManager;
+        private IAudioPlayer _audioPlayer;
 
-        public Inference(Model model)
+        public Inference(Model model, IAudioManager audioManager)
         {
             InitializeComponent();
-            _viewModel = new InferenceViewModel(model, new ModelService());
+            _viewModel = new InferenceViewModel(model, new ModelService(), audioManager);
             BindingContext = _viewModel;
             _viewModel.SetImagePopup(_imagePopupView);
+            _audioManager = audioManager;
+            
             CreateInputUI();
         }
+
+        // ------------------------------------- Create UI Inputs -------------------------------------
 
         private void CreateInputUI()
         {
@@ -37,6 +44,9 @@ namespace frontend.Views
             }
 
             System.Diagnostics.Debug.WriteLine($"PipelineTag: {_viewModel.Model.PipelineTag?.ToLower()}");
+
+            // Set IsAudioPlayerVisible to false by default
+            _viewModel.IsAudioPlayerVisible = false;
 
             switch (_viewModel.Model.PipelineTag?.ToLower())
             {
@@ -93,7 +103,8 @@ namespace frontend.Views
                     break;
                 case "text-to-speech":
                     InputContainer.Children.Add(CreateTextInputUI());
-                    _viewModel.IsOutputTextVisible = true;
+                    _viewModel.IsOutputTextVisible = false;
+                    _viewModel.IsAudioPlayerVisible = true; // Only set to true for text-to-speech
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
                     _viewModel.IsOutputFrameVisible = true;
@@ -230,6 +241,16 @@ namespace frontend.Views
             return editor;
         }
 
+        // ------------------------------------- Create UI Outputs -------------------------------------
+
+        private void OnToggleOutputViewClicked(object sender, EventArgs e)
+        {
+            _viewModel.ToggleOutputView();
+        }
+
+
+        // ------------------------------------------ ACTIONS ------------------------------------------
+
         private async void OnSendMessageClicked(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(ChatInputEntry.Text))
@@ -291,6 +312,11 @@ namespace frontend.Views
                 fileNameLabel.Text = fileName;
                 fileNameLabel.IsVisible = true;
             }
+        }
+
+        private async void OnPlayPauseClicked(object sender, EventArgs e)
+        {
+            await _viewModel.PlayPauseAudio();
         }
     }
 }
