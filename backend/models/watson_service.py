@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 from dotenv import load_dotenv
 from .base_model import BaseModel
 from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService, AccountInfo
@@ -9,6 +10,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from pydub import AudioSegment
 from backend.utils.watson_settings_manager import watson_settings
 from backend.core.exceptions import ModelError
+import base64
 
 logger = logging.getLogger(__name__)
 
@@ -270,16 +272,11 @@ class WatsonService(BaseModel):
                 accept=accept
             ).get_result().content
 
-            model_dir = os.path.join('data', 'downloads', 'watson', self.model_id)
-            audio_path = os.path.join(model_dir, "output.wav")
-
-            os.makedirs(os.path.dirname(audio_path), exist_ok=True)
-            with open(audio_path, "wb") as audio_file:
-                audio_file.write(response)
+            audio_content_base64 = base64.b64encode(response).decode('utf-8')
 
             return {
                 "status": "success",
-                "audio_path": audio_path,
+                "audio_content": audio_content_base64,
                 "voice": voice,
                 "pitch": pitch,
                 "speed": speed
