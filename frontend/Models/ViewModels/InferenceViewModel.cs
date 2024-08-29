@@ -777,6 +777,8 @@ namespace frontend.Models.ViewModels
 
         // ... elsewhere in the class ...
 
+        // CLASSIFICATION MODELS OPTION 1
+
         private string FormatTextClassificationOutput(object dataValue)
         {
             if (dataValue == null || !(dataValue is JsonElement jsonElement))
@@ -839,9 +841,79 @@ namespace frontend.Models.ViewModels
         private string FormatSemanticRoles(JsonElement semanticRoles) =>
             semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
 
+        // CLASSIFICATION MODELS END OPTION 1
+
+        // CLASSIFICATION MODELS OPTION 2
+
+        // private string FormatTextClassificationOutput(object dataValue)
+        // {
+        //     if (dataValue == null)
+        //         return "No data available.";
+
+        //     var jsonElement = dataValue as JsonElement? ?? JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(dataValue));
+        //     return FormatJsonElementToText(jsonElement);
+        // }
+
+        // private string FormatJsonElementToText(JsonElement element, int indent = 0)
+        // {
+        //     var result = new StringBuilder();
+        //     string indentation = new string(' ', indent * 2);
+
+        //     switch (element.ValueKind)
+        //     {
+        //         case JsonValueKind.Object:
+        //             foreach (var property in element.EnumerateObject())
+        //             {
+        //                 string formattedValue = FormatJsonElementToText(property.Value, indent + 1);
+        //                 if (!string.IsNullOrWhiteSpace(formattedValue))
+        //                 {
+        //                     result.AppendLine($"{indentation}{FormatPropertyName(property.Name)}:");
+        //                     result.Append(formattedValue);
+        //                 }
+        //             }
+        //             break;
+
+        //         case JsonValueKind.Array:
+        //             var items = element.EnumerateArray().ToList();
+        //             for (int i = 0; i < items.Count; i++)
+        //             {
+        //                 string formattedValue = FormatJsonElementToText(items[i], indent + 1);
+        //                 if (!string.IsNullOrWhiteSpace(formattedValue))
+        //                 {
+        //                     result.Append(formattedValue);
+        //                 }
+        //             }
+        //             break;
+
+        //         case JsonValueKind.String:
+        //         case JsonValueKind.Number:
+        //         case JsonValueKind.True:
+        //         case JsonValueKind.False:
+        //             string value = element.ToString();
+        //             if (element.ValueKind == JsonValueKind.Number && double.TryParse(value, out double number))
+        //             {
+        //                 value = number.ToString("F4");
+        //             }
+        //             result.AppendLine($"{indentation}{value}");
+        //             break;
+
+        //         case JsonValueKind.Null:
+        //             result.AppendLine($"{indentation}N/A");
+        //             break;
+        //     }
+
+        //     return result.ToString();
+        // }
+
+        // private string FormatPropertyName(string name)
+        // {
+        //     // Convert camelCase or snake_case to Title Case
+        //     string[] words = System.Text.RegularExpressions.Regex.Split(name, @"(?<!^)(?=[A-Z])|_");
+        //     return string.Join(" ", words.Select(word => char.ToUpper(word[0]) + word.Substring(1).ToLower()));
+        // }
 
 
-
+        // CLASSIFICATION MODELS END OPTION 2
 
         // Case specific methods:
 
