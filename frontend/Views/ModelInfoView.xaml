@@ -17,9 +17,24 @@
             <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" CornerRadius="10">
                 <StackLayout Spacing="10">
                     <Label Text="Hardware Usage" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
-                    <Label x:Name="CpuUsageLabel" />
-                    <Label x:Name="MemoryUsageLabel" />
-                    <Label x:Name="GpuUsageLabel" />
+                    
+                    <StackLayout Spacing="5">
+                        <Label Text="CPU Usage" />
+                        <Label x:Name="CpuUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <ProgressBar x:Name="CpuUsageBar" Progress="0" ProgressColor="Blue" HeightRequest="30" />
+                    </StackLayout>
+                    
+                    <StackLayout Spacing="5">
+                        <Label Text="Memory Usage" />
+                        <Label x:Name="MemoryUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <ProgressBar x:Name="MemoryUsageBar" Progress="0" ProgressColor="Green" HeightRequest="30" />
+                    </StackLayout>
+                    
+                    <StackLayout x:Name="GpuUsageStack" IsVisible="False" Spacing="5">
+                        <Label Text="GPU Memory Usage" />
+                        <Label x:Name="GpuUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <ProgressBar x:Name="GpuUsageBar" Progress="0" ProgressColor="Red" HeightRequest="30" />
+                    </StackLayout>
                 </StackLayout>
             </Frame>
         </StackLayout>

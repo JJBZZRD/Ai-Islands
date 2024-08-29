@@ -69,23 +69,39 @@ namespace frontend.Views
         {
             try
             {
-                CpuUsageLabel.Text = $"CPU Usage: {usage["cpu_percent"]}%";
-                MemoryUsageLabel.Text = $"Memory Usage: {usage["memory_used_mb"]} MB ({usage["memory_percent"]}%)";
+                UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", usage["cpu_percent"]);
+                UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", usage["memory_percent"], $"{usage["memory_used_mb"]} MB");
 
                 if (usage["gpu_memory_used_mb"] != null)
                 {
-                    GpuUsageLabel.Text = $"GPU Memory Usage: {usage["gpu_memory_used_mb"]} MB ({usage["gpu_memory_percent"]}%)";
-                    GpuUsageLabel.IsVisible = true;
+                    UpdateUsageBar(GpuUsageBar, GpuUsageLabel, "GPU Memory", usage["gpu_memory_percent"], $"{usage["gpu_memory_used_mb"]} MB");
+                    GpuUsageStack.IsVisible = true;
                 }
                 else
                 {
-                    GpuUsageLabel.IsVisible = false;
+                    GpuUsageStack.IsVisible = false;
                 }
-                Debug.WriteLine("Usage labels updated successfully");
+                Debug.WriteLine("Usage bars updated successfully");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error updating usage labels: {ex.Message}");
+                Debug.WriteLine($"Error updating usage bars: {ex.Message}");
+            }
+        }
+
+        private void UpdateUsageBar(ProgressBar bar, Label label, string resourceName, object percentValue, string additionalInfo = null)
+        {
+            if (double.TryParse(percentValue.ToString(), out double percent))
+            {
+                bar.Progress = percent / 100;
+                label.Text = additionalInfo != null
+                    ? $"{resourceName}: {percent:F1}% ({additionalInfo})"
+                    : $"{resourceName}: {percent:F1}%";
+            }
+            else
+            {
+                bar.Progress = 0;
+                label.Text = $"{resourceName}: N/A";
             }
         }
 
