@@ -422,6 +422,7 @@ namespace frontend.Models.ViewModels
 
                     switch (Model.PipelineTag?.ToLower())
                     {
+                        // ------------------------- COMPUTER VISION MODELS -------------------------
                         case "object-detection":
                             await ViewImageOutput();
                             break;
@@ -431,14 +432,13 @@ namespace frontend.Models.ViewModels
                         case "zero-shot-object-detection":
                             await ViewImageOutput();
                             break;
+
+                        // ------------------------- NLP MODELS -------------------------
                         case "translation":
                             var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
                             data = translationPayload;
                             // ... (after getting the result)
                             OutputText = FormatTranslationOutput(dataValue, originalStructure);
-                            break;
-                        case "text-generation":
-                            OutputText = dataValue.ToString();
                             break;
                         case "text-to-speech":
                             if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
@@ -475,6 +475,14 @@ namespace frontend.Models.ViewModels
                             {
                                 OutputText = "Unexpected response format for automatic speech recognition.";
                             }
+                            break;
+                        case "text-classification":
+                            OutputText = FormatTextClassificationOutput(dataValue);
+                            break;
+
+                        // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
+                        case "text-generation":
+                            OutputText = dataValue.ToString();
                             break;
 
 
@@ -766,6 +774,74 @@ namespace frontend.Models.ViewModels
 
             return text;
         }
+
+        // ... elsewhere in the class ...
+
+        private string FormatTextClassificationOutput(object dataValue)
+        {
+            if (dataValue == null || !(dataValue is JsonElement jsonElement))
+                return "No data available.";
+
+            var sb = new StringBuilder();
+
+            if (jsonElement.TryGetProperty("sentiment", out var sentiment))
+                sb.AppendLine($"Sentiment: {FormatSentiment(sentiment)}");
+
+            if (jsonElement.TryGetProperty("emotion", out var emotion))
+                sb.AppendLine($"Emotion: {FormatEmotion(emotion)}");
+
+            if (jsonElement.TryGetProperty("entities", out var entities))
+                sb.AppendLine($"Entities: {FormatEntities(entities)}");
+
+            if (jsonElement.TryGetProperty("keywords", out var keywords))
+                sb.AppendLine($"Keywords: {FormatKeywords(keywords)}");
+
+            if (jsonElement.TryGetProperty("categories", out var categories))
+                sb.AppendLine($"Categories: {FormatCategories(categories)}");
+
+            if (jsonElement.TryGetProperty("concepts", out var concepts))
+                sb.AppendLine($"Concepts: {FormatConcepts(concepts)}");
+
+            if (jsonElement.TryGetProperty("relations", out var relations))
+                sb.AppendLine($"Relations: {FormatRelations(relations)}");
+
+            if (jsonElement.TryGetProperty("semantic_roles", out var semanticRoles))
+                sb.AppendLine($"Semantic Roles: {FormatSemanticRoles(semanticRoles)}");
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private string FormatSentiment(JsonElement sentiment) => 
+            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label) 
+            ? label.GetString() 
+            : "N/A";
+
+        private string FormatEmotion(JsonElement emotion) => 
+            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo) 
+            ? string.Join(", ", emo.EnumerateObject().OrderByDescending(p => p.Value.GetDouble()).Take(2).Select(p => $"{p.Name} ({p.Value.GetDouble():F2})"))
+            : "N/A";
+
+        private string FormatEntities(JsonElement entities) =>
+            string.Join(", ", entities.EnumerateArray().Take(3).Select(e => e.GetProperty("text").GetString()));
+
+        private string FormatKeywords(JsonElement keywords) =>
+            string.Join(", ", keywords.EnumerateArray().Take(3).Select(k => k.GetProperty("text").GetString()));
+
+        private string FormatCategories(JsonElement categories) =>
+            string.Join(", ", categories.EnumerateArray().Take(3).Select(c => c.GetProperty("label").GetString().Split('/').Last()));
+
+        private string FormatConcepts(JsonElement concepts) =>
+            string.Join(", ", concepts.EnumerateArray().Take(3).Select(c => c.GetProperty("text").GetString()));
+
+        private string FormatRelations(JsonElement relations) =>
+            relations.GetArrayLength() > 0 ? "Present" : "None found";
+
+        private string FormatSemanticRoles(JsonElement semanticRoles) =>
+            semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
+
+
+
+
 
         // Case specific methods:
 
