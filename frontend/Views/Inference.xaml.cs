@@ -146,6 +146,7 @@ namespace frontend.Views
                     else
                     {
                         InputContainer.Children.Add(CreateTextInputUI());
+                        _viewModel.IsOutputTextVisible = true;
                         _viewModel.IsChatbotVisible = false;
                         _viewModel.IsInputFrameVisible = true;
                         _viewModel.IsOutputFrameVisible = true;
