@@ -44,25 +44,45 @@ namespace frontend.Views
             {
                 try
                 {
-                    Debug.WriteLine($"Fetching hardware usage for model: {_model.ModelId}");
-                    var usage = await _modelService.GetModelHardwareUsage(_model.ModelId);
-                    Debug.WriteLine($"Hardware usage received: {string.Join(", ", usage)}");
-
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    Debug.WriteLine($"Checking if model is loaded: {_model.ModelId}");
+                    bool isLoaded = await _modelService.IsModelLoaded(_model.ModelId);
+                    
+                    if (isLoaded)
                     {
-                        UpdateUsageLabels(usage);
-                    });
+                        Debug.WriteLine($"Fetching hardware usage for model: {_model.ModelId}");
+                        var usage = await _modelService.GetModelHardwareUsage(_model.ModelId);
+                        Debug.WriteLine($"Hardware usage received: {string.Join(", ", usage)}");
+
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            UpdateUsageLabels(usage);
+                        });
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Model {_model.ModelId} is not loaded. Skipping hardware usage update.");
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            ResetUsageLabels();
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error updating hardware usage: {ex.Message}");
                     Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                    await Task.Delay(10000); // Wait 10 seconds before retrying
                 }
 
                 await Task.Delay(5000); // Update every 5 seconds
             }
             Debug.WriteLine("UpdateHardwareUsageAsync ended");
+        }
+
+        private void ResetUsageLabels()
+        {
+            UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", 0);
+            UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", 0);
+            GpuUsageStack.IsVisible = false;
         }
 
         private void UpdateUsageLabels(Dictionary<string, object> usage)
