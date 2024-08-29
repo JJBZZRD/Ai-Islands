@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="frontend.Views.FineTuneUnavailableView"
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
+    <VerticalStackLayout Padding="20" Spacing="20">
+        <Label Text="Fine-tuning is not available for this model."
+               FontSize="24"
+               HorizontalOptions="Center"
+               VerticalOptions="CenterAndExpand"/>
+    </VerticalStackLayout>
+</ContentView>

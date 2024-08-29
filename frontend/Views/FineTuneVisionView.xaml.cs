@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace frontend.Views
 {
-    public partial class FineTune : ContentView, INotifyPropertyChanged
+    public partial class FineTuneVisionView : ContentView, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -53,7 +53,7 @@ namespace frontend.Views
 
         private Button _startVisFineTuningButton;
 
-        public FineTune(Model model)
+        public FineTuneVisionView(Model model)
         {
             InitializeComponent();
             _model = model;
@@ -73,23 +73,8 @@ namespace frontend.Views
             }
             else
             {
-                switch (_model.PipelineTag?.ToLower())
-                {
-                    case "object-detection":
-                        taskSpecificContent = CreateObjectDetectionUI();
-                        IsFineTuningAvailable = true;
-                        break;
-                    case "text-generation":
-                        taskSpecificContent = CreateNLPUI();
-                        IsFineTuningAvailable = true;
-                        break;
-                    // more cases here
-                    default:
-                        // taskSpecificContent = new Label { Text = "Unsupported task" };
-                        taskSpecificContent = CreateDefaultUI();
-                        IsFineTuningAvailable = false;
-                        break;
-                }
+                taskSpecificContent = CreateObjectDetectionUI();
+                IsFineTuningAvailable = true;
             }
             return taskSpecificContent;
         }
@@ -298,59 +283,6 @@ namespace frontend.Views
             await Application.Current.MainPage.DisplayAlert("Success", "Parameters saved successfully", "OK");
         }
 
-        private View CreateNLPUI()
-        {
-            Parameters = new ObservableCollection<Parameter>
-            {
-                new Parameter { Name = "Vocabulary size", Value = "", Description = "The number of unique tokens in the model's vocabulary." },
-                new Parameter { Name = "Embedding dimension", Value = "", Description = "The size of the vector space in which words are embedded." }
-            };
-
-            return new VerticalStackLayout
-            {
-                Children =
-                {
-                    new Frame
-                    {
-                        BackgroundColor = Colors.White,
-                        Padding = new Thickness(20),
-                        CornerRadius = 10,
-                        Content = new VerticalStackLayout
-                        {
-                            Spacing = 15,
-                            Children =
-                            {
-                                new Label { Text = "Parameters", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                new CollectionView
-                                {
-                                    ItemsSource = Parameters,
-                                    ItemTemplate = new DataTemplate(() =>
-                                    {
-                                        return CreateParameterEntryWithInfo();
-                                    })
-                                }
-                            }
-                        }
-                    },
-                    new Frame
-                    {
-                        BackgroundColor = Colors.White,
-                        Padding = new Thickness(20),
-                        CornerRadius = 10,
-                        Content = new VerticalStackLayout
-                        {
-                            Spacing = 15,
-                            Children =
-                            {
-                                new Label { Text = "Upload text corpus", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                CreateUploadButtonWithInfo("Select file", "Choose a text corpus file for fine-tuning. Recommended format: TXT or CSV.")
-                            }
-                        }
-                    }
-                }
-            };
-        }
-
         private View CreateParameterEntryWithInfo()
         {
             var grid = new Grid
@@ -404,30 +336,6 @@ namespace frontend.Views
             grid.BindingContext = parameter;
 
             return grid;
-        }
-
-        private View CreateUploadButtonWithInfo(string buttonText, string infoText)
-        {
-            return new HorizontalStackLayout
-            {
-                Children =
-                {
-                    new Button { Text = buttonText, BackgroundColor = Color.FromArgb("#E0E0E0"), TextColor = Color.FromArgb("#333333"), CornerRadius = 5 },
-                    new Button
-                    {
-                        Text = "?",
-                        FontSize = 12,
-                        WidthRequest = 25,
-                        HeightRequest = 25,
-                        CornerRadius = 12,
-                        Padding = new Thickness(0),
-                        Margin = new Thickness(5, 0, 0, 0),
-                        BackgroundColor = Color.FromArgb("#E0E0E0"),
-                        TextColor = Color.FromArgb("#333333"),
-                        Command = new Command(() => ShowInfoPopup("Dataset", infoText))
-                    }
-                }
-            };
         }
 
         public async void ShowInfoPopup(string title, string message)
@@ -622,7 +530,7 @@ namespace frontend.Views
             }
         }
         public string Description { get; set; }
-        public FineTune Parent { get; set; }
+        public FineTuneVisionView Parent { get; set; }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -632,16 +540,16 @@ namespace frontend.Views
 
     public class InfoButtonCommandConverter : IValueConverter
     {
-        private readonly FineTune _fineTune;
+        private readonly FineTuneVisionView _fineTuneVisionView;
 
-        public InfoButtonCommandConverter(FineTune fineTune)
+        public InfoButtonCommandConverter(FineTuneVisionView fineTuneVisionView)
         {
-            _fineTune = fineTune;
+            _fineTuneVisionView = fineTuneVisionView;
         }
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return new Command(() => _fineTune.ShowInfoPopup(value.ToString(), _fineTune.Parameters.FirstOrDefault(p => p.Name == value.ToString())?.Description));
+            return new Command(() => _fineTuneVisionView.ShowInfoPopup(value.ToString(), _fineTuneVisionView.Parameters.FirstOrDefault(p => p.Name == value.ToString())?.Description));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

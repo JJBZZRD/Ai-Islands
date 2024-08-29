@@ -145,16 +145,20 @@ class LibraryControl:
             FileReadError: If there is an error reading the library file.
             FileWriteError: If there is an error writing to the library file.
         """
-        library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
-    
-        new_model_id = new_entry['model_id']
-    
-        # Adding new entry to the library
-        library[new_model_id] = new_entry
+        try:
+            library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
 
-        JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
-        logger.info(f"New fine-tuned model {new_model_id} added to library")
-        return new_model_id
+            new_model_id = new_entry.pop('model_id')
+
+            # Adding new entry to the library
+            library[new_model_id] = new_entry
+
+            JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
+            logger.info(f"New fine-tuned model {new_model_id} added to library")
+            return new_model_id
+        except Exception as e:
+            logger.error(str(e))
+            raise e
     
     def update_model_config(self, model_id: str, new_config: dict):
         """

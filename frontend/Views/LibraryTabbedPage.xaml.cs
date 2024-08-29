@@ -72,7 +72,27 @@ namespace frontend.Views
         {
             if (_model != null)
             {
-                ContentContainer.Content = new FineTune(_model);
+                ContentView fineTunePage;
+                switch (_model.PipelineTag?.ToLower())
+                {
+                    case "object-detection":
+                        fineTunePage = new FineTuneVisionView(_model);
+                        break;
+                    case "text-classification":
+                        if (_model.IsOnline == false)
+                        {
+                            fineTunePage = new FineTuneNLPView(_model);
+                            break;
+                        }
+                        else
+                        {
+                            goto default;
+                        }
+                    default:
+                        fineTunePage = new FineTuneUnavailableView();
+                        break;
+                }
+                ContentContainer.Content = fineTunePage;
             }
         }
 

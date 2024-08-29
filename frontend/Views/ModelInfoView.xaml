@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="frontend.Views.ModelInfoView"
              xmlns:views="clr-namespace:frontend.Views"
-             BackgroundColor="#F2F2F2">
+             BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ScrollView>
         <StackLayout Padding="20">
-            <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20" TextColor="Black"/>
-            <Label Text="{Binding ModelDesc}" FontSize="17" Margin="10,10,0,20" TextColor="Black"/>
+            <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20"/>
+            <Label Text="{Binding ModelDesc}" FontSize="17" Margin="10,10,0,20"/>
             <views:TagsView Tags="{Binding Tags}" />
         </StackLayout>
     </ScrollView>

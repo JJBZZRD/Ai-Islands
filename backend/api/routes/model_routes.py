@@ -138,7 +138,7 @@ class ModelRouter:
             data, message = self.model_control.train_model(jsonable_encoder(trainRequest))
             return success_response(data=data, message=message)
         except KeyError as e:
-            return error_response(message=str(e), status_code=400)
+            return error_response(message=str(e), status_code=422)
         except Exception as e:
             return error_response(message=str(e), status_code=500)
 
