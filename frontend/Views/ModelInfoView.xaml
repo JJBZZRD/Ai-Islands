@@ -5,10 +5,23 @@
              xmlns:views="clr-namespace:frontend.Views"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ScrollView>
-        <StackLayout Padding="20">
-            <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20"/>
-            <Label Text="{Binding ModelDesc}" FontSize="17" Margin="10,10,0,20"/>
-            <views:TagsView Tags="{Binding Tags}" />
+        <StackLayout Padding="20" Spacing="20">
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label Text="{Binding ModelDesc}" FontSize="17" />
+                    <views:TagsView Tags="{Binding Tags}" />
+                </StackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" CornerRadius="10">
+                <StackLayout Spacing="10">
+                    <Label Text="Hardware Usage" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label x:Name="CpuUsageLabel" />
+                    <Label x:Name="MemoryUsageLabel" />
+                    <Label x:Name="GpuUsageLabel" />
+                </StackLayout>
+            </Frame>
         </StackLayout>
     </ScrollView>
 </ContentView>
