@@ -11,6 +11,7 @@ using OpenCvSharp;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using CommunityToolkit.Maui.Views;
 
 namespace frontend.Views
 {
@@ -32,6 +33,9 @@ namespace frontend.Views
             _viewModel.IsSecondaryOutputVisible = false;
             PrimaryOutputToggle.IsToggled = false;
             SecondaryOutputToggle.IsToggled = false;
+            // Bind preview elements
+            PreviewImage.SetBinding(Image.SourceProperty, new Binding(nameof(InferenceViewModel.PreviewImageSource)));
+            PreviewVideo.SetBinding(MediaElement.SourceProperty, new Binding(nameof(InferenceViewModel.PreviewVideoSource)));
         }
 
         private void CreateInputUI()

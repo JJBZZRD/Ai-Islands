@@ -188,6 +188,34 @@ namespace frontend.Models.ViewModels
             set => SetProperty(ref _isProcessedImageVisible, value);
         }
 
+        private bool _isPreviewImageVisible;
+        public bool IsPreviewImageVisible
+        {
+            get => _isPreviewImageVisible;
+            set => SetProperty(ref _isPreviewImageVisible, value);
+        }
+
+        private bool _isPreviewVideoVisible;
+        public bool IsPreviewVideoVisible
+        {
+            get => _isPreviewVideoVisible;
+            set => SetProperty(ref _isPreviewVideoVisible, value);
+        }
+
+        private ImageSource _previewImageSource;
+        public ImageSource PreviewImageSource
+        {
+            get => _previewImageSource;
+            set => SetProperty(ref _previewImageSource, value);
+        }
+
+        private string _previewVideoSource;
+        public string PreviewVideoSource
+        {
+            get => _previewVideoSource;
+            set => SetProperty(ref _previewVideoSource, value);
+        }
+
         public InferenceViewModel(Model model, ModelService modelService)
         {
             _model = model;
@@ -249,6 +277,7 @@ namespace frontend.Models.ViewModels
                 if (result != null)
                 {
                     SelectedFilePath = result.FullPath;
+                    await UpdatePreview(result.FullPath, fileType);
                     return true;
                 }
                 return false;
@@ -258,6 +287,29 @@ namespace frontend.Models.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
                 return false;
             }
+        }
+
+        private async Task UpdatePreview(string filePath, string fileType)
+        {
+            IsPreviewImageVisible = false;
+            IsPreviewVideoVisible = false;
+
+            if (fileType.ToLower() == "image" || (fileType.ToLower() == "image_or_video" && !IsVideoFile(filePath)))
+            {
+                PreviewImageSource = ImageSource.FromFile(filePath);
+                IsPreviewImageVisible = true;
+            }
+            else if (fileType.ToLower() == "image_or_video" && IsVideoFile(filePath))
+            {
+                PreviewVideoSource = filePath;
+                IsPreviewVideoVisible = true;
+            }
+        }
+
+        private bool IsVideoFile(string filePath)
+        {
+            string[] videoExtensions = { ".mp4", ".mov", ".wmv", ".avi" };
+            return videoExtensions.Contains(Path.GetExtension(filePath).ToLower());
         }
 
         public async Task RunInference()

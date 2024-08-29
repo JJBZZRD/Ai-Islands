@@ -23,6 +23,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -47,6 +48,13 @@
                 <VerticalStackLayout Grid.Row="1" x:Name="InputContainer" Spacing="15">
                     <!-- Input controls will be added here programmatically -->
                 </VerticalStackLayout>
+                <!-- Preview Image/Video -->
+                <Frame Grid.Row="2" Padding="10" IsVisible="{Binding IsPreviewImageVisible}">
+                    <Image x:Name="PreviewImage" Aspect="AspectFit" IsVisible="{Binding IsPreviewImageVisible}"/>
+                </Frame>
+                <Frame Grid.Row="2" Padding="10" IsVisible="{Binding IsPreviewVideoVisible}">
+                    <toolkit:MediaElement x:Name="PreviewVideo" Aspect="AspectFit" IsVisible="{Binding IsPreviewVideoVisible}"/>
+                </Frame>
             </Grid>
         </Frame>
 
