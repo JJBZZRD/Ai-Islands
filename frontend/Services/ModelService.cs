@@ -81,12 +81,41 @@ namespace frontend.Services
             return false;
         }
 
+        // public async Task<Dictionary<string, object>> Inference(string modelId, object data)
+        // {
+        //     System.Diagnostics.Debug.WriteLine($"ModelService.Inference called. ModelId: {modelId}, Data: {JsonSerializer.Serialize(data)}");
+        //     var request = new { model_id = modelId, data = data };
+        //     var response = await _httpClient.PostAsJsonAsync("model/inference", request);
+        //     response.EnsureSuccessStatusCode();
+        //     return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+        // }
+
         public async Task<Dictionary<string, object>> Inference(string modelId, object data)
         {
-            var request = new { model_id = modelId, data = data };
-            var response = await _httpClient.PostAsJsonAsync("model/inference", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"ModelService.Inference called. ModelId: {modelId}, Data: {JsonSerializer.Serialize(data)}");
+                var request = new { model_id = modelId, data = data };
+                var response = await _httpClient.PostAsJsonAsync("model/inference", request);
+                
+                System.Diagnostics.Debug.WriteLine($"Response status code: {response.StatusCode}");
+                
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+                System.Diagnostics.Debug.WriteLine($"Inference result: {JsonSerializer.Serialize(result)}");
+                return result;
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HttpRequestException in ModelService.Inference: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Exception in ModelService.Inference: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<string> ProcessImage(string imagePath, string rawJson, string task)

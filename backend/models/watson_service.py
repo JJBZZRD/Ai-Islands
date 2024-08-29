@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 from dotenv import load_dotenv
 from .base_model import BaseModel
 from backend.utils.ibm_cloud_account_auth import Authentication, ResourceService, AccountInfo
@@ -9,6 +10,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from pydub import AudioSegment
 from backend.utils.watson_settings_manager import watson_settings
 from backend.core.exceptions import ModelError
+import base64
 
 logger = logging.getLogger(__name__)
 
@@ -270,16 +272,11 @@ class WatsonService(BaseModel):
                 accept=accept
             ).get_result().content
 
-            model_dir = os.path.join('data', 'downloads', 'watson', self.model_id)
-            audio_path = os.path.join(model_dir, "output.wav")
-
-            os.makedirs(os.path.dirname(audio_path), exist_ok=True)
-            with open(audio_path, "wb") as audio_file:
-                audio_file.write(response)
+            audio_content_base64 = base64.b64encode(response).decode('utf-8')
 
             return {
                 "status": "success",
-                "audio_path": audio_path,
+                "audio_content": audio_content_base64,
                 "voice": voice,
                 "pitch": pitch,
                 "speed": speed
@@ -302,10 +299,19 @@ class WatsonService(BaseModel):
 
     # Audio to Text service method
     def transcribe_audio(self, file_path):
+        logger.info(f"Transcribe audio called with file path: {file_path}")
         if self.speech_to_text is None:
             raise ModelError("Speech to Text service is not initialized.")
 
         try:
+            # Check if file_path is provided and valid
+            if not file_path:
+                raise ValueError("File path is required for speech-to-text transcription")
+            
+            logger.info(f"Checking if file exists at path: {file_path}")
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Audio file not found at path: {file_path}")
+
             # Use the model from the config, or default to 'en-US_BroadbandModel'
             model = self.stt_config.get('model', 'en-US_BroadbandModel')
             content_type = self.stt_config.get('content_type', 'audio/wav')
