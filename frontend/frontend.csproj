@@ -86,6 +86,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Include="Resources\ExampleDataset\train_text_classification_dataset.csv" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="Views\Library.xaml.cs">
 	    <DependentUpon>Library.xaml</DependentUpon>
 	  </Compile>
@@ -167,6 +171,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\FineTuneNLPView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FineTuneUnavailableView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Library.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
