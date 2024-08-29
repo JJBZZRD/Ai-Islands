@@ -11,7 +11,7 @@ namespace frontend.Views
         private PlaygroundService _playgroundService;
         private PlaygroundViewModel _playgroundViewModel;
 
-        public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService)
+        public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService, LibraryService libraryService)
         {
             InitializeComponent();
 
@@ -46,8 +46,7 @@ namespace frontend.Views
 
         private void ShowChainPage()
         {
-            // should pass view model instead of playground
-            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel, _playgroundService);
         }
 
         private void ShowConfigPage()

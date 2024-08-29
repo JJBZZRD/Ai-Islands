@@ -9,6 +9,7 @@ namespace frontend.Views
     public partial class PlaygroundPage : ContentPage
     {
         private readonly PlaygroundService _playgroundService;
+        private readonly LibraryService _libraryService;
         public ObservableCollection<Playground> PlaygroundList { get; set; }
 
         private bool _isPopupVisible;
@@ -112,7 +113,7 @@ namespace frontend.Views
                     }
 
                     System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(selectedPlayground.Models));
-                    await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService));
+                    await Navigation.PushAsync(new PlaygroundTabbedPage(selectedPlayground, _playgroundService, _libraryService));
                 }
             }
         }

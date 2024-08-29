@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.IO;
 using System.Net.Http;
+using CommunityToolkit.Maui.Views; 
+using CommunityToolkit.Maui;
 
 namespace frontend.Views
 {
@@ -21,6 +23,8 @@ namespace frontend.Views
         private string _selectedFilePath;
         private string _rawJsonText;
         private bool _isAudioOutputVisible;
+        private bool _isTextOutputVisible = true;
+        private string _audioSource;
 
         public string InputText
         {
@@ -61,16 +65,62 @@ namespace frontend.Views
             }
         }
 
-        public PlaygroundInferenceView(Playground playground)
+        public bool IsAudioOutputVisible
         {
-            InitializeComponent();
-            _playgroundViewModel = new PlaygroundViewModel { Playground = playground };
-            _playgroundService = new PlaygroundService();
-            BindingContext = this;
-            CreateInputUI();
+            get => _isAudioOutputVisible;
+            set
+            {
+                if (_isAudioOutputVisible != value)
+                {
+                    _isAudioOutputVisible = value;
+                    OnPropertyChanged(nameof(IsAudioOutputVisible));
+                }
+            }
         }
 
-        private void CreateInputUI()
+        public bool IsTextOutputVisible
+        {
+            get => _isTextOutputVisible;
+            set
+            {
+                if (_isTextOutputVisible != value)
+                {
+                    _isTextOutputVisible = value;
+                    OnPropertyChanged(nameof(IsTextOutputVisible));
+                }
+            }
+        }
+
+        public string AudioSource
+        {
+            get => _audioSource;
+            set
+            {
+                if (_audioSource != value)
+                {
+                    _audioSource = value;
+                    OnPropertyChanged(nameof(AudioSource));
+                }
+            }
+        }
+
+        public PlaygroundInferenceView(PlaygroundViewModel playgroundViewModel, PlaygroundService playgroundService)
+        {
+            InitializeComponent();
+            _playgroundViewModel = playgroundViewModel;
+            _playgroundService = playgroundService;
+            BindingContext = this;
+            InitializeInputUI();
+
+            // var lastModel = _playgroundViewModel.Playground.Models.Values.LastOrDefault();
+            // if (lastModel?.PipelineTag?.ToLower() == "text-to-speech")
+            // {
+            //     IsAudioOutputVisible = true;
+            //     IsTextOutputVisible = false;
+            // }
+        }
+
+        private void InitializeInputUI()
         {
             if (InputContainer == null)
             {
@@ -248,32 +298,29 @@ namespace frontend.Views
             try
             {
                 Dictionary<string, object> data;
-                var firstModel = _playgroundViewModel.Playground?.Models?.Values.FirstOrDefault();
-                if (firstModel == null)
+                var lastModelKey = _playgroundViewModel.Playground.Chain.LastOrDefault();
+                var lastModel = _playgroundViewModel.Playground.Models[lastModelKey];
+
+                var firstModelKey = _playgroundViewModel.Playground.Chain.FirstOrDefault();
+                if (firstModelKey == null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "No model available for inference.", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", "No models available in the playground.", "OK");
                     return;
                 }
 
+                var firstModel = _playgroundViewModel.Playground.Models[firstModelKey];
+
+                // Handle input based on the first model
                 switch (firstModel.PipelineTag?.ToLower())
                 {
                     case "object-detection":
-                        if (string.IsNullOrEmpty(_selectedFilePath))
-                        {
-                            await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file.", "OK");
-                            return;
-                        }
-                        data = new Dictionary<string, object>(); 
-                        data.Add("image_path", _selectedFilePath);
-                        break;
                     case "image-segmentation":
                         if (string.IsNullOrEmpty(_selectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file.", "OK");
                             return;
                         }
-                        data = new Dictionary<string, object>(); 
-                        data.Add("image_path", _selectedFilePath);
+                        data = new Dictionary<string, object> { { "image_path", _selectedFilePath } };
                         break;
                     case "zero-shot-object-detection":
                         if (string.IsNullOrEmpty(_selectedFilePath) || string.IsNullOrEmpty(InputText))
@@ -281,7 +328,6 @@ namespace frontend.Views
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file and enter text.", "OK");
                             return;
                         }
-                        
                         data = new Dictionary<string, object>
                         {
                             { "payload", new Dictionary<string, object>
@@ -293,6 +339,8 @@ namespace frontend.Views
                         };
                         break;
                     case "text-generation":
+                    case "text-to-speech":
+                    case "translation":
                         if (string.IsNullOrEmpty(InputText))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
@@ -300,15 +348,6 @@ namespace frontend.Views
                         }
                         data = new Dictionary<string, object> { { "payload", InputText } };
                         break;
-                    case "text-to-speech":
-                        IsAudioOutputVisible = true;
-                        if (string.IsNullOrEmpty(InputText))
-                            {
-                                await Application.Current.MainPage.DisplayAlert("Error", "Please enter text.", "OK");
-                                return;
-                            }
-                            data = new Dictionary<string, object> { { "payload", InputText } };
-                            break;
                     default:
                         await Application.Current.MainPage.DisplayAlert("Error", "Unsupported model type for inference.", "OK");
                         return;
@@ -317,15 +356,34 @@ namespace frontend.Views
                 Dictionary<string, object> result = await _playgroundService.Inference(_playgroundViewModel.Playground.PlaygroundId, data);
                 if (result.TryGetValue("data", out var dataValue))
                 {
-                    if (dataValue is string audioUrl && audioUrl.EndsWith(".wav")) // Check if the output is an audio URL
+                    var lastModelInChain = _playgroundViewModel.Playground.Models.Values.LastOrDefault();
+                    if (lastModelInChain?.PipelineTag?.ToLower() == "text-to-speech" && dataValue is Dictionary<string, object> outputData)
                     {
-                        IsAudioOutputVisible = true; // Show the download button if output is audio
+                        if (outputData.TryGetValue("audio_path", out var audioPath) && audioPath is string audioUrl)
+                        {
+                            IsAudioOutputVisible = true;
+                            IsTextOutputVisible = false;
+                            AudioSource = audioUrl;
+                            OutputText = "Audio generated successfully. Use the player to listen.";
+                            RawJsonText = FormatJsonString(outputData);
+                            
+                            // Trigger audio playback
+                            await PlayAudio(audioUrl);
+                        }
+                        else
+                        {
+                            IsAudioOutputVisible = false;
+                            IsTextOutputVisible = true;
+                            OutputText = "Audio generation failed or audio path not found in the response.";
+                            RawJsonText = FormatJsonString(outputData);
+                        }
                     }
                     else
                     {
-                        IsAudioOutputVisible = false; // Hide the button if output is not audio
+                        IsAudioOutputVisible = false;
+                        IsTextOutputVisible = true;
                         RawJsonText = FormatJsonString(dataValue);
-                        OutputText = dataValue.ToString(); // Use OutputText instead of RawJsonText for formatted output
+                        OutputText = FormatOutputText(dataValue.ToString());
                     }
                 }
                 else
@@ -336,6 +394,20 @@ namespace frontend.Views
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred during inference: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task PlayAudio(string audioUrl)
+        {
+            try
+            {
+                var player = Plugin.SimpleAudioPlayer.CrossSimpleAudioPlayer.Current;
+                player.Load(audioUrl);
+                player.Play();
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to play audio: {ex.Message}", "OK");
             }
         }
 
@@ -355,19 +427,6 @@ namespace frontend.Views
             return text.Replace("\\n", "\n");
         }
 
-        public bool IsAudioOutputVisible
-        {
-            get => _isAudioOutputVisible;
-            set
-            {
-                if (_isAudioOutputVisible != value)
-                {
-                    _isAudioOutputVisible = value;
-                    OnPropertyChanged(nameof(IsAudioOutputVisible));
-                }
-            }
-        }
-
         private async void OnDownloadAudioClicked(object sender, EventArgs e)
         {
             try
@@ -378,7 +437,7 @@ namespace frontend.Views
                     return;
                 }
 
-                var audioFileUrl = _selectedFilePath; 
+                var audioFileUrl = _selectedFilePath;
                 var fileName = Path.GetFileName(audioFileUrl);
                 var downloadsFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var targetFile = Path.Combine(downloadsFolder, "Downloads", fileName);
