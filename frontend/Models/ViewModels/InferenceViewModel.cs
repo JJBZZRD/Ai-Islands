@@ -279,8 +279,13 @@ namespace frontend.Models.ViewModels
                         string[] videoExtensions = { ".mp4", ".mov", ".wmv", ".gif" };
                         if (videoExtensions.Contains(Path.GetExtension(_selectedFilePath).ToLower()))
                         {
+                            IsOutputTextVisible = true;
                             await RunVideoInference();
                             return;
+                        }
+                        else
+                        {
+                            IsOutputTextVisible = false;
                         }
                         data = new { image_path = _selectedFilePath };
                         break;
