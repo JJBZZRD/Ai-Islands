@@ -8,16 +8,18 @@ using System.Diagnostics;
 
 namespace frontend.Views
 {
-    public partial class ModelInfoView : ContentView
+    public partial class ModelInfoView : ContentView, IDisposable
     {
         private Model _model;
         private ModelService _modelService;
-        private bool _isUpdatingHardwareUsage = true;
+        private bool _isUpdatingHardwareUsage = false;
+        private CancellationTokenSource _cts;
 
         public ModelInfoView()
         {
             InitializeComponent();
             _modelService = new ModelService();
+            _cts = new CancellationTokenSource();
             Debug.WriteLine("ModelInfoView constructor called");
         }
 
@@ -40,7 +42,7 @@ namespace frontend.Views
         private async Task UpdateHardwareUsageAsync()
         {
             Debug.WriteLine("UpdateHardwareUsageAsync started");
-            while (_isUpdatingHardwareUsage)
+            while (_isUpdatingHardwareUsage && !_cts.Token.IsCancellationRequested)
             {
                 try
                 {
@@ -73,7 +75,15 @@ namespace frontend.Views
                     Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
 
-                await Task.Delay(5000); // Update every 5 seconds
+                try
+                {
+                    await Task.Delay(5000, _cts.Token); // Update every 5 seconds
+                }
+                catch (TaskCanceledException)
+                {
+                    // Task was canceled, exit the loop
+                    break;
+                }
             }
             Debug.WriteLine("UpdateHardwareUsageAsync ended");
         }
@@ -125,10 +135,11 @@ namespace frontend.Views
             }
         }
 
-        public void StopUpdatingHardwareUsage()
+        public void Dispose()
         {
             _isUpdatingHardwareUsage = false;
-            Debug.WriteLine("StopUpdatingHardwareUsage called");
+            _cts.Cancel();
+            _cts.Dispose();
         }
     }
 }
