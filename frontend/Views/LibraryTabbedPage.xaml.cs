@@ -28,28 +28,47 @@ namespace frontend.Views
             ShowInfoPage(); // show Info page by default
         }
 
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            ClearCurrentContent();
+        }
+
         private void OnInfoClicked(object sender, EventArgs e)
         {
+            ClearCurrentContent();
             ViewModel.SelectedTab = "Info";
             ShowInfoPage();
         }
 
         private void OnInferenceClicked(object sender, EventArgs e)
         {
+            ClearCurrentContent();
             ViewModel.SelectedTab = "Inference";
             ShowInferencePage();
         }
 
         private void OnFineTuneClicked(object sender, EventArgs e)
         {
+            ClearCurrentContent();
             ViewModel.SelectedTab = "FineTune";
             ShowFineTunePage();
         }
 
         private void OnModelConfigClicked(object sender, EventArgs e)
         {
+            ClearCurrentContent();
             ViewModel.SelectedTab = "Configuration";
             ShowModelConfigPage();
+        }
+
+        private void ClearCurrentContent()
+        {
+            if (ContentContainer.Content is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+            ContentContainer.Content = null;
         }
 
         private void ShowInfoPage()
