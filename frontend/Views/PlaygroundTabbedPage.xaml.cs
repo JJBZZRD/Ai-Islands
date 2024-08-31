@@ -47,7 +47,7 @@ namespace frontend.Views
         private void ShowChainPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground, _playgroundService);
         }
 
         private void ShowConfigPage()

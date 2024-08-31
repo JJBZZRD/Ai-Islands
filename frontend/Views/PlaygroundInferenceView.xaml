@@ -1,71 +1,80 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="frontend.Views.PlaygroundInferenceView"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
-    <AbsoluteLayout x:Name="MainLayout">
-        <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" Padding="20" RowSpacing="20" ColumnSpacing="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+    <Grid Padding="20" RowSpacing="20" ColumnSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <!-- Load Chain Button -->
-            <Button Grid.Row="0" 
-                    Grid.Column="1" 
-                    HorizontalOptions="End"
-                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
-                    TextColor="White"
-                    BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
-                    CornerRadius="5"
-                    Padding="15,10"
-                    Text="Load Chain">
-            </Button>
+        <!-- Load/Stop Chain Button -->
+        <Button Grid.Row="0" 
+                Grid.Column="1" 
+                x:Name="LoadChainButton"
+                HorizontalOptions="End"
+                BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                TextColor="White"
+                BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                CornerRadius="5"
+                Padding="15,10"
+                Text="Load Chain"
+                Clicked="OnLoadChainClicked"/>
 
-            <!-- Input Frame -->
-            <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
-                <ScrollView VerticalScrollBarVisibility="Always">
-                    <VerticalStackLayout Spacing="15" Padding="20">
-                        <Grid>
-                            <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}" VerticalOptions="Center"/>
-                            <Button Text="Inference"
-                                    BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
-                                    TextColor="White"
-                                    BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
-                                    CornerRadius="5"
-                                    Padding="10,5"
-                                    HorizontalOptions="End"
-                                    VerticalOptions="Center"/>
-                        </Grid>
-                        <Label Text="Enter input data and 'Load Chain' to preview the output of your playground." FontSize="14" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
-                        <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" HeightRequest="400">
-                            <ScrollView>
-                                <Label Text="Btw what is being represented here should depend on the model being detected as first one in playground" FontSize="14" TextColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
-                            </ScrollView>
-                        </Frame>
+        <!-- Input Frame -->
+        <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
+            <ScrollView VerticalScrollBarVisibility="Always">
+                <VerticalStackLayout Spacing="15" Padding="20">
+                    <Grid>
+                        <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}" VerticalOptions="Center"/>
+                        <Button Text="Inference"
+                                BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                                TextColor="White"
+                                BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
+                                CornerRadius="5"
+                                Padding="10,5"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center"
+                                Clicked="OnInferenceClicked"/>
+                    </Grid>
+                    <VerticalStackLayout x:Name="InputContainer">
+                        <!-- Input controls will be added here programmatically -->
                     </VerticalStackLayout>
-                </ScrollView>
-            </Frame>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Frame>
 
-            <!-- Output Frame -->
-            <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
-                <ScrollView VerticalScrollBarVisibility="Always">
+        <!-- Output Frame -->
+        <Frame Grid.Row="1" Grid.Column="1" BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="10">
+                    <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
+                    <Switch IsToggled="{Binding IsJsonViewVisible, Mode=TwoWay}"
+                            Toggled="OnJsonViewToggled" />
+                </StackLayout>
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Always">
                     <VerticalStackLayout Spacing="15" Padding="20">
                         <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}"/>
-                        <Label Text="Preview output generated by your model chain." FontSize="14" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
-                        <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#303134}" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}" HeightRequest="400">
-                            <ScrollView>
-                                <Label Text="Output will appear here" FontSize="14" TextColor="{AppThemeBinding Light=#CCCCCC, Dark=#666666}"/>
-                            </ScrollView>
-                        </Frame>
+                        <Label x:Name="OutputText" IsVisible="{Binding IsOutputTextVisible}" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <toolkit:MediaElement x:Name="AudioPlayer" 
+                                              IsVisible="{Binding IsAudioPlayerVisible}"
+                                              HeightRequest="50"
+                                              ShouldShowPlaybackControls="True"/>
+                        <!-- Add ProcessedImage control here when you implement image processing -->
                     </VerticalStackLayout>
                 </ScrollView>
-            </Frame>
-        </Grid>
-    </AbsoluteLayout>
+            </Grid>
+        </Frame>
+    </Grid>
 </ContentView>

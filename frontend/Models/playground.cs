@@ -21,6 +21,14 @@ namespace frontend.Models
         [JsonPropertyName("active_chain")]
         public bool ActiveChain { get; set; }
 
+        public string SelectedFilePath { get; set; }
+
+        public string InputText { get; set; }
+
+        public bool IsChainLoaded { get; set; }
+
+        public string PipelineTag { get; set; }
+
     }
 
 }

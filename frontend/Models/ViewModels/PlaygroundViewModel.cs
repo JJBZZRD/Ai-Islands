@@ -1,5 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
 
 namespace frontend.Models.ViewModels
 {
@@ -52,6 +56,81 @@ namespace frontend.Models.ViewModels
                     }
                 }
             }
+        }
+
+        // Add properties for audio and output visibility
+        [ObservableProperty]
+        private string _audioSource;
+
+        [ObservableProperty]
+        private bool _isAudioPlayerVisible;
+
+        [ObservableProperty]
+        private bool _isOutputTextVisible;
+
+        [ObservableProperty]
+        private bool _isProcessedImageVisible;
+
+        [ObservableProperty]
+        private string _outputText;
+
+        [ObservableProperty]
+        private string _rawJsonText;
+
+        [ObservableProperty]
+        private string _jsonOutputText;
+
+        // Method to handle audio output
+        public async Task HandleAudioOutput(Dictionary<string, object> result)
+        {
+            if (result.TryGetValue("data", out var dataObject) && dataObject is Dictionary<string, object> data)
+            {
+                if (data.TryGetValue("audio_content", out var audioContent) && audioContent is string audioContentBase64)
+                {
+                    try
+                    {
+                        var audioBytes = Convert.FromBase64String(audioContentBase64);
+                        var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
+                        await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+
+                        AudioSource = tempFilePath;
+                        IsAudioPlayerVisible = true;
+                        IsOutputTextVisible = false;
+                        IsProcessedImageVisible = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", $"Failed to process audio: {ex.Message}", "OK");
+                        HandleTextOutput(result);
+                    }
+                }
+                else
+                {
+                    HandleTextOutput(result);
+                }
+            }
+            else
+            {
+                HandleTextOutput(result);
+            }
+        }
+
+        // Method to handle text output
+        public void HandleTextOutput(Dictionary<string, object> result)
+        {
+            string outputText;
+            if (result.TryGetValue("data", out var dataObject))
+            {
+                outputText = System.Text.Json.JsonSerializer.Serialize(dataObject, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            }
+            else
+            {
+                outputText = System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            }
+            OutputText = outputText;
+            IsOutputTextVisible = true;
+            IsAudioPlayerVisible = false;
+            IsProcessedImageVisible = false;
         }
     }
 }
