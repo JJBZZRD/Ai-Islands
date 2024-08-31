@@ -79,6 +79,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackLayout Grid.Column="0">
                                     <Label Text="{Binding PlaygroundId}"
@@ -94,7 +95,22 @@
                                              WidthRequest="20"
                                              HorizontalOptions="End"
                                              VerticalOptions="Center"
-                                             Margin="10,0,0,0"
+                                             Margin="0,0,10,0"
+                                             Clicked="OnEditPlaygroundClicked"
+                                             CommandParameter="{Binding .}"
+                                             BackgroundColor="Transparent">
+                                    <ImageButton.Source>
+                                        <FontImageSource Glyph="&#xf044;"
+                                                         FontFamily="FontAwesomeFreeRegular"
+                                                         Color="{AppThemeBinding Light=#007BFF, Dark=#4DA6FF}"/>
+                                    </ImageButton.Source>
+                                </ImageButton>
+                                <ImageButton Grid.Column="2"
+                                             HeightRequest="20"
+                                             WidthRequest="20"
+                                             HorizontalOptions="End"
+                                             VerticalOptions="Center"
+                                             Margin="0,0,0,0"
                                              Clicked="OnDeletePlaygroundClicked"
                                              CommandParameter="{Binding .}"
                                              BackgroundColor="Transparent">

@@ -241,5 +241,17 @@ namespace frontend.Views
                 await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
             }
         }
+
+        private async void OnEditPlaygroundClicked(object sender, EventArgs e)
+        {
+            var button = sender as ImageButton;
+            var playground = button?.BindingContext as Playground;
+
+            if (playground != null)
+            {
+                // Placeholder function for editing playground
+                await DisplayAlert("Edit Playground", $"Edit functionality for playground '{playground.PlaygroundId}' not implemented yet.", "OK");
+            }
+        }
     }
 }
