@@ -158,7 +158,6 @@ class ModelControl:
         try:
             model.load(device=device, model_info=model_info)
             conn.send("Model loaded")
-            pid = os.getpid()
         except Exception as e:
             logger.error(f"Failed to load model {model_id}: {str(e)}")
             # Send error message to parent process
@@ -173,9 +172,6 @@ class ModelControl:
                 if req == "terminate":
                     conn.send("Terminating")
                     break
-                elif req == "get_usage":
-                    result = get_hardware_usage(pid)
-                    conn.send(result)
                 elif isinstance(req, dict) and req.get("task") in ["inference", "train"]:
                     with lock:  # Use a context manager for the lock
                         if req["task"] == "inference":
@@ -288,7 +284,7 @@ class ModelControl:
             logger.debug(f"Received response from load process: {response}")
 
             if response == "Model loaded":
-                self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class}
+                self.models[model_id] = {'process': process, 'conn': parent_conn, 'model': model_class, 'pid': process.pid}
                 logger.info(f"Model {model_id} loaded and process started.")
                 return True
             elif isinstance(response, dict) and "error" in response:
@@ -609,9 +605,8 @@ class ModelControl:
 
     def get_model_hardware_usage(self, model_id: str):
         if model_id in self.models:
-            conn = self.models[model_id]['conn']
-            conn.send("get_usage")
-            return conn.recv()
+            pid = self.models[model_id]['pid']
+            return get_hardware_usage(pid)
         else:
             logger.error(f"Model {model_id} not found in active models.")
             return None
