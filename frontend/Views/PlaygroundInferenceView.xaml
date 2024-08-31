@@ -22,11 +22,10 @@
                 HorizontalOptions="End"
                 BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                 TextColor="White"
-                BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                 CornerRadius="5"
                 Padding="15,10"
-                Text="Load Chain"
-                Clicked="OnLoadChainClicked"/>
+                Text="{Binding ChainButtonText}"
+                Command="{Binding LoadChainCommand}"/>
 
         <!-- Input Frame -->
         <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
@@ -37,15 +36,14 @@
                         <Button Text="Inference"
                                 BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                                 TextColor="White"
-                                BorderColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                                 CornerRadius="5"
                                 Padding="10,5"
                                 HorizontalOptions="End"
                                 VerticalOptions="Center"
-                                Clicked="OnInferenceClicked"/>
+                                Command="{Binding InferenceCommand}"/>
                     </Grid>
                     <VerticalStackLayout x:Name="InputContainer">
-                        <!-- Input controls will be added here programmatically -->
+                        <!-- Input controls added here programmatically -->
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </ScrollView>
@@ -60,18 +58,20 @@
                 </Grid.RowDefinitions>
                 <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="10">
                     <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
-                    <Switch IsToggled="{Binding IsJsonViewVisible, Mode=TwoWay}"
-                            Toggled="OnJsonViewToggled" />
+                    <Switch IsToggled="{Binding IsJsonViewVisible, Mode=TwoWay}" />
                 </StackLayout>
                 <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Always">
                     <VerticalStackLayout Spacing="15" Padding="20">
                         <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}"/>
                         <Label x:Name="OutputText" IsVisible="{Binding IsOutputTextVisible}" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
                         <toolkit:MediaElement x:Name="AudioPlayer" 
+                                              Source="{Binding AudioSource}"
                                               IsVisible="{Binding IsAudioPlayerVisible}"
-                                              HeightRequest="50"
-                                              ShouldShowPlaybackControls="True"/>
-                        <!-- Add ProcessedImage control here when you implement image processing -->
+                                              ShouldShowPlaybackControls="True"
+                                              HeightRequest="300"
+                                              WidthRequest="500"
+                                              VerticalOptions="Start"
+                                              HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </ScrollView>
             </Grid>

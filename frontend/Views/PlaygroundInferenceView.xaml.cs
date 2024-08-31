@@ -1,188 +1,55 @@
 using System;
+using Microsoft.Maui.Controls;
+using frontend.Models;
+using frontend.Services;
+using frontend.Models.ViewModels;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using frontend.Models;
-using frontend.Services;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using System.Text.Json;
 
 namespace frontend.Views
 {
-    public partial class PlaygroundInferenceView : ContentView
+    public partial class PlaygroundInferenceView : ContentView, INotifyPropertyChanged
     {
         private readonly Playground _playground;
         private readonly PlaygroundService _playgroundService;
-        private bool _isChainLoaded = false;
-        private string _selectedFilePath;
+        private bool _isChainLoaded = false;  // Track the state of the chain
         private string _inputText;
+        private string _selectedFilePath;
 
-        private bool _isJsonViewVisible = false;
-        public bool IsJsonViewVisible
-        {
-            get => _isJsonViewVisible;
-            set
-            {
-                _isJsonViewVisible = value;
-                OnPropertyChanged(nameof(IsJsonViewVisible));
-            }
-        }
-
-        private string _audioSource;
-        public string AudioSource
-        {
-            get => _audioSource;
-            set
-            {
-                _audioSource = value;
-                OnPropertyChanged(nameof(AudioSource));
-            }
-        }
-
-        public bool IsAudioPlayerVisible { get; set; }
-        public bool IsOutputTextVisible { get; set; }
-        public bool IsProcessedImageVisible { get; set; }
-
-        private string _rawJsonText;
-        public string RawJsonText
-        {
-            get => _rawJsonText;
-            set
-            {
-                _rawJsonText = value;
-                OnPropertyChanged(nameof(RawJsonText));
-            }
-        }
-
-        private string _jsonOutputText;
-        public string JsonOutputText
-        {
-            get => _jsonOutputText;
-            set
-            {
-                _jsonOutputText = value;
-                OnPropertyChanged(nameof(JsonOutputText));
-            }
-        }
+        public ICommand LoadChainCommand { get; }
+        public ICommand InferenceCommand { get; }
+        private bool _isJsonViewVisible = false;  
+        private bool _isAudioPlayerVisible = false;  
 
         public PlaygroundInferenceView(Playground playground, PlaygroundService playgroundService)
         {
             InitializeComponent();
             _playground = playground;
             _playgroundService = playgroundService;
+            LoadChainCommand = new Command(async () => await LoadOrStopChain());
+            InferenceCommand = new Command(async () => await RunInference());
+            BindingContext = this;
             CreateInputUI();
+            UpdateOutputVisibility();
         }
 
-        private void CreateInputUI()
-        {
-            var firstModelKey = _playground.Chain.FirstOrDefault();
-            if (firstModelKey == null || !_playground.Models.TryGetValue(firstModelKey, out var firstModel))
-            {
-                return;
-            }
+        public string ChainButtonText => _isChainLoaded ? "Stop Chain" : "Load Chain";
 
-            switch (firstModel.PipelineTag?.ToLower())
-            {
-                // Computer Vision Models
-                case "object-detection":
-                case "image-segmentation":
-                case "zero-shot-object-detection":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image File"));
-                    break;
-
-                // NLP Models
-                case "text-classification":
-                case "zero-shot-classification":
-                case "translation":
-                case "text-to-speech":
-                case "feature-extraction":
-                case "text-generation":
-                    InputContainer.Children.Add(CreateTextInputUI());
-                    break;
-
-                // Audio Models
-                case "speech-to-text":
-                case "automatic-speech-recognition":
-                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
-                    break;
-
-                default:
-                    InputContainer.Children.Add(new Label { Text = "Input type not supported for this model." });
-                    break;
-            }
-        }
-
-        private VerticalStackLayout CreateFileSelectionUI(string buttonText)
-        {
-            var layout = new VerticalStackLayout();
-            var button = new Button { Text = buttonText };
-            button.Clicked += OnFileSelectClicked;
-            layout.Children.Add(button);
-            return layout;
-        }
-
-        private VerticalStackLayout CreateTextInputUI()
-        {
-            var layout = new VerticalStackLayout();
-            var entry = new Entry { Placeholder = "Enter text here" };
-            layout.Children.Add(entry);
-            return layout;
-        }
-
-        private async void OnFileSelectClicked(object sender, EventArgs e)
-        {
-            var button = sender as Button;
-            if (button == null) return;
-
-            PickOptions pickOptions;
-            string pickerTitle;
-
-            if (button.Text.Contains("Image"))
-            {
-                pickOptions = new PickOptions { FileTypes = FilePickerFileType.Images };
-                pickerTitle = "Select an image file";
-            }
-            else if (button.Text.Contains("Audio"))
-            {
-                pickOptions = new PickOptions
-                {
-                    FileTypes = new FilePickerFileType(
-                        new Dictionary<DevicePlatform, IEnumerable<string>>
-                        {
-                            { DevicePlatform.iOS, new[] { "public.audio" } },
-                            { DevicePlatform.Android, new[] { "audio/*" } },
-                            { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a" } }
-                        })
-                };
-                pickerTitle = "Select an audio file";
-            }
-            else
-            {
-                return;
-            }
-
-            pickOptions.PickerTitle = pickerTitle;
-
-            var result = await FilePicker.PickAsync(pickOptions);
-
-            if (result != null)
-            {
-                UpdateFileNameLabel(Path.GetFileName(result.FullPath));
-                _selectedFilePath = result.FullPath;
-                button.CommandParameter = result.FullPath;
-            }
-        }
-
-        private async void OnLoadChainClicked(object sender, EventArgs e)
+        private async Task LoadOrStopChain()
         {
             if (!_isChainLoaded)
             {
                 try
                 {
-                    var result = await _playgroundService.LoadPlaygroundChain(_playground.PlaygroundId);
+                    await _playgroundService.LoadPlaygroundChain(_playground.PlaygroundId);
                     _isChainLoaded = true;
-                    LoadChainButton.Text = "Stop Chain";
+                    OnPropertyChanged(nameof(ChainButtonText));  // Update button text
                     await Application.Current.MainPage.DisplayAlert("Success", "Chain loaded successfully.", "OK");
                 }
                 catch (Exception ex)
@@ -194,9 +61,9 @@ namespace frontend.Views
             {
                 try
                 {
-                    var result = await _playgroundService.StopPlaygroundChain(_playground.PlaygroundId);
+                    await _playgroundService.StopPlaygroundChain(_playground.PlaygroundId);
                     _isChainLoaded = false;
-                    LoadChainButton.Text = "Load Chain";
+                    OnPropertyChanged(nameof(ChainButtonText));  
                     await Application.Current.MainPage.DisplayAlert("Success", "Chain stopped successfully.", "OK");
                 }
                 catch (Exception ex)
@@ -206,7 +73,7 @@ namespace frontend.Views
             }
         }
 
-        private async void OnInferenceClicked(object sender, EventArgs e)
+        private async Task RunInference()
         {
             if (!_isChainLoaded)
             {
@@ -229,8 +96,6 @@ namespace frontend.Views
                     { "data", inputData }
                 };
 
-                System.Diagnostics.Debug.WriteLine($"Inference Request: {System.Text.Json.JsonSerializer.Serialize(inferenceRequest)}");
-
                 var result = await _playgroundService.Inference(_playground.PlaygroundId, inferenceRequest);
 
                 if (result.TryGetValue("error", out var errorMessage))
@@ -239,65 +104,66 @@ namespace frontend.Views
                 }
                 else if (result.TryGetValue("data", out var dataValue))
                 {
-                    RawJsonText = FormatJsonString(dataValue);
-                    JsonOutputText = FormatJsonString(dataValue) ?? "No data available.";
-
-                    switch (_playground.Models[_playground.Chain.LastOrDefault()].PipelineTag?.ToLower())
-                    {
-                        // ------------------------- COMPUTER VISION MODELS -------------------------
-                        case "text-to-speech":
-                            if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
-                            {
-                                var audioContentBase64 = jsonElement.GetProperty("audio_content").GetString();
-                                if (!string.IsNullOrEmpty(audioContentBase64))
-                                {
-                                    var audioBytes = Convert.FromBase64String(audioContentBase64);
-                                    var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
-                                    await File.WriteAllBytesAsync(tempFilePath, audioBytes);
-                                    AudioSource = tempFilePath;
-                                    IsAudioPlayerVisible = true;
-                                }
-                            }
-                            break;
-                        case "speech-to-text":
-                            if (dataValue is JsonElement sttJsonElement && sttJsonElement.ValueKind == JsonValueKind.Object)
-                            {
-                                var transcription = sttJsonElement.GetProperty("transcription").GetString();
-                                OutputText.Text = $"Transcription: {transcription}";
-                            }
-                            else
-                            {
-                                OutputText.Text = "Unexpected response format for speech-to-text.";
-                            }
-                            break;
-
-                        // ------------------------- DEFAULT CASE -------------------------
-                        default:
-                            OutputText.Text = RawJsonText;
-                            break;
-                    }
-
-                    UpdateOutputVisibility();
+                    await HandleInferenceResult(dataValue);
                 }
                 else
                 {
                     HandleTextOutput(result);
                 }
             }
-            catch (HttpRequestException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"HttpRequestException: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                }
-                await Application.Current.MainPage.DisplayAlert("Network Error", $"Network error occurred: {ex.Message}", "OK");
-            }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Exception in OnInferenceClicked: {ex}");
                 await Application.Current.MainPage.DisplayAlert("Error", $"Inference failed: {ex.Message}", "OK");
             }
+        }
+
+        private async Task HandleInferenceResult(object dataValue)
+        {
+            switch (_playground.Models[_playground.Chain.LastOrDefault()].PipelineTag?.ToLower())
+            {
+                case "text-to-speech":
+                    await HandleAudioOutput(dataValue);
+                    break;
+                case "speech-to-text":
+                    HandleTextOutput(dataValue);
+                    break;
+                default:
+                    OutputText.Text = FormatJsonString(dataValue);
+                    break;
+            }
+
+            UpdateOutputVisibility();
+        }
+
+        private async Task HandleAudioOutput(object dataValue)
+        {
+            if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
+            {
+                var audioContentBase64 = jsonElement.GetProperty("audio_content").GetString();
+                if (!string.IsNullOrEmpty(audioContentBase64))
+                {
+                    var audioBytes = Convert.FromBase64String(audioContentBase64);
+                    var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
+                    await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+
+                    if (File.Exists(tempFilePath))
+                    {
+                        AudioPlayer.Source = new Uri(tempFilePath);
+                        AudioPlayer.IsVisible = true;
+                        _isAudioPlayerVisible = true; // Update visibility flag
+                        OnPropertyChanged(nameof(_isAudioPlayerVisible));
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "Audio file could not be found or saved.", "OK");
+                    }
+                }
+            }
+        }
+
+        private void HandleTextOutput(object dataValue)
+        {
+            OutputText.Text = dataValue?.ToString() ?? "No output received.";
         }
 
         private Dictionary<string, object> GetInputData()
@@ -308,127 +174,191 @@ namespace frontend.Views
                 return new Dictionary<string, object>();
             }
 
-            // Define the input data object
-            Dictionary<string, object> inputData = new Dictionary<string, object>();
+            var inputData = new Dictionary<string, object>();
 
-            // Prepare the input based on the model type
             switch (firstModel.PipelineTag?.ToLower())
             {
                 case "object-detection":
                 case "image-segmentation":
                     if (string.IsNullOrEmpty(_selectedFilePath))
-                    {
                         throw new InvalidOperationException("Please select an image file.");
-                    }
                     inputData["image_path"] = _selectedFilePath;
                     break;
-
                 case "zero-shot-object-detection":
                     if (string.IsNullOrEmpty(_selectedFilePath) || string.IsNullOrEmpty(_inputText))
-                    {
                         throw new InvalidOperationException("Please select an image file and enter text.");
-                    }
                     inputData["payload"] = new { image = _selectedFilePath, text = _inputText.Split(',').Select(t => t.Trim()).ToList() };
                     break;
-
                 case "text-generation":
                 case "text-to-speech":
                 case "translation":
                 case "text-classification":
                 case "feature-extraction":
                     if (string.IsNullOrWhiteSpace(_inputText))
-                    {
                         throw new InvalidOperationException("Please enter text input.");
-                    }
-                    inputData["text"] = _inputText;
+                    inputData["payload"] = _inputText;
                     break;
-
                 case "speech-to-text":
                 case "automatic-speech-recognition":
                     if (string.IsNullOrEmpty(_selectedFilePath))
-                    {
                         throw new InvalidOperationException("Please select an audio file.");
-                    }
                     inputData["audio_path"] = _selectedFilePath;
                     break;
-
                 default:
                     throw new ArgumentException("Unsupported model type for inference.");
             }
 
-            return inputData; // Return the inputData directly, without wrapping it in another dictionary
+            return inputData;
         }
 
-        private void HandleTextOutput(Dictionary<string, object> result)
+        private void CreateInputUI()
         {
-            string outputText;
-            if (result.TryGetValue("data", out var dataObject) && dataObject is Dictionary<string, object> data)
+            var firstModelKey = _playground.Chain.FirstOrDefault();
+            if (firstModelKey == null || !_playground.Models.TryGetValue(firstModelKey, out var firstModel))
             {
-                outputText = System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                return;
             }
-            else
+
+            switch (firstModel.PipelineTag?.ToLower())
             {
-                outputText = System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                case "object-detection":
+                case "image-segmentation":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
+                    break;
+                case "zero-shot-object-detection":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Image"));
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "text-classification":
+                case "zero-shot-classification":
+                case "translation":
+                case "text-to-speech":
+                case "text-generation":
+                    InputContainer.Children.Add(CreateTextInputUI());
+                    break;
+                case "speech-to-text":
+                case "automatic-speech-recognition":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    break;
+                default:
+                    InputContainer.Children.Add(new Label { Text = "Input type not supported for this model." });
+                    break;
             }
-            OutputText.Text = outputText;
-            IsOutputTextVisible = true;
-            IsAudioPlayerVisible = false;
-            IsProcessedImageVisible = false;
-            UpdateOutputVisibility();
         }
 
-        private async Task HandleAudioOutput(Dictionary<string, object> result)
+        private View CreateFileSelectionUI(string buttonText)
         {
-            if (result.TryGetValue("data", out var dataObject) && dataObject is Dictionary<string, object> data)
+            var fileButton = new Button
             {
-                if (data.TryGetValue("audio_content", out var audioContent) && audioContent is string audioContentBase64)
+                Text = buttonText,
+                BackgroundColor = Colors.LightGray,
+                TextColor = Colors.Black,
+                CornerRadius = 5,
+                Margin = new Thickness(0, 20, 0, 10)
+            };
+
+            if (buttonText == "Select Image")
+            {
+                fileButton.Clicked += OnImageSelectClicked;
+            }
+            else if (buttonText == "Select Audio File")
+            {
+                fileButton.Clicked += OnAudioSelectClicked;
+            }
+
+            var fileNameLabel = new Label
+            {
+                TextColor = Colors.Black,
+                IsVisible = false
+            };
+
+            return new VerticalStackLayout
+            {
+                Children =
                 {
-                    try
-                    {
-                        var audioBytes = Convert.FromBase64String(audioContentBase64);
-                        var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
-                        await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                    fileButton,
+                    fileNameLabel
+                }
+            };
+        }
 
-                        AudioSource = tempFilePath;
-                        IsAudioPlayerVisible = true;
-                        IsOutputTextVisible = false;
-                        IsProcessedImageVisible = false;
-                        UpdateOutputVisibility();
-                    }
-                    catch (Exception ex)
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Error", $"Failed to process audio: {ex.Message}", "OK");
-                        HandleTextOutput(result);
-                    }
-                }
-                else
-                {
-                    HandleTextOutput(result);
-                }
-            }
-            else
+        private View CreateTextInputUI()
+        {
+            var editor = new Editor
             {
-                HandleTextOutput(result);
+                Placeholder = "Enter your input here...",
+                PlaceholderColor = Colors.Gray,
+                HeightRequest = 150,
+                Text = _inputText
+            };
+            editor.TextChanged += (sender, e) => _inputText = ((Editor)sender)?.Text ?? string.Empty;
+            return editor;
+        }
+
+        private async void OnImageSelectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.jpeg", "public.png" } },
+                        { DevicePlatform.Android, new[] { "image/jpeg", "image/png" } },
+                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png" } }
+                    });
+
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    FileTypes = customFileType,
+                    PickerTitle = "Select an image file"
+                });
+
+                if (result != null)
+                {
+                    _selectedFilePath = result.FullPath;
+                    var stack = (VerticalStackLayout)((Button)sender).Parent;
+                    var label = (Label)stack.Children[1];
+                    label.Text = result.FileName;
+                    label.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
             }
         }
 
-        private void HandleImageOutput(Dictionary<string, object> result)
+        private async void OnAudioSelectClicked(object sender, EventArgs e)
         {
-            // Implement image processing logic here
-            // For now, we'll just display the JSON
-            string outputText = System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-            OutputText.Text = outputText;
-            IsOutputTextVisible = true;
-            IsAudioPlayerVisible = false;
-            IsProcessedImageVisible = false;
-            UpdateOutputVisibility();
-        }
+            try
+            {
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.audio" } },
+                        { DevicePlatform.Android, new[] { "audio/*" } },
+                        { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a" } }
+                    });
 
-        private void UpdateOutputVisibility()
-        {
-            OutputText.IsVisible = IsOutputTextVisible && !IsJsonViewVisible;
-            AudioPlayer.IsVisible = IsAudioPlayerVisible;
-            // Implement ProcessedImage visibility when you add image processing
+                var result = await FilePicker.Default.PickAsync(new PickOptions
+                {
+                    PickerTitle = "Please select an audio file",
+                    FileTypes = customFileType,
+                });
+
+                if (result != null)
+                {
+                    _selectedFilePath = result.FullPath;
+                    var stack = (VerticalStackLayout)((Button)sender).Parent;
+                    var label = (Label)stack.Children[1];
+                    label.Text = result.FileName;
+                    label.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
         }
 
         private void UpdateFileNameLabel(string fileName)
@@ -441,44 +371,25 @@ namespace frontend.Views
             }
         }
 
-        public void ToggleJsonView()
+        private void UpdateOutputVisibility()
         {
-            IsJsonViewVisible = !IsJsonViewVisible;
-            UpdateOutputVisibility();
-        }
+            var lastModelKey = _playground.Chain.LastOrDefault();
+            if (lastModelKey != null && _playground.Models.TryGetValue(lastModelKey, out var lastModel))
+            {
+                _isAudioPlayerVisible = lastModel.PipelineTag?.ToLower() == "text-to-speech";
+            }
+            else
+            {
+                _isAudioPlayerVisible = false;
+            }
 
-        private void OnJsonViewToggled(object sender, ToggledEventArgs e)
-        {
-            ToggleJsonView();
+            OutputText.IsVisible = !_isJsonViewVisible;
+            AudioPlayer.IsVisible = _isAudioPlayerVisible;
         }
 
         private string FormatJsonString(object data)
         {
             return System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-        }
-
-        private async Task ViewImageOutput(Dictionary<string, object> result)
-        {
-            // Implement image processing logic here
-            // For now, we'll just display the JSON
-            string outputText = System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-            OutputText.Text = outputText;
-            IsOutputTextVisible = true;
-            IsAudioPlayerVisible = false;
-            IsProcessedImageVisible = false;
-            UpdateOutputVisibility();
-        }
-
-        private (object, object) FormatTranslationInput(string inputText)
-        {
-            // Implement translation input formatting logic here
-            return (inputText, null);
-        }
-
-        private string FormatTranslationOutput(object dataValue, object originalStructure)
-        {
-            // Implement translation output formatting logic here
-            return dataValue.ToString();
         }
     }
 }

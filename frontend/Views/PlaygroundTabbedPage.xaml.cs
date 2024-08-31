@@ -17,7 +17,8 @@ namespace frontend.Views
 
             System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(playground.Models));
 
-            _playgroundViewModel = new PlaygroundViewModel{ Playground = playground};
+            // _playgroundViewModel = new PlaygroundViewModel{ Playground = playground};
+            _playgroundViewModel = new PlaygroundViewModel(playgroundService) { Playground = playground };
             _playgroundService = playgroundService;
             BindingContext = _playgroundViewModel;
 

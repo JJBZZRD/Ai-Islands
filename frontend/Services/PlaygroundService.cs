@@ -269,11 +269,16 @@ namespace frontend.Services
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<Dictionary<string, object>> StopPlaygroundChain(string playgroundId)
+        public async Task StopPlaygroundChain(string playgroundId)
         {
-            var response = await _httpClient.PostAsync($"playground/stop-chain?playground_id={playgroundId}", null);
+            var request = new { playground_id = playgroundId };
+            var response = await _httpClient.PostAsJsonAsync("playground/stop-chain", request);
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                // Handle 204 No Content response
+                return;
+            }
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
         public async Task<Dictionary<string, object>> Inference(string playgroundId, Dictionary<string, object> data)
