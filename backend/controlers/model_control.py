@@ -7,6 +7,7 @@ import shutil
 from backend.utils.process_vis_out import process_vision_output
 from PIL import Image
 import time
+import subprocess
 
 import torch
 
@@ -22,29 +23,81 @@ import GPUtil
 logger = logging.getLogger(__name__)
 
 def get_hardware_usage(pid):
+    logger.debug(f"Getting hardware usage for PID: {pid}")
     try:
         process = psutil.Process(pid)
         cpu_percent = process.cpu_percent(interval=1)
         memory_info = process.memory_info()
         memory_percent = process.memory_percent()
         
+        logger.debug(f"CPU usage: {cpu_percent}%, Memory usage: {memory_percent}%")
+        
         gpu_usage = None
+        gpu_percent = None
+        gpu_utilization = None
         if torch.cuda.is_available():
+            logger.debug("CUDA is available, fetching GPU information")
             gpus = GPUtil.getGPUs()
             if gpus:
                 gpu = gpus[0]
                 gpu_usage = gpu.memoryUsed
                 gpu_total = gpu.memoryTotal
                 gpu_percent = (gpu_usage / gpu_total) * 100 if gpu_total > 0 else 0
+                
+                logger.debug(f"GPU memory usage: {gpu_usage}MB, GPU memory percent: {gpu_percent}%")
+                
+                try:
+                    # Get overall GPU utilization
+                    result = subprocess.run(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], 
+                                            capture_output=True, text=True, check=True)
+                    overall_gpu_utilization = int(result.stdout.strip())
+                    logger.debug(f"Overall GPU utilization: {overall_gpu_utilization}%")
+                    
+                    # Get list of processes using GPU
+                    result = subprocess.run(['nvidia-smi', '--query-compute-apps=pid', '--format=csv,noheader,nounits'], 
+                                            capture_output=True, text=True, check=True)
+                    gpu_pids = [int(line.strip()) for line in result.stdout.split('\n') if line.strip()]
+                    logger.debug(f"PIDs using GPU: {gpu_pids}")
+                    
+                    if pid in gpu_pids:
+                        # If our process is using the GPU, assume it's responsible for the utilization
+                        gpu_utilization = overall_gpu_utilization
+                        logger.debug(f"PID {pid} found in GPU processes. Assigned utilization: {gpu_utilization}%")
+                    else:
+                        logger.debug(f"PID {pid} not found in GPU processes")
+                        gpu_utilization = 0
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Error running nvidia-smi: {str(e)}")
+                    logger.error(f"nvidia-smi stderr output: {e.stderr}")
+                    logger.error(f"nvidia-smi return code: {e.returncode}")
+                    gpu_utilization = None
+                except FileNotFoundError:
+                    logger.error("nvidia-smi command not found. Make sure NVIDIA drivers are installed and nvidia-smi is in the system PATH.")
+                    gpu_utilization = None
+                except Exception as e:
+                    logger.error(f"Unexpected error when running nvidia-smi: {str(e)}")
+                    gpu_utilization = None
+            else:
+                logger.debug("No GPUs found by GPUtil")
+        else:
+            logger.debug("CUDA is not available")
         
-        return {
+        result = {
             'cpu_percent': round(cpu_percent, 2),
             'memory_used_mb': round(memory_info.rss / (1024 * 1024), 2),  # Convert to MB
             'memory_percent': round(memory_percent, 2),
             'gpu_memory_used_mb': round(gpu_usage, 2) if gpu_usage is not None else None,
-            'gpu_memory_percent': round(gpu_percent, 2) if gpu_usage is not None else None
+            'gpu_memory_percent': round(gpu_percent, 2) if gpu_percent is not None else None,
+            'gpu_utilization_percent': round(gpu_utilization, 2) if gpu_utilization is not None else None
         }
+        
+        logger.debug(f"Hardware usage result: {result}")
+        return result
     except psutil.NoSuchProcess:
+        logger.error(f"No process found with PID: {pid}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error in get_hardware_usage: {str(e)}")
         return None
 
 class ModelControl:

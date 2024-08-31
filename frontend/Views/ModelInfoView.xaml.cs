@@ -93,45 +93,69 @@ namespace frontend.Views
             UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", 0);
             UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", 0);
             GpuUsageStack.IsVisible = false;
+            GpuUtilizationStack.IsVisible = false;
         }
 
         private void UpdateUsageLabels(Dictionary<string, object> usage)
         {
             try
             {
+                Debug.WriteLine($"Updating usage labels with data: {string.Join(", ", usage.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
+
                 UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", usage["cpu_percent"]);
                 UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", usage["memory_percent"], $"{usage["memory_used_mb"]} MB");
 
+                Debug.WriteLine($"GPU Memory Used: {usage["gpu_memory_used_mb"]}");
                 if (usage["gpu_memory_used_mb"] != null)
                 {
                     UpdateUsageBar(GpuUsageBar, GpuUsageLabel, "GPU Memory", usage["gpu_memory_percent"], $"{usage["gpu_memory_used_mb"]} MB");
                     GpuUsageStack.IsVisible = true;
+                    Debug.WriteLine("GPU Memory Usage stack set to visible");
                 }
                 else
                 {
                     GpuUsageStack.IsVisible = false;
+                    Debug.WriteLine("GPU Memory Usage stack set to invisible");
                 }
+
+                Debug.WriteLine($"GPU Utilization: {usage["gpu_utilization_percent"]}");
+                if (usage["gpu_utilization_percent"] != null)
+                {
+                    UpdateUsageBar(GpuUtilizationBar, GpuUtilizationLabel, "GPU Utilization", usage["gpu_utilization_percent"]);
+                    GpuUtilizationStack.IsVisible = true;
+                    Debug.WriteLine("GPU Utilization stack set to visible");
+                }
+                else
+                {
+                    GpuUtilizationStack.IsVisible = false;
+                    Debug.WriteLine("GPU Utilization stack set to invisible");
+                }
+
                 Debug.WriteLine("Usage bars updated successfully");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error updating usage bars: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
         private void UpdateUsageBar(ProgressBar bar, Label label, string resourceName, object percentValue, string additionalInfo = null)
         {
-            if (double.TryParse(percentValue.ToString(), out double percent))
+            Debug.WriteLine($"Updating {resourceName} bar with value: {percentValue}");
+            if (double.TryParse(percentValue?.ToString(), out double percent))
             {
                 bar.Progress = percent / 100;
                 label.Text = additionalInfo != null
                     ? $"{resourceName}: {percent:F1}% ({additionalInfo})"
                     : $"{resourceName}: {percent:F1}%";
+                Debug.WriteLine($"{resourceName} bar updated: Progress = {bar.Progress}, Label = {label.Text}");
             }
             else
             {
                 bar.Progress = 0;
                 label.Text = $"{resourceName}: N/A";
+                Debug.WriteLine($"{resourceName} bar reset due to invalid value");
             }
         }
 

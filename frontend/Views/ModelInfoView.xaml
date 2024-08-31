@@ -20,20 +20,26 @@
                     
                     <StackLayout Spacing="5">
                         <Label Text="CPU Usage" />
-                        <Label x:Name="CpuUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <Label x:Name="CpuUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
                         <ProgressBar x:Name="CpuUsageBar" Progress="0" ProgressColor="Blue" HeightRequest="30" />
                     </StackLayout>
                     
                     <StackLayout Spacing="5">
                         <Label Text="Memory Usage" />
-                        <Label x:Name="MemoryUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <Label x:Name="MemoryUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
                         <ProgressBar x:Name="MemoryUsageBar" Progress="0" ProgressColor="Green" HeightRequest="30" />
                     </StackLayout>
                     
                     <StackLayout x:Name="GpuUsageStack" IsVisible="False" Spacing="5">
                         <Label Text="GPU Memory Usage" />
-                        <Label x:Name="GpuUsageLabel" HorizontalOptions="Start" TextColor="Black" />
+                        <Label x:Name="GpuUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
                         <ProgressBar x:Name="GpuUsageBar" Progress="0" ProgressColor="Red" HeightRequest="30" />
+                    </StackLayout>
+
+                    <StackLayout x:Name="GpuUtilizationStack" IsVisible="False" Spacing="5">
+                        <Label Text="GPU Utilization" />
+                        <Label x:Name="GpuUtilizationLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <ProgressBar x:Name="GpuUtilizationBar" Progress="0" ProgressColor="Purple" HeightRequest="30" />
                     </StackLayout>
                 </StackLayout>
             </Frame>
