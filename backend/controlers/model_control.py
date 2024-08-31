@@ -521,7 +521,6 @@ class ModelControl:
             KeyError: If the model is not found in the library.
         """
         try:
-            print(configure_request)
             model_id = configure_request['model_id']
             config_data = configure_request['data']
             
