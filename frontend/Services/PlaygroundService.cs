@@ -69,12 +69,29 @@ namespace frontend.Services
             }
         }
 
-        public async Task<Dictionary<string, object>> UpdatePlayground(string playgroundId, string? newPlaygroundId = null, string? description = null)
+        public async Task<HttpResponseMessage> UpdatePlayground(string playgroundId, string? newPlaygroundId = null, string? description = null)
         {
-            var request = new { playground_id = playgroundId, new_playground_id = newPlaygroundId, description = description };
-            var response = await _httpClient.PutAsJsonAsync("playground/update", request);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
+            try
+            {
+                var request = new { playground_id = playgroundId, new_playground_id = newPlaygroundId, description = description };
+                var response = await _httpClient.PutAsJsonAsync("playground/update", request);
+                response.EnsureSuccessStatusCode();
+                return response;
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error in UpdatePlayground: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error in UpdatePlayground: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task DeletePlayground(string playgroundId)
