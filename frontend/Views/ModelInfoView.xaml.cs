@@ -92,8 +92,7 @@ namespace frontend.Views
         {
             UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", 0);
             UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", 0);
-            GpuUsageStack.IsVisible = false;
-            GpuUtilizationStack.IsVisible = false;
+            GpuFrame.IsVisible = false;
         }
 
         private void UpdateUsageLabels(Dictionary<string, object> usage)
@@ -102,34 +101,29 @@ namespace frontend.Views
             {
                 Debug.WriteLine($"Updating usage labels with data: {string.Join(", ", usage.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
 
-                UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU", usage["cpu_percent"]);
+                UpdateUsageBar(CpuUsageBar, CpuUsageLabel, "CPU Utilisation", usage["cpu_percent"]);
                 UpdateUsageBar(MemoryUsageBar, MemoryUsageLabel, "Memory", usage["memory_percent"], $"{usage["memory_used_mb"]} MB");
+
+                bool showGpuFrame = false;
+
+                Debug.WriteLine($"GPU Utilisation: {usage["gpu_utilization_percent"]}");
+                if (usage["gpu_utilization_percent"] != null)
+                {
+                    UpdateUsageBar(GpuUtilisationBar, GpuUtilisationLabel, "GPU Utilisation", usage["gpu_utilization_percent"]);
+                    showGpuFrame = true;
+                    Debug.WriteLine("GPU Utilisation updated");
+                }
 
                 Debug.WriteLine($"GPU Memory Used: {usage["gpu_memory_used_mb"]}");
                 if (usage["gpu_memory_used_mb"] != null)
                 {
                     UpdateUsageBar(GpuUsageBar, GpuUsageLabel, "GPU Memory", usage["gpu_memory_percent"], $"{usage["gpu_memory_used_mb"]} MB");
-                    GpuUsageStack.IsVisible = true;
-                    Debug.WriteLine("GPU Memory Usage stack set to visible");
-                }
-                else
-                {
-                    GpuUsageStack.IsVisible = false;
-                    Debug.WriteLine("GPU Memory Usage stack set to invisible");
+                    showGpuFrame = true;
+                    Debug.WriteLine("GPU Memory Usage updated");
                 }
 
-                Debug.WriteLine($"GPU Utilization: {usage["gpu_utilization_percent"]}");
-                if (usage["gpu_utilization_percent"] != null)
-                {
-                    UpdateUsageBar(GpuUtilizationBar, GpuUtilizationLabel, "GPU Utilization", usage["gpu_utilization_percent"]);
-                    GpuUtilizationStack.IsVisible = true;
-                    Debug.WriteLine("GPU Utilization stack set to visible");
-                }
-                else
-                {
-                    GpuUtilizationStack.IsVisible = false;
-                    Debug.WriteLine("GPU Utilization stack set to invisible");
-                }
+                GpuFrame.IsVisible = showGpuFrame;
+                Debug.WriteLine($"GPU Frame visibility set to: {showGpuFrame}");
 
                 Debug.WriteLine("Usage bars updated successfully");
             }
