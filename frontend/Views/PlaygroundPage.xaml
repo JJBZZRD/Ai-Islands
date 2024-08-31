@@ -28,6 +28,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <SearchBar Grid.Column="0" 
@@ -149,13 +150,13 @@
                    CornerRadius="10">
                 <VerticalStackLayout Spacing="15"
                         VerticalOptions="FillAndExpand">
-                    <Label Text="Create New Playground"
+                    <Label Text="{Binding PopupTitle}"
                            FontSize="24"
                            FontAttributes="Bold"
                            TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
                            HorizontalOptions="Center"/>
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Playground Name:"
+                        <Label Text="{Binding NameLabel}"
                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
                                FontSize="16"/>
                         <Frame Padding="0"
@@ -171,7 +172,7 @@
                         </Frame>
                     </VerticalStackLayout>
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="Description (Optional):"
+                        <Label Text="{Binding DescriptionLabel}"
                                TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
                                FontSize="16"/>
                         <Frame Padding="0"
@@ -190,8 +191,8 @@
                                  HorizontalOptions="Center"
                                  Spacing="20"
                                  VerticalOptions="EndAndExpand">
-                        <Button Text="Create"
-                                Clicked="OnCreatePlaygroundClicked"
+                        <Button Text="{Binding ActionButtonText}"
+                                Clicked="OnActionButtonClicked"
                                 WidthRequest="120"
                                 HeightRequest="40"
                                 BackgroundColor="{AppThemeBinding Light=#B19CD9, Dark=#8A2BE2}"
