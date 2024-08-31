@@ -1,3 +1,4 @@
+import os
 import json
 import subprocess
 import sys
@@ -28,3 +29,14 @@ def get_next_suffix(base_model_id):
     while f"{base_model_id}_{i}" in library:
         i += 1
     return i
+
+def execute_script(script_path, *args):
+    
+    if os.name == 'nt':  # Windows
+        command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path, *args]
+    else:  # Unix-like systems
+        command = ['gnome-terminal', '--wait', '--', 'python', script_path, *args]
+        
+    process = subprocess.Popen(command)
+    process.wait()  # Wait for the process to complete
+    return process.returncode
