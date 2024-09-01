@@ -370,7 +370,14 @@ namespace frontend.Models.ViewModels
                             }
                             break;
                         case "text-classification":
-                            OutputText = FormatTextClassificationOutput(dataValue);
+                            if (Model.IsReranker)
+                            {
+                                OutputText = FormatRerankerOutput(dataValue, RerankerPassages);
+                            }
+                            else
+                            {
+                                OutputText = FormatTextClassificationOutput(dataValue);
+                            }
                             break;
 
                         case "zero-shot-classification":
@@ -770,7 +777,26 @@ namespace frontend.Models.ViewModels
         private string FormatSemanticRoles(JsonElement semanticRoles) =>
             semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
 
+    private string FormatRerankerOutput(object dataValue, ObservableCollection<Passage> passages)
+    {
+        var jsonElement = (JsonElement)dataValue;
+        var dataList = jsonElement.EnumerateArray().Select((element, index) => new
+        {
+            Passage = passages[index],
+            Score = element.GetProperty("score").GetDouble()
+        }).OrderByDescending(x => x.Score).ToList();
 
+        var sb = new StringBuilder();
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            sb.AppendLine($"Rank {i + 1}:");
+            sb.AppendLine($"passage: \"{dataList[i].Passage.Content}\"");
+            sb.AppendLine($"relevancy score: {dataList[i].Score}");
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
 
         // CLASSIFICATION MODELS END OPTION 1
 
