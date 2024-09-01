@@ -21,8 +21,11 @@ namespace frontend.Services
 
         public ModelService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromMilliseconds(-1)
+            };
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -175,7 +178,7 @@ namespace frontend.Services
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.Timeout = TimeSpan.FromHours(12); // Setting timeout to 12 hours for training
+                httpClient.Timeout = TimeSpan.FromMilliseconds(-1);
                 var response = await httpClient.PostAsync($"{BaseUrl}/model/train", content);
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();

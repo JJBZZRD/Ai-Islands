@@ -18,9 +18,11 @@ namespace frontend.Services
 
         public DataService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseUrl);
-            _httpClient.Timeout = TimeSpan.FromMinutes(10);
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromMilliseconds(-1)
+            };
         }
 
         // API Call: POST /data/upload-dataset

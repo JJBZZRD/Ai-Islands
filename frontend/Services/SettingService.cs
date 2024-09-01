@@ -13,8 +13,11 @@ namespace frontend.Services
 
         public SettingsService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromMilliseconds(-1)
+            };
         }
 
         public async Task<Dictionary<string, object>> UpdateWatsonSettings(Dictionary<string, string> settings)
