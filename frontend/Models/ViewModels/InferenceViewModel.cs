@@ -1,21 +1,13 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Threading.Tasks;
-using frontend.Models;
 using frontend.Services;
-using Microsoft.Maui.Controls;
-using System.Linq;
 using System.Text.Json.Serialization;
 using frontend.Views;
 using System.Net.WebSockets;
-using System.Threading;
 using System.Text;
-using OpenCvSharp;
-using CommunityToolkit.Maui.Views;
+using System.Diagnostics;
 
 namespace frontend.Models.ViewModels
 {
@@ -365,7 +357,7 @@ namespace frontend.Models.ViewModels
                         System.Diagnostics.Debug.WriteLine($"Text classification data: {JsonSerializer.Serialize(data)}");
                         break;
                     case "zero-shot-classification":
-                        data = new { text = InputText };
+                        data = new { payload = InputText };
                         break;
                     case "translation":
                         var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
@@ -416,6 +408,7 @@ namespace frontend.Models.ViewModels
 
                 if (result.TryGetValue("data", out var dataValue))
                 {
+                                        System.Diagnostics.Debug.WriteLine($"dataValue type: {dataValue?.GetType()}");
                     RawJsonText = FormatJsonString(dataValue);
                     // Store raw JSON output for alt view
                     JsonOutputText = FormatJsonString(dataValue) ?? "No data available.";
@@ -478,6 +471,10 @@ namespace frontend.Models.ViewModels
                             break;
                         case "text-classification":
                             OutputText = FormatTextClassificationOutput(dataValue);
+                            break;
+
+                        case "zero-shot-classification":
+                            OutputText = FormatZeroShotTextClassificationOutput(dataValue);
                             break;
 
                         // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
@@ -779,12 +776,46 @@ namespace frontend.Models.ViewModels
 
         // CLASSIFICATION MODELS OPTION 1
 
-        private string FormatTextClassificationOutput(object dataValue)
+        private string FormatTextClassificationOutput(Object dataValue)
         {
             if (dataValue == null || !(dataValue is JsonElement jsonElement))
                 return "No data available.";
+            
+            if (jsonElement.ValueKind == JsonValueKind.Null)
+            {
+                return "No data available.";
+            }
+            else if (jsonElement.ValueKind == JsonValueKind.Array)
+            {
+                var sb = new StringBuilder();
+                foreach (var element in jsonElement.EnumerateArray())
+                {
+                    sb.AppendLine(FormatSingleTextClassificationOutput(element));
+                }
+                return sb.ToString().TrimEnd();
+            }
+            else if (jsonElement.ValueKind == JsonValueKind.Object)
+            {
+                return FormatSingleTextClassificationOutput(jsonElement);
+            }
+            return "Invalid data format.";
+        }
 
+        private string FormatSingleTextClassificationOutput(JsonElement jsonElement)
+        {
             var sb = new StringBuilder();
+            
+            if (jsonElement.TryGetProperty("label", out var label))
+                sb.AppendLine($"Label: {label}"); 
+            
+            if (jsonElement.TryGetProperty("score", out var score))
+            {
+                if (score.ValueKind == JsonValueKind.Number)
+                {
+                    double scoreValue = score.GetDouble();
+                    sb.AppendLine($"Confident Level: {scoreValue:P2}");
+                }
+            }
 
             if (jsonElement.TryGetProperty("sentiment", out var sentiment))
                 sb.AppendLine($"Sentiment: {FormatSentiment(sentiment)}");
@@ -840,6 +871,8 @@ namespace frontend.Models.ViewModels
 
         private string FormatSemanticRoles(JsonElement semanticRoles) =>
             semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
+        
+
 
         // CLASSIFICATION MODELS END OPTION 1
 
@@ -916,6 +949,46 @@ namespace frontend.Models.ViewModels
         // CLASSIFICATION MODELS END OPTION 2
 
         // Case specific methods:
+
+private string FormatZeroShotTextClassificationOutput(object dataValue)
+{
+    if (dataValue == null)
+        return "No data available.";
+
+    var jsonElement = dataValue as JsonElement? ?? JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(dataValue));
+
+    if (jsonElement.ValueKind == JsonValueKind.Null)
+        return "No data available.";
+
+    var sb = new StringBuilder();
+
+    if (jsonElement.TryGetProperty("labels", out var labels) && labels.ValueKind == JsonValueKind.Array &&
+        jsonElement.TryGetProperty("scores", out var scores) && scores.ValueKind == JsonValueKind.Array)
+    {
+        var labelScorePairs = labels.EnumerateArray()
+            .Zip(scores.EnumerateArray(), (label, score) => new { Label = label.GetString(), Score = score.GetDouble() })
+            .OrderByDescending(pair => pair.Score)
+            .ToList();
+
+        if (labelScorePairs.Any())
+        {
+
+            // Add the most relevant label and score at the top
+            var mostRelevant = labelScorePairs.First();
+            sb.AppendLine($"Most Relevant: {mostRelevant.Label} ({mostRelevant.Score:P1})"); // Show as percentage with 1 decimal place
+
+            sb.AppendLine();
+            // Append each label with its corresponding score
+            foreach (var pair in labelScorePairs)
+            {
+                sb.AppendLine($"{pair.Label} : {pair.Score:P2}");
+            }
+        }
+    }
+
+    return sb.ToString().TrimEnd();
+}
+
 
 
         private string FormatTranslationOutput(object dataValue, List<string> originalStructure)
