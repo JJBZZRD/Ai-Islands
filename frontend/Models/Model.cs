@@ -25,6 +25,9 @@ namespace frontend.Models
 
         public string Status => IsOnline ?? false ? "Online" : "Offline";
 
+        [JsonPropertyName("is_reranker")]
+        public bool IsReranker { get; set; } = false;
+
         [JsonPropertyName("model_source")]
         public string? ModelSource { get; set; }
 

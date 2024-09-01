@@ -1564,6 +1564,7 @@
   },
   "jinaai/jina-reranker-v2-base-multilingual": {
     "is_online": false,
+    "is_reranker": true,
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "mapping": {
@@ -1648,6 +1649,7 @@
   },
   "BAAI/bge-reranker-v2-m3": {
     "is_online": false,
+    "is_reranker": true,
     "model_source": "transformers",
     "model_class": "TransformerModel",
     "mapping": {
