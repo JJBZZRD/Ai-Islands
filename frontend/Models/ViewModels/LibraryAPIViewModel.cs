@@ -59,7 +59,40 @@ namespace frontend.ViewModels
 
                 // NLP Models
                 case "text-classification":
+                    if (model.IsReranker)
+                    {
+                        data = new
+                        {
+                            payload = new Dictionary<string, string>[]
+                            {
+                                new Dictionary<string, string>
+                                {
+                                    { "text", "What is Ai Island?" },
+                                    { "text_pair", "Ai Island is an Desktop App." }
+                                },
+                                new Dictionary<string, string>
+                                {
+                                    { "text", "What is Ai Island?" },
+                                    { "text_pair", "My cat is cute." }
+                                }
+                            }
+                        };
+                    }
+                    else
+                    {
+                        data = new { payload = "My cat is super cute." };
+                    }
+                    break;
                 case "zero-shot-classification":
+                    data = new
+                    {
+                        payload = "AI Islands is the best application I have ever used",
+                        pipeline_config = new
+                        {
+                            candidate_labels = new string[] { "physics", "technology", "cat" }
+                        }
+                    };
+                    break;
                 case "feature-extraction":
                 case "text-generation":
                     data = new { payload = "Your input text here" };
@@ -71,6 +104,8 @@ namespace frontend.ViewModels
                     data = new { payload = "Text to be converted to speech" };
                     break;
                 case "speech-to-text":
+                    data = new { payload = "path/to/audio/file.wav"};
+                    break;
                 case "automatic-speech-recognition":
                     data = new { file_path = "/path/to/audio.wav" };
                     break;
