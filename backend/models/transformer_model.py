@@ -3,14 +3,13 @@ import torch
 import transformers
 import logging
 import json
-import subprocess
 import shutil
 
 from accelerate import Accelerator
 from PIL import Image
 
 from backend.core.config import ROOT_DIR
-from backend.utils.helpers import get_next_suffix
+from backend.utils.helpers import get_next_suffix, execute_script
 from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
@@ -317,13 +316,7 @@ class TransformerModel(BaseModel):
         with open("data/temp_train_args.json", 'w') as f:
                 json.dump(script_args, f, indent=4)
 
-        if os.name == 'nt':  # Windows
-            command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
-        else:  # Unix-like systems
-            command = ['gnome-terminal', '--wait', '--', 'python', script_path]
-        
-        process = subprocess.Popen(command)
-        process.wait()  # Wait for the process to complete
+        execute_script(script_path) 
 
         temp_output_dir = os.path.join(ROOT_DIR, "temp")
         
