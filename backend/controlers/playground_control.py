@@ -75,7 +75,7 @@ class PlaygroundControl:
 
         return {"playground_id": playground_id, "playground": new_playground.to_dict()}
 
-    def update_playround_info(self, playground_id: str, new_playground_id: str = None, description: str = None):
+    def update_playground_info(self, playground_id: str, new_playground_id: str = None, description: str = None):
         """
         Updates the information of an existing playground.
 
@@ -113,8 +113,8 @@ class PlaygroundControl:
             raise e
         
         return {
-            "playground_id": playground_id,
-            "playground": self.playgrounds[playground_id].to_dict(),
+            "playground_id": new_playground_id,
+            "playground": self.playgrounds[new_playground_id].to_dict(),
         }
 
     def delete_playground(self, playground_id: str):

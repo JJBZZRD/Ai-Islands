@@ -47,6 +47,31 @@ namespace frontend.Views
             }
         }
 
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged(nameof(IsEditMode));
+                    OnPropertyChanged(nameof(PopupTitle));
+                    OnPropertyChanged(nameof(NameLabel));
+                    OnPropertyChanged(nameof(DescriptionLabel));
+                    OnPropertyChanged(nameof(ActionButtonText));
+                }
+            }
+        }
+
+        public string PopupTitle => IsEditMode ? "Update Playground" : "Create New Playground";
+        public string NameLabel => IsEditMode ? "Update Playground Name:" : "Playground Name:";
+        public string DescriptionLabel => IsEditMode ? "Update Playground Description (Optional):" : "Description (Optional):";
+        public string ActionButtonText => IsEditMode ? "Update" : "Create";
+
+        private Playground _playgroundToEdit;
+
         public PlaygroundPage()
         {
             InitializeComponent();
@@ -161,6 +186,7 @@ namespace frontend.Views
             PopupOverlay.IsVisible = false;
             NewPlaygroundName = string.Empty;
             NewPlaygroundDescription = string.Empty;
+            IsEditMode = false;
         }
 
         private void OnPopupOverlayTapped(object sender, EventArgs e)
@@ -170,6 +196,7 @@ namespace frontend.Views
             PopupOverlay.IsVisible = false;
             NewPlaygroundName = string.Empty;
             NewPlaygroundDescription = string.Empty;
+            IsEditMode = false;
         }
 
         private async void OnDeletePlaygroundClicked(object sender, EventArgs e)
@@ -200,7 +227,19 @@ namespace frontend.Views
             }
         }
 
-        private async void OnCreatePlaygroundClicked(object sender, EventArgs e)
+        private async void OnActionButtonClicked(object sender, EventArgs e)
+        {
+            if (IsEditMode)
+            {
+                await UpdatePlayground();
+            }
+            else
+            {
+                await CreatePlayground();
+            }
+        }
+
+        private async Task CreatePlayground()
         {
             System.Diagnostics.Debug.WriteLine($"Create clicked. Name: '{NewPlaygroundName}', Description: '{NewPlaygroundDescription}'");
 
@@ -239,6 +278,73 @@ namespace frontend.Views
             {
                 System.Diagnostics.Debug.WriteLine($"Unexpected error in OnCreatePlaygroundClicked: {ex.Message}");
                 await DisplayAlert("Error", $"Failed to create playground: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task UpdatePlayground()
+        {
+            if (string.IsNullOrWhiteSpace(NewPlaygroundName))
+            {
+                await DisplayAlert("Error", "Playground name is required.", "OK");
+                return;
+            }
+
+            try
+            {
+                string description = NewPlaygroundDescription ?? string.Empty;
+
+                var response = await _playgroundService.UpdatePlayground(_playgroundToEdit.PlaygroundId, NewPlaygroundName, description);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadPlaygrounds();
+
+                    IsPopupVisible = false;
+                    PopupOverlay.IsVisible = false;
+
+                    NewPlaygroundName = string.Empty;
+                    NewPlaygroundDescription = string.Empty;
+                    IsEditMode = false;
+
+                    await DisplayAlert("Success", "Playground updated successfully", "OK");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    await DisplayAlert("Error", $"Failed to update playground. Status: {response.StatusCode}, Content: {errorContent}", "OK");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HTTP Request Error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                await DisplayAlert("Error", $"Failed to update playground: {ex.Message}", "OK");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating playground: {ex.Message}");
+                await DisplayAlert("Error", $"Failed to update playground: {ex.Message}", "OK");
+            }
+        }
+
+        private async void OnEditPlaygroundClicked(object sender, EventArgs e)
+        {
+            var button = sender as ImageButton;
+            _playgroundToEdit = button?.BindingContext as Playground;
+
+            if (_playgroundToEdit != null)
+            {
+                IsEditMode = true;
+                NewPlaygroundName = _playgroundToEdit.PlaygroundId;
+                NewPlaygroundDescription = _playgroundToEdit.Description;
+
+                IsPopupVisible = true;
+                PopupOverlay.IsVisible = true;
+
+                System.Diagnostics.Debug.WriteLine($"Edit popup opened. Name: '{NewPlaygroundName}', Description: '{NewPlaygroundDescription}'");
             }
         }
     }
