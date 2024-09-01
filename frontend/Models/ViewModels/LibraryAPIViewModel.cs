@@ -94,6 +94,8 @@ namespace frontend.ViewModels
                     };
                     break;
                 case "feature-extraction":
+                    data = new { payload = "Your input text here to be converted to embeddings" };
+                    break;
                 case "text-generation":
                     data = new { payload = "Your input text here" };
                     break;
@@ -104,7 +106,7 @@ namespace frontend.ViewModels
                     data = new { payload = "Text to be converted to speech" };
                     break;
                 case "speech-to-text":
-                    data = new { payload = "path/to/audio/file.wav"};
+                    data = new { file_path = "path/to/audio/file.wav"};
                     break;
                 case "automatic-speech-recognition":
                     data = new { file_path = "/path/to/audio.wav" };
