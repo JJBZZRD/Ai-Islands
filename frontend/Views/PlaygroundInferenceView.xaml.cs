@@ -11,6 +11,8 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Storage;
 
 namespace frontend.Views
 {
@@ -21,11 +23,11 @@ namespace frontend.Views
         private bool _isChainLoaded = false;  // Track the state of the chain
         private string _inputText;
         private string _selectedFilePath;
+        private bool _isJsonViewVisible = false;  
+        private bool _isAudioPlayerVisible = false;  
 
         public ICommand LoadChainCommand { get; }
         public ICommand InferenceCommand { get; }
-        private bool _isJsonViewVisible = false;  
-        private bool _isAudioPlayerVisible = false;  
 
         public PlaygroundInferenceView(Playground playground, PlaygroundService playgroundService)
         {
@@ -36,20 +38,64 @@ namespace frontend.Views
             InferenceCommand = new Command(async () => await RunInference());
             BindingContext = this;
             CreateInputUI();
+
+            // Load the chain load state from Preferences
+            IsChainLoaded = Preferences.Get($"{_playground.PlaygroundId}_isChainLoaded", false);
             UpdateOutputVisibility();
         }
 
-        public string ChainButtonText => _isChainLoaded ? "Stop Chain" : "Load Chain";
+        public bool IsChainLoaded
+        {
+            get => _isChainLoaded;
+            set
+            {
+                if (_isChainLoaded != value)
+                {
+                    _isChainLoaded = value;
+                    OnPropertyChanged(nameof(IsChainLoaded));
+                    OnPropertyChanged(nameof(ChainButtonText));
+                }
+            }
+        }
+
+        public string ChainButtonText => IsChainLoaded ? "Stop Chain" : "Load Chain";
+
+        public bool IsJsonViewVisible
+        {
+            get => _isJsonViewVisible;
+            set
+            {
+                if (_isJsonViewVisible != value)
+                {
+                    _isJsonViewVisible = value;
+                    OnPropertyChanged(nameof(IsJsonViewVisible));
+                    OnPropertyChanged(nameof(IsOutputTextVisible));
+                }
+            }
+        }
+
+        public bool IsOutputTextVisible => !_isJsonViewVisible;
 
         private async Task LoadOrStopChain()
         {
-            if (!_isChainLoaded)
+            if (!IsChainLoaded)
             {
                 try
                 {
                     await _playgroundService.LoadPlaygroundChain(_playground.PlaygroundId);
-                    _isChainLoaded = true;
-                    OnPropertyChanged(nameof(ChainButtonText));  // Update button text
+                    IsChainLoaded = true;
+                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", true);  // Save the state
+
+                    // Update the IsLoaded attribute of each model in the chain
+                    foreach (var modelId in _playground.Chain)
+                    {
+                        if (_playground.Models.TryGetValue(modelId, out var model))
+                        {
+                            model.IsLoaded = true;
+                            // Preferences.Set($"{model.ModelId}_isLoaded", true);
+                        }
+                    }
+
                     await Application.Current.MainPage.DisplayAlert("Success", "Chain loaded successfully.", "OK");
                 }
                 catch (Exception ex)
@@ -62,8 +108,19 @@ namespace frontend.Views
                 try
                 {
                     await _playgroundService.StopPlaygroundChain(_playground.PlaygroundId);
-                    _isChainLoaded = false;
-                    OnPropertyChanged(nameof(ChainButtonText));  
+                    IsChainLoaded = false;
+                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", false);  
+
+                    
+                    foreach (var modelId in _playground.Chain)
+                    {
+                        if (_playground.Models.TryGetValue(modelId, out var model))
+                        {
+                            model.IsLoaded = false;
+                            // Preferences.Set($"{model.ModelId}_isLoaded", false);
+                        }
+                    }
+
                     await Application.Current.MainPage.DisplayAlert("Success", "Chain stopped successfully.", "OK");
                 }
                 catch (Exception ex)
@@ -71,11 +128,13 @@ namespace frontend.Views
                     await Application.Current.MainPage.DisplayAlert("Error", $"Failed to stop chain: {ex.Message}", "OK");
                 }
             }
+
+            UpdateOutputVisibility();  // Ensure the UI components are updated accordingly
         }
 
         private async Task RunInference()
         {
-            if (!_isChainLoaded)
+            if (!IsChainLoaded)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", "Please load the chain first.", "OK");
                 return;

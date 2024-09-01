@@ -5,6 +5,10 @@
              x:Class="frontend.Views.PlaygroundInferenceView"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
+    <!-- <ContentView.Resources>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </ContentView.Resources> -->
+
     <Grid Padding="20" RowSpacing="20" ColumnSpacing="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,12 +24,21 @@
                 Grid.Column="1" 
                 x:Name="LoadChainButton"
                 HorizontalOptions="End"
-                BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                 TextColor="White"
                 CornerRadius="5"
                 Padding="15,10"
                 Text="{Binding ChainButtonText}"
-                Command="{Binding LoadChainCommand}"/>
+                Command="{Binding LoadChainCommand}"
+                BackgroundColor="{Binding IsChainLoaded, Converter={StaticResource BoolToColorConverter}}">
+            <Button.Triggers>
+                <DataTrigger TargetType="Button" Binding="{Binding ChainButtonText}" Value="Stop Chain">
+                    <Setter Property="BackgroundColor" Value="#D4002E" />
+                </DataTrigger>
+                <DataTrigger TargetType="Button" Binding="{Binding ChainButtonText}" Value="Load Chain">
+                    <Setter Property="BackgroundColor" Value="#3366FF" />
+                </DataTrigger>
+            </Button.Triggers>
+        </Button>
 
         <!-- Input Frame -->
         <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
