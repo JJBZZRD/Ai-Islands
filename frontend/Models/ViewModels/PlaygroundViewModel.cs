@@ -539,6 +539,19 @@ namespace frontend.Models.ViewModels
             }
         }
 
+        public void RefreshPlaygroundChain()
+        {
+            PlaygroundChain.Clear();
+            foreach (var modelName in playground.Chain)
+            {
+                var model = playground.Models?.Values.FirstOrDefault(m => m.ModelId == modelName);
+                if (model != null)
+                {
+                    PlaygroundChain.Add(new ModelViewModel { SelectedModel = model });
+                }
+            }
+        }
+
         // This method is called only when the entire Playground has been changed
         partial void OnPlaygroundChanged(Playground? oldValue, Playground? newValue)
         {

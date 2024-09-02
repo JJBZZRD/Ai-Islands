@@ -59,6 +59,7 @@ namespace frontend.Views
 
         private void ShowConfigPage()
         {
+            _playgroundViewModel.RefreshPlaygroundChain();
             ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel, _playgroundService);
         }
 
