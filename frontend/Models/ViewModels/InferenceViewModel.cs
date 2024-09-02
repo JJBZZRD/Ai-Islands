@@ -342,6 +342,7 @@ namespace frontend.Models.ViewModels
                                     var audioBytes = Convert.FromBase64String(audioContentBase64);
                                     var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
                                     await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                                    System.Diagnostics.Debug.WriteLine($"Audio file saved to: {tempFilePath}");
                                     AudioSource = tempFilePath;
                                     IsAudioPlayerVisible = true;
                                 }
