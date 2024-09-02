@@ -316,15 +316,9 @@ namespace frontend.Views
                     var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
                     await File.WriteAllBytesAsync(tempFilePath, audioBytes);
 
-                    if (File.Exists(tempFilePath))
-                    {
-                        AudioPlayer.Source = new Uri(tempFilePath);
-                        IsAudioPlayerVisible = true;
-                    }
-                    else
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Error", "Audio file could not be found or saved.", "OK");
-                    }
+                    AudioPlayer.Source = tempFilePath;
+                    IsAudioPlayerVisible = true;
+
                 }
             }
         }
