@@ -8,11 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Storage;
+using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace frontend.Views
 {
@@ -20,26 +20,33 @@ namespace frontend.Views
     {
         private readonly Playground _playground;
         private readonly PlaygroundService _playgroundService;
-        private bool _isChainLoaded = false;  // Track the state of the chain
+        private readonly ModelService _modelService;
+        private bool _isChainLoaded = false;
         private string _inputText;
+        private bool _isJsonViewVisible = false;
+        private bool _isAudioPlayerVisible = false;
+        private string _jsonOutputText = "No data available. Please run inference first.";
+        private string _formattedOutputText = "No data available. Please run inference first.";
         private string _selectedFilePath;
-        private bool _isJsonViewVisible = false;  
-        private bool _isAudioPlayerVisible = false;  
-
+        public string SelectedFilePath
+        {
+            get => _selectedFilePath;
+            set { SetProperty(ref _selectedFilePath, value); }
+        }
         public ICommand LoadChainCommand { get; }
         public ICommand InferenceCommand { get; }
 
-        public PlaygroundInferenceView(Playground playground, PlaygroundService playgroundService)
+        public PlaygroundInferenceView(Playground playground, PlaygroundService playgroundService, ModelService modelService)
         {
             InitializeComponent();
             _playground = playground;
             _playgroundService = playgroundService;
+            _modelService = modelService ?? throw new ArgumentNullException(nameof(modelService), "ModelService cannot be null.");
             LoadChainCommand = new Command(async () => await LoadOrStopChain());
             InferenceCommand = new Command(async () => await RunInference());
             BindingContext = this;
             CreateInputUI();
 
-            // Load the chain load state from Preferences
             IsChainLoaded = Preferences.Get($"{_playground.PlaygroundId}_isChainLoaded", false);
             UpdateOutputVisibility();
         }
@@ -58,6 +65,27 @@ namespace frontend.Views
             }
         }
 
+        private ImageSource _processedImageSource;
+        public ImageSource ProcessedImageSource
+        {
+            get => _processedImageSource;
+            set => SetProperty(ref _processedImageSource, value);
+        }
+
+        private bool _isProcessedImageVisible;
+        public bool IsProcessedImageVisible
+        {
+            get => _isProcessedImageVisible;
+            set => SetProperty(ref _isProcessedImageVisible, value);
+        }
+
+        private string _rawJsonText;
+        public string RawJsonText
+        {
+            get => _rawJsonText;
+            set { SetProperty(ref _rawJsonText, value); }
+        }
+
         public string ChainButtonText => IsChainLoaded ? "Stop Chain" : "Load Chain";
 
         public bool IsJsonViewVisible
@@ -70,11 +98,48 @@ namespace frontend.Views
                     _isJsonViewVisible = value;
                     OnPropertyChanged(nameof(IsJsonViewVisible));
                     OnPropertyChanged(nameof(IsOutputTextVisible));
+                    UpdateOutputVisibility();
                 }
             }
         }
 
-        public bool IsOutputTextVisible => !_isJsonViewVisible;
+        public bool IsOutputTextVisible => !_isJsonViewVisible && !_isAudioPlayerVisible;
+
+        public string JsonOutputText
+        {
+            get => _jsonOutputText;
+            set
+            {
+                if (_jsonOutputText != value)
+                {
+                    _jsonOutputText = value;
+                    OnPropertyChanged(nameof(JsonOutputText));
+                }
+            }
+        }
+
+        public string FormattedOutputText
+        {
+            get => _formattedOutputText;
+            set
+            {
+                _formattedOutputText = value;
+                OnPropertyChanged(nameof(FormattedOutputText));
+            }
+        }
+
+        public bool IsAudioPlayerVisible
+        {
+            get => _isAudioPlayerVisible;
+            set
+            {
+                if (_isAudioPlayerVisible != value)
+                {
+                    _isAudioPlayerVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private async Task LoadOrStopChain()
         {
@@ -84,15 +149,13 @@ namespace frontend.Views
                 {
                     await _playgroundService.LoadPlaygroundChain(_playground.PlaygroundId);
                     IsChainLoaded = true;
-                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", true);  // Save the state
+                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", true);
 
-                    // Update the IsLoaded attribute of each model in the chain
                     foreach (var modelId in _playground.Chain)
                     {
                         if (_playground.Models.TryGetValue(modelId, out var model))
                         {
                             model.IsLoaded = true;
-                            // Preferences.Set($"{model.ModelId}_isLoaded", true);
                         }
                     }
 
@@ -109,15 +172,13 @@ namespace frontend.Views
                 {
                     await _playgroundService.StopPlaygroundChain(_playground.PlaygroundId);
                     IsChainLoaded = false;
-                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", false);  
+                    Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", false);
 
-                    
                     foreach (var modelId in _playground.Chain)
                     {
                         if (_playground.Models.TryGetValue(modelId, out var model))
                         {
                             model.IsLoaded = false;
-                            // Preferences.Set($"{model.ModelId}_isLoaded", false);
                         }
                     }
 
@@ -129,11 +190,12 @@ namespace frontend.Views
                 }
             }
 
-            UpdateOutputVisibility();  // Ensure the UI components are updated accordingly
+            UpdateOutputVisibility();
         }
 
         private async Task RunInference()
         {
+            System.Diagnostics.Debug.WriteLine("RunInference called.");
             if (!IsChainLoaded)
             {
                 await Application.Current.MainPage.DisplayAlert("Error", "Please load the chain first.", "OK");
@@ -163,11 +225,9 @@ namespace frontend.Views
                 }
                 else if (result.TryGetValue("data", out var dataValue))
                 {
+                    RawJsonText = FormatJsonString(dataValue);
+                    JsonOutputText = FormatJsonString(dataValue) ?? "No data available.";
                     await HandleInferenceResult(dataValue);
-                }
-                else
-                {
-                    HandleTextOutput(result);
                 }
             }
             catch (Exception ex)
@@ -176,23 +236,74 @@ namespace frontend.Views
             }
         }
 
+        private List<string> GetOriginalStructure()
+        {
+            return _inputText?.Split('\n').ToList() ?? new List<string>();
+        }
+
+
         private async Task HandleInferenceResult(object dataValue)
         {
-            switch (_playground.Models[_playground.Chain.LastOrDefault()].PipelineTag?.ToLower())
+            var lastModelId = _playground.Chain.LastOrDefault();
+            var pipelineTag = _playground.Models[lastModelId]?.PipelineTag?.ToLower();
+            
+            switch (pipelineTag)
             {
+                // Computer Vision Models
+                case "object-detection":
+                case "image-segmentation":
+                case "zero-shot-object-detection":
+                    await ViewImageOutput();
+                    break;
+
+                // NLP Models
+                case "translation":
+                    FormattedOutputText = FormatTranslationOutput(dataValue, GetOriginalStructure());
+                    break;
                 case "text-to-speech":
                     await HandleAudioOutput(dataValue);
                     break;
                 case "speech-to-text":
-                    HandleTextOutput(dataValue);
+                    if (dataValue is JsonElement sttJsonElement && sttJsonElement.ValueKind == JsonValueKind.Object)
+                    {
+                        var transcription = sttJsonElement.GetProperty("transcription").GetString();
+                        FormattedOutputText = $"Transcription: {transcription}";
+                    }
+                    else
+                    {
+                        FormattedOutputText = "Unexpected response format for speech-to-text.";
+                    }
                     break;
+                case "automatic-speech-recognition":
+                    if (dataValue is JsonElement asrJsonElement && asrJsonElement.ValueKind == JsonValueKind.Object)
+                    {
+                        var transcription = asrJsonElement.GetProperty("text").GetString();
+                        FormattedOutputText = transcription;
+                    }
+                    else
+                    {
+                        FormattedOutputText = "Unexpected response format for automatic speech recognition.";
+                    }
+                    break;
+                case "text-classification":
+                    FormattedOutputText = FormatTextClassificationOutput(dataValue);
+                    break;
+
+                // Text Generation Models (LLMs)
+                case "text-generation":
+                    FormattedOutputText = dataValue.ToString();
+                    break;
+
                 default:
-                    OutputText.Text = FormatJsonString(dataValue);
+                    FormattedOutputText = JsonSerializer.Serialize(dataValue, new JsonSerializerOptions { WriteIndented = true });
                     break;
             }
 
+            JsonOutputText = JsonSerializer.Serialize(dataValue, new JsonSerializerOptions { WriteIndented = true });
+
             UpdateOutputVisibility();
         }
+
 
         private async Task HandleAudioOutput(object dataValue)
         {
@@ -208,9 +319,7 @@ namespace frontend.Views
                     if (File.Exists(tempFilePath))
                     {
                         AudioPlayer.Source = new Uri(tempFilePath);
-                        AudioPlayer.IsVisible = true;
-                        _isAudioPlayerVisible = true; // Update visibility flag
-                        OnPropertyChanged(nameof(_isAudioPlayerVisible));
+                        IsAudioPlayerVisible = true;
                     }
                     else
                     {
@@ -218,11 +327,6 @@ namespace frontend.Views
                     }
                 }
             }
-        }
-
-        private void HandleTextOutput(object dataValue)
-        {
-            OutputText.Text = dataValue?.ToString() ?? "No output received.";
         }
 
         private Dictionary<string, object> GetInputData()
@@ -420,35 +524,230 @@ namespace frontend.Views
             }
         }
 
-        private void UpdateFileNameLabel(string fileName)
-        {
-            var fileSelectionUI = InputContainer.Children.OfType<VerticalStackLayout>().FirstOrDefault();
-            var button = fileSelectionUI?.Children.OfType<Button>().FirstOrDefault();
-            if (button != null)
-            {
-                button.Text = fileName;
-            }
-        }
-
         private void UpdateOutputVisibility()
         {
-            var lastModelKey = _playground.Chain.LastOrDefault();
-            if (lastModelKey != null && _playground.Models.TryGetValue(lastModelKey, out var lastModel))
+            if (_isAudioPlayerVisible)
             {
-                _isAudioPlayerVisible = lastModel.PipelineTag?.ToLower() == "text-to-speech";
+                AudioPlayer.IsVisible = true;
+                JsonOutputLabel.IsVisible = false;
+                FormattedOutputLabel.IsVisible = false;
+                ProcessedImage.IsVisible = false;
+            }
+            else if (_isJsonViewVisible)
+            {
+                AudioPlayer.IsVisible = false;
+                JsonOutputLabel.IsVisible = true;
+                FormattedOutputLabel.IsVisible = false;
+                ProcessedImage.IsVisible = false;
+            }
+            else if (_isProcessedImageVisible)
+            {
+                AudioPlayer.IsVisible = false;
+                JsonOutputLabel.IsVisible = false;
+                FormattedOutputLabel.IsVisible = false;
+                ProcessedImage.IsVisible = true;
             }
             else
             {
-                _isAudioPlayerVisible = false;
+                AudioPlayer.IsVisible = false;
+                JsonOutputLabel.IsVisible = false;
+                FormattedOutputLabel.IsVisible = true;
+                ProcessedImage.IsVisible = false;
             }
-
-            OutputText.IsVisible = !_isJsonViewVisible;
-            AudioPlayer.IsVisible = _isAudioPlayerVisible;
         }
+
 
         private string FormatJsonString(object data)
         {
             return System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        }
+
+        private string FormatOutputText(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            text = text.Replace("\\n", "\n");
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+                $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
+
+            return text;
+        }
+
+        private string FormatTextClassificationOutput(object dataValue)
+        {
+            if (dataValue == null || !(dataValue is JsonElement jsonElement))
+                return "No data available.";
+
+            var sb = new StringBuilder();
+
+            if (jsonElement.TryGetProperty("sentiment", out var sentiment))
+                sb.AppendLine($"Sentiment: {FormatSentiment(sentiment)}");
+
+            if (jsonElement.TryGetProperty("emotion", out var emotion))
+                sb.AppendLine($"Emotion: {FormatEmotion(emotion)}");
+
+            if (jsonElement.TryGetProperty("entities", out var entities))
+                sb.AppendLine($"Entities: {FormatEntities(entities)}");
+
+            if (jsonElement.TryGetProperty("keywords", out var keywords))
+                sb.AppendLine($"Keywords: {FormatKeywords(keywords)}");
+
+            if (jsonElement.TryGetProperty("categories", out var categories))
+                sb.AppendLine($"Categories: {FormatCategories(categories)}");
+
+            if (jsonElement.TryGetProperty("concepts", out var concepts))
+                sb.AppendLine($"Concepts: {FormatConcepts(concepts)}");
+
+            if (jsonElement.TryGetProperty("relations", out var relations))
+                sb.AppendLine($"Relations: {FormatRelations(relations)}");
+
+            if (jsonElement.TryGetProperty("semantic_roles", out var semanticRoles))
+                sb.AppendLine($"Semantic Roles: {FormatSemanticRoles(semanticRoles)}");
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private string FormatSentiment(JsonElement sentiment) => 
+            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label) 
+            ? label.GetString() 
+            : "N/A";
+
+        private string FormatEmotion(JsonElement emotion) => 
+            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo) 
+            ? string.Join(", ", emo.EnumerateObject().OrderByDescending(p => p.Value.GetDouble()).Take(2).Select(p => $"{p.Name} ({p.Value.GetDouble():F2})"))
+            : "N/A";
+
+        private string FormatEntities(JsonElement entities) =>
+            string.Join(", ", entities.EnumerateArray().Take(3).Select(e => e.GetProperty("text").GetString()));
+
+        private string FormatKeywords(JsonElement keywords) =>
+            string.Join(", ", keywords.EnumerateArray().Take(3).Select(k => k.GetProperty("text").GetString()));
+
+        private string FormatCategories(JsonElement categories) =>
+            string.Join(", ", categories.EnumerateArray().Take(3).Select(c => c.GetProperty("label").GetString().Split('/').Last()));
+
+        private string FormatConcepts(JsonElement concepts) =>
+            string.Join(", ", concepts.EnumerateArray().Take(3).Select(c => c.GetProperty("text").GetString()));
+
+        private string FormatRelations(JsonElement relations) =>
+            relations.GetArrayLength() > 0 ? "Present" : "None found";
+
+        private string FormatSemanticRoles(JsonElement semanticRoles) =>
+            semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
+
+        private string FormatTranslationOutput(object dataValue, List<string> originalStructure)
+        {
+            System.Diagnostics.Debug.WriteLine($"FormatTranslationOutput received: {JsonSerializer.Serialize(dataValue)}");
+
+            if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
+            {
+                var translatedLines = jsonElement.EnumerateArray()
+                    .Select(element => element.TryGetProperty("translation_text", out var translationText) 
+                        ? translationText.GetString() 
+                        : null)
+                    .Where(text => text != null)
+                    .ToList();
+
+                System.Diagnostics.Debug.WriteLine($"Extracted Translated Lines: {string.Join(", ", translatedLines)}");
+
+                var result = new List<string>();
+                int translationIndex = 0;
+
+                if (originalStructure == null || originalStructure.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("Original structure is empty or null.");
+                    return "No translation available.";
+                }
+
+                foreach (var line in originalStructure)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        result.Add(string.Empty);
+                    }
+                    else if (translationIndex < translatedLines.Count)
+                    {
+                        result.Add(translatedLines[translationIndex]);
+                        translationIndex++;
+                    }
+                    else
+                    {
+                        result.Add("No translation available for this line.");
+                    }
+                }
+
+                var formattedResult = string.Join("\n", result);
+                System.Diagnostics.Debug.WriteLine($"Formatted translation result: {formattedResult}");
+                return formattedResult;
+            }
+
+            System.Diagnostics.Debug.WriteLine("Translation data not in expected format");
+            return "No translation available.";
+        }
+
+        private async Task ViewImageOutput()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(RawJsonText) || string.IsNullOrEmpty(SelectedFilePath))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please run inference first.", "OK");
+                    return;
+                }
+
+                var lastModelId = _playground.Chain.LastOrDefault();
+                var task = _playground.Models[lastModelId]?.PipelineTag?.ToLower();
+
+                if (task == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Pipeline task is not defined.", "OK");
+                    return;
+                }
+
+                var result = await _modelService.ProcessImage(SelectedFilePath, RawJsonText, task);
+                System.Diagnostics.Debug.WriteLine($"ProcessImage result: {result}");
+
+                var processedImageResult = JsonSerializer.Deserialize<ProcessedImageResult>(result);
+
+                if (processedImageResult?.ImageUrl == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to process image. The ImageUrl is null.", "OK");
+                    return;
+                }
+
+                string imageFullPath = processedImageResult.ImageUrl;
+
+                if (!File.Exists(imageFullPath))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Image file not found: {imageFullPath}", "OK");
+                    return;
+                }
+
+                ProcessedImageSource = ImageSource.FromFile(imageFullPath);
+                IsProcessedImageVisible = true;
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Detailed error: {ex}");
+            }
+        }
+
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

@@ -5,10 +5,6 @@
              x:Class="frontend.Views.PlaygroundInferenceView"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
 
-    <!-- <ContentView.Resources>
-        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
-    </ContentView.Resources> -->
-
     <Grid Padding="20" RowSpacing="20" ColumnSpacing="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -31,10 +27,10 @@
                 Command="{Binding LoadChainCommand}"
                 BackgroundColor="{Binding IsChainLoaded, Converter={StaticResource BoolToColorConverter}}">
             <Button.Triggers>
-                <DataTrigger TargetType="Button" Binding="{Binding ChainButtonText}" Value="Stop Chain">
+                <DataTrigger TargetType="Button" Binding="{Binding IsChainLoaded}" Value="True">
                     <Setter Property="BackgroundColor" Value="#D4002E" />
                 </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ChainButtonText}" Value="Load Chain">
+                <DataTrigger TargetType="Button" Binding="{Binding IsChainLoaded}" Value="False">
                     <Setter Property="BackgroundColor" Value="#3366FF" />
                 </DataTrigger>
             </Button.Triggers>
@@ -46,7 +42,7 @@
                 <VerticalStackLayout Spacing="15" Padding="20">
                     <Grid>
                         <Label Text="Input" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}" VerticalOptions="Center"/>
-                        <Button Text="Inference"
+                        <Button Text="Submit"
                                 BackgroundColor="{AppThemeBinding Light=#3366FF, Dark=#4A90E2}"
                                 TextColor="White"
                                 CornerRadius="5"
@@ -56,7 +52,7 @@
                                 Command="{Binding InferenceCommand}"/>
                     </Grid>
                     <VerticalStackLayout x:Name="InputContainer">
-                        <!-- Input controls added here programmatically -->
+                        <!-- Input controls generated in code-behind -->
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </ScrollView>
@@ -69,14 +65,20 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
+
+                <!-- Toggle for JSON and Formatted View -->
                 <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="End" Margin="10">
                     <Label Text="JSON View" VerticalOptions="Center" Margin="0,0,10,0"/>
                     <Switch IsToggled="{Binding IsJsonViewVisible, Mode=TwoWay}" />
                 </StackLayout>
+
+                <!-- Formatted Output and JSON Output based on toggle -->
                 <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Always">
                     <VerticalStackLayout Spacing="15" Padding="20">
                         <Label Text="Output" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#E0E0E0}"/>
-                        <Label x:Name="OutputText" IsVisible="{Binding IsOutputTextVisible}" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <Label x:Name="FormattedOutputLabel" TextType="Html" IsVisible="{Binding IsOutputTextVisible}" Text="{Binding FormattedOutputText}" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <Label x:Name="JsonOutputLabel" IsVisible="{Binding IsJsonViewVisible}" Text="{Binding JsonOutputText}" TextColor="{AppThemeBinding Light=#5D5D5D, Dark=#B0B0B0}"/>
+                        <Image x:Name="ProcessedImage" Source="{Binding ProcessedImageSource}" IsVisible="{Binding IsProcessedImageVisible}" Aspect="AspectFit"/>
                         <toolkit:MediaElement x:Name="AudioPlayer" 
                                               Source="{Binding AudioSource}"
                                               IsVisible="{Binding IsAudioPlayerVisible}"
