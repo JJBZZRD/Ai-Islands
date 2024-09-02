@@ -15,7 +15,7 @@ from backend.controlers.library_control import LibraryControl
 from backend.controlers.runtime_control import RuntimeControl
 from backend.core.exceptions import ModelError, ModelNotAvailableError
 from backend.settings.settings_service import SettingsService
-from backend.utils.helpers import install_packages
+from backend.utils.helpers import install_packages, execute_script
 
 import psutil
 import GPUtil
@@ -106,7 +106,7 @@ class ModelControl:
                 logger.error(f"Error in load process: {str(e)}")
                 conn.send({"error": str(e)})
 
-    def download_model(self, model_id: str, auth_token: str = None):
+    def _download_model(self, model_id: str, auth_token: str = None):
         """
         Downloads a model by its ID and updates the model library.
         
@@ -161,7 +161,12 @@ class ModelControl:
         except ValueError as e:
             logger.error(str(e))
             raise e
-            
+    
+    def download_model(self, model_id: str, auth_token: str = None):
+        args = ["-at", auth_token] if auth_token else []
+        execute_script("backend/utils/model_download.py", model_id, *args)
+        return {"message": f"Model {model_id} downloaded successfully"}
+
     def load_model(self, model_id: str):
         """
         Loads a model by its ID and starts a process for it.
@@ -433,7 +438,6 @@ class ModelControl:
             KeyError: If the model is not found in the library.
         """
         try:
-            print(configure_request)
             model_id = configure_request['model_id']
             config_data = configure_request['data']
             
