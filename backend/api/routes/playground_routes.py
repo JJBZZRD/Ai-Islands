@@ -58,16 +58,17 @@ class PlaygroundRouter:
 
     async def update_playground(self, request: UpdatePlaygroundRequest):
         try:
-            result = self.playground_control.update_playround_info(
+            result = self.playground_control.update_playground_info(
                 playground_id=request.playground_id, 
                 new_playground_id=request.new_playground_id, 
                 description=request.description
             )
-            if result:
-                return success_response(message="Playground updated successfully", data=result, status_code=200)
+            return success_response(message="Playground updated successfully", data=result, status_code=200)
         except KeyError as e:
             return error_response(message=str(e), status_code=404)
         except FileWriteError as e:
+            return error_response(message=str(e), status_code=500)
+        except Exception as e:
             return error_response(message=str(e), status_code=500)
         
     async def delete_playground(self, playground_id: str = Query(...)):

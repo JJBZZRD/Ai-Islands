@@ -249,5 +249,12 @@ namespace frontend.Services
             var response = await _httpClient.PostAsync("model/train", content);
             return response;
         }
+
+        public async Task<Dictionary<string, object>> GetModelHardwareUsage(string modelId)
+        {
+            var response = await _httpClient.GetAsync($"model/hardware-usage?model_id={modelId}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Dictionary<string, object>>() ?? new Dictionary<string, object>();
+        }
     }
 }

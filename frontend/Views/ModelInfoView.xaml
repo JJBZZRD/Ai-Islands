@@ -5,10 +5,48 @@
              xmlns:views="clr-namespace:frontend.Views"
              BackgroundColor="{AppThemeBinding Light=#F2F2F2, Dark=#303134}">
     <ScrollView>
-        <StackLayout Padding="20">
-            <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" Margin="10,20,0,20"/>
-            <Label Text="{Binding ModelDesc}" FontSize="17" Margin="10,10,0,20"/>
-            <views:TagsView Tags="{Binding Tags}" />
+        <StackLayout Padding="20" Spacing="20">
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" CornerRadius="10">
+                <StackLayout Spacing="15">
+                    <Label Text="{Binding ModelId}" FontSize="30" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label Text="{Binding ModelDesc}" FontSize="17" />
+                    <views:TagsView Tags="{Binding Tags}" />
+                </StackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" CornerRadius="10">
+                <StackLayout Spacing="10">
+                    <Label Text="Model Hardware Usage" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
+                    
+                    <Frame BackgroundColor="{AppThemeBinding Light=#F8F8F8, Dark=#2A2A2A}" CornerRadius="5" Margin="0,5,0,5">
+                        <StackLayout Spacing="10">
+                            <Label Text="CPU" FontSize="18" FontAttributes="Bold" />
+                            <StackLayout Spacing="5">
+                                <Label x:Name="CpuUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                <ProgressBar x:Name="CpuUsageBar" Progress="0" ProgressColor="Blue" HeightRequest="30" />
+                            </StackLayout>
+                            <StackLayout Spacing="5">
+                                <Label x:Name="MemoryUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                <ProgressBar x:Name="MemoryUsageBar" Progress="0" ProgressColor="Green" HeightRequest="30" />
+                            </StackLayout>
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame x:Name="GpuFrame" BackgroundColor="{AppThemeBinding Light=#F8F8F8, Dark=#2A2A2A}" CornerRadius="5" Margin="0,5,0,5" IsVisible="False">
+                        <StackLayout Spacing="10">
+                            <Label Text="GPU" FontSize="18" FontAttributes="Bold" />
+                            <StackLayout x:Name="GpuUtilisationStack" Spacing="5">
+                                <Label x:Name="GpuUtilisationLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                <ProgressBar x:Name="GpuUtilisationBar" Progress="0" ProgressColor="Purple" HeightRequest="30" />
+                            </StackLayout>
+                            <StackLayout x:Name="GpuUsageStack" Spacing="5">
+                                <Label x:Name="GpuUsageLabel" HorizontalOptions="Start" TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                <ProgressBar x:Name="GpuUsageBar" Progress="0" ProgressColor="Red" HeightRequest="30" />
+                            </StackLayout>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
+            </Frame>
         </StackLayout>
     </ScrollView>
 </ContentView>
