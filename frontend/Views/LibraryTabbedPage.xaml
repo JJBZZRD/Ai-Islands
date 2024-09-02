@@ -58,6 +58,13 @@
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
+                <Button Text="API Access" Clicked="OnAPIClicked" Style="{StaticResource TabButtonStyle}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="API">
+                            <Setter Property="TextColor" Value="#3366FF" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
             </HorizontalStackLayout>
             <BoxView Color="{AppThemeBinding Light=Grey, Dark=Grey}" HeightRequest="1" />
             <ContentView x:Name="ContentContainer" VerticalOptions="FillAndExpand" />

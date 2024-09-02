@@ -62,6 +62,13 @@ namespace frontend.Views
             ShowModelConfigPage();
         }
 
+        private void OnAPIClicked(object sender, EventArgs e)
+        {
+            ClearCurrentContent();
+            ViewModel.SelectedTab = "API";
+            ShowAPIPage();
+        }
+
         private void ClearCurrentContent()
         {
             if (ContentContainer.Content is IDisposable disposable)
@@ -120,6 +127,14 @@ namespace frontend.Views
             if (_model != null)
             {
                 ContentContainer.Content = new ModelConfig(_model);
+            }
+        }
+
+        private void ShowAPIPage()
+        {
+            if (_model != null)
+            {
+                ContentContainer.Content = new LibraryAPIView(_model);
             }
         }
     }
