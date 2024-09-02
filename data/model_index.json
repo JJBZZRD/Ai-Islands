@@ -827,66 +827,6 @@
       ]
     }
   },
-  "openai-community/gpt2": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "mapping": {
-      "input": "text",
-      "output": "text"
-    },
-    "tags": [
-      "transformers",
-      "pytorch",
-      "tf",
-      "jax",
-      "tflite",
-      "rust",
-      "onnx",
-      "safetensors",
-      "gpt2",
-      "text-generation",
-      "exbert",
-      "en",
-      "doi:10.57967/hf/0039",
-      "license:mit",
-      "autotrain_compatible",
-      "endpoints_compatible",
-      "text-generation-inference",
-      "region:us"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://huggingface.co/openai-community/gpt2",
-    "requirements": {
-      "required_classes": {
-        "model": "AutoModelForCausalLM",
-        "tokenizer": "AutoTokenizer"
-      }
-    },
-    "config": {
-      "model_config": {
-        "use_cache": true
-      },
-      "tokenizer_config": {
-        "do_lower_case": false,
-        "eos_token": "<|endoftext|>",
-        "unk_token": "<|endoftext|>"
-      },
-      "processor_config": {},
-      "pipeline_config": {
-        "max_length": 50,
-        "num_return_sequences": 1,
-        "top_k": 50,
-        "top_p": 0.95,
-        "temperature": 1.0,
-        "repetition_penalty": 1.0,
-        "no_repeat_ngram_size": 0
-      },
-      "device_config": {
-        "device": "cpu"
-      }
-    }
-  },
   "yolov8n": {
     "is_online": false,
     "model_source": "ultralytics",
@@ -1222,6 +1162,7 @@
     "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
     "model_detail": "https://llama.meta.com/get-started/",
     "config": {
+      "chat_history": false,
       "model_config": {
         "torch_dtype": "bfloat16"
       },
@@ -1231,13 +1172,18 @@
         "max_length": 512,
         "max_new_tokens": 1000,
         "num_beams": 2,
-        "use_cache": true
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
       },
       "device_config": {
         "device": "cuda"
       },
       "quantization_config": {
-        "current_mode": "bfloat16"
+        "current_mode": "4-bit"
       },
       "quantization_config_options": {
         "4-bit": {
@@ -1308,6 +1254,7 @@
       "requires_auth": true
     },
     "config": {
+      "chat_history": false,
       "model_config": {
         "torch_dtype": "bfloat16"
       },
@@ -1317,13 +1264,18 @@
         "max_length": 512,
         "max_new_tokens": 1000,
         "num_beams": 2,
-        "use_cache": true
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
       },
       "device_config": {
         "device": "cuda"
       },
       "quantization_config": {
-        "current_mode": "bfloat16"
+        "current_mode": "4-bit"
       },
       "quantization_config_options": {
         "4-bit": {
@@ -1343,11 +1295,11 @@
       },
       "user_prompt": {
         "role": "user",
-        "content": "How are you?"
+        "content": "[USER]"
       },
       "assistant_prompt": {
         "role": "assistant",
-        "content": "I'm good, thanks! What can I help you with?"
+        "content": "[ASSISTANT]"
       },
       "example_conversation": [
         {
@@ -2626,7 +2578,12 @@
         "max_length": 512,
         "max_new_tokens": 1000,
         "num_beams": 2,
-        "use_cache": true
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
       },
       "device_config": {
         "device": "cuda"
@@ -2666,6 +2623,523 @@
         {
           "role": "assistant",
           "content": "I'm good, thanks! What can I help you with?"
+        }
+      ]
+    }
+  },
+  "google/gemma-2-2b-it": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "gemma",
+      "google",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:gemma",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/google/gemma-2-2b-it",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": true
+    },
+    "model_desc": "Gemma 2 2B Instruct is part of the Gemma family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. It's a 2B parameter model fine-tuned for instruction-following tasks, making it well-suited for various text generation tasks including question answering, summarization, and reasoning.",
+    "model_detail": "https://blog.google/technology/developers/gemma-open-models/",
+    "config": {
+      "chat_history": false,
+      "model_config": {
+        "torch_dtype": "bfloat16"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "4-bit"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
+        },
+        "8-bit": {
+          "load_in_8bit": true
+        },
+        "bfloat16": {}
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "model",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "Hello, how are you?"
+        },
+        {
+          "role": "model",
+          "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+        }
+      ]
+    }
+  },
+  "google/gemma-2-9b-it": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "gemma",
+      "google",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:gemma",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/google/gemma-2-9b-it",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": true
+    },
+    "model_desc": "Gemma 2 9B Instruct is part of the Gemma family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. It's a 9B parameter model fine-tuned for instruction-following tasks, making it well-suited for various text generation tasks including question answering, summarization, and reasoning.",
+    "model_detail": "https://blog.google/technology/developers/gemma-open-models/",
+    "config": {
+      "chat_history": false,
+      "model_config": {
+        "torch_dtype": "bfloat16"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "4-bit"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
+        },
+        "8-bit": {
+          "load_in_8bit": true
+        },
+        "bfloat16": {}
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "model",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "Hello, how are you?"
+        },
+        {
+          "role": "model",
+          "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+        }
+      ]
+    }
+  },
+  "microsoft/Phi-3.5-mini-instruct": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "phi3",
+      "microsoft",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:mit",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": false
+    },
+    "model_desc": "Phi-3-Mini-4K-Instruct is a 3.8B parameter, lightweight, state-of-the-art open model trained with the Phi-3 datasets. It has undergone post-training processes including supervised fine-tuning and direct preference optimization for instruction following and safety measures. The model showcases robust performance among models with less than 13 billion parameters in benchmarks testing common sense, language understanding, math, code, long context, and logical reasoning.",
+    "model_detail": "https://www.microsoft.com/en-us/research/blog/phi-3-mini-the-worlds-most-capable-small-language-model/",
+    "config": {
+      "chat_history": false,
+      "model_config": {
+        "torch_dtype": "bfloat16"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device": "cuda"
+      },
+      "quantization_config": {
+        "current_mode": "4-bit"
+      },
+      "quantization_config_options": {
+        "4-bit": {
+          "load_in_4bit": true,
+          "bnb_4bit_use_double_quant": true,
+          "bnb_4bit_quant_type": "nf4",
+          "bnb_4bit_compute_dtype": "bfloat16"
+        },
+        "8-bit": {
+          "load_in_8bit": true
+        },
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]" 
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "How are you?"
+        },
+        {
+          "role": "assistant",
+          "content": "As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+        }
+      ]
+    }
+  },
+  "Qwen/Qwen2-0.5B-Instruct": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "qwen2",
+      "chat",
+      "conversational",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:apache-2.0",
+      "region:cn"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": false
+    },
+    "model_desc": "Qwen2-0.5B-Instruct is part of the Qwen2 series of large language models. It's a 0.5B parameter model fine-tuned for instruction-following tasks. Qwen2 models have demonstrated competitiveness against proprietary models across various benchmarks, including language understanding, generation, multilingual capability, coding, mathematics, and reasoning.",
+    "model_detail": "https://github.com/QwenLM/Qwen",
+    "config": {
+      "chat_history": false,
+      "model_config": {
+        "torch_dtype": "auto"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device_map": "auto"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "Give me a short introduction to large language model."
+        },
+        {
+          "role": "assistant",
+          "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
+        }
+      ]
+    }
+  },
+  "Qwen/Qwen2-1.5B-Instruct": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "qwen2",
+      "chat",
+      "conversational",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:apache-2.0",
+      "region:cn"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/Qwen/Qwen2-1.5B-Instruct",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "requires_auth": false
+    },
+    "model_desc": "Qwen2-1.5B-Instruct is part of the Qwen2 series of large language models. It's a 1.5B parameter model fine-tuned for instruction-following tasks. Qwen2 models have demonstrated competitiveness against proprietary models across various benchmarks, including language understanding, generation, multilingual capability, coding, mathematics, and reasoning. This model shows significant improvements over its predecessor, Qwen1.5-1.8B-Chat, in benchmarks such as MMLU, HumanEval, GSM8K, C-Eval, and IFEval.",
+    "model_detail": "https://github.com/QwenLM/Qwen",
+    "config": {
+      "chat_history": false,
+      "model_config": {
+        "torch_dtype": "auto"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device_map": "auto"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "Give me a short introduction to large language model."
+        },
+        {
+          "role": "assistant",
+          "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
+        }
+      ]
+    }
+  },
+  "mistralai/Mistral-7B-Instruct-v0.3": {
+    "is_online": false,
+    "model_source": "transformers",
+    "model_class": "TransformerModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "transformers",
+      "pytorch",
+      "safetensors",
+      "mistral",
+      "conversational",
+      "text-generation",
+      "text-generation-inference",
+      "en",
+      "license:apache-2.0",
+      "region:us"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+    "requirements": {
+      "required_classes": {
+        "model": "AutoModelForCausalLM",
+        "tokenizer": "AutoTokenizer"
+      },
+      "required_packages": [
+        "sentencepiece",
+        "protobuf"
+      ],
+      "requires_auth": true
+    },
+    "model_desc": "Mistral-7B-Instruct-v0.3 is an instruct fine-tuned version of the Mistral-7B-v0.3 Large Language Model (LLM). It features an extended vocabulary of 32,768 tokens, supports the v3 Tokenizer, and includes function calling capabilities. This model is designed for various text generation tasks, including chat completions and instruction following.",
+    "model_detail": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+    "config": {
+      "chat_history": true,
+      "model_config": {
+        "torch_dtype": "bfloat16"
+      },
+      "tokenizer_config": {},
+      "processor_config": {},
+      "pipeline_config": {
+        "max_length": 512,
+        "max_new_tokens": 1000,
+        "num_beams": 2,
+        "use_cache": true,
+        "temperature": 0.6,
+        "top_k": 40,
+        "top_p": 0.92,
+        "repetition_penalty": 1.2,
+        "length_penalty": 1.2
+      },
+      "device_config": {
+        "device_map": "auto"
+      },
+      "quantization_config": {
+        "current_mode": "bfloat16"
+      },
+      "quantization_config_options": {
+        "bfloat16": {}
+      },
+      "system_prompt": {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      "user_prompt": {
+        "role": "user",
+        "content": "[USER]"
+      },
+      "assistant_prompt": {
+        "role": "assistant",
+        "content": "[ASSISTANT]"
+      },
+      "example_conversation": [
+        {
+          "role": "user",
+          "content": "Who are you?"
+        },
+        {
+          "role": "assistant",
+          "content": "Ahoy there, matey! I be a salty sea dog of a chatbot, always ready to spin a yarn in the finest pirate speak ye ever did hear! I'm as clever as a fox and as quick with me words as I am with a cutlass. What be yer pleasure, landlubber? How can this old salt assist ye on this fine day?"
         }
       ]
     }
