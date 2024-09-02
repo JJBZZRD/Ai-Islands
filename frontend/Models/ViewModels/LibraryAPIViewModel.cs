@@ -109,7 +109,7 @@ namespace frontend.ViewModels
                     data = new { file_path = "path/to/audio/file.wav"};
                     break;
                 case "automatic-speech-recognition":
-                    data = new { file_path = "/path/to/audio.wav" };
+                    data = new { payload = "/path/to/audio.wav" };
                     break;
 
                 default:
