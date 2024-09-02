@@ -50,9 +50,11 @@ namespace frontend.ViewModels
             {
                 // Computer Vision Models
                 case "object-detection":
-                case "image-segmentation":
                     data = new { image_path = "/path/to/image.jpg" };
                     break;
+                case "image-segmentation":
+                    data = new { payload = "/path/to/image.jpg" };
+                    break
                 case "zero-shot-object-detection":
                     data = new { payload = new { image = "/path/to/image.jpg", text = new[] { "cat", "dog", "bird" } } };
                     break;
