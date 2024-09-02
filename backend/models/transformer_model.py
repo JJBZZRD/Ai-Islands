@@ -179,8 +179,9 @@ class TransformerModel(BaseModel):
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
             
-            if self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
-                self.model_instance_data.append(self.config.get("system_prompt"))
+            if self.pipeline.task in ['text-generation'] :
+                if self.config.get("system_prompt"):
+                    self.model_instance_data.append(self.config.get("system_prompt"))
                 if self.config.get("example_conversation"):
                     self.model_instance_data += self.config.get("example_conversation")
         except Exception as e:
@@ -258,7 +259,7 @@ class TransformerModel(BaseModel):
                 output = self.pipeline(data["payload"], **pipeline_config)
             # For other tasks, the pipeline will be called with the payload
             
-            elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
+            elif self.pipeline.task in ['text-generation']:
                 
                 user_prompt = self.config.get("user_prompt").copy()
                 for key in user_prompt:
