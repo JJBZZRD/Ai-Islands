@@ -278,6 +278,13 @@ namespace frontend.Views
         {
             System.Diagnostics.Debug.WriteLine($"OnRunInferenceClicked called. ViewModel.InputText: '{_viewModel.InputText}'");
             await _viewModel.RunInference();
+
+            // Reset the MediaElement source to ensure it reloads the new audio file
+            if (_viewModel.IsAudioPlayerVisible)
+            {
+                AudioPlayer.Source = null; // Reset the source
+                AudioPlayer.Source = _viewModel.AudioSource; // Set the new source
+            }
         }
 
         private async void OnViewImageOutputClicked(object sender, EventArgs e)
