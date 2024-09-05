@@ -1024,7 +1024,7 @@ namespace frontend.Views
         {
             if (string.IsNullOrEmpty(_datasetId))
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Please submit a dataset first", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Please submit a dataset first", "OK");
                 return;
             }
 
@@ -1036,7 +1036,7 @@ namespace frontend.Views
 
                 if (string.IsNullOrEmpty(epochs) || string.IsNullOrEmpty(batchSize) || string.IsNullOrEmpty(learningRate))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Please ensure all parameters are filled", "OK");
+                    await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Please ensure all parameters are filled", "OK");
                     return;
                 }
 
@@ -1049,7 +1049,7 @@ namespace frontend.Views
                     imgsz = 640
                 };
 
-                await Application.Current.MainPage.DisplayAlert("Fine-Tuning", "Fine-tuning process is starting. This may take a while.", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Fine-Tuning", "Fine-tuning process is starting. This may take a while.", "OK");
 
                 var terminalPage = new TerminalPage("Fine-Tuning Progress");
                 await Navigation.PushAsync(terminalPage);
@@ -1060,11 +1060,11 @@ namespace frontend.Views
 
                 if (success)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Success", $"Fine-tuning completed successfully. Dataset ID: {_datasetId}", "OK");
+                    await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Success", $"Fine-tuning completed successfully. Dataset ID: {_datasetId}", "OK");
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Failed to complete fine-tuning", "OK");
+                    await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Failed to complete fine-tuning", "OK");
                 }
 
                 // Keeping the terminal page open for a few seconds after completion
@@ -1073,14 +1073,14 @@ namespace frontend.Views
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
             }
         }
 
         private async void OnSaveParametersClicked()
         {
             SaveVisParameters();
-            await Application.Current.MainPage.DisplayAlert("Success", "Parameters saved successfully", "OK");
+            await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Success", "Parameters saved successfully", "OK");
         }
 
         private View CreateParameterEntryWithInfo()
@@ -1140,7 +1140,7 @@ namespace frontend.Views
 
         public async void ShowInfoPopup(string title, string message)
         {
-            await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+            await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert(title, message, "OK");
         }
 
         private View CreateDefaultUI()
@@ -1176,11 +1176,11 @@ namespace frontend.Views
                     await stream.CopyToAsync(fileStream);
                 }
 
-                await Application.Current.MainPage.DisplayAlert("Success", $"Example dataset downloaded to:\n{targetFile}", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Success", $"Example dataset downloaded to:\n{targetFile}", "OK");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to download example dataset: {ex.Message}", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", $"Failed to download example dataset: {ex.Message}", "OK");
             }
         }
 
@@ -1246,21 +1246,21 @@ namespace frontend.Views
 
                     if (fileInfo.Length > maxSizeInBytes)
                     {
-                        await Application.Current.MainPage.DisplayAlert("Error", "The selected file exceeds the maximum allowed size of 3.5 GB.", "OK");
+                        await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "The selected file exceeds the maximum allowed size of 3.5 GB.", "OK");
                         return;
                     }
 
                     // Asking the user for confirmation if an existing dataset is present
                     if (!string.IsNullOrEmpty(DatasetId))
                     {
-                        bool confirmDelete = await Application.Current.MainPage.DisplayAlert(
+                        bool confirmDelete = await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert(
                             "Confirm",
                             "An existing dataset has been uploaded. Do you want to delete it and upload a new one?",
                             "Yes", "No");
 
                         if (!confirmDelete)
                         {
-                            await Application.Current.MainPage.DisplayAlert("Cancelled", "The upload process has been cancelled. The old dataset remains.", "OK");
+                            await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Cancelled", "The upload process has been cancelled. The old dataset remains.", "OK");
                             return;
                         }
 
@@ -1275,12 +1275,12 @@ namespace frontend.Views
                     DatasetId = null;
                     _startVisFineTuningButton.IsEnabled = false;
 
-                    await Application.Current.MainPage.DisplayAlert("Success", "Zip file selected successfully", "OK");
+                    await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Success", "Zip file selected successfully", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Unable to pick file: {ex.Message}", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", $"Unable to pick file: {ex.Message}", "OK");
             }
         }
 
@@ -1362,7 +1362,7 @@ namespace frontend.Views
         {
             if (string.IsNullOrEmpty(SelectedZipPath))
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Please select a zip file first", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Please select a zip file first", "OK");
                 return;
             }
 
@@ -1372,7 +1372,7 @@ namespace frontend.Views
                 var modelId = _model.ModelId;
                 var dataService = new DataService();
 
-                // Log the current dataset ID before attempting to delete
+                
                 System.Diagnostics.Debug.WriteLine($"Current DatasetId before deletion: {DatasetId}");
 
                 // Delete the old dataset folder if DatasetId is not null or empty
@@ -1381,7 +1381,7 @@ namespace frontend.Views
                     DeleteDatasetFolder(DatasetId);
                 }
 
-                await Application.Current.MainPage.DisplayAlert("Upload", "Please click 'OK' and wait. Dataset is being processed. Approximate maximum time: 2 minutes", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Upload", "Please click 'OK' and wait. Dataset is being processed. Approximate maximum time: 2 minutes", "OK");
 
                 // Start the upload process
                 await Task.Run(async () =>
@@ -1399,7 +1399,7 @@ namespace frontend.Views
 
                             Dispatcher.Dispatch(async () =>
                             {
-                                await Application.Current.MainPage.DisplayAlert("Success", $"Dataset uploaded and processed successfully! Dataset ID: {DatasetId}", "OK");
+                                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Success", $"Dataset uploaded and processed successfully! Dataset ID: {DatasetId}", "OK");
                                 _startVisFineTuningButton.IsEnabled = true;
 
                                 if (_startVisFineTuningButton == null)
@@ -1412,7 +1412,7 @@ namespace frontend.Views
                         {
                             Dispatcher.Dispatch(async () =>
                             {
-                                await Application.Current.MainPage.DisplayAlert("Error", "Failed to upload dataset: No dataset ID returned", "OK");
+                                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", "Failed to upload dataset: No dataset ID returned", "OK");
                             });
                         }
                     }
@@ -1423,7 +1423,7 @@ namespace frontend.Views
 
                         Dispatcher.Dispatch(async () =>
                         {
-                            await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
+                            await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
                         });
                     }
                 });
@@ -1433,7 +1433,7 @@ namespace frontend.Views
                 System.Diagnostics.Debug.WriteLine($"SubmitVisDataset error: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
 
-                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
+                await Microsoft.Maui.Controls.Application.Current.MainPage.DisplayAlert("Error", $"Failed to upload dataset: {ex.Message}", "OK");
             }
         }
 
