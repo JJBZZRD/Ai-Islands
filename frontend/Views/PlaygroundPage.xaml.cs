@@ -9,6 +9,7 @@ namespace frontend.Views
     public partial class PlaygroundPage : ContentPage
     {
         private readonly PlaygroundService _playgroundService;
+        private readonly ModelService _modelService;
         public ObservableCollection<Playground> PlaygroundList { get; set; }
 
         private bool _isPopupVisible;
