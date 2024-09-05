@@ -70,8 +70,37 @@ package "Backend" {
     }
 
     RECTANGLE WatsonModel {
-        - model: Any
-        __init__()
+        - model_id: str
+        - config: dict
+        - auth: Authentication
+        - account_info: AccountInfo
+        - model_inference: ModelInference
+        - embeddings: WatsonxEmbeddings
+        - api_key: str
+        - project_id: str
+        - chat_history: List[dict]
+        - is_loaded: bool
+        + __init__(model_id: str)
+        + {static} download(model_id: str, model_info: dict): dict
+        + load(device: str, model_info: dict): bool
+        + inference(data: dict): Any
+        + clear_chat_history(): None
+    }
+
+    RECTANGLE WatsonService {
+        - model_id: str
+        - config: dict
+        - auth: Authentication
+        - account_info: AccountInfo
+        - nlu: NaturalLanguageUnderstandingV1
+        - text_to_speech: TextToSpeechV1
+        - speech_to_text: SpeechToTextV1
+        - api_key: str
+        - is_loaded: bool
+        + __init__(model_id: str)
+        + {static} download(model_id: str, model_info: dict): dict
+        + load(device: str, model_info: dict): bool
+        + inference(data: dict): Any
     }
 
     RECTANGLE Playground {
@@ -110,6 +139,7 @@ package "Backend" {
 ModelControl --> TransformerModel : uses
 ModelControl --> UltralyticsModel : uses
 ModelControl --> WatsonModel : uses
+ModelControl --> WatsonService : uses
 ModelControl --> LibraryControl : uses
 ModelControl --> RuntimeControl : uses
 
