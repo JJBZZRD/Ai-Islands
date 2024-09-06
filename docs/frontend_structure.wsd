@@ -46,15 +46,15 @@ frame Frontend {
 
     package "Services"  {
         together {
-        class "ModelService" {
+        class "ModelService" #LightPink {
         }
-        class "LibraryService" {
+        class "LibraryService" #LightPink {
         }
-        class "PlaygroundService" {
+        class "PlaygroundService" #LightPink {
         }
-        class "DataService" {
+        class "DataService" #LightPink {
         }
-        class "SettingsService" {
+        class "SettingsService" #LightPink {
         }
         }
     }
