@@ -4,15 +4,15 @@ skinparam linetype ortho
 
 frame Backend {
     together {
-    class "ModelRouter" {
+    class "ModelRouter" #LightPink {
     }
-    class "LibraryRouter" {
+    class "LibraryRouter" #LightPink {
     }
-    class "PlaygroundRouter" {
+    class "PlaygroundRouter" #LightPink {
     }
-    class "DataRouter" {
+    class "DataRouter" #LightPink {
     }
-    class "SettingsRouter" {
+    class "SettingsRouter" #LightPink {
     }
     }
 }
@@ -46,15 +46,15 @@ frame Frontend {
 
     package "Services"  {
         together {
-        class "ModelService" #LightPink {
+        class "ModelService" {
         }
-        class "LibraryService" #LightPink {
+        class "LibraryService" {
         }
-        class "PlaygroundService" #LightPink {
+        class "PlaygroundService" {
         }
-        class "DataService" #LightPink {
+        class "DataService" {
         }
-        class "SettingsService" #LightPink {
+        class "SettingsService" {
         }
         }
     }
