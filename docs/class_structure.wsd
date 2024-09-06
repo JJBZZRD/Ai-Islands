@@ -15,11 +15,11 @@ skinparam linetype ortho
 ' }
 
 package "Backend" {
-    RECTANGLE LibraryControl {
+    RECTANGLE LibraryControl  #LightBlue {
         + 
     }
 
-    RECTANGLE PlaygroundControl {
+    RECTANGLE PlaygroundControl  #LightBlue {
 
         + create_playground(playground_id: str, playground_name: str, 
         playground_description: str): Playground
@@ -33,7 +33,7 @@ package "Backend" {
         + add_chain_to_playground(playground_id: str, chain_id: str): None
     }
 
-    RECTANGLE ModelControl {
+    RECTANGLE ModelControl  #LightBlue {
         - active_models: List[Dict[str, Any]]
         - hardware_preference: str
         - LibraryControl: LibraryControl
@@ -47,7 +47,7 @@ package "Backend" {
         - _get_model_class(model_source: str): Type
     }
 
-    RECTANGLE TransformerModel {
+    RECTANGLE TransformerModel  #LightGreen {
         - model_id: str
         - model: Any
         - tokenizer: Any
@@ -59,7 +59,7 @@ package "Backend" {
         + train(data_path: str, epochs: int = 100): Any
     }
 
-    RECTANGLE UltralyticsModel {
+    RECTANGLE UltralyticsModel  #LightGreen {
         - model_id: str
         - model: Any
         __init__()
@@ -69,7 +69,7 @@ package "Backend" {
         + train(data_path: str, epochs: int = 100): Any
     }
 
-    RECTANGLE WatsonModel {
+    RECTANGLE WatsonModel  #LightGreen;line.bold {
         - model_id: str
         - config: dict
         - auth: Authentication
@@ -87,7 +87,7 @@ package "Backend" {
         + clear_chat_history(): None
     }
 
-    RECTANGLE WatsonService {
+    RECTANGLE WatsonService  #LightGreen;line.bold {
         - model_id: str
         - config: dict
         - auth: Authentication
@@ -103,7 +103,7 @@ package "Backend" {
         + inference(data: dict): Any
     }
 
-    RECTANGLE Playground {
+    RECTANGLE Playground  #LightCyan {
         - playground_id: str
         - playground_name: str
         - playground_description: str
@@ -112,26 +112,26 @@ package "Backend" {
         __init__()
     }
 
-    RECTANGLE RuntimeControl {
+    RECTANGLE RuntimeControl  #LightBlue{
 
     }
 
-    RECTANGLE ModelRouter {
+    RECTANGLE ModelRouter  #LightPink{
 
     }
 
-    RECTANGLE PlaygroundRouter {
+    RECTANGLE PlaygroundRouter #LightPink {
 
     }
 
-    RECTANGLE SettingRouter {
+    RECTANGLE SettingRouter  #LightPink {
 
     }
 
-    RECTANGLE DataRouter {
+    RECTANGLE DataRouter  #LightPink {
 
     }
-    RECTANGLE LibraryRouter {
+    RECTANGLE LibraryRouter  #LightPink {
 
     }
 }

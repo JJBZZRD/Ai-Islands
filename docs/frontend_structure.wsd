@@ -1,0 +1,81 @@
+@startuml MAUI_App_Structure
+
+skinparam linetype ortho
+
+frame Backend {
+    together {
+    class "ModelRouter" {
+    }
+    class "LibraryRouter" {
+    }
+    class "PlaygroundRouter" {
+    }
+    class "DataRouter" {
+    }
+    class "SettingsRouter" {
+    }
+    }
+}
+
+frame Frontend {
+    together {
+    frame MainApp {
+    together {
+        package "App" {
+            package "xaml" {
+                class "cs"
+            }
+        }
+        package "AppShell" {
+            package "xaml" {
+                class "cs"
+            }
+        }
+    }
+    }
+    together {
+        package "Views" {
+            class "ModelIndex"
+        }
+
+        package "ViewModels" {
+            class "BaseViewModel"
+        }
+    }
+    }
+
+    package "Services"  {
+        together {
+        class "ModelService" {
+        }
+        class "LibraryService" {
+        }
+        class "PlaygroundService" {
+        }
+        class "DataService" {
+        }
+        class "SettingsService" {
+        }
+        }
+    }
+    
+    
+    
+    
+
+}
+
+' Relationships
+ModelService --> ModelRouter : communicates with
+LibraryService --> LibraryRouter : communicates with
+PlaygroundService --> PlaygroundRouter : communicates with
+DataService --> DataRouter : communicates with
+SettingsService --> SettingsRouter : communicates with
+
+'App --> AppShell : manages
+'AppShell --> Views : navigates to
+' Views --> Services : uses
+Views --> ViewModels : uses
+ViewModels --> Services : uses
+
+@enduml
