@@ -5,7 +5,7 @@
              BackgroundColor="#F2F2F2">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="Fine-tune Vision Models" 
+            <Label Text="Fine-tune YOLO Models" 
                    FontSize="24" 
                    FontAttributes="Bold" 
                    TextColor="#333333"/>
