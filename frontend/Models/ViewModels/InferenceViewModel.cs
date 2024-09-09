@@ -1,226 +1,104 @@
-using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Threading.Tasks;
-using frontend.Models;
 using frontend.Services;
-using Microsoft.Maui.Controls;
-using System.Linq;
 using System.Text.Json.Serialization;
 using frontend.Views;
 using System.Net.WebSockets;
-using System.Threading;
 using System.Text;
-using OpenCvSharp;
-using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace frontend.Models.ViewModels
 {
-    public class InferenceViewModel : INotifyPropertyChanged
+    public partial class InferenceViewModel : ObservableObject
     {
-        private ImagePopupView _imagePopUp;
         private readonly ModelService _modelService;
-        private Model _model;
-        public Model Model
-        {
-            get => _model;
-            set { SetProperty(ref _model, value); }
-        }
 
-        private string _inputText;
-        public string InputText
-        {
-            get => _inputText;
-            set 
-            {
-                // Normalize line endings
-                // var normalizedText = value?.Replace("\r\n", "\n").Replace("\r", "\n");
-                // SetProperty(ref _inputText, normalizedText);
+        [ObservableProperty]
+        private Model model;
 
-                // No normalization - we can use the method NormalizeLineEndings below in the format section...
-                SetProperty(ref _inputText, value); 
-            }
-        }
+        [ObservableProperty]
+        private string inputText;
 
-        private string _outputText;
-        public string OutputText
-        {
-            get => _outputText;
-            set { SetProperty(ref _outputText, FormatOutputText(value)); }
-        }
+        [ObservableProperty]
+        private string outputText;
 
-        private string _selectedFilePath;
-        public string SelectedFilePath
-        {
-            get => _selectedFilePath;
-            set { SetProperty(ref _selectedFilePath, value); }
-        }
+        [ObservableProperty]
+        private string selectedFilePath;
 
-        private string _rawJsonText;
-        public string RawJsonText
-        {
-            get => _rawJsonText;
-            set { SetProperty(ref _rawJsonText, value); }
-        }
+        [ObservableProperty]
+        private string rawJsonText;
 
-        private bool _isViewImageOutputButtonVisible;
-        public bool IsViewImageOutputButtonVisible
-        {
-            get => _isViewImageOutputButtonVisible;
-            set { SetProperty(ref _isViewImageOutputButtonVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isViewImageOutputButtonVisible;
 
-        private bool _isOutputTextVisible;
-        public bool IsOutputTextVisible
-        {
-            get => _isOutputTextVisible;
-            set { SetProperty(ref _isOutputTextVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isOutputTextVisible;
 
-        private bool _isChatHistoryVisible;
-        public bool IsChatHistoryVisible
-        {
-            get => _isChatHistoryVisible;
-            set { SetProperty(ref _isChatHistoryVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isChatHistoryVisible;
 
-        private bool _isChatbotVisible;
-        public bool IsChatbotVisible
-        {
-            get => _isChatbotVisible;
-            set { SetProperty(ref _isChatbotVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isChatbotVisible;
 
-        private bool _isInputFrameVisible;
-        public bool IsInputFrameVisible
-        {
-            get => _isInputFrameVisible;
-            set { SetProperty(ref _isInputFrameVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isInputFrameVisible;
 
-        private bool _isOutputFrameVisible;
-        public bool IsOutputFrameVisible
-        {
-            get => _isOutputFrameVisible;
-            set { SetProperty(ref _isOutputFrameVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isOutputFrameVisible;
 
-        private bool _isRunInferenceButtonVisible;
-        public bool IsRunInferenceButtonVisible
-        {
-            get => _isRunInferenceButtonVisible;
-            set { SetProperty(ref _isRunInferenceButtonVisible, value); }
-        }
+        [ObservableProperty]
+        private bool isRerankerInputVisible;
 
-        private ObservableCollection<ChatMessage> _chatHistory;
-        public ObservableCollection<ChatMessage> ChatHistory
-        {
-            get => _chatHistory;
-            set { SetProperty(ref _chatHistory, value); }
-        }
+        [ObservableProperty]
+        private bool isRunInferenceButtonVisible;
 
-        // Add these properties
-        private bool _isAudioPlayerVisible;
-        public bool IsAudioPlayerVisible
-        {
-            get => _isAudioPlayerVisible;
-            set
-            {
-                _isAudioPlayerVisible = value;
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty]
+        private bool isAudioPlayerVisible;
 
-        private string _audioSource;
-        public string AudioSource
-        {
-            get => _audioSource;
-            set
-            {
-                _audioSource = value;
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty]
+        private string audioSource;
 
-        private bool _isSecondaryOutputVisible = false;
-        public bool IsSecondaryOutputVisible
-        {
-            get => _isSecondaryOutputVisible;
-            set
-            {
-                if (SetProperty(ref _isSecondaryOutputVisible, value))
-                {
-                    OnPropertyChanged(nameof(IsPrimaryOutputVisible));
-                    System.Diagnostics.Debug.WriteLine($"IsSecondaryOutputVisible changed to: {value}");
-                    
-                    // Ensure JsonOutputText is not null when switching to JSON view
-                    if (value && string.IsNullOrEmpty(JsonOutputText))
-                    {
-                        JsonOutputText = "No data available. Please run inference first.";
-                    }
-                }
-            }
-        }
+        [ObservableProperty]
+        private bool isSecondaryOutputVisible = false;
 
         public bool IsPrimaryOutputVisible => !IsSecondaryOutputVisible;
 
-        private string _jsonOutputText = "No data available. Please run inference first.";
-        public string JsonOutputText
-        {
-            get => _jsonOutputText;
-                set => SetProperty(ref _jsonOutputText, value ?? "No data available.");
-        }
+        [ObservableProperty]
+        private string jsonOutputText = "No data available. Please run inference first.";
 
-        private ImageSource _processedImageSource;
-        public ImageSource ProcessedImageSource
-        {
-            get => _processedImageSource;
-            set => SetProperty(ref _processedImageSource, value);
-        }
+        [ObservableProperty]
+        private ImageSource processedImageSource;
 
-        private bool _isProcessedImageVisible;
-        public bool IsProcessedImageVisible
-        {
-            get => _isProcessedImageVisible;
-            set => SetProperty(ref _isProcessedImageVisible, value);
-        }
+        [ObservableProperty]
+        private bool isProcessedImageVisible;
 
-        private bool _isPreviewImageVisible;
-        public bool IsPreviewImageVisible
-        {
-            get => _isPreviewImageVisible;
-            set => SetProperty(ref _isPreviewImageVisible, value);
-        }
+        [ObservableProperty]
+        private bool isPreviewImageVisible;
 
-        private bool _isPreviewVideoVisible;
-        public bool IsPreviewVideoVisible
-        {
-            get => _isPreviewVideoVisible;
-            set => SetProperty(ref _isPreviewVideoVisible, value);
-        }
+        [ObservableProperty]
+        private bool isPreviewVideoVisible;
 
-        private ImageSource _previewImageSource;
-        public ImageSource PreviewImageSource
-        {
-            get => _previewImageSource;
-            set => SetProperty(ref _previewImageSource, value);
-        }
+        [ObservableProperty]
+        private ImagePopupView imagePopUp;
 
-        private string _previewVideoSource;
-        public string PreviewVideoSource
-        {
-            get => _previewVideoSource;
-            set => SetProperty(ref _previewVideoSource, value);
-        }
+        [ObservableProperty]
+        private ImageSource previewImageSource;
+
+        [ObservableProperty]
+        private string previewVideoSource;
+
+        [ObservableProperty]
+        private string rerankerQuery;
+
+        public ObservableCollection<Passage> RerankerPassages { get; } = new();
+
+        public ObservableCollection<ChatMessage> ChatHistory { get; } = new();
 
         public InferenceViewModel(Model model, ModelService modelService)
         {
-            _model = model;
+            Model = model;
             _modelService = modelService;
-            ChatHistory = new ObservableCollection<ChatMessage>();
             IsSecondaryOutputVisible = false; // Ensure it's set to false initially
             JsonOutputText = "No data available. Please run inference first.";
         }
@@ -320,16 +198,16 @@ namespace frontend.Models.ViewModels
                 switch (Model.PipelineTag?.ToLower())
                 {
                     // ------------------------------------------- INPUT FORMAT CASE SWITCH ---------------------------- (See input format section below)
-                    
+
                     // ------------------------- COMPUTER VISION MODELS -------------------------
                     case "object-detection":
-                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        if (string.IsNullOrEmpty(SelectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image or video file.", "OK");
                             return;
                         }
                         string[] videoExtensions = { ".mp4", ".mov", ".wmv", ".gif" };
-                        if (videoExtensions.Contains(Path.GetExtension(_selectedFilePath).ToLower()))
+                        if (videoExtensions.Contains(Path.GetExtension(SelectedFilePath).ToLower()))
                         {
                             IsOutputTextVisible = true;
                             await RunVideoInference();
@@ -339,33 +217,47 @@ namespace frontend.Models.ViewModels
                         {
                             IsOutputTextVisible = false;
                         }
-                        data = new { image_path = _selectedFilePath };
+                        data = new { image_path = SelectedFilePath };
                         break;
                     case "image-segmentation":
-                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        if (string.IsNullOrEmpty(SelectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file.", "OK");
                             return;
                         }
-                        data = new { payload = _selectedFilePath };
+                        data = new { payload = SelectedFilePath };
                         break;
                     case "zero-shot-object-detection":
-                        if (string.IsNullOrEmpty(_selectedFilePath) || string.IsNullOrEmpty(InputText))
+                        if (string.IsNullOrEmpty(SelectedFilePath) || string.IsNullOrEmpty(InputText))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an image file and enter text.", "OK");
                             return;
                         }
-                        data = new { payload = new { image = _selectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
+                        data = new { payload = new { image = SelectedFilePath, text = InputText.Split(',').Select(t => t.Trim()).ToList() } };
                         break;
 
                     // ------------------------- NLP MODELS -------------------------
 
                     case "text-classification":
-                        data = new { payload = InputText };
+                        if (Model.IsReranker)
+                        {
+                            data = new
+                            {
+                                payload = RerankerPassages.Select(p => new
+                                {
+                                    text = RerankerQuery,
+                                    text_pair = p.Content
+                                }).ToList()
+                            };
+                        }
+                        else
+                        {
+                            data = new { payload = InputText };
+                        }
                         System.Diagnostics.Debug.WriteLine($"Text classification data: {JsonSerializer.Serialize(data)}");
                         break;
                     case "zero-shot-classification":
-                        data = new { text = InputText };
+                        data = new { payload = InputText };
                         break;
                     case "translation":
                         var (translationPayload, originalStructure) = FormatTranslationInput(InputText);
@@ -376,20 +268,20 @@ namespace frontend.Models.ViewModels
                         data = new { payload = InputText };
                         break;
                     case "speech-to-text":
-                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        if (string.IsNullOrEmpty(SelectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an audio file.", "OK");
                             return;
                         }
-                        data = new { file_path = _selectedFilePath };
+                        data = new { file_path = SelectedFilePath };
                         break;
                     case "automatic-speech-recognition":
-                        if (string.IsNullOrEmpty(_selectedFilePath))
+                        if (string.IsNullOrEmpty(SelectedFilePath))
                         {
                             await Application.Current.MainPage.DisplayAlert("Error", "Please select an audio file.", "OK");
                             return;
                         }
-                        data = new { payload = _selectedFilePath };
+                        data = new { payload = SelectedFilePath };
                         break;
 
                     // ------------------------- OTHER -------------------------
@@ -416,6 +308,7 @@ namespace frontend.Models.ViewModels
 
                 if (result.TryGetValue("data", out var dataValue))
                 {
+                    System.Diagnostics.Debug.WriteLine($"dataValue type: {dataValue?.GetType()}");
                     RawJsonText = FormatJsonString(dataValue);
                     // Store raw JSON output for alt view
                     JsonOutputText = FormatJsonString(dataValue) ?? "No data available.";
@@ -449,6 +342,7 @@ namespace frontend.Models.ViewModels
                                     var audioBytes = Convert.FromBase64String(audioContentBase64);
                                     var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
                                     await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                                    System.Diagnostics.Debug.WriteLine($"Audio file saved to: {tempFilePath}");
                                     AudioSource = tempFilePath;
                                     IsAudioPlayerVisible = true;
                                 }
@@ -477,7 +371,18 @@ namespace frontend.Models.ViewModels
                             }
                             break;
                         case "text-classification":
-                            OutputText = FormatTextClassificationOutput(dataValue);
+                            if (Model.IsReranker)
+                            {
+                                OutputText = FormatRerankerOutput(dataValue, RerankerPassages);
+                            }
+                            else
+                            {
+                                OutputText = FormatTextClassificationOutput(dataValue);
+                            }
+                            break;
+
+                        case "zero-shot-classification":
+                            OutputText = FormatZeroShotTextClassificationOutput(dataValue);
                             break;
 
                         // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
@@ -571,15 +476,13 @@ namespace frontend.Models.ViewModels
                 ChatHistory.Add(new ChatMessage { Role = "user", Content = message });
 
                 await SendMessageToChatbot(message);
-                
-                // Notify the view that the chat history has been updated
-                OnPropertyChanged(nameof(ChatHistory));
+
             }
         }
 
         public void SetImagePopup(ImagePopupView imagePopup)
         {
-            _imagePopUp = imagePopup;
+            ImagePopUp = imagePopup;
         }
 
 
@@ -588,21 +491,21 @@ namespace frontend.Models.ViewModels
 
         private async Task RunVideoInference()
         {
-            using var videoCapture = new OpenCvSharp.VideoCapture(_selectedFilePath);
+            using var videoCapture = new OpenCvSharp.VideoCapture(SelectedFilePath);
             var cts = new CancellationTokenSource();
 
             try
             {
-                var frameInterval = 2; 
-                var resizeFactor = 0.5; 
+                var frameInterval = 2;
+                var resizeFactor = 0.5;
 
                 await _modelService.PredictLive(
-                    _model.ModelId,
+                    Model.ModelId,
                     async (webSocket, token) =>
                     {
                         int frameCount = 0;
                         while (!token.IsCancellationRequested)
-                        {   
+                        {
                             using var frame = new OpenCvSharp.Mat();
                             if (!videoCapture.Read(frame))
                                 break;
@@ -610,7 +513,7 @@ namespace frontend.Models.ViewModels
                             frameCount++;
                             if (frameCount % frameInterval != 0)
                                 continue;
-                            
+
                             var resizedFrame = frame.Resize(new OpenCvSharp.Size(), resizeFactor, resizeFactor);
                             var jpegData = resizedFrame.ImEncode(".jpg");
 
@@ -620,7 +523,7 @@ namespace frontend.Models.ViewModels
                             var response = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
                             var predictionJson = Encoding.UTF8.GetString(buffer, 0, response.Count);
                             var prediction = JsonSerializer.Deserialize<Dictionary<string, object>>(predictionJson);
-                            
+
                             Device.BeginInvokeOnMainThread(() =>
                             {
                                 var newPrediction = JsonSerializer.Serialize(prediction, new JsonSerializerOptions { WriteIndented = true });
@@ -683,8 +586,8 @@ namespace frontend.Models.ViewModels
                     }
                     else if (dataValue is Dictionary<string, object> responseDict)
                     {
-                        assistantMessage = responseDict.TryGetValue("response", out var responseValue) 
-                            ? responseValue?.ToString() 
+                        assistantMessage = responseDict.TryGetValue("response", out var responseValue)
+                            ? responseValue?.ToString()
                             : $"Unexpected response format: {JsonSerializer.Serialize(responseDict)}";
                     }
                     else
@@ -715,7 +618,7 @@ namespace frontend.Models.ViewModels
         // ------------------------- FORMATTING METHODS ------------------------- (See case switch above in run inference method)
 
         // INPUT FORMATS
-        
+
         // General methods:
 
         private string NormalizeLineEndings(string text)
@@ -769,7 +672,7 @@ namespace frontend.Models.ViewModels
 
             text = text.Replace("\\n", "\n");
             text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
-            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match =>
                 $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
 
             return text;
@@ -779,12 +682,46 @@ namespace frontend.Models.ViewModels
 
         // CLASSIFICATION MODELS OPTION 1
 
-        private string FormatTextClassificationOutput(object dataValue)
+        private string FormatTextClassificationOutput(Object dataValue)
         {
             if (dataValue == null || !(dataValue is JsonElement jsonElement))
                 return "No data available.";
 
+            if (jsonElement.ValueKind == JsonValueKind.Null)
+            {
+                return "No data available.";
+            }
+            else if (jsonElement.ValueKind == JsonValueKind.Array)
+            {
+                var sb = new StringBuilder();
+                foreach (var element in jsonElement.EnumerateArray())
+                {
+                    sb.AppendLine(FormatSingleTextClassificationOutput(element));
+                }
+                return sb.ToString().TrimEnd();
+            }
+            else if (jsonElement.ValueKind == JsonValueKind.Object)
+            {
+                return FormatSingleTextClassificationOutput(jsonElement);
+            }
+            return "Invalid data format.";
+        }
+
+        private string FormatSingleTextClassificationOutput(JsonElement jsonElement)
+        {
             var sb = new StringBuilder();
+
+            if (jsonElement.TryGetProperty("label", out var label))
+                sb.AppendLine($"Label: {label}");
+
+            if (jsonElement.TryGetProperty("score", out var score))
+            {
+                if (score.ValueKind == JsonValueKind.Number)
+                {
+                    double scoreValue = score.GetDouble();
+                    sb.AppendLine($"Confident Level: {scoreValue:P2}");
+                }
+            }
 
             if (jsonElement.TryGetProperty("sentiment", out var sentiment))
                 sb.AppendLine($"Sentiment: {FormatSentiment(sentiment)}");
@@ -813,13 +750,13 @@ namespace frontend.Models.ViewModels
             return sb.ToString().TrimEnd();
         }
 
-        private string FormatSentiment(JsonElement sentiment) => 
-            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label) 
-            ? label.GetString() 
+        private string FormatSentiment(JsonElement sentiment) =>
+            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label)
+            ? label.GetString()
             : "N/A";
 
-        private string FormatEmotion(JsonElement emotion) => 
-            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo) 
+        private string FormatEmotion(JsonElement emotion) =>
+            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo)
             ? string.Join(", ", emo.EnumerateObject().OrderByDescending(p => p.Value.GetDouble()).Take(2).Select(p => $"{p.Name} ({p.Value.GetDouble():F2})"))
             : "N/A";
 
@@ -840,6 +777,27 @@ namespace frontend.Models.ViewModels
 
         private string FormatSemanticRoles(JsonElement semanticRoles) =>
             semanticRoles.GetArrayLength() > 0 ? "Present" : "None found";
+
+    private string FormatRerankerOutput(object dataValue, ObservableCollection<Passage> passages)
+    {
+        var jsonElement = (JsonElement)dataValue;
+        var dataList = jsonElement.EnumerateArray().Select((element, index) => new
+        {
+            Passage = passages[index],
+            Score = element.GetProperty("score").GetDouble()
+        }).OrderByDescending(x => x.Score).ToList();
+
+        var sb = new StringBuilder();
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            sb.AppendLine($"Rank {i + 1}:");
+            sb.AppendLine($"passage: \"{dataList[i].Passage.Content}\"");
+            sb.AppendLine($"relevancy score: {dataList[i].Score}");
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
 
         // CLASSIFICATION MODELS END OPTION 1
 
@@ -917,16 +875,56 @@ namespace frontend.Models.ViewModels
 
         // Case specific methods:
 
+        private string FormatZeroShotTextClassificationOutput(object dataValue)
+        {
+            if (dataValue == null)
+                return "No data available.";
+
+            var jsonElement = dataValue as JsonElement? ?? JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(dataValue));
+
+            if (jsonElement.ValueKind == JsonValueKind.Null)
+                return "No data available.";
+
+            var sb = new StringBuilder();
+
+            if (jsonElement.TryGetProperty("labels", out var labels) && labels.ValueKind == JsonValueKind.Array &&
+                jsonElement.TryGetProperty("scores", out var scores) && scores.ValueKind == JsonValueKind.Array)
+            {
+                var labelScorePairs = labels.EnumerateArray()
+                    .Zip(scores.EnumerateArray(), (label, score) => new { Label = label.GetString(), Score = score.GetDouble() })
+                    .OrderByDescending(pair => pair.Score)
+                    .ToList();
+
+                if (labelScorePairs.Any())
+                {
+
+                    // Add the most relevant label and score at the top
+                    var mostRelevant = labelScorePairs.First();
+                    sb.AppendLine($"Most Relevant: {mostRelevant.Label} ({mostRelevant.Score:P1})"); // Show as percentage with 1 decimal place
+
+                    sb.AppendLine();
+                    // Append each label with its corresponding score
+                    foreach (var pair in labelScorePairs)
+                    {
+                        sb.AppendLine($"{pair.Label} : {pair.Score:P2}");
+                    }
+                }
+            }
+
+            return sb.ToString().TrimEnd();
+        }
+
+
 
         private string FormatTranslationOutput(object dataValue, List<string> originalStructure)
         {
             System.Diagnostics.Debug.WriteLine($"FormatTranslationOutput received: {JsonSerializer.Serialize(dataValue)}");
-            
+
             if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
             {
                 var translatedLines = jsonElement.EnumerateArray()
-                    .Select(element => element.TryGetProperty("translation_text", out var translationText) 
-                        ? translationText.GetString() 
+                    .Select(element => element.TryGetProperty("translation_text", out var translationText)
+                        ? translationText.GetString()
                         : null)
                     .Where(text => text != null)
                     .ToList();
@@ -950,41 +948,33 @@ namespace frontend.Models.ViewModels
                 System.Diagnostics.Debug.WriteLine($"Formatted translation result: {formattedResult}");
                 return formattedResult;
             }
-            
+
             System.Diagnostics.Debug.WriteLine("Translation data not in expected format");
             return "No translation available.";
         }
 
-
-
-        // INotifyPropertyChanged implementation ----------------------------------------------------------------------------------
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        [RelayCommand]
+        private void AddPassage()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            RerankerPassages.Add(new Passage { Content = string.Empty });
         }
 
-        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        [RelayCommand]
+        private void RemovePassage(Passage passage)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
+            RerankerPassages.Remove(passage);
         }
-
     }
-
-
 
     // -------------------------- LOCAL METHODS -------------------------------------------------------------------------------
 
 
-    public class ChatMessage
+    public partial class ChatMessage : ObservableObject
     {
-        public string Role { get; set; }
-        public string Content { get; set; }
+        [ObservableProperty]
+        public string role;
+        [ObservableProperty]
+        public string content;
         public string FormattedContent => FormatContent(Content);
 
         private string FormatContent(string text)
@@ -993,7 +983,7 @@ namespace frontend.Models.ViewModels
 
             text = text.Replace("\\n", "\n");
             text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
-            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match =>
                 $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
 
             return text;
@@ -1005,6 +995,11 @@ namespace frontend.Models.ViewModels
         [JsonPropertyName("image_url")]
         public string ImageUrl { get; set; }
     }
+
+    public partial class Passage : ObservableObject
+    {
+        [ObservableProperty]
+        private string? content;
+    }
 }
 
-    

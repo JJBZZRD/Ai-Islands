@@ -3,14 +3,13 @@ import torch
 import transformers
 import logging
 import json
-import subprocess
 import shutil
 
 from accelerate import Accelerator
 from PIL import Image
 
 from backend.core.config import ROOT_DIR
-from backend.utils.helpers import get_next_suffix
+from backend.utils.helpers import get_next_suffix, execute_script
 from backend.utils.process_audio_out import process_audio_output
 from backend.utils.process_vis_out import process_vision_output
 from .base_model import BaseModel
@@ -179,8 +178,9 @@ class TransformerModel(BaseModel):
             logger.info(f"Pipeline created successfully for task: {pipeline_tag}")
             logger.info(f"Model loaded successfully from {model_dir}")
             
-            if self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
-                self.model_instance_data.append(self.config.get("system_prompt"))
+            if self.pipeline.task in ['text-generation'] :
+                if self.config.get("system_prompt"):
+                    self.model_instance_data.append(self.config.get("system_prompt"))
                 if self.config.get("example_conversation"):
                     self.model_instance_data += self.config.get("example_conversation")
         except Exception as e:
@@ -258,7 +258,7 @@ class TransformerModel(BaseModel):
                 output = self.pipeline(data["payload"], **pipeline_config)
             # For other tasks, the pipeline will be called with the payload
             
-            elif self.pipeline.task in ['text-generation'] and self.config.get("system_prompt"):
+            elif self.pipeline.task in ['text-generation']:
                 
                 user_prompt = self.config.get("user_prompt").copy()
                 for key in user_prompt:
@@ -317,13 +317,7 @@ class TransformerModel(BaseModel):
         with open("data/temp_train_args.json", 'w') as f:
                 json.dump(script_args, f, indent=4)
 
-        if os.name == 'nt':  # Windows
-            command = ['cmd.exe', '/c', 'start', '/wait', 'cmd.exe', '/c', 'python', script_path]
-        else:  # Unix-like systems
-            command = ['gnome-terminal', '--wait', '--', 'python', script_path]
-        
-        process = subprocess.Popen(command)
-        process.wait()  # Wait for the process to complete
+        execute_script(script_path) 
 
         temp_output_dir = os.path.join(ROOT_DIR, "temp")
         

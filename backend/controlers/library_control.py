@@ -178,8 +178,18 @@ class LibraryControl:
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         if model_id in library:
             library[model_id]['config'] = self._merge_configs(library[model_id]['config'], new_config)
+            
+            # Check if the new config is the same as the default config
+            default_config = self.get_model_info_index(model_id)
+            if library[model_id]['config'] == default_config['config']:
+                library[model_id]['is_customised'] = False
+            else:
+                library[model_id]['is_customised'] = True
+            
+            # Update the library
             JSONHandler.write_json(DOWNLOADED_MODELS_PATH, library)
             logger.info(f"Configuration updated for model {model_id}")
+            
             return library[model_id]['config']
         else:
             logger.error(f"Model {model_id} not found in library")
@@ -306,6 +316,8 @@ class LibraryControl:
 
         # Update the library model info with the index config
         library_model_info['config'] = index_config
+        # Reset the customisation flag
+        library_model_info['is_customised'] = False
 
         # Update the library
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)

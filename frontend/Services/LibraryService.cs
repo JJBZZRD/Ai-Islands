@@ -18,8 +18,11 @@ namespace frontend.Services
 
         public LibraryService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseUrl);
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromMilliseconds(-1)
+            };
         }
 
 

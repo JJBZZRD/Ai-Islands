@@ -12,6 +12,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using CommunityToolkit.Maui.Views;
+using System.Diagnostics;
 
 namespace frontend.Views
 {
@@ -82,7 +83,15 @@ namespace frontend.Views
 
                 // ------------------------- NLP MODELS -------------------------
                 case "text-classification":
-                    InputContainer.Children.Add(CreateTextInputUI());
+                    if (_viewModel.Model.IsReranker)
+                    {
+                        _viewModel.IsRerankerInputVisible = true;
+                        Debug.WriteLine($"_viewModel.Model.IsReranker: {_viewModel.Model.IsReranker}");
+                    }
+                    else
+                    {
+                        InputContainer.Children.Add(CreateTextInputUI());
+                    }
                     _viewModel.IsOutputTextVisible = true;
                     _viewModel.IsChatHistoryVisible = false;
                     _viewModel.IsInputFrameVisible = true;
@@ -132,7 +141,7 @@ namespace frontend.Views
                     _viewModel.IsOutputFrameVisible = true;
                     _viewModel.IsRunInferenceButtonVisible = true;
                     break;
-            
+
                 // ------------------------- LLM MODELS -------------------------        
 
                 case "text-generation":
@@ -153,7 +162,7 @@ namespace frontend.Views
                         _viewModel.IsRunInferenceButtonVisible = true;
                     }
                     break;
-                
+
 
 
 
@@ -171,7 +180,7 @@ namespace frontend.Views
         private View CreateFileSelectionUI(string buttonText)
         {
             var instructionText = "Enter input data and 'Submit' to preview the output.";
-            
+
             switch (_viewModel.Model.PipelineTag?.ToLower())
             {
                 case "object-detection":
@@ -189,7 +198,7 @@ namespace frontend.Views
                 case "automatic-speech-recognition":
                     instructionText = "Select audio file and click 'Submit' to preview the output.";
                     break;
-                // other cases
+                    // other cases
             }
 
             var fileButton = new Button
@@ -240,7 +249,7 @@ namespace frontend.Views
                 HeightRequest = 150,
                 Text = _viewModel.InputText
             };
-            editor.TextChanged += (sender, e) => 
+            editor.TextChanged += (sender, e) =>
             {
                 _viewModel.InputText = ((Editor)sender)?.Text ?? string.Empty;
                 System.Diagnostics.Debug.WriteLine($"Text input changed. New value: '{_viewModel.InputText}'");
@@ -256,7 +265,7 @@ namespace frontend.Views
                 ChatInputEntry.Text = string.Empty;
 
                 await _viewModel.SendMessage(userMessage);
-                
+
                 // Scroll to the bottom of the chat history
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -269,6 +278,12 @@ namespace frontend.Views
         {
             System.Diagnostics.Debug.WriteLine($"OnRunInferenceClicked called. ViewModel.InputText: '{_viewModel.InputText}'");
             await _viewModel.RunInference();
+
+            // Reset the MediaElement source to ensure it reloads the new audio file
+            if (_viewModel.IsAudioPlayerVisible)
+            {
+                AudioPlayer.Source = _viewModel.AudioSource; // Set the new source
+            }
         }
 
         private async void OnViewImageOutputClicked(object sender, EventArgs e)
@@ -320,7 +335,7 @@ namespace frontend.Views
                     _viewModel.IsSecondaryOutputVisible = e.Value;
                     SecondaryOutputToggle.IsToggled = e.Value;
                     System.Diagnostics.Debug.WriteLine($"Primary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
-                    
+
                     // Add this check to ensure JsonOutputText is not null
                     if (e.Value && string.IsNullOrEmpty(_viewModel.JsonOutputText))
                     {
@@ -347,7 +362,7 @@ namespace frontend.Views
                     _viewModel.IsSecondaryOutputVisible = e.Value;
                     PrimaryOutputToggle.IsToggled = e.Value;
                     System.Diagnostics.Debug.WriteLine($"Secondary output toggle changed. IsSecondaryOutputVisible: {_viewModel.IsSecondaryOutputVisible}");
-                    
+
                 }
                 else
                 {
