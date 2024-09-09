@@ -126,7 +126,7 @@ namespace frontend.Views
                 {
                     _selectedZipPath = value;
                     OnPropertyChanged(nameof(SelectedZipPath));
-                    Preferences.Set(ZipPathPreferenceKey, _selectedZipPath); // Persist the selected path
+                    Preferences.Set(ZipPathPreferenceKey, _selectedZipPath); 
                     UpdateSelectedZipLabel(); // Update the label whenever the path changes
 
                     System.Diagnostics.Debug.WriteLine($"SelectedZipPath updated to: {_selectedZipPath}");
@@ -140,10 +140,116 @@ namespace frontend.Views
         {
             Parameters = new ObservableCollection<Parameter>
             {
-                new Parameter { Name = "Epochs", Value = _model.FineTuningParameters?.GetValueOrDefault("Epochs", "10") ?? "10", Description = "The number of complete passes through the training dataset. Starting with a smaller number of epochs (e.g., 10) is recommended, as it helps prevent overfitting and allows for iterative improvement.", Parent = this },
-                new Parameter { Name = "Batch size", Value = _model.FineTuningParameters?.GetValueOrDefault("Batch size", "16") ?? "16", Description = "The number of training examples utilised in one iteration. A larger batch size can lead to faster training but may require more memory. It's often a trade-off between speed and generalization performance. Start with a smaller batch size (e.g., 16 or 32) and adjust based on your hardware capabilities and model performance.", Parent = this },
-                new Parameter { Name = "Learning rate", Value = _model.FineTuningParameters?.GetValueOrDefault("Learning rate", "0.001") ?? "0.001", Description = "The step size at each iteration while moving toward a minimum of the loss function. It controls how quickly or slowly a neural network model learns a problem. A high learning rate can cause the model to converge too quickly to a suboptimal solution, while a low learning rate can result in a slow learning process. It's often recommended to start with a small value (e.g., 0.001) and adjust based on training performance.", Parent = this }
+                new Parameter { Name = "Epochs", Value = _model.FineTuningParameters?.GetValueOrDefault("Epochs", "10") ?? "10", Description = "The number of complete passes through the training dataset.", Parent = this },
+                new Parameter { Name = "Batch size", Value = _model.FineTuningParameters?.GetValueOrDefault("Batch size", "16") ?? "16", Description = "The number of training examples used in one iteration.", Parent = this },
+                new Parameter { Name = "Learning rate", Value = _model.FineTuningParameters?.GetValueOrDefault("Learning rate", "0.001") ?? "0.001", Description = "The step size at each iteration while moving toward a minimum of the loss function.", Parent = this }
             };
+
+            var grid = new Grid
+            {
+                RowDefinitions =
+                {
+                    new RowDefinition { Height = GridLength.Auto },
+                    new RowDefinition { Height = GridLength.Auto },
+                    new RowDefinition { Height = GridLength.Auto }
+                },
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Auto }, 
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }, 
+                    new ColumnDefinition { Width = GridLength.Auto } 
+                }
+            };
+
+            grid.Add(new Label { Text = "Epochs", VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, Margin = new Thickness(0, 0, 10, 0) }, 0, 0); 
+
+            var epochsEntry = new Entry { Text = "10", TextColor = Colors.Black, BackgroundColor = Colors.White, Margin = new Thickness(0), WidthRequest = 300 }; 
+            var epochsEntryFrame = new Frame
+            {
+                Content = epochsEntry,
+                BorderColor = Colors.Black, 
+                CornerRadius = 5,
+                Padding = new Thickness(0),
+                HasShadow = false,
+                Margin = new Thickness(0, 5, 0, 5) 
+            };
+            grid.Add(epochsEntryFrame, 1, 0);
+
+            var epochsInfoButton = new Button
+            {
+                Text = "?",
+                FontSize = 12,
+                WidthRequest = 25,
+                HeightRequest = 25,
+                CornerRadius = 12,
+                Padding = new Thickness(0),
+                Margin = new Thickness(10, 0, 0, 0),
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
+                TextColor = Color.FromArgb("#333333"),
+                VerticalOptions = LayoutOptions.Center
+            };
+            epochsInfoButton.Clicked += (s, e) => ShowInfoPopup("Epochs", "The number of complete passes through the training dataset.");
+            grid.Add(epochsInfoButton, 2, 0);
+
+            grid.Add(new Label { Text = "Batch size", VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, Margin = new Thickness(0, 0, 10, 0) }, 0, 1); 
+
+            var batchSizeEntry = new Entry { Text = "16", TextColor = Colors.Black, BackgroundColor = Colors.White, Margin = new Thickness(0), WidthRequest = 300 }; 
+            var batchSizeEntryFrame = new Frame
+            {
+                Content = batchSizeEntry,
+                BorderColor = Colors.Black, 
+                CornerRadius = 5,
+                Padding = new Thickness(0), 
+                HasShadow = false,
+                Margin = new Thickness(0, 5, 0, 5) 
+            };
+            grid.Add(batchSizeEntryFrame, 1, 1);
+
+            var batchSizeInfoButton = new Button
+            {
+                Text = "?",
+                FontSize = 12,
+                WidthRequest = 25,
+                HeightRequest = 25,
+                CornerRadius = 12,
+                Padding = new Thickness(0),
+                Margin = new Thickness(10, 0, 0, 0),
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
+                TextColor = Color.FromArgb("#333333"),
+                VerticalOptions = LayoutOptions.Center
+            };
+            batchSizeInfoButton.Clicked += (s, e) => ShowInfoPopup("Batch size", "The number of training examples used in one iteration.");
+            grid.Add(batchSizeInfoButton, 2, 1);
+
+            grid.Add(new Label { Text = "Learning rate", VerticalOptions = LayoutOptions.Center, TextColor = Colors.Black, Margin = new Thickness(0, 0, 10, 0) }, 0, 2); 
+
+            var learningRateEntry = new Entry { Text = "0.001", TextColor = Colors.Black, BackgroundColor = Colors.White, Margin = new Thickness(0), WidthRequest = 300 }; 
+            var learningRateEntryFrame = new Frame
+            {
+                Content = learningRateEntry,
+                BorderColor = Colors.Black, 
+                CornerRadius = 5,
+                Padding = new Thickness(0), 
+                HasShadow = false,
+                Margin = new Thickness(0, 5, 0, 5) 
+            };
+            grid.Add(learningRateEntryFrame, 1, 2);
+
+            var learningRateInfoButton = new Button
+            {
+                Text = "?",
+                FontSize = 12,
+                WidthRequest = 25,
+                HeightRequest = 25,
+                CornerRadius = 12,
+                Padding = new Thickness(0),
+                Margin = new Thickness(10, 0, 0, 0),
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
+                TextColor = Color.FromArgb("#333333"),
+                VerticalOptions = LayoutOptions.Center
+            };
+            learningRateInfoButton.Clicked += (s, e) => ShowInfoPopup("Learning rate", "The step size at each iteration while moving toward a minimum of the loss function.");
+            grid.Add(learningRateInfoButton, 2, 2);
 
             _selectedZipLabel = new Label
             {
@@ -158,8 +264,17 @@ namespace frontend.Views
                 BackgroundColor = Color.FromArgb("#E0E0E0"),
                 TextColor = Color.FromArgb("#333333"),
                 CornerRadius = 5,
-                Margin = new Thickness(0, 10, 0, 10),
+                HorizontalOptions = LayoutOptions.Start,
+                WidthRequest = 320,
                 Command = new Command(async () => await SelectZipFolder())
+            };
+
+            var uploadDatasetLabel = new Label 
+            { 
+                Text = "Upload dataset", 
+                FontSize = 20, 
+                FontAttributes = FontAttributes.Bold, 
+                TextColor = Color.FromArgb("#555555")
             };
 
             var submitVisDatasetButton = new Button
@@ -168,17 +283,56 @@ namespace frontend.Views
                 BackgroundColor = Color.FromArgb("#4CAF50"),
                 TextColor = Colors.White,
                 CornerRadius = 5,
-                Margin = new Thickness(0, 10, 0, 10),
-                IsVisible = true, 
+                Margin = new Thickness(10, 0, 0, 0),
+                HorizontalOptions = LayoutOptions.Start,
+                WidthRequest = 130,
+                IsVisible = true,
                 Command = new Command(async () => await SubmitVisDataset())
             };
 
-            _selectedZipLabel = new Label
+            var buttonGrid = new Grid
             {
-                Text = "No folder selected",
-                TextColor = Color.FromArgb("#555555"),
-                Margin = new Thickness(0, 10, 0, 10)
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
             };
+
+            buttonGrid.Add(selectZipButton, 0, 0); 
+            buttonGrid.Add(submitVisDatasetButton, 1, 0);
+
+            var datasetDescriptionLabel = new Label 
+            { 
+                Text = "Ensure your dataset is uploaded in the correct format:\n• Download the example dataset to view the dataset structure expected by the model.\n• YOLO supports annotations written in .txt files.\n• The content in obj.names are the classes in the correct order; ensure there is no space before, between, or after the classes.\n• The .txt file contains the class index followed by bounding box coordinates (in the range 0-1).",
+                FontSize = 14,
+                TextColor = Color.FromArgb("#555555"),
+                Margin = new Thickness(0, 10, 0, 0)
+            };
+
+            var downloadExampleDatasetButton = new Button
+            {
+                Text = "Download Example Dataset",
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
+                TextColor = Color.FromArgb("#333333"),
+                CornerRadius = 5,
+                HorizontalOptions = LayoutOptions.End,
+                WidthRequest = 210,
+                Command = new Command(async () => await DownloadExampleDataset())
+            };
+
+           
+            var descriptionGrid = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Star }, 
+                    new ColumnDefinition { Width = GridLength.Auto }  
+                }
+            };
+
+            descriptionGrid.Add(uploadDatasetLabel, 0, 0); 
+            descriptionGrid.Add(downloadExampleDatasetButton, 1, 0); 
 
             var saveButton = new Button
             {
@@ -231,14 +385,7 @@ namespace frontend.Views
                                         saveButton
                                     }
                                 },
-                                new CollectionView
-                                {
-                                    ItemsSource = Parameters,
-                                    ItemTemplate = new DataTemplate(() =>
-                                    {
-                                        return CreateParameterEntryWithInfo();
-                                    })
-                                }
+                                grid
                             }
                         }
                     },
@@ -247,34 +394,20 @@ namespace frontend.Views
                         BackgroundColor = Colors.White,
                         Padding = new Thickness(20),
                         CornerRadius = 10,
+                        Margin = new Thickness(0, 20, 0, 0),
                         Content = new VerticalStackLayout
                         {
                             Spacing = 15,
                             Children =
                             {
-                                new Label { Text = "Upload dataset", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#555555") },
-                                new Label 
-                                { 
-                                    Text = "Ensure your dataset are uploaded in the correct format:\n• Download the example dataset to view the dataset structure expected by the model \n• YOLO supports annotation written in .txt file\n• The content in obj.names are the classes in the correct order, ensure there is no space before, between, and after the classes stated\n• Content in .txt file is the class index followed with bounding box coordinate (in the range 0-1)",
-                                    FontSize = 14,
-                                    TextColor = Color.FromArgb("#555555")
-                                },
-                                new Button
-                                {
-                                    Text = "Download Example Dataset",
-                                    BackgroundColor = Color.FromArgb("#E0E0E0"),
-                                    TextColor = Color.FromArgb("#333333"),
-                                    CornerRadius = 5,
-                                    Margin = new Thickness(0, 10, 0, 10),
-                                    Command = new Command(async () => await DownloadExampleDataset())
-                                },
-                                selectZipButton,
-                                _selectedZipLabel, 
-                                submitVisDatasetButton
+                                descriptionGrid, 
+                                datasetDescriptionLabel,
+                                buttonGrid,     
+                                _selectedZipLabel
                             }
-                        }   
+                        }
                     },
-                    _startVisFineTuningButton   
+                    _startVisFineTuningButton
                 }
             };
         }
@@ -360,7 +493,6 @@ namespace frontend.Views
                     return;
                 }
 
-                // Wait for the fine-tuning process to finish
                 process.WaitForExit();
 
                 if (process.ExitCode == 0)
@@ -390,13 +522,12 @@ namespace frontend.Views
             {
                 RowDefinitions =
                 {
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = GridLength.Auto },
                     new RowDefinition { Height = GridLength.Auto }
                 },
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Auto },
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
                     new ColumnDefinition { Width = GridLength.Auto }
                 }
             };
@@ -404,10 +535,33 @@ namespace frontend.Views
             var label = new Label
             {
                 TextColor = Color.FromArgb("#333333"),
-                VerticalOptions = LayoutOptions.Center
+                VerticalOptions = LayoutOptions.Center,
+                Margin = new Thickness(0, 0, 10, 0) 
             };
             label.SetBinding(Label.TextProperty, "Name");
             grid.Add(label, 0, 0);
+
+            var entry = new Entry
+            {
+                TextColor = Color.FromArgb("#333333"),
+                BackgroundColor = Colors.White,
+                VerticalOptions = LayoutOptions.Center,
+                Margin = new Thickness(0, 0, 0, 0) 
+            };
+            entry.SetBinding(Entry.TextProperty, "Value");
+            entry.SetBinding(Entry.PlaceholderProperty, new Binding("Name", stringFormat: "Enter {0}"));
+
+            var entryFrame = new Frame
+            {
+                Content = entry,
+                BorderColor = Colors.Black,
+                CornerRadius = 5,
+                Padding = new Thickness(0),
+                HasShadow = false,
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+
+            grid.Add(entryFrame, 1, 0);
 
             var button = new Button
             {
@@ -417,21 +571,13 @@ namespace frontend.Views
                 HeightRequest = 25,
                 CornerRadius = 12,
                 Padding = new Thickness(0),
-                Margin = new Thickness(5, 0, 0, 0),
+                Margin = new Thickness(10, 0, 0, 0), 
                 BackgroundColor = Color.FromArgb("#E0E0E0"),
-                TextColor = Color.FromArgb("#333333")
+                TextColor = Color.FromArgb("#333333"),
+                VerticalOptions = LayoutOptions.Center
             };
             button.SetBinding(Button.CommandProperty, new Binding("Name", source: null, converter: new InfoButtonCommandConverter(this)));
-            grid.Add(button, 1, 0);
-
-            var entry = new Entry
-            {
-                TextColor = Color.FromArgb("#333333")
-            };
-            entry.SetBinding(Entry.TextProperty, "Value");
-            entry.SetBinding(Entry.PlaceholderProperty, new Binding("Name", stringFormat: "Enter {0}"));
-            grid.Add(entry, 0, 2);
-            Grid.SetColumnSpan(entry, 2);
+            grid.Add(button, 2, 0);
 
             var parameter = new Parameter { Name = "", Value = "", Description = "", Parent = this };
             grid.BindingContext = parameter;
@@ -563,7 +709,6 @@ namespace frontend.Views
                 
                 System.Diagnostics.Debug.WriteLine($"Current DatasetId before deletion: {DatasetId}");
 
-                // Delete the old dataset folder if DatasetId is not null or empty
                 if (!string.IsNullOrEmpty(DatasetId))
                 {
                     DeleteDatasetFolder(DatasetId);
