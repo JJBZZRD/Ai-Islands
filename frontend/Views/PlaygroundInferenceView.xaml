@@ -36,7 +36,7 @@
             </Button.Triggers>
         </Button>
 
-        <!-- Input Frame -->
+        <!-- INPUT FRAME -->
         <Frame Grid.Row="1" Grid.Column="0" BackgroundColor="{AppThemeBinding Light=#F0F4F8, Dark=#38393B}" Padding="0" HasShadow="False" BorderColor="{AppThemeBinding Light=#cccccc, Dark=#444444}">
             <ScrollView VerticalScrollBarVisibility="Always">
                 <VerticalStackLayout Spacing="15" Padding="20">
@@ -54,6 +54,29 @@
                     <VerticalStackLayout x:Name="InputContainer">
                         <!-- Input controls generated in code-behind -->
                     </VerticalStackLayout>
+                    
+                    <!-- Preview Image -->
+                    <Frame IsVisible="{Binding IsPreviewImageVisible}"
+                           Padding="0"
+                           BackgroundColor="Transparent"
+                           BorderColor="Transparent">
+                        <Image x:Name="PreviewImage"
+                               Source="{Binding PreviewImageSource}"
+                               Aspect="AspectFit"
+                               HeightRequest="200"/>
+                    </Frame>
+                    
+                    <!-- Preview Video -->
+                    <Frame IsVisible="{Binding IsPreviewVideoVisible}"
+                           Padding="0"
+                           BackgroundColor="Transparent"
+                           BorderColor="Transparent">
+                        <toolkit:MediaElement x:Name="PreviewVideo"
+                                              Source="{Binding PreviewVideoSource}"
+                                              Aspect="AspectFit"
+                                              HeightRequest="200"
+                                              ShouldShowPlaybackControls="True"/>
+                    </Frame>
                 </VerticalStackLayout>
             </ScrollView>
         </Frame>
