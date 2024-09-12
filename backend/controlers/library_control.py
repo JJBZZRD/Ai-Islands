@@ -178,9 +178,10 @@ class LibraryControl:
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         if model_id in library:
             library[model_id]['config'] = self._merge_configs(library[model_id]['config'], new_config)
+            base_model_id = library[model_id]['base_model']
             
             # Check if the new config is the same as the default config
-            default_config = self.get_model_info_index(model_id)
+            default_config = self.get_model_info_index(base_model_id)
             if library[model_id]['config'] == default_config['config']:
                 library[model_id]['is_customised'] = False
             else:

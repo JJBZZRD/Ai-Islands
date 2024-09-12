@@ -38,6 +38,34 @@ namespace frontend.Views
         public ICommand LoadChainCommand { get; }
         public ICommand InferenceCommand { get; }
 
+        private bool _isPreviewImageVisible;
+        public bool IsPreviewImageVisible
+        {
+            get => _isPreviewImageVisible;
+            set => SetProperty(ref _isPreviewImageVisible, value);
+        }
+
+        private bool _isPreviewVideoVisible;
+        public bool IsPreviewVideoVisible
+        {
+            get => _isPreviewVideoVisible;
+            set => SetProperty(ref _isPreviewVideoVisible, value);
+        }
+
+        private ImageSource _previewImageSource;
+        public ImageSource PreviewImageSource
+        {
+            get => _previewImageSource;
+            set => SetProperty(ref _previewImageSource, value);
+        }
+
+        private string _previewVideoSource;
+        public string PreviewVideoSource
+        {
+            get => _previewVideoSource;
+            set => SetProperty(ref _previewVideoSource, value);
+        }
+
         public PlaygroundInferenceView(Playground playground, PlaygroundService playgroundService, ModelService modelService)
         {
             InitializeComponent();
@@ -341,15 +369,9 @@ namespace frontend.Views
                     var tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp_audio.wav");
                     await File.WriteAllBytesAsync(tempFilePath, audioBytes);
 
-                    if (File.Exists(tempFilePath))
-                    {
-                        AudioPlayer.Source = new Uri(tempFilePath);
-                        IsAudioPlayerVisible = true;
-                    }
-                    else
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Error", "Audio file could not be found or saved.", "OK");
-                    }
+                    AudioPlayer.Source = tempFilePath;
+                    IsAudioPlayerVisible = true;
+
                 }
             }
         }
@@ -495,15 +517,15 @@ namespace frontend.Views
                 var customFileType = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
-                        { DevicePlatform.iOS, new[] { "public.jpeg", "public.png" } },
-                        { DevicePlatform.Android, new[] { "image/jpeg", "image/png" } },
-                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png" } }
+                        { DevicePlatform.iOS, new[] { "public.image", "public.movie" } },
+                        { DevicePlatform.Android, new[] { "image/*", "video/*" } },
+                        { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov", ".wmv", ".avi" } }
                     });
 
                 var result = await FilePicker.PickAsync(new PickOptions
                 {
                     FileTypes = customFileType,
-                    PickerTitle = "Select an image file"
+                    PickerTitle = "Select an image or video file"
                 });
 
                 if (result != null)
@@ -513,6 +535,8 @@ namespace frontend.Views
                     var label = (Label)stack.Children[1];
                     label.Text = result.FileName;
                     label.IsVisible = true;
+
+                    await UpdatePreview(_selectedFilePath);
                 }
             }
             catch (Exception ex)
@@ -761,6 +785,35 @@ namespace frontend.Views
                 await Application.Current.MainPage.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
                 System.Diagnostics.Debug.WriteLine($"Detailed error: {ex}");
             }
+        }
+
+        private async Task UpdatePreview(string filePath)
+        {
+            IsPreviewImageVisible = false;
+            IsPreviewVideoVisible = false;
+
+            if (IsImageFile(filePath))
+            {
+                PreviewImageSource = ImageSource.FromFile(filePath);
+                IsPreviewImageVisible = true;
+            }
+            else if (IsVideoFile(filePath))
+            {
+                PreviewVideoSource = filePath;
+                IsPreviewVideoVisible = true;
+            }
+        }
+
+        private bool IsImageFile(string filePath)
+        {
+            string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            return imageExtensions.Contains(Path.GetExtension(filePath).ToLower());
+        }
+
+        private bool IsVideoFile(string filePath)
+        {
+            string[] videoExtensions = { ".mp4", ".mov", ".wmv", ".avi" };
+            return videoExtensions.Contains(Path.GetExtension(filePath).ToLower());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
