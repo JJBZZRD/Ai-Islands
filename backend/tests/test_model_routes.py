@@ -5,64 +5,77 @@ from backend.api.main import app
 
 client = TestClient(app)
 
-def print_response(test_name, response):
-    print(f"\n{test_name} Response:")
-    print(json.dumps(response.json(), indent=2))
-
 @pytest.mark.order1
 def test_get_model_info_index():
-    response = client.get("/library/get-model-info-index?model_id=ibm/granite-13b-chat-v2")
-    print_response("Get Model Info", response)
+    endpoint = "/library/get-model-info-index"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Get Model Info", response)
     assert response.status_code == 200
 
 @pytest.mark.order2
 def test_download_model():
-    response = client.post("/model/download-model?model_id=ibm/granite-13b-chat-v2")
-    print_response("Download Model", response)
+    endpoint = "/model/download-model"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Download Model", response)
     assert response.status_code == 200
 
 @pytest.mark.order3
 def test_get_model_info_library():
-    response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
-    print_response("Get Model Info", response)
+    endpoint = "/library/get-model-info-library"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Get Model Info", response)
     assert response.status_code == 200
 
 @pytest.mark.order4
 def test_load_model():
-    response = client.post("/model/load?model_id=ibm/granite-13b-chat-v2")
-    print_response("Load Model", response)
+    endpoint = "/model/load"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Load Model", response)
     assert response.status_code == 200
 
 @pytest.mark.order5
 def test_list_active_models():
-    response = client.get("/model/active")
-    print_response("List Active Models", response)
+    endpoint = "/model/active"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
+    # print_response("List Active Models", response)
     assert response.status_code == 200
 
 @pytest.mark.order6
 def test_is_model_loaded():
-    response = client.get("/model/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
-    print_response("Is Model Loaded", response)
+    endpoint = "/model/is-model-loaded"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Is Model Loaded", response)
     assert response.status_code == 200
 
 @pytest.mark.order7
 def test_inference():
-    response = client.post("/model/inference", json={
+    endpoint = "/model/inference"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {"payload": "Which colony produces quantum crystals?"}
     })
-    print_response("Inference", response)
+    # print_response("Inference", response)
     assert response.status_code == 200
 
 @pytest.mark.order8
 def test_configure_model():
+    endpoint = "/model/configure"
+    print(f"\nTesting endpoint: {endpoint}")
+    
     # Check library content before configuration
     response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
-    print_response("Model Info Before Configuration", response)
+    # print_response("Model Info Before Configuration", response)
     assert response.status_code == 200
 
     # Configure the model
-    response = client.post("/model/configure", json={
+    response = client.post(endpoint, json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {
             "rag_settings": {
@@ -73,37 +86,50 @@ def test_configure_model():
             }
         }
     })
-    print_response("Configure Model", response)
+    # print_response("Configure Model", response)
     assert response.status_code == 200
 
     # Check library content after configuration
     response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
-    print_response("Model Info After Configuration", response)
+    # print_response("Model Info After Configuration", response)
     assert response.status_code == 200
 
 @pytest.mark.order9
 def test_inference_after_configuration():
-    response = client.post("/model/inference", json={
+    endpoint = "/model/inference"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={
         "model_id": "ibm/granite-13b-chat-v2",
         "data": {"payload": "Which colony produces quantum crystals?"}
     })
-    print_response("Inference After Configuration", response)
+    # print_response("Inference After Configuration", response)
     assert response.status_code == 200
 
 @pytest.mark.order10
 def test_unload_model():
-    response = client.post("/model/unload?model_id=ibm/granite-13b-chat-v2")
-    print_response("Unload Model", response)
+    endpoint = "/model/unload"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Unload Model", response)
     assert response.status_code == 200
 
 @pytest.mark.order11
-def test_is_model_loaded():
-    response = client.get("/model/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
-    print_response("Is Model Loaded", response)
+def test_is_model_loaded_after_unload():
+    endpoint = "/model/is-model-loaded"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Is Model Loaded", response)
     assert response.status_code == 200
 
 @pytest.mark.order12
 def test_delete_model():
-    response = client.delete("/model/delete-model?model_id=ibm/granite-13b-chat-v2")
-    print_response("Delete Model", response)
+    endpoint = "/model/delete-model"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.delete(f"{endpoint}?model_id=ibm/granite-13b-chat-v2")
+    # print_response("Delete Model", response)
     assert response.status_code == 200
+
+# Commented out as it's not being used in the tests
+# def print_response(test_name, response):
+#     print(f"\n{test_name} Response:")
+#     print(json.dumps(response.json(), indent=2))

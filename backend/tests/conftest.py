@@ -13,21 +13,25 @@ import warnings
 from pydantic import ConfigDict
 from ..controlers.model_control import ModelControl
 import matplotlib
+import os
 
 def pytest_configure(config):
-    # Disable all logging
-    logging.disable(logging.CRITICAL)
+    # Disable all loggers
+    logging.getLogger().setLevel(logging.ERROR)
+    
+    # Specifically disable loggers for noisy modules
+    for logger_name in ['faiss', 'ibm_watsonx_ai', 'sentence_transformers', 'backend']:
+        logging.getLogger(logger_name).setLevel(logging.ERROR)
+    
+    # Disable IBM Watson logging
+    os.environ['DISABLE_WATSON_LOGGING'] = 'true'
 
-    # Ignore all warnings
-    warnings.simplefilter("ignore")
-
-    # Suppress Pydantic warnings about namespace conflicts
-    from pydantic import BaseModel
-    BaseModel.model_config = ConfigDict(protected_namespaces=())
-
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(autouse=True)
 def disable_logging():
+    # This will disable logging for the duration of each test
     logging.disable(logging.CRITICAL)
+    yield
+    logging.disable(logging.NOTSET)
 
 @pytest.fixture
 def model_control():
