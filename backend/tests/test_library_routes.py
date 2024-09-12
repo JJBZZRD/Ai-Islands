@@ -4,19 +4,23 @@ from backend.api.main import app
 
 client = TestClient(app)
 
-@pytest.mark.order1
+def test_download_model(model_id):
+    response = client.post(f"/model/download-model?model_id={model_id}")
+    assert response.status_code == 200
+    assert response.json()["message"] == f"Model {model_id} downloaded successfully"
+
 def test_get_library():
-    response = client.get("/library")
+    response = client.get("/library/get-full-library")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    assert isinstance(response.json(), dict)
 
-@pytest.mark.order2
-def test_get_model_info():
-    response = client.get("/library/model_info?model_id=ibm/granite-13b-chat-v2")
+def test_get_model_info(model_id):
+    response = client.get(f"/library/get-model-info-library?model_id={model_id}")
     assert response.status_code == 200
-    assert "model_id" in response.json()
+    model_info = response.json()
+    assert "base_model" in model_info.keys()
+    assert model_info["base_model"] == model_id
 
-# @pytest.mark.order3
 # def test_save_new_model():
 #     response = client.post("/library/save_new_model", json={
 #         "model_id": "base_model",

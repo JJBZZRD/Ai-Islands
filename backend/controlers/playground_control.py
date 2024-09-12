@@ -95,6 +95,11 @@ class PlaygroundControl:
         if playground_id not in self.playgrounds:
             logger.error(f"Playground {playground_id} does not exist.")
             raise KeyError(f"Playground {playground_id} does not exist.")
+        
+        # Check to see if the playground chain is active
+        if self.playgrounds[playground_id].active_chain:
+            logger.error(f"Playground {playground_id} is running a chain, please stop it before updating.")
+            raise PlaygroundError(f"Playground {playground_id} is running a chain, please stop it before updating.")
 
         # Update the playground's description if provided
         if description is not None:

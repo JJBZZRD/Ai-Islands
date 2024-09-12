@@ -1,5 +1,5 @@
 {
-    "hardware": "gpu",
+    "hardware": "cpu",
     "chunking": {
         "use_chunking": false,
         "chunk_size": 1000,

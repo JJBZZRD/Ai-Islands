@@ -20,7 +20,9 @@ namespace frontend.Services
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri(BaseUrl),
+
                 Timeout = TimeSpan.FromMilliseconds(-1)
+
             };
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -280,21 +282,27 @@ namespace frontend.Services
 
         public async Task<Dictionary<string, object>> LoadPlaygroundChain(string playgroundId)
         {
-            var response = await _httpClient.PostAsync($"playground/load-chain?playground_id={playgroundId}", null);
+            var request = new { playground_id = playgroundId };
+            var response = await _httpClient.PostAsJsonAsync("playground/load-chain", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
-        public async Task<Dictionary<string, object>> StopPlaygroundChain(string playgroundId)
+        public async Task StopPlaygroundChain(string playgroundId)
         {
-            var response = await _httpClient.PostAsync($"playground/stop-chain?playground_id={playgroundId}", null);
+            var request = new { playground_id = playgroundId };
+            var response = await _httpClient.PostAsJsonAsync("playground/stop-chain", request);
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                // Handle 204 No Content response
+                return;
+            }
             response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;
         }
 
         public async Task<Dictionary<string, object>> Inference(string playgroundId, Dictionary<string, object> data)
         {
-            var request = new { playground_id = playgroundId, data = data };
+            var request = new { playground_id = playgroundId, data = data["data"] };
             var response = await _httpClient.PostAsJsonAsync("playground/inference", request);
             response.EnsureSuccessStatusCode();
             return (await response.Content.ReadFromJsonAsync<Dictionary<string, object>>())!;

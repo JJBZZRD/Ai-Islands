@@ -9,6 +9,7 @@ namespace frontend.Views
     public partial class PlaygroundTabbedPage : ContentPage
     {
         private PlaygroundService _playgroundService;
+        private ModelService _modelService;
         private PlaygroundViewModel _playgroundViewModel;
 
         public PlaygroundTabbedPage(Playground playground, PlaygroundService playgroundService)
@@ -17,8 +18,13 @@ namespace frontend.Views
 
             System.Diagnostics.Debug.WriteLine(System.Text.Json.JsonSerializer.Serialize(playground.Models));
 
-            _playgroundViewModel = new PlaygroundViewModel{ Playground = playground};
+            _modelService = new ModelService(); 
+            _playgroundViewModel = new PlaygroundViewModel(playgroundService, _modelService) { Playground = playground };
             _playgroundService = playgroundService;
+            
+            // Initialize _modelService with a valid instance
+            _modelService = new ModelService(); // Replace with actual initialization as needed
+
             BindingContext = _playgroundViewModel;
 
             // Ensure Models dictionary is initialized
@@ -26,6 +32,7 @@ namespace frontend.Views
 
             ShowModelPage(); // show model page when initialized
         }
+
 
         protected override void OnAppearing()
         {
@@ -47,11 +54,12 @@ namespace frontend.Views
         private void ShowChainPage()
         {
             // should pass view model instead of playground
-            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground);
+            ContentContainer.Content = new PlaygroundInferenceView(_playgroundViewModel.Playground, _playgroundService, _modelService);
         }
 
         private void ShowConfigPage()
         {
+            _playgroundViewModel.RefreshPlaygroundChain();
             ContentContainer.Content = new PlaygroundConfigView(_playgroundViewModel, _playgroundService);
         }
 
