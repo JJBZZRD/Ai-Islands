@@ -23,7 +23,7 @@ def test_update_watson_settings():
         "location": "eu-gb"
     })
     assert response.status_code == 200
-    print(f"Response: {response.json()}")
+    # print(f"Response: {response.json()}")
 
 @pytest.mark.order2
 def test_get_watson_settings():
@@ -33,8 +33,8 @@ def test_get_watson_settings():
     assert response.status_code == 200
     settings = response.json()
     
-    print("Watson Settings:")
-    print(json.dumps(mask_api_key(settings), indent=2))
+    # print("Watson Settings:")
+    # print(json.dumps(mask_api_key(settings), indent=2))
     
     assert "api_key" in settings
     assert "location" in settings
@@ -53,7 +53,7 @@ def test_update_chunking_settings():
         "csv_columns": []
     })
     assert response.status_code == 200
-    print(f"Response: {response.json()}")
+    # print(f"Response: {response.json()}")
 
 @pytest.mark.order4
 def test_get_chunking_settings():
@@ -61,8 +61,8 @@ def test_get_chunking_settings():
     print(f"\nTesting endpoint: {endpoint}")
     response = client.get(endpoint)
     assert response.status_code == 200
-    print("Chunking Settings:")
-    print(json.dumps(response.json(), indent=2))
+    # print("Chunking Settings:")
+    # print(json.dumps(response.json(), indent=2))
 
 @pytest.mark.order5
 def test_set_hardware():
@@ -70,7 +70,7 @@ def test_set_hardware():
     print(f"\nTesting endpoint: {endpoint}")
     response = client.post(endpoint, json={"device": "cpu"})
     assert response.status_code == 200
-    print(f"Response: {response.json()}")
+    # print(f"Response: {response.json()}")
 
 @pytest.mark.order6
 def test_get_hardware():
@@ -78,7 +78,7 @@ def test_get_hardware():
     print(f"\nTesting endpoint: {endpoint}")
     response = client.get(endpoint)
     assert response.status_code == 200
-    print(f"Response: {response.json()}")
+    # print(f"Response: {response.json()}")
 
 @pytest.mark.order7
 def test_check_gpu():
@@ -86,4 +86,4 @@ def test_check_gpu():
     print(f"\nTesting endpoint: {endpoint}")
     response = client.get(endpoint)
     assert response.status_code == 200
-    print(f"Response: {response.json()}")
+    # print(f"Response: {response.json()}")
