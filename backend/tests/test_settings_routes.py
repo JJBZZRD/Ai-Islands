@@ -7,9 +7,11 @@ client = TestClient(app)
 
 @pytest.mark.order1
 def test_update_watson_settings():
-    response = client.post("/settings/update_watson_settings", json={
-        "api_key": "obx21Ap0YYotQMDyEctsKOFgA23_rcDH9hBszrFlFHR_",
-        "project_id": "a01f5d35-7117-4c78-9ddd-d2b4006e622e",
+    endpoint = "/settings/update-watson-settings"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={
+        "api_key": "sAXfvscbVW_21CY0lQ1GjfW5c3dqVVQ_ae97GEEag7oq",
+        "project_id": "e55a3b58-0711-4438-8909-0e36cc1d617b",
         "location": "eu-gb"
     })
     assert response.status_code == 200
@@ -17,7 +19,9 @@ def test_update_watson_settings():
 
 @pytest.mark.order2
 def test_get_watson_settings():
-    response = client.get("/settings/get_watson_settings")
+    endpoint = "/settings/get-watson-settings"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
     assert response.status_code == 200
     settings = response.json()
     
@@ -30,7 +34,9 @@ def test_get_watson_settings():
 
 @pytest.mark.order3
 def test_update_chunking_settings():
-    response = client.post("/settings/update_chunking_settings", json={
+    endpoint = "/settings/update-chunking-settings"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={
         "use_chunking": False,
         "chunk_size": 1000,
         "chunk_overlap": 100,
@@ -43,28 +49,36 @@ def test_update_chunking_settings():
 
 @pytest.mark.order4
 def test_get_chunking_settings():
-    response = client.get("/settings/get_chunking_settings")
+    endpoint = "/settings/get-chunking-settings"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
     assert response.status_code == 200
     print("\nChunking Settings:")
     print(json.dumps(response.json(), indent=2))
 
 @pytest.mark.order5
 def test_set_hardware():
-    response = client.post("/settings/set-hardware", json={"device": "cpu"})
+    endpoint = "/settings/set-hardware"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={"device": "cpu"})
     assert response.status_code == 200
     assert response.json() == {"message": "Successfully set hardware to cpu"}
     print(response.json())
 
 @pytest.mark.order6
 def test_get_hardware():
-    response = client.get("/settings/get-hardware")
+    endpoint = "/settings/get-hardware"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
     assert response.status_code == 200
     assert response.json() == {"hardware": "cpu"}
     print(response.json())
 
 @pytest.mark.order7
 def test_check_gpu():
-    response = client.get("/settings/check-gpu")
+    endpoint = "/settings/check-gpu"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
     assert response.status_code == 200
     assert "CUDA available" in response.json()
     print(response.json())
