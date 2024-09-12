@@ -10,36 +10,42 @@ def print_response(test_name, response):
     print(json.dumps(response.json(), indent=2))
 
 @pytest.mark.order1
+def test_get_model_info_index():
+    response = client.get("/library/get-model-info-index?model_id=ibm/granite-13b-chat-v2")
+    print_response("Get Model Info", response)
+    assert response.status_code == 200
+
+@pytest.mark.order2
 def test_download_model():
     response = client.post("/model/download-model?model_id=ibm/granite-13b-chat-v2")
     print_response("Download Model", response)
     assert response.status_code == 200
 
-@pytest.mark.order2
-def test_get_model_info():
-    response = client.get("/library/get-model-info?model_id=ibm/granite-13b-chat-v2")
+@pytest.mark.order3
+def test_get_model_info_library():
+    response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
     print_response("Get Model Info", response)
     assert response.status_code == 200
 
-@pytest.mark.order3
+@pytest.mark.order4
 def test_load_model():
-    response = client.post("/model/models/load?model_id=ibm/granite-13b-chat-v2")
+    response = client.post("/model/load?model_id=ibm/granite-13b-chat-v2")
     print_response("Load Model", response)
     assert response.status_code == 200
 
-@pytest.mark.order4
+@pytest.mark.order5
 def test_list_active_models():
-    response = client.get("/model/models/active")
+    response = client.get("/model/active")
     print_response("List Active Models", response)
     assert response.status_code == 200
 
-@pytest.mark.order5
+@pytest.mark.order6
 def test_is_model_loaded():
     response = client.get("/model/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
     print_response("Is Model Loaded", response)
     assert response.status_code == 200
 
-@pytest.mark.order6
+@pytest.mark.order7
 def test_inference():
     response = client.post("/model/inference", json={
         "model_id": "ibm/granite-13b-chat-v2",
@@ -48,10 +54,10 @@ def test_inference():
     print_response("Inference", response)
     assert response.status_code == 200
 
-@pytest.mark.order7
+@pytest.mark.order8
 def test_configure_model():
     # Check library content before configuration
-    response = client.get("/library/get-model-info?model_id=ibm/granite-13b-chat-v2")
+    response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
     print_response("Model Info Before Configuration", response)
     assert response.status_code == 200
 
@@ -71,11 +77,11 @@ def test_configure_model():
     assert response.status_code == 200
 
     # Check library content after configuration
-    response = client.get("/library/get-model-info?model_id=ibm/granite-13b-chat-v2")
+    response = client.get("/library/get-model-info-library?model_id=ibm/granite-13b-chat-v2")
     print_response("Model Info After Configuration", response)
     assert response.status_code == 200
 
-@pytest.mark.order8
+@pytest.mark.order9
 def test_inference_after_configuration():
     response = client.post("/model/inference", json={
         "model_id": "ibm/granite-13b-chat-v2",
@@ -84,13 +90,19 @@ def test_inference_after_configuration():
     print_response("Inference After Configuration", response)
     assert response.status_code == 200
 
-@pytest.mark.order9
+@pytest.mark.order10
 def test_unload_model():
-    response = client.post("/model/models/unload?model_id=ibm/granite-13b-chat-v2")
+    response = client.post("/model/unload?model_id=ibm/granite-13b-chat-v2")
     print_response("Unload Model", response)
     assert response.status_code == 200
 
-@pytest.mark.order10
+@pytest.mark.order11
+def test_is_model_loaded():
+    response = client.get("/model/is-model-loaded?model_id=ibm/granite-13b-chat-v2")
+    print_response("Is Model Loaded", response)
+    assert response.status_code == 200
+
+@pytest.mark.order12
 def test_delete_model():
     response = client.delete("/model/delete-model?model_id=ibm/granite-13b-chat-v2")
     print_response("Delete Model", response)
