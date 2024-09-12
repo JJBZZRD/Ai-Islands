@@ -1,6 +1,8 @@
 import logging
 import os
 import shutil
+import signal
+import sys
 
 import cv2
 import numpy as np
@@ -18,6 +20,8 @@ from backend.core.exceptions import ModelError, ModelNotAvailableError
 from .base_model import BaseModel
 
 logger = logging.getLogger(__name__)
+pretrained_model_path = None
+runs_folder = None
 
 class UltralyticsModel(BaseModel):
     def __init__(self, model_id: str):
@@ -64,16 +68,10 @@ class UltralyticsModel(BaseModel):
             
     def load(self, device: torch.device, model_info: dict):
         try:
-            # Retrieve model info from the library
-            #model_info = self.library_control.get_model_info_library(self.model_id)
-
-            #if not model_info:
-                #raise FileNotFoundError(f"Model info not found for {self.model_id}")
-
             # Get the path of the model file
             model_file_name = f"{self.model_id}.pt"
-            model_path = os.path.join(model_info['dir'], model_file_name)
-
+            model_path = os.path.abspath(os.path.join(ROOT_DIR, model_info['dir'], model_file_name))
+            logger.info(f"Model path: {model_path}")
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Model file not found: {model_path}")
             
@@ -186,6 +184,7 @@ class UltralyticsModel(BaseModel):
             return {"error": str(e)}
 
     def train(self, data):
+        global pretrained_model_path, runs_folder
         try:
             if self.model is None:
                 raise ValueError("Model is not loaded")
@@ -222,21 +221,24 @@ class UltralyticsModel(BaseModel):
             trained_model_name = f"{self.model_id}_{suffix}.pt"
             
             # Save thr trained model to the ultralytics folder
-            base_dir = os.path.join('data', 'downloads', 'ultralytics')
+            base_dir = os.path.join(ROOT_DIR, 'data', 'downloads', 'ultralytics')
             trained_model_dir = os.path.join(base_dir, f"{self.model_id}_{suffix}")
             os.makedirs(trained_model_dir, exist_ok=True)
             
             trained_model_path = os.path.join(trained_model_dir, trained_model_name)
             shutil.copy(best_pt_path, trained_model_path)
 
-            logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}")
+            logger.info(f"Model trained on {data_path} for {epochs} epochs with batch size {batch_size}, learning rate {learning_rate}, and image size {imgsz}. Model saved to {trained_model_path}") 
+
+            original_model_info = JSONHandler.read_json(DOWNLOADED_MODELS_PATH).get(self.model_id, {})
 
             new_model_info = {
                 "model_id": f"{self.model_id}_{suffix}",
                 "base_model": f"{self.model_id}_{suffix}",
                 "dir": trained_model_dir,
                 "model_desc": f"Fine-tuned {self.model_id} model",
-                "is_customised": True,
+                "is_customised": False,
+                "is_trained": True,
                 "config": {
                     "epochs": epochs,
                     "batch_size": batch_size,
@@ -245,29 +247,37 @@ class UltralyticsModel(BaseModel):
                 }
             }
 
+            merged_model_info = {**original_model_info, **new_model_info}
+
             # Remove the extra pretrained model file
-            pretrained_model_path = os.path.join(ROOT_DIR, f"{self.model_id}.pt")
+            pretrained_model_path = os.path.join(ROOT_DIR,'backend', 'utils', f"{self.model_id}.pt")
             if os.path.exists(pretrained_model_path):
                 os.remove(pretrained_model_path)
                 logger.info(f"Deleted pretrained model file from root directory: {pretrained_model_path}")
                 
             # Remove the runs folder
-            runs_folder = os.path.join(ROOT_DIR, 'runs')
+            runs_folder = os.path.join(ROOT_DIR, 'backend', 'utils', 'runs')
             if os.path.exists(runs_folder) and os.path.isdir(runs_folder):
                 shutil.rmtree(runs_folder)
                 logger.info(f"Deleted runs folder: {runs_folder}")
+                
+            new_model_id = f"{self.model_id}_{suffix}"
+            print(f"Fine-tuned model ID: {new_model_id}") 
 
             return {
                 "message": "Training completed successfully",
                 "data": {
                     "trained_model_path": trained_model_path,
-                    "new_model_info": new_model_info
+                    "new_model_info": merged_model_info
                 }
             }
         except Exception as e:
             logger.error(f"Error training model on data {data_path}: {str(e)}")
             return {"error": str(e)}
         
+        finally:
+            cleanup()
+            
     def get_next_suffix(self, base_model_id):
         library = JSONHandler.read_json(DOWNLOADED_MODELS_PATH)
         i = 1
@@ -329,3 +339,29 @@ class UltralyticsModel(BaseModel):
         except Exception as e:
             logger.error(f"Error during training parameter handling: {str(e)}")
             raise
+
+# Will happen on interruption
+def cleanup():
+    global pretrained_model_path, runs_folder
+    try:
+        if pretrained_model_path and os.path.exists(pretrained_model_path):
+            os.remove(pretrained_model_path)
+            logger.info(f"Deleted pretrained model file: {pretrained_model_path}")
+    except Exception as e:
+        logger.error(f"Failed to delete pretrained model file: {str(e)}")
+
+    try:
+        if runs_folder and os.path.exists(runs_folder):
+            shutil.rmtree(runs_folder)
+            logger.info(f"Deleted runs folder: {runs_folder}")
+    except Exception as e:
+        logger.error(f"Failed to delete runs folder: {str(e)}")
+
+def signal_handler(sig, frame):
+    logger.info("Signal received, performing cleanup")
+    cleanup()
+    sys.exit(0)
+
+# Register signal handlers for SIGINT (Ctrl+C) and SIGTERM
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)

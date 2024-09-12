@@ -28,11 +28,13 @@ namespace frontend.Views
         private string _jsonOutputText = "No data available. Please run inference first.";
         private string _formattedOutputText = "No data available. Please run inference first.";
         private string _selectedFilePath;
+
         public string SelectedFilePath
         {
             get => _selectedFilePath;
             set { SetProperty(ref _selectedFilePath, value); }
         }
+
         public ICommand LoadChainCommand { get; }
         public ICommand InferenceCommand { get; }
 
@@ -75,8 +77,35 @@ namespace frontend.Views
             BindingContext = this;
             CreateInputUI();
 
-            IsChainLoaded = Preferences.Get($"{_playground.PlaygroundId}_isChainLoaded", false);
+            ((App)Application.Current).RegisterView(this);
+
+            // Initialize chain state based on model states
+            InitializeChainState();
+
+            UpdateButtonState();
             UpdateOutputVisibility();
+        }
+
+        private async void InitializeChainState()
+        {
+            bool allModelsUnloaded = true;
+
+            foreach (var modelId in _playground.Chain)
+            {
+                if (_playground.Models.TryGetValue(modelId, out var model))
+                {
+                    // Check if any model in the chain is loaded
+                    if (await _modelService.IsModelLoaded(modelId))
+                    {
+                        allModelsUnloaded = false;
+                        break;
+                    }
+                }
+            }
+
+            // If all models are unloaded, set IsChainLoaded to false
+            IsChainLoaded = !allModelsUnloaded;
+            Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", IsChainLoaded);
         }
 
         public bool IsChainLoaded
@@ -89,9 +118,17 @@ namespace frontend.Views
                     _isChainLoaded = value;
                     OnPropertyChanged(nameof(IsChainLoaded));
                     OnPropertyChanged(nameof(ChainButtonText));
+                    UpdateButtonState();
                 }
             }
         }
+
+        private void UpdateButtonState()
+        {
+            OnPropertyChanged(nameof(ChainButtonText));
+        }
+
+        public string ChainButtonText => IsChainLoaded ? "Stop Chain" : "Load Chain";
 
         private ImageSource _processedImageSource;
         public ImageSource ProcessedImageSource
@@ -111,10 +148,8 @@ namespace frontend.Views
         public string RawJsonText
         {
             get => _rawJsonText;
-            set { SetProperty(ref _rawJsonText, value); }
+            set => SetProperty(ref _rawJsonText, value);
         }
-
-        public string ChainButtonText => IsChainLoaded ? "Stop Chain" : "Load Chain";
 
         public bool IsJsonViewVisible
         {
@@ -171,6 +206,8 @@ namespace frontend.Views
 
         private async Task LoadOrStopChain()
         {
+            var app = (App)Application.Current;
+
             if (!IsChainLoaded)
             {
                 try
@@ -178,6 +215,8 @@ namespace frontend.Views
                     await _playgroundService.LoadPlaygroundChain(_playground.PlaygroundId);
                     IsChainLoaded = true;
                     Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", true);
+
+                    app.AddLoadedChain(_playground.PlaygroundId);
 
                     foreach (var modelId in _playground.Chain)
                     {
@@ -201,6 +240,9 @@ namespace frontend.Views
                     await _playgroundService.StopPlaygroundChain(_playground.PlaygroundId);
                     IsChainLoaded = false;
                     Preferences.Set($"{_playground.PlaygroundId}_isChainLoaded", false);
+
+                    // Mark chain as unloaded in the app
+                    app.RemoveLoadedChain(_playground.PlaygroundId);
 
                     foreach (var modelId in _playground.Chain)
                     {
@@ -264,17 +306,11 @@ namespace frontend.Views
             }
         }
 
-        private List<string> GetOriginalStructure()
-        {
-            return _inputText?.Split('\n').ToList() ?? new List<string>();
-        }
-
-
         private async Task HandleInferenceResult(object dataValue)
         {
             var lastModelId = _playground.Chain.LastOrDefault();
             var pipelineTag = _playground.Models[lastModelId]?.PipelineTag?.ToLower();
-            
+
             switch (pipelineTag)
             {
                 // Computer Vision Models
@@ -292,25 +328,15 @@ namespace frontend.Views
                     await HandleAudioOutput(dataValue);
                     break;
                 case "speech-to-text":
-                    if (dataValue is JsonElement sttJsonElement && sttJsonElement.ValueKind == JsonValueKind.Object)
-                    {
-                        var transcription = sttJsonElement.GetProperty("transcription").GetString();
-                        FormattedOutputText = $"Transcription: {transcription}";
-                    }
-                    else
-                    {
-                        FormattedOutputText = "Unexpected response format for speech-to-text.";
-                    }
-                    break;
                 case "automatic-speech-recognition":
-                    if (dataValue is JsonElement asrJsonElement && asrJsonElement.ValueKind == JsonValueKind.Object)
+                    if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
                     {
-                        var transcription = asrJsonElement.GetProperty("text").GetString();
+                        var transcription = jsonElement.GetProperty("text").GetString();
                         FormattedOutputText = transcription;
                     }
                     else
                     {
-                        FormattedOutputText = "Unexpected response format for automatic speech recognition.";
+                        FormattedOutputText = "Unexpected response format.";
                     }
                     break;
                 case "text-classification":
@@ -332,7 +358,6 @@ namespace frontend.Views
             UpdateOutputVisibility();
         }
 
-
         private async Task HandleAudioOutput(object dataValue)
         {
             if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
@@ -349,6 +374,11 @@ namespace frontend.Views
 
                 }
             }
+        }
+
+        private List<string> GetOriginalStructure()
+        {
+            return _inputText?.Split('\n').ToList() ?? new List<string>();
         }
 
         private Dictionary<string, object> GetInputData()
@@ -548,7 +578,7 @@ namespace frontend.Views
             }
         }
 
-        private void UpdateOutputVisibility()
+        public void UpdateOutputVisibility()
         {
             if (_isAudioPlayerVisible)
             {
@@ -580,7 +610,6 @@ namespace frontend.Views
             }
         }
 
-
         private string FormatJsonString(object data)
         {
             return System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
@@ -592,7 +621,7 @@ namespace frontend.Views
 
             text = text.Replace("\\n", "\n");
             text = System.Text.RegularExpressions.Regex.Replace(text, @"\*\*(.*?)\*\*", "<Span FontAttributes=\"Bold\">$1</Span>");
-            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match => 
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(\d+)\. ", match =>
                 $"<Span FontAttributes=\"Bold\">{match.Groups[1].Value}. </Span>");
 
             return text;
@@ -632,13 +661,13 @@ namespace frontend.Views
             return sb.ToString().TrimEnd();
         }
 
-        private string FormatSentiment(JsonElement sentiment) => 
-            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label) 
-            ? label.GetString() 
+        private string FormatSentiment(JsonElement sentiment) =>
+            sentiment.TryGetProperty("document", out var doc) && doc.TryGetProperty("label", out var label)
+            ? label.GetString()
             : "N/A";
 
-        private string FormatEmotion(JsonElement emotion) => 
-            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo) 
+        private string FormatEmotion(JsonElement emotion) =>
+            emotion.TryGetProperty("document", out var doc) && doc.TryGetProperty("emotion", out var emo)
             ? string.Join(", ", emo.EnumerateObject().OrderByDescending(p => p.Value.GetDouble()).Take(2).Select(p => $"{p.Name} ({p.Value.GetDouble():F2})"))
             : "N/A";
 
@@ -667,8 +696,8 @@ namespace frontend.Views
             if (dataValue is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
             {
                 var translatedLines = jsonElement.EnumerateArray()
-                    .Select(element => element.TryGetProperty("translation_text", out var translationText) 
-                        ? translationText.GetString() 
+                    .Select(element => element.TryGetProperty("translation_text", out var translationText)
+                        ? translationText.GetString()
                         : null)
                     .Where(text => text != null)
                     .ToList();
