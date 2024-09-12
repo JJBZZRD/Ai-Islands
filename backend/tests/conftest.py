@@ -12,6 +12,7 @@ import logging
 import warnings
 from pydantic import ConfigDict
 from ..controlers.model_control import ModelControl
+import matplotlib
 
 def pytest_configure(config):
     # Disable all logging
@@ -31,3 +32,7 @@ def disable_logging():
 @pytest.fixture
 def model_control():
     return ModelControl()
+
+@pytest.fixture(scope="session", autouse=True)
+def set_matplotlib_backend():
+    matplotlib.use('Agg')

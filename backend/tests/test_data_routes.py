@@ -8,10 +8,18 @@ client = TestClient(app)
 
 @pytest.mark.order1
 def test_upload_dataset():
+    endpoint = "/data/upload-dataset"
     local_dataset_path = r"C:\Users\costa\OneDrive\Desktop\DataTest_AI_Islands\fictional_space_colonies.csv"
-    response = client.post(f"/data/upload_dataset/?file_path={local_dataset_path}")
+    print(f"\nTesting endpoint: {endpoint}")
     
-    print("\nUpload Dataset Response:")
+    # Create the request payload
+    payload = {
+        "file_path": local_dataset_path
+    }
+    
+    response = client.post(endpoint, json=payload)
+    
+    print("Upload Dataset Response:")
     print(json.dumps(response.json(), indent=2))
     
     assert response.status_code == 200
@@ -23,30 +31,72 @@ def test_upload_dataset():
 
 @pytest.mark.order2
 def test_process_dataset():
-    response = client.post("/data/process_dataset", json={
+    endpoint = "/data/process-dataset"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(endpoint, json={
         "file_path": "Datasets/fictional_space_colonies/fictional_space_colonies.csv",
         "model_name": "msmarco-distilbert-base-v4"
     })
     
-    print("\nProcess Dataset Response:")
+    print("Process Dataset Response:")
     print(json.dumps(response.json(), indent=2))
     
     assert response.status_code == 200
 
 @pytest.mark.order3
-def test_list_datasets():
-    response = client.get("/data/list_datasets")
+def test_dataset_processing_status():
+    endpoint = "/data/dataset-processing-status"
+    dataset_name = "fictional_space_colonies"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?dataset_name={dataset_name}")
     
-    print("\nList Datasets Response:")
+    print("Dataset Processing Status Response:")
     print(json.dumps(response.json(), indent=2))
     
     assert response.status_code == 200
 
 @pytest.mark.order4
-def test_get_available_models():
-    response = client.get("/data/available_models")
+def test_dataset_processing_info():
+    endpoint = "/data/dataset-processing-info"
+    dataset_name = "fictional_space_colonies"
+    processing_type = "default"  # Adjust this based on your actual processing types
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(f"{endpoint}?dataset_name={dataset_name}&processing_type={processing_type}")
     
-    print("\nAvailable Models Response:")
+    print("Dataset Processing Info Response:")
+    print(json.dumps(response.json(), indent=2))
+    
+    assert response.status_code == 200
+
+@pytest.mark.order5
+def test_datasets_processing_existence():
+    endpoint = "/data/datasets-processing-existence"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
+    
+    print("Datasets Processing Existence Response:")
+    print(json.dumps(response.json(), indent=2))
+    
+    assert response.status_code == 200
+
+@pytest.mark.order6
+def test_list_datasets():
+    endpoint = "/data/list-datasets"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
+    
+    print("List Datasets Response:")
+    print(json.dumps(response.json(), indent=2))
+    
+    assert response.status_code == 200
+
+@pytest.mark.order7
+def test_get_available_models():
+    endpoint = "/data/available-models"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.get(endpoint)
+    
+    print("Available Models Response:")
     print(json.dumps(response.json(), indent=2))
     
     assert response.status_code == 200
