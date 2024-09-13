@@ -87,7 +87,7 @@ class TransformerModel(BaseModel):
             return model_info
         except ModelError as e:
             logger.error(f"Transformer Model, error downloading model {model_id}: {str(e)}")
-            raise ModelError(f"Transformer Model, error downloading model {model_id}: {str(e)}")
+            raise ModelError(f"error downloading model {model_id}: \n\n{str(e)}")
 
     def load(self, device: torch.device, model_info: dict):
         try:

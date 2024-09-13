@@ -165,7 +165,17 @@ class ModelControl:
     def download_model(self, model_id: str, auth_token: str = None):
         args = ["-at", auth_token] if auth_token else []
         execute_script("backend/utils/model_download.py", model_id, *args)
-        return {"message": f"Model {model_id} downloaded successfully"}
+        
+        download_log = RuntimeControl.get_runtime_data("download_log")
+        if "success" in download_log:
+            return {"message": download_log["success"]}
+        elif "error" in download_log:
+            error_info = download_log["error"]
+            if "error name" in error_info and "error message" in error_info:
+                raise ModelError(f"Error: {error_info['error message']}")
+            else:
+                raise ModelError("Unexpected Error occured during model download") 
+
 
     def load_model(self, model_id: str):
         """

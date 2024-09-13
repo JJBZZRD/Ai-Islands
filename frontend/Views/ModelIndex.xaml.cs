@@ -319,7 +319,7 @@ namespace frontend.Views
                         var errorContent = await response.Content.ReadAsStringAsync();
                         System.Diagnostics.Debug.WriteLine($"Error content: {errorContent}");
                         var errorMessage = ParseErrorMessage(errorContent);
-                        await DisplayAlert("Error", $"Failed to download model: {errorMessage}", "OK");
+                        await DisplayAlert("Error", $"Failed to download model! \n\n{errorMessage}", "OK");
                     }
                 }
             }
