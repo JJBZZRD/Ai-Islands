@@ -1218,7 +1218,13 @@
           "role": "assistant",
           "content": "I'm good, thanks! What can I help you with?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "meta-llama/Meta-Llama-3-8B-Instruct": {
@@ -1310,7 +1316,13 @@
           "role": "assistant",
           "content": "I'm good, thanks! What can I help you with?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "cardiffnlp/twitter-roberta-base-sentiment-latest": {
@@ -2624,7 +2636,13 @@
           "role": "assistant",
           "content": "I'm good, thanks! What can I help you with?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "google/gemma-2-2b-it": {
@@ -2711,7 +2729,13 @@
           "role": "model",
           "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "google/gemma-2-9b-it": {
@@ -2798,7 +2822,13 @@
           "role": "model",
           "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "microsoft/Phi-3.5-mini-instruct": {
@@ -2889,7 +2919,13 @@
           "role": "assistant",
           "content": "As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "Qwen/Qwen2-0.5B-Instruct": {
@@ -2972,7 +3008,13 @@
           "role": "assistant",
           "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "Qwen/Qwen2-1.5B-Instruct": {
@@ -3055,7 +3097,13 @@
           "role": "assistant",
           "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   },
   "mistralai/Mistral-7B-Instruct-v0.3": {
@@ -3141,7 +3189,13 @@
           "role": "assistant",
           "content": "Ahoy there, matey! I be a salty sea dog of a chatbot, always ready to spin a yarn in the finest pirate speak ye ever did hear! I'm as clever as a fox and as quick with me words as I am with a cutlass. What be yer pleasure, landlubber? How can this old salt assist ye on this fine day?"
         }
-      ]
+      ],
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      }
     }
   }
 }

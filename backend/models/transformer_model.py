@@ -16,6 +16,7 @@ from .base_model import BaseModel
 from backend.data_utils.speaker_embedding_manager import SpeakerEmbeddingManager
 from backend.utils.process_vis_out import _ensure_json_serializable
 from backend.core.exceptions import ModelError
+from backend.utils.dataset_utility import DatasetManagement
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ class TransformerModel(BaseModel):
         self.accelerator = None
         self.model_instance_data = []
         self.is_trained = False
+        self.dataset_management = None
 
     @staticmethod
     def download(model_id: str, model_info: dict):
@@ -135,6 +137,12 @@ class TransformerModel(BaseModel):
             
             # for trained mode;s, they have to be loaded differently
             self.is_trained = model_info.get("is_trained", False)
+            
+            # Initialize RAG components if enabled
+            rag_settings = self.config.get("rag_settings", {})
+            if rag_settings.get("use_dataset"):
+                embedding_model = rag_settings.get("embedding_model", "all-MiniLM-L6-v2")
+                self.dataset_management = DatasetManagement(model_name=embedding_model)
             
             # for loop to load all the required classes
             for class_type, class_name in required_classes.items():
@@ -259,19 +267,46 @@ class TransformerModel(BaseModel):
             # For other tasks, the pipeline will be called with the payload
             
             elif self.pipeline.task in ['text-generation']:
+                rag_settings = self.config.get("rag_settings", {})
+                full_prompt = ""
                 
-                user_prompt = self.config.get("user_prompt").copy()
+                if rag_settings.get("use_dataset"):
+                    logger.info("RAG is enabled, attempting to find relevant entries")
+                    dataset_name = rag_settings.get("dataset_name")
+                    similarity_threshold = rag_settings.get("similarity_threshold", 0.5)
+                    use_chunking = rag_settings.get("use_chunking", False)
+                    
+                    if dataset_name:
+                        logger.info(f"Using dataset: {dataset_name}")
+                        relevant_entries = self.dataset_management.find_relevant_entries(
+                            data["payload"],
+                            dataset_name,
+                            use_chunking=use_chunking,
+                            similarity_threshold=similarity_threshold
+                        )
+                        if relevant_entries:
+                            logger.info(f"Found {len(relevant_entries)} relevant entries")
+                            full_prompt += "Relevant information:\n"
+                            for entry in relevant_entries:
+                                full_prompt += f"- {entry}\n"
+                            full_prompt += "\n"
+                        else:
+                            logger.info("No relevant entries found")
+                    else:
+                        logger.warning("RAG is enabled but no dataset name provided")
+                
+                full_prompt += data["payload"]
+                
+                user_prompt = self.config.get("user_prompt", {}).copy()
                 for key in user_prompt:
                     if user_prompt.get(key) == "[USER]":
-                        user_prompt.update({key: data["payload"]})
-                        print("user_prompt: ", user_prompt)
+                        user_prompt[key] = full_prompt
                 
                 if self.config.get("chat_history"):
                     self.model_instance_data.append(user_prompt)
                     output = self.pipeline(self.model_instance_data, **pipeline_config)
                     self.model_instance_data.append(output[0]["generated_text"][-1])
                     output = output[0]["generated_text"][-1].get("content")
-                    print("model_instance_data: ", self.model_instance_data)
                 else:
                     output = self.pipeline(self.model_instance_data + [user_prompt], **pipeline_config)
                     output = output[0]["generated_text"][-1].get("content")
