@@ -1,6 +1,7 @@
 import argparse
 
 from backend.controlers.model_control import ModelControl
+from backend.controlers.runtime_control import RuntimeControl
 
 
 if __name__ == "__main__":
@@ -17,7 +18,15 @@ The purpose of this script is to allow model downloaded in a new terminal, so th
     parser.add_argument('-at', '--auth_token', type=str, help="The auth token for model download")
     
     args = parser.parse_args()
-    
     model_control = ModelControl()
-    model_control._download_model(args.model_id, args.auth_token)
+    
+    try:
+        model_control._download_model(args.model_id, args.auth_token)
+        RuntimeControl.update_runtime_data("download_log", {"success": f"Model {args.model_id} downloaded successfully"})
+    except Exception as e:
+        error_info = {
+        "error name": type(e).__name__,
+        "error message": str(e)
+        }
+        RuntimeControl.update_runtime_data("download_log", {"error": error_info})
     print("=====model download complete=====")

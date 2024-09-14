@@ -23,7 +23,8 @@ class RuntimeControl:
             FileWriteError: If the file cannot be written.
         """
         empty_runtime_data = {
-            "playground": {}
+            "playground": {},
+            "download_log": {}
         }
         try:
             JSONHandler.write_json(RUNTIME_DATA_PATH, empty_runtime_data)

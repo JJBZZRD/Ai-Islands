@@ -1644,40 +1644,6 @@
     "config": {},
     "model_desc": "Different from embedding model, reranker uses question and document as input and directly output similarity instead of embedding. You can get a relevance score by inputting query and passage to the reranker. And the score can be mapped to a float value in [0,1] by sigmoid function."
   },
-  "google-t5/t5-large": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "mapping": {
-      "input": "text",
-      "output": "text"
-    },
-    "tags": [
-      "Translation",
-      "Multilingual"
-    ],
-    "languages": {
-      "English": "en",
-      "French": "fr",
-      "Romanian": "ro",
-      "German": "de"
-    },
-    "pipeline_tag": "translation",
-    "model_desc": "With T5, we propose reframing all NLP tasks into a unified text-to-text-format where the input and output are always text strings, in contrast to BERT-style models that can only output either a class label or a span of the input. Our text-to-text framework allows us to use the same model, loss function, and hyperparameters on any NLP task.",
-    "model_card_url": "https://huggingface.co/google-t5/t5-large",
-    "requirements": {
-      "required_classes": {
-        "model": "AutoModelForSeq2SeqLM",
-        "tokenizer": "AutoTokenizer"
-      }
-    },
-    "config": {
-      "translation_config": {
-        "src_lang": "en",
-        "tgt_lang": "fr"
-      }
-    }
-  },
   "google/madlad400-10b-mt": {
     "is_online": false,
     "model_source": "transformers",
