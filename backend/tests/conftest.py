@@ -11,14 +11,18 @@ import pytest
 
 from ..controlers.model_control import ModelControl
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def model_control():
-    return ModelControl()
+    yield ModelControl()
 
-@pytest.fixture
+@pytest.fixture(scope="session")
+def model_control_session():
+    yield ModelControl()
+
+@pytest.fixture(scope="function")
 def model_id():
-    return "cardiffnlp/twitter-roberta-base-sentiment-latest"
+    yield "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def playground_id():
-    return "testing_playground"
+    yield "testing_playground"
