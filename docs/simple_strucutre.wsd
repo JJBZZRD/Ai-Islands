@@ -1,0 +1,15 @@
+@startuml
+frame Backend {
+  [Model Class] #LightGreen
+  [Control Class] #LightBlue
+  [Router Class] #LightPink
+  [Model Class] -> [Control Class]
+  [Control Class] -> [Router Class]
+}
+
+frame Frontend {
+  [Service Class] -> [MVVM]
+}
+
+[Router Class] --> [Service Class]
+@enduml
