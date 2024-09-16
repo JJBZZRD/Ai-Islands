@@ -884,34 +884,6 @@
       }
     }
   },
-  "yolov9t": {
-    "is_online": false,
-    "model_source": "ultralytics",
-    "model_class": "UltralyticsModel",
-    "mapping": {
-      "input": "image",
-      "output": "text"
-    },
-    "tags": [
-      "yolo",
-      "object-detection",
-      "pytorch",
-      "yolov9",
-      "yolov9t",
-      "computer-vision",
-      "en",
-      "license:agpl-3.0"
-    ],
-    "pipeline_tag": "object-detection",
-    "model_desc": "YOLOv9t is the smallest version of the YOLOv9 family, designed for fast and efficient object detection on resource-constrained devices.",
-    "model_detail": "https://docs.ultralytics.com/models/yolov9/",
-    "dataset_format": "yolo",
-    "requirements": {
-      "required_classes": {
-        "model": "YOLO"
-      }
-    }
-  },
   "yolov10n": {
     "is_online": false,
     "model_source": "ultralytics",
