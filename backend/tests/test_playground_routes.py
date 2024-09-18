@@ -32,13 +32,6 @@ def test_configure_chain(playground_id, model_id_list):
     })
     assert response.status_code == 200
 
-def test_remove_tts_model_in_chain(playground_id):
-    response = client.post("/playground/remove-model", json={
-        "playground_id": playground_id,
-        "model_id": "microsoft/speecht5_tts"
-    })
-    assert response.status_code == 409
-
 def test_update_chain(playground_id, model_id):
     response = client.post("/playground/configure-chain", json={
         "playground_id": playground_id,

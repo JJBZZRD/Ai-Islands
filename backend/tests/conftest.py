@@ -6,14 +6,26 @@ common test environments and dependencies. Specifically, it provides a fixture t
 an instance of the `ModelControl` class.
 """
 
-
 import pytest
 
 from ..controlers.model_control import ModelControl
+from ..models import TransformerModel
+from ..controlers.library_control import LibraryControl
+from ..data_utils.json_handler import JSONHandler
+from ..core.config import CONFIG_PATH
+
+
+@pytest.fixture(scope="function")
+def transformer_model_class():
+    yield TransformerModel
 
 @pytest.fixture(scope="function")
 def model_control():
     yield ModelControl()
+
+@pytest.fixture(scope="function")
+def library_control():
+    yield LibraryControl()
 
 @pytest.fixture(scope="session")
 def model_control_session():
@@ -30,3 +42,9 @@ def model_id_list():
 @pytest.fixture(scope="function")
 def playground_id():
     yield "testing_playground"
+
+@pytest.fixture(scope="session")
+def hardware_preference():
+    config = JSONHandler.read_json(CONFIG_PATH)
+    pref = config.get("hardware", "cpu")
+    yield pref

@@ -1,8 +1,5 @@
 """
-Module: test_api_model
-
-This module contains unit tests for the FastAPI application, designed to validate various API endpoints 
-and ensure the application behaves as expected when handling HTTP requests.
+Example test for the APIs
 """
 
 
