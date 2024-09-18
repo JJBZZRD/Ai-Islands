@@ -90,7 +90,10 @@ class TransformerModel(BaseModel):
         except ModelError as e:
             logger.error(f"Transformer Model, error downloading model {model_id}: {str(e)}")
             raise ModelError(f"error downloading model {model_id}: \n\n{str(e)}")
-
+        except Exception as e:
+            logger.error(f"Transformer Model, unexpected error downloading model {model_id}: {str(e)}")
+            raise ModelError(f"unexpected error downloading model {model_id}: \n\n{str(e)}")
+    
     def load(self, device: torch.device, model_info: dict):
         try:
             # Get the model directory
