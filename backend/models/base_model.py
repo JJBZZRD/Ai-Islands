@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 class BaseModel(ABC):
     
+    @staticmethod
     @abstractmethod
     def download(self, *args):
         pass
