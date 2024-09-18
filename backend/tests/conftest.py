@@ -24,5 +24,9 @@ def model_id():
     yield "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
 @pytest.fixture(scope="function")
+def model_id_list():
+    yield ["cardiffnlp/twitter-roberta-base-sentiment-latest", "microsoft/speecht5_tts"]
+
+@pytest.fixture(scope="function")
 def playground_id():
     yield "testing_playground"
