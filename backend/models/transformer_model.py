@@ -191,6 +191,7 @@ class TransformerModel(BaseModel):
                     self.model_instance_data.append(self.config.get("system_prompt"))
                 if self.config.get("example_conversation"):
                     self.model_instance_data += self.config.get("example_conversation")
+            return True
         except Exception as e:
             logger.error(f"Error loading model from {model_info['dir']}: {str(e)}")
             raise e # Re-raise the exception to be caught by the caller

@@ -18,6 +18,7 @@ data/library.json
 data/playground.json
 data/runtime_data.json
 data/metadata.json
+data/settings.json
 data/downloads
 *.egg-info/
 out/

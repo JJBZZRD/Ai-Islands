@@ -23,3 +23,8 @@ def test_inference_integration(model_control_session, model_id):
     result = model_control_session.inference(inference_request)
     assert "label" in result[0].keys()
     assert "score" in result[0].keys()
+
+def test_unload_model_integration(model_control_session, model_id):
+    result = model_control_session.unload_model(model_id)
+    assert result is True
+    assert model_id not in model_control_session.models

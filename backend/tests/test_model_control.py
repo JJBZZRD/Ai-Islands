@@ -34,6 +34,7 @@ def test_model_list_active_models(model_control, model_id):
     model_control.load_model(model_id)
     active_models = model_control.list_active_models()
     assert any(model['model_id'] == model_id for model in active_models)
+    model_control.unload_model(model_id)
 
 def test_model_delete_model(model_control, model_id):
     response = model_control.delete_model(model_id)
