@@ -109,6 +109,7 @@ class PlaygroundControl:
         if new_playground_id is not None:
             playground = self.playgrounds.pop(playground_id)
             self.playgrounds[new_playground_id] = playground
+            playground_id = new_playground_id
 
         # Write the updated playground data to the JSON file
         try:
@@ -119,7 +120,7 @@ class PlaygroundControl:
         
         return {
             "playground_id": new_playground_id,
-            "playground": self.playgrounds[new_playground_id].to_dict(),
+            "playground": self.playgrounds[playground_id].to_dict(),
         }
 
     def delete_playground(self, playground_id: str):

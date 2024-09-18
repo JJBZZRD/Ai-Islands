@@ -28,7 +28,8 @@ def test_unload_model(model_id):
     print_response("Unload Model", response)
     assert response.status_code == 200
 
-# Commented out tests using IBM models
+# Commented out tests using IBM models since they require API keys
+
 # def test_download_model():
 #     response = client.post("/model/download-model?model_id=ibm/granite-13b-chat-v2")
 #     print_response("Download Model", response)
