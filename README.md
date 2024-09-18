@@ -67,3 +67,16 @@ fastapi run backend/api/main.py
     - Click the other one (without a label) to launch without debugging.
     
 ![gui_step_3](docs/assets/vs_launch_3.png)
+
+## To run tests on backend
+
+```shell
+pytest
+```
+or
+
+- Generate short summary at the end and suspend warnings
+```shell
+pytest -rA -p no:warnings
+```
+
