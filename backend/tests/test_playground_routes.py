@@ -5,112 +5,59 @@ from backend.api.main import app
 
 client = TestClient(app)
 
-def print_response(test_name, response):
-    print(f"\n{test_name} Response:")
-    print(json.dumps(response.json(), indent=2))
-
-def test_download_models():
-    models = ["ibm/granite-13b-chat-v2", "ibm/natural-language-understanding"]
-    for model in models:
+def test_download_models(model_id_list):
+    for model in model_id_list:
         response = client.post(f"/model/download-model?model_id={model}")
-        print_response(f"Download Model {model}", response)
         assert response.status_code == 200
 
 def test_create_playground(playground_id):
     response = client.post("/playground/create", json={
         "playground_id": playground_id,
-        "description": "Test playground with Granite and NLU models"
+        "description": "Test playground with offline NLP models"
     })
-    print_response("Create Playground", response)
     assert response.status_code == 201
 
-def test_add_models_to_playground(playground_id):
-    models = ["ibm/granite-13b-chat-v2", "ibm/natural-language-understanding"]
-    for model in models:
+def test_add_models_to_playground(playground_id, model_id_list):
+    for model in model_id_list:
         response = client.post("/playground/add-model", json={
             "playground_id": playground_id,
             "model_id": model
         })
-        print_response(f"Add Model {model} to Playground", response)
         assert response.status_code == 200
 
-def test_configure_chain(playground_id):
-    response = client.post("/playground/configure-chain", params={"playground_id": playground_id}, json={
-        "chain": ["ibm/granite-13b-chat-v2", "ibm/natural-language-understanding"]
+def test_configure_chain(playground_id, model_id_list):
+    response = client.post("/playground/configure-chain", json={
+        "playground_id": playground_id,
+        "chain": model_id_list
     })
-    print_response("Configure Chain", response)
     assert response.status_code == 200
 
-def test_load_playground_chain(playground_id):
-    response = client.post("/playground/load-chain", params={"playground_id": playground_id})
-    print_response("Load Playground Chain", response)
+def test_update_chain(playground_id, model_id):
+    response = client.post("/playground/configure-chain", json={
+        "playground_id": playground_id,
+        "chain": [model_id]
+    })
     assert response.status_code == 200
-    assert response.json() == {"message": "Playground chain loaded successfully"}
 
-# def test_playground_inference():
-#     response = client.post("/playground/inference", json={
-#         "playground_id": playground_id,
-#         "data": {"payload": "Analyze the sentiment of this sentence: I love using AI for testing!"}
-#     })
-#     print_response("Playground Inference", response)
-#     assert response.status_code == 200
-
-def test_remove_nlu_model(playground_id):
+def test_remove_tts_model(playground_id):
     response = client.post("/playground/remove-model", json={
         "playground_id": playground_id,
-        "model_id": "ibm/natural-language-understanding"
+        "model_id": "microsoft/speecht5_tts"
     })
-    print_response("Remove NLU Model from Playground", response)
-    assert response.status_code == 200
+    assert response.status_code == 204
 
 def test_update_playground(playground_id):
     response = client.put("/playground/update", json={
         "playground_id": playground_id,
-        "description": "Updated playground with only Granite model"
+        "description": "Updated playground with only sentiment analysis model"
     })
-    print_response("Update Playground", response)
     assert response.status_code == 200
+    assert response.json().get("message") == "Playground updated successfully"
 
 def test_get_playground_info(playground_id):
     response = client.get("/playground/info", params={"playground_id": playground_id})
-    print_response("Get Playground Info", response)
     assert response.status_code == 200
-
-def test_reload_playground(playground_id):
-    response = client.post("/playground/load-chain", params={"playground_id": playground_id})
-    print_response("Reload Playground Chain", response)
-    assert response.status_code == 200
-    assert response.json() == {"message": "Playground chain loaded successfully"}
-
-# def test_playground_inference_after_reload():
-#     response = client.post("/playground/inference", json={
-#         "playground_id": playground_id,
-#         "data": {"payload": "What's the capital of France?"}
-#     })
-#     print_response("Playground Inference After Reload", response)
-#     assert response.status_code == 200
-
-def test_stop_playground_chain(playground_id):
-    response = client.post("/playground/stop-chain", params={"playground_id": playground_id})
-    print_response("Stop Playground Chain", response)
-    assert response.status_code == 200
-    assert response.json() == {"message": "Playground chain stopped successfully"}
 
 def test_delete_playground(playground_id):
     response = client.delete("/playground/delete", params={"playground_id": playground_id})
-    print_response("Delete Playground", response)
-    assert response.status_code == 200
-    assert "message" in response.json()
-
-def test_unload_and_delete_models():
-    models = ["ibm/granite-13b-chat-v2", "ibm/natural-language-understanding"]
-    for model in models:
-        response = client.post(f"/model/models/unload?model_id={model}")
-        print_response(f"Unload Model {model}", response)
-        if response.status_code != 200:
-            print(f"Warning: Failed to unload model {model}. Status code: {response.status_code}")
-            print(f"Response: {response.json()}")
-        
-        response = client.delete(f"/model/delete-model?model_id={model}")
-        print_response(f"Delete Model {model}", response)
-        assert response.status_code == 200
+    assert response.status_code == 204

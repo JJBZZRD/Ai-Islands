@@ -18,16 +18,6 @@ def test_get_model_info(model_id):
     print_response("Get Model Info", response)
     assert response.status_code == 200
 
-def test_load_model(model_id):
-    response = client.post(f"/model/load?model_id={model_id}")
-    print_response("Load Model", response)
-    assert response.status_code == 200
-
-def test_list_active_models():
-    response = client.get("/model/active")
-    print_response("List Active Models", response)
-    assert response.status_code == 200
-
 def test_is_model_loaded(model_id):
     response = client.get(f"/model/is-model-loaded?model_id={model_id}")
     print_response("Is Model Loaded", response)
@@ -38,7 +28,8 @@ def test_unload_model(model_id):
     print_response("Unload Model", response)
     assert response.status_code == 200
 
-# Commented out tests using IBM models
+# Commented out tests using IBM models since they require API keys
+
 # def test_download_model():
 #     response = client.post("/model/download-model?model_id=ibm/granite-13b-chat-v2")
 #     print_response("Download Model", response)

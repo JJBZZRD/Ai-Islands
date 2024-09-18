@@ -29,12 +29,3 @@ def test_get_model_info(model_id):
 #     })
 #     assert response.status_code == 200
 #     assert response.json() == {"message": "New model new_model saved successfully"}
-
-# @pytest.mark.order4
-# def test_update_model_id():
-#     response = client.post("/library/update_model_id", json={
-#         "model_id": "old_model",
-#         "new_model_id": "updated_model"
-#     })
-#     assert response.status_code == 200
-#     assert response.json() == {"message": "Model ID updated from old_model to updated_model"}

@@ -17,9 +17,6 @@ def test_model_load_model(model_control, model_id):
     response = model_control.load_model(model_id)
     assert response is True
     assert model_id in model_control.models
-    conn = model_control.models[model_id]['conn']
-    conn.send("terminate")
-    model_control.models[model_id]['process'].join()
 
 def test_model_unload_model(model_control, model_id):
     model_control.load_model(model_id)
