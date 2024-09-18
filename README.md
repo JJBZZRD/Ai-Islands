@@ -1,58 +1,69 @@
 # Ai-Islands
 
-## Model Index Example
+## Set-up
 
-### Transformer Model (Hugging Face)
-Below is an example of transformer model in model_index.json
-```json
-{
-  "model_name_from_huggingface": {
-    "is_online": false,
-    "model_source": "transformers",
-    "model_class": "TransformerModel",
-    "tags": [
-      "text-generation",
-      "text-generation-inference"
-      "more tags ..."
-    ],
-    "pipeline_tag": "pipeline task",
-    "model_card_url": "url to the source",
-    "requirements":{
-      "required_classes":{
-        "model": "AutoModelForSpeechSeq2Seq (required AutoModel class to load the model if any)",
-        "tokenizer": "AutoTokenizer (required AutoTokenizer class to load the tokenizer if any)",
-        "processor": "AutoProcessor (required AutoProcessor class to load the processor if any)"
-      }
-    },
-    "config": {
-      "model_config": {
-        "use_cache": true,
-        "more_config": "these configs will be passed into AutoModel.from_pretrained()"
-      },
-      "tokenizer_config": {
-        "do_lower_case": false,
-        "more_config": "these configs will be passed into AutoTokenizer.from_pretrained()"
-      },
-      "processor_config": {
-        "more_config": "these configs will be passed into AutoProcessor.from_pretrained()"
-      },
-      "pipeline_config": {
-        "max_length": 50,
-        "more_config": "these configs will be passed into pipeline()"
-      }
-    }
-  }
-}
+### Step 1: Set Up Python Environment
+
+1. Open **Visual Studio Code**
+
+2. Create and activate a Python virtual environment (venv) using the terminal:
+   ```shell
+   python -m venv venv
+   source venv/bin/activate  # On macOS/Linux
+   venv\Scripts\activate      # On Windows
+
+3. Navigate to the root directory of the repository
+
+4. Install the necessary Python packages:
+
+```shell
+pip install -e .
 ```
 
-## Known Issues
+```shell
+pip install -r backend/requirements.txt
+```
 
-### Transformer model - Reranker Model
-Reranker model "jinaai/jina-reranker-v2-base-multilingual" requires `trust_remote_code=True` in order to work. 
-During download and loading phases, it will need to run some remote code on the local computer in a child process 
-(this is the action set by the model developer and thus cannot be changed). 
-However, this behaviour leads to an unexpected error with fastapi development mode. 
-This issue occurs ONLY in development mode but not in production mode. 
-Thus, it works with `fastapi run backend/api/main.py` but not with `fastapi dev backend/api/main.py`. 
-Ben: I have tried so many ways to fix the issue but it just could not work with fastapi dev. 
-Good news is that it works fine with fastapi run somehow :).
+
+### Step 2: Install Visual Studio
+
+3. Open **Visual Studio Installer**
+
+4. Install **Visual Studio Community 2022** with the following packages:
+    - Python Development
+    - .NET Multi-platform App UI (MAUI) Development
+
+![VS2022_installer_packages](docs/assets/vs_installer_packages.png)
+
+## To launch the backend server
+
+### Development Mode
+To launch the backend server in **development** mode:
+```shell
+fastapi dev backend/api/main.py
+```
+
+### Production Mode
+To launch the backend server in **production** mode:
+```shell
+fastapi run backend/api/main.py
+```
+
+## To launch the frontend
+
+1. Open **Visual Studio Community 2022**
+2. Open the local git repository folder
+3. Navigate to **solution explorer**
+4. Click on **Switch between solutions and available views**
+
+![gui_step_1](docs/assets/vs_launch_1.png)
+
+5. Double-click on `AiIslands.sln` to open the solution
+
+![gui_step_2](docs/assets/vs_launch_2.png)
+
+6. On the top ribbon, there are two buttons with green arrow icons:
+    - Click the one labeled **Windows Machine** to launch in debug mode.
+    - Click the other one (without a label) to launch without debugging.
+    
+![gui_step_3](docs/assets/vs_launch_3.png)
