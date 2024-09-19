@@ -40,6 +40,19 @@ def model_info():
         "is_customised": False
     }
 
+@pytest.fixture
+def mock_library_entry(model_info):
+    return {
+        "Qwen/Qwen2-0.5B-Instruct": model_info
+    }
+
+@pytest.fixture
+def gpu_device():
+    import torch
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+
 # watsonx.ai models
 @pytest.fixture
 def watson_foundation_model_info():
@@ -132,12 +145,91 @@ def watson_embedding_model_info():
     }
 
 @pytest.fixture
-def mock_library_entry(model_info):
+def watson_nlu_model_info():
     return {
-        "Qwen/Qwen2-0.5B-Instruct": model_info
+        "is_online": True,
+        "model_source": "IBM",
+        "model_class": "WatsonService",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "natural-language-understanding",
+            "text-analysis",
+            "sentiment-analysis",
+            "entity-extraction"
+        ],
+        "pipeline_tag": "text-classification",
+        "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
+        "model_desc": "IBM Watson Natural Language Understanding service provides advanced text analysis through natural language processing.",
+        "model_detail": "This service can analyze text to extract metadata such as entities, keywords, categories, sentiment, emotion, and syntax.",
+        "config": {
+            "service_name": "natural-language-understanding"
+        },
+        "auth_token": None,
+        "base_model": "ibm/natural-language-understanding",
+        "dir": "data\\downloads\\watson\\ibm/natural-language-understanding",
+        "is_customised": False
     }
-
 @pytest.fixture
-def gpu_device():
-    import torch
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def watson_tts_model_info():
+    return {
+        "is_online": True,
+        "model_source": "IBM",
+        "model_class": "WatsonService",
+        "mapping": {
+            "input": "text",
+            "output": "audio"
+        },
+        "tags": [
+            "text-to-speech",
+            "audio-synthesis",
+            "voice-generation",
+            "speech-synthesis"
+        ],
+        "pipeline_tag": "text-to-speech",
+        "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
+        "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
+        "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis.",
+        "config": {
+            "service_name": "text-to-speech",
+            "voice": "en-AU_JackExpressive",
+            "pitch": 0,
+            "speed": 0
+        },
+        "auth_token": None,
+        "base_model": "ibm/text-to-speech",
+        "dir": "data\\downloads\\watson\\ibm/text-to-speech",
+        "is_customised": False
+    }
+@pytest.fixture
+def watson_stt_model_info():
+    return {
+        "is_online": True,
+        "model_source": "IBM",
+        "model_class": "WatsonService",
+        "mapping": {
+            "input": "audio",
+            "output": "text"
+        },
+        "tags": [
+            "speech-to-text",
+            "audio-transcription",
+            "voice-recognition",
+            "speech-recognition"
+        ],
+        "pipeline_tag": "speech-to-text",
+        "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
+        "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
+        "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription.",
+        "config": {
+            "service_name": "speech-to-text",
+            "model": "en-US_BroadbandModel",
+            "content_type": "audio/wav"
+        },
+        "auth_token": None,
+        "base_model": "ibm/speech-to-text",
+        "dir": "data\\downloads\\watson\\ibm/speech-to-text",
+        "is_customised": False
+    }
