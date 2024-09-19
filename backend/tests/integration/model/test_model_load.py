@@ -8,7 +8,7 @@ from backend.core.exceptions import ModelError
 def client():
     return TestClient(app)
 
-def test_load_model_success(client, model_info):
+def test_load_model_success(client, model_info_library):
     model_id = "Qwen/Qwen2-0.5B-Instruct"
     
     with patch("backend.controlers.model_control.ModelControl.load_model") as mock_load:

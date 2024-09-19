@@ -29,13 +29,13 @@ class MockTransformerModel(TransformerModel):
         self.device = device
 
 @pytest.fixture
-def model_control(model_info):
+def model_control(model_info_library):
     with patch('backend.controlers.model_control.ModelControl._get_model_class', return_value=MockTransformerModel), \
-         patch('backend.controlers.model_control.LibraryControl.get_model_info_library', return_value=model_info), \
-         patch('backend.controlers.model_control.LibraryControl.get_model_info_index', return_value=model_info), \
+         patch('backend.controlers.model_control.LibraryControl.get_model_info_library', return_value=model_info_library), \
+         patch('backend.controlers.model_control.LibraryControl.get_model_info_index', return_value=model_info_library), \
          patch('backend.settings.settings_service.SettingsService.get_hardware_preference', return_value='cpu'):
         model_control = ModelControl()
-        model_control.load_model(model_info['base_model'])
+        model_control.load_model(model_info_library['base_model'])
         return model_control
 
 @pytest.fixture
@@ -49,8 +49,8 @@ def app(model_control):
 def client(app):
     return TestClient(app)
 
-def test_inference_success(client, model_info, model_control):
-    model_id = model_info['base_model']
+def test_inference_success(client, model_info_library, model_control):
+    model_id = model_info_library['base_model']
     inference_data = {"input": "Hello, how are you?"}
     expected_output = "I'm an AI assistant. How can I help you today?"
 
