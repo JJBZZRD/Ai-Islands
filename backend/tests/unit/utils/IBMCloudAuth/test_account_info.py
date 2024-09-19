@@ -24,8 +24,19 @@ def test_account_info_lazy_evaluation(mock_api_client, mock_credentials, account
 def test_list_projects(mock_get, account_info):
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = {'resources': [{'metadata': {'guid': 'project1'}, 'entity': {'name': 'Project 1'}}]}
-    
+
     result = account_info.list_projects('fake_token')
     
     assert result == [{'metadata': {'guid': 'project1'}, 'entity': {'name': 'Project 1'}}]
     mock_get.assert_called_once()
+
+@patch('backend.utils.ibm_cloud_account_auth.Authentication')
+@patch('backend.utils.ibm_cloud_account_auth.ResourceService')
+def test_get_service_credentials(mock_resource_service, mock_auth, account_info):
+    mock_auth.return_value.get_iam_token.return_value = 'fake_token'
+    mock_resource_service.return_value.get_service_credentials.return_value = {'apikey': 'fake_key'}
+    
+    result = account_info.get_service_credentials('fake_token', 'service_name')
+    
+    assert result == {'apikey': 'fake_key'}
+    mock_resource_service.return_value.get_service_credentials.assert_called_once_with('fake_token', 'service_name')
