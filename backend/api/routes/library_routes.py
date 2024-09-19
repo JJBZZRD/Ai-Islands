@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Dict, Any
 from backend.controlers.library_control import LibraryControl
 import json
+from backend.core.exceptions import FileReadError
 
 class NewModelEntry(BaseModel):
     model_id: str
@@ -55,16 +56,22 @@ class LibraryRouter:
         return {"message": f"Library updated for model {model_id}"}
 
     async def get_model_info_library(self, model_id: str = Query(...)):
-        model_info = self.library_control.get_model_info_library(model_id)
-        if model_info:
-            return model_info
-        raise HTTPException(status_code=404, detail=f"Model {model_id} not found in library")
+        try:
+            model_info = self.library_control.get_model_info_library(model_id)
+            if model_info:
+                return model_info
+            raise HTTPException(status_code=404, detail=f"Model {model_id} not found in library")
+        except FileReadError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     async def get_model_info_index(self, model_id: str = Query(...)):
-        model_info = self.library_control.get_model_info_index(model_id)
-        if model_info:
-            return model_info
-        raise HTTPException(status_code=404, detail=f"Model {model_id} not found in index")
+        try:
+            model_info = self.library_control.get_model_info_index(model_id)
+            if model_info:
+                return model_info
+            raise HTTPException(status_code=404, detail=f"Model {model_id} not found in index")
+        except FileReadError as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     async def delete_model(self, model_id: str = Query(...)):
         success = self.library_control.delete_model(model_id)
