@@ -138,7 +138,7 @@ namespace frontend.Models.ViewModels
                             {
                                 { DevicePlatform.iOS, new[] { "public.audio" } },
                                 { DevicePlatform.Android, new[] { "audio/*" } },
-                                { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a" } }
+                                { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a", ".flac"} }
                             });
                         pickerTitle = "Please select an audio file";
                         break;
