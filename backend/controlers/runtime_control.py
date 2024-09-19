@@ -24,7 +24,8 @@ class RuntimeControl:
         """
         empty_runtime_data = {
             "playground": {},
-            "download_log": {}
+            "download_log": {},
+            "test_data": {}
         }
         try:
             JSONHandler.write_json(RUNTIME_DATA_PATH, empty_runtime_data)

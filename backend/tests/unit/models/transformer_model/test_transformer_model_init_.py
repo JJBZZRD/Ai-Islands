@@ -23,55 +23,55 @@ def test_transformer_model_init(transformer_model):
 @patch('backend.models.transformer_model.Accelerator')
 @patch('backend.models.transformer_model.transformers')
 @patch('backend.models.transformer_model.DatasetManagement')
-def test_transformer_model_load(mock_dataset_management, mock_transformers, mock_accelerator, transformer_model, model_info):
+def test_transformer_model_load(mock_dataset_management, mock_transformers, mock_accelerator, transformer_model, model_info_library):
     mock_device = MagicMock(spec=torch.device)
     mock_accelerator_instance = MagicMock()
     mock_accelerator.return_value = mock_accelerator_instance
 
-    transformer_model.load(mock_device, model_info)
+    transformer_model.load(mock_device, model_info_library)
 
-    assert transformer_model.model_dir == model_info['dir']
-    assert transformer_model.config == model_info['config']
+    assert transformer_model.model_dir == model_info_library['dir']
+    assert transformer_model.config == model_info_library['config']
     assert transformer_model.device == mock_device
-    assert transformer_model.languages == model_info.get('languages', {})
-    assert transformer_model.is_trained == model_info.get('is_trained', False)
+    assert transformer_model.languages == model_info_library.get('languages', {})
+    assert transformer_model.is_trained == model_info_library.get('is_trained', False)
 
     mock_accelerator.assert_called_once_with(cpu=(mock_device == "cpu"))
     mock_transformers.pipeline.assert_called_once()
     
-    if model_info['config'].get('rag_settings', {}).get('use_dataset'):
+    if model_info_library['config'].get('rag_settings', {}).get('use_dataset'):
         mock_dataset_management.assert_called_once()
     else:
         mock_dataset_management.assert_not_called()
 
 @patch('backend.models.transformer_model.transformers')
-def test_transformer_model_load_with_quantization(mock_transformers, transformer_model, model_info):
+def test_transformer_model_load_with_quantization(mock_transformers, transformer_model, model_info_library):
     mock_device = MagicMock(spec=torch.device)
-    model_info['config']['quantization_config'] = {'current_mode': 'int8'}
-    model_info['config']['quantization_config_options'] = {'int8': {'load_in_8bit': True}}
+    model_info_library['config']['quantization_config'] = {'current_mode': 'int8'}
+    model_info_library['config']['quantization_config_options'] = {'int8': {'load_in_8bit': True}}
 
-    transformer_model.load(mock_device, model_info)
+    transformer_model.load(mock_device, model_info_library)
 
     mock_transformers.BitsAndBytesConfig.assert_called_once_with(load_in_8bit=True)
 
 @patch('backend.models.transformer_model.transformers')
-def test_transformer_model_load_with_bfloat16(mock_transformers, transformer_model, model_info):
+def test_transformer_model_load_with_bfloat16(mock_transformers, transformer_model, model_info_library):
     mock_device = MagicMock(spec=torch.device)
-    model_info['config']['quantization_config'] = {'current_mode': 'bfloat16'}
+    model_info_library['config']['quantization_config'] = {'current_mode': 'bfloat16'}
 
-    transformer_model.load(mock_device, model_info)
+    transformer_model.load(mock_device, model_info_library)
 
     assert transformer_model.config['model_config']['torch_dtype'] == torch.bfloat16
 
 @patch('backend.models.transformer_model.transformers')
-def test_transformer_model_load_with_translation_config(mock_transformers, transformer_model, model_info):
+def test_transformer_model_load_with_translation_config(mock_transformers, transformer_model, model_info_library):
     mock_device = MagicMock(spec=torch.device)
-    model_info['config']['translation_config'] = {'src_lang': 'en', 'tgt_lang': 'fr'}
-    model_info['languages'] = {'en': 'English', 'fr': 'French'}
+    model_info_library['config']['translation_config'] = {'src_lang': 'en', 'tgt_lang': 'fr'}
+    model_info_library['languages'] = {'en': 'English', 'fr': 'French'}
 
     # Mock the _is_languages_supported method to return True
     with patch.object(TransformerModel, '_is_languages_supported', return_value=True):
-        transformer_model.load(mock_device, model_info)
+        transformer_model.load(mock_device, model_info_library)
 
     # Check if the pipeline was created with the correct task
     mock_transformers.pipeline.assert_called_once()
@@ -83,12 +83,12 @@ def test_transformer_model_load_with_translation_config(mock_transformers, trans
     assert transformer_model.config['translation_config'] == {'src_lang': 'en', 'tgt_lang': 'fr'}
 
 @patch('backend.models.transformer_model.transformers')
-def test_transformer_model_load_error_handling(mock_transformers, transformer_model, model_info):
+def test_transformer_model_load_error_handling(mock_transformers, transformer_model, model_info_library):
     mock_device = MagicMock(spec=torch.device)
     mock_transformers.pipeline.side_effect = Exception("Test error")
 
     with pytest.raises(Exception) as exc_info:
-        transformer_model.load(mock_device, model_info)
+        transformer_model.load(mock_device, model_info_library)
 
     assert str(exc_info.value) == "Test error"
 

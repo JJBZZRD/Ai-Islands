@@ -4,16 +4,16 @@ from backend.controlers.model_control import ModelControl
 from backend.core.exceptions import ModelError
 
 @pytest.fixture
-def mock_model_control(model_info):
+def mock_model_control(model_info_library):
     with patch('backend.controlers.model_control.LibraryControl') as mock_library_control, \
          patch('backend.controlers.model_control.SettingsService'):
         model_control = ModelControl()
         model_control.library_control = mock_library_control
-        model_control.library_control.get_model_info_library.return_value = model_info
+        model_control.library_control.get_model_info_library.return_value = model_info_library
         yield model_control
 
-def test_inference_success(mock_model_control, model_info):
-    model_id = model_info['base_model']
+def test_inference_success(mock_model_control, model_info_library):
+    model_id = model_info_library['base_model']
     inference_request = {
         "model_id": model_id,
         "data": "test_data"
@@ -37,8 +37,8 @@ def test_inference_success(mock_model_control, model_info):
         "task": "inference"
     })
 
-def test_inference_model_not_loaded(mock_model_control, model_info):
-    model_id = model_info['base_model']
+def test_inference_model_not_loaded(mock_model_control, model_info_library):
+    model_id = model_info_library['base_model']
     inference_request = {
         "model_id": model_id,
         "data": "test_data"
@@ -57,8 +57,8 @@ def test_inference_missing_model_id(mock_model_control):
     with pytest.raises(KeyError, match="model_id"):
         mock_model_control.inference(inference_request)
 
-def test_inference_error_response(mock_model_control, model_info):
-    model_id = model_info['base_model']
+def test_inference_error_response(mock_model_control, model_info_library):
+    model_id = model_info_library['base_model']
     inference_request = {
         "model_id": model_id,
         "data": "test_data"
@@ -76,8 +76,8 @@ def test_inference_error_response(mock_model_control, model_info):
         mock_model_control.inference(inference_request)
 
 @patch('backend.controlers.model_control.logger')
-def test_inference_logging(mock_logger, mock_model_control, model_info):
-    model_id = model_info['base_model']
+def test_inference_logging(mock_logger, mock_model_control, model_info_library):
+    model_id = model_info_library['base_model']
     inference_request = {
         "model_id": model_id,
         "data": "test_data"

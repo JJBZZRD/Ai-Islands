@@ -3,12 +3,12 @@ from unittest.mock import Mock, patch
 from backend.controlers.model_control import ModelControl
 
 @pytest.fixture
-def mock_model_control(model_info):
+def mock_model_control(model_info_library):
     with patch('backend.controlers.model_control.LibraryControl') as mock_library_control, \
          patch('backend.controlers.model_control.SettingsService'):
         model_control = ModelControl()
         model_control.library_control = mock_library_control
-        model_control.library_control.get_model_info_library.return_value = model_info
+        model_control.library_control.get_model_info_library.return_value = model_info_library
         yield model_control
 
 def test_configure_model_success(mock_model_control):
