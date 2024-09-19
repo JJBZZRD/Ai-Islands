@@ -20,8 +20,10 @@ def test_authentication_init(mock_settings, mock_watson_settings):
 @patch('backend.utils.ibm_cloud_account_auth.watson_settings')
 def test_get_iam_token_success(mock_settings, mock_post, mock_watson_settings):
     mock_settings.get.side_effect = lambda key: mock_watson_settings.get(key)
-    mock_post.return_value.status_code = 200
-    mock_post.return_value.json.return_value = {'access_token': 'fake_token'}
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {'access_token': 'fake_token'}
+    mock_post.return_value = mock_response
     
     auth = Authentication()
     token = auth.get_iam_token()
@@ -32,23 +34,27 @@ def test_get_iam_token_success(mock_settings, mock_post, mock_watson_settings):
 @patch('backend.utils.ibm_cloud_account_auth.watson_settings')
 def test_get_iam_token_failure(mock_settings, mock_post, mock_watson_settings):
     mock_settings.get.side_effect = lambda key: mock_watson_settings.get(key)
-    mock_post.return_value.status_code = 400
-    mock_post.return_value.text = 'Bad Request'
-    mock_post.return_value.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
-    
+    mock_response = MagicMock()
+    mock_response.status_code = 400
+    mock_response.text = 'Bad Request'
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error", response=mock_response)
+    mock_post.return_value = mock_response
+
     auth = Authentication()
     with pytest.raises(ModelError, match="Failed to get IAM token: HTTP 400"):
         auth.get_iam_token()
 
-def test_validate_api_key_success(mock_watson_settings):
-    with patch.object(Authentication, 'get_iam_token', return_value='fake_token'):
-        auth = Authentication()
-        assert auth.validate_api_key() is True
+@patch('backend.utils.ibm_cloud_account_auth.Authentication.get_iam_token')
+def test_validate_api_key_success(mock_get_iam_token, mock_watson_settings):
+    mock_get_iam_token.return_value = 'fake_token'
+    auth = Authentication()
+    assert auth.validate_api_key() is True
 
-def test_validate_api_key_failure(mock_watson_settings):
-    with patch.object(Authentication, 'get_iam_token', side_effect=Exception("API key validation failed")):
-        auth = Authentication()
-        assert auth.validate_api_key() is False
+@patch('backend.utils.ibm_cloud_account_auth.Authentication.get_iam_token')
+def test_validate_api_key_failure(mock_get_iam_token, mock_watson_settings):
+    mock_get_iam_token.side_effect = Exception("API key validation failed")
+    auth = Authentication()
+    assert auth.validate_api_key() is False
 
 @patch('backend.utils.ibm_cloud_account_auth.get_projects')
 def test_validate_project_success(mock_get_projects):

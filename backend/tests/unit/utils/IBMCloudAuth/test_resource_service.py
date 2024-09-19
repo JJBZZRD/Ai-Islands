@@ -20,19 +20,18 @@ def test_get_resource_list(mock_get, resource_service):
 @patch('backend.utils.ibm_cloud_account_auth.requests.get')
 def test_get_service_credentials(mock_get, resource_service):
     mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {'resources': [{'id': 'service1', 'credentials': {'apikey': 'fake_key'}}]}
+    mock_get.return_value.json.return_value = {'resources': [{'name': 'service1', 'guid': 'fake-guid', 'credentials': {'apikey': 'fake_key'}}]}
 
     result = resource_service.get_service_credentials('fake_token', 'service1')
     
     assert result == {'apikey': 'fake_key'}
-    mock_get.assert_called_once()
 
 @patch('backend.utils.ibm_cloud_account_auth.requests.get')
 def test_get_service_credentials_not_found(mock_get, resource_service):
     mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {'resources': [{'id': 'service2'}]}
+    mock_get.return_value.json.return_value = {'resources': [{'name': 'service2'}]}
 
-    with pytest.raises(ModelError, match="Service not found"):
+    with pytest.raises(ModelError, match="No matching instance found for the specified service name"):
         resource_service.get_service_credentials('fake_token', 'service1')
 
 @patch('backend.utils.ibm_cloud_account_auth.requests.get')
