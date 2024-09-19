@@ -6,7 +6,7 @@
 
 1. Open **Visual Studio Code**
 
-2. Navigate to the root directory of the repository
+2. Clone and navigate to the root directory of the repository
 
 3. Create and activate a Python virtual environment (venv) using the terminal:
    ```shell
