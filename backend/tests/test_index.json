@@ -1,0 +1,3139 @@
+{
+    "codellama/codellama-34b-instruct-hf": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "code-generation"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "Code Llama is an AI model built on top of Llama 2, fine-tuned for generating and discussing code.",
+      "model_detail": "Code Llama is a pretrained and fine-tuned generative text models with 34 billion parameters. This model is designed for general code synthesis and understanding.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "google/flan-t5-xl": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "A pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format.",
+      "model_detail": "flan-t5-xl (3B) is a 3 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "google/flan-t5-xxl": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "flan-t5-xxl is an 11 billion parameter model based on the Flan-T5 family.",
+      "model_detail": "flan-t5-xxl (11B) is an 11 billion parameter model based on the Flan-T5 family. It is a pretrained T5 - an encoder-decoder model pre-trained on a mixture of supervised / unsupervised tasks converted into a text-to-text format, and fine-tuned on the Fine-tuned Language Net (FLAN) with instructions for better zero-shot and few-shot performance.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "google/flan-ul2": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "flan-ul2 is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net.",
+      "model_detail": "flan-ul2 (20B) is an encoder decoder model based on the T5 architecture and instruction-tuned using the Fine-tuned Language Net (FLAN). Compared to the original UL2 model, flan-ul2 (20B) is more usable for few-shot in-context learning because it was trained with a three times larger receptive field. flan-ul2 (20B) outperforms flan-t5 (11B) by an overall relative improvement of +3.2%.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm-mistralai/merlinite-7b": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "code",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "Merlinite-7b is a Mistral-7b-derivative model trained with the LAB methodology, using Mixtral-8x7b-Instruct as a teacher model.",
+      "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm/granite-13b-chat-v2": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+      "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm/granite-13b-instruct-v2": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+      "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm/granite-20b-multilingual": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+      "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm/granite-7b-lab": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
+      "model_detail": "Granite models are designed to be used for a wide range of generative and non-generative tasks with appropriate prompt engineering. They employ a GPT-style decoder-only architecture, with additional innovations from IBM Research and the open community.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "meta-llama/llama-2-13b-chat": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "code",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "Llama-2-13b-chat is an auto-regressive language model that uses an optimized transformer architecture.",
+      "model_detail": "Llama-2-13b-chat is a pretrained and fine-tuned generative text model with 13 billion parameters, optimized for dialogue use cases.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "meta-llama/llama-3-70b-instruct": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "code",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+      "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "meta-llama/llama-3-8b-instruct": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "question-answering",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "code",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "Llama-3-8b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+      "model_detail": "Llama-3-8b-instruct is a pretrained and fine-tuned generative text model with 8 billion parameters, optimized for dialogue use cases.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "mistralai/mixtral-8x7b-instruct-v01": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-generation",
+        "summarization",
+        "retrieval-augmented-generation",
+        "classification",
+        "generation",
+        "code",
+        "extraction"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+      "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
+      "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below.",
+      "config": {
+        "prompt": {
+          "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+          "example_conversation": ""
+        },
+        "parameters": {
+          "temperature": 0.7,
+          "top_p": 1.0,
+          "top_k": 50,
+          "max_new_tokens": 1000,
+          "min_new_tokens": 1,
+          "repetition_penalty": 1.0,
+          "random_seed": 42,
+          "stop_sequences": [
+            "Human:",
+            "AI:",
+            "<|endoftext|>"
+          ]
+        },
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        },
+        "chat_history": false
+      }
+    },
+    "ibm/natural-language-understanding": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonService",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "text-analysis",
+        "sentiment-analysis",
+        "emotion-detection",
+        "entity-extraction",
+        "keyword-extraction",
+        "category-classification",
+        "concept-tagging",
+        "relation-extraction",
+        "semantic-role-labeling"
+      ],
+      "pipeline_tag": "text-classification",
+      "model_card_url": "https://cloud.ibm.com/docs/natural-language-understanding",
+      "model_desc": "IBM Watson Natural Language Understanding is a cloud-native product that uses deep learning to extract metadata from text such as entities, keywords, categories, sentiment, emotion, relations, and syntax.",
+      "model_detail": "This service can analyze text to extract metadata from content such as concepts, entities, keywords, categories, sentiment, emotion, relations, and semantic roles using natural language processing.",
+      "config": {
+        "service_name": "natural-language-understanding",
+        "features": {
+          "sentiment": true,
+          "emotion": true,
+          "entities": true,
+          "keywords": true,
+          "categories": true,
+          "concepts": true,
+          "relations": true,
+          "semantic_roles": true
+        }
+      }
+    },
+    "ibm/text-to-speech": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonService",
+      "mapping": {
+        "input": "text",
+        "output": "audio"
+      },
+      "tags": [
+        "text-to-speech",
+        "audio-synthesis",
+        "voice-generation",
+        "speech-synthesis"
+      ],
+      "pipeline_tag": "text-to-speech",
+      "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
+      "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
+      "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis.",
+      "config": {
+        "service_name": "text-to-speech",
+        "voice": "en-US_AllisonV3Voice",
+        "pitch": 0,
+        "speed": 0
+      }
+    },
+    "ibm/speech-to-text": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonService",
+      "mapping": {
+        "input": "audio",
+        "output": "text"
+      },
+      "tags": [
+        "speech-to-text",
+        "audio-transcription",
+        "voice-recognition",
+        "speech-recognition"
+      ],
+      "pipeline_tag": "speech-to-text",
+      "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
+      "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
+      "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription.",
+      "config": {
+        "service_name": "speech-to-text",
+        "model": "en-US_BroadbandModel",
+        "content_type": "audio/wav"
+      }
+    },
+    "ibm/slate-30m-english-rtrvr": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "embedding",
+        "text-embedding",
+        "semantic-search",
+        "document-comparison",
+        "retrieval-augmented-generation"
+      ],
+      "pipeline_tag": "feature-extraction",
+      "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+      "model_desc": "The slate-30m-english-rtrvr is a distilled version of the slate-125m-english-rtrvr, provided by IBM. It's trained to maximize cosine similarity between two text inputs for later similarity evaluation.",
+      "model_detail": "This embedding model has 6 layers, is faster than slate-125m-english-rtrvr, and is fine-tuned for sentence retrieval-based tasks. It generates 384-dimensional embeddings with a 512 token input limit.",
+      "config": {
+        "embedding_dimensions": 384,
+        "max_input_tokens": 512,
+        "supported_languages": [
+          "English"
+        ]
+      }
+    },
+    "ibm/slate-125m-english-rtrvr": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "embedding",
+        "text-embedding",
+        "semantic-search",
+        "document-comparison",
+        "retrieval-augmented-generation"
+      ],
+      "pipeline_tag": "feature-extraction",
+      "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+      "model_desc": "The slate-125m-english-rtrvr is an IBM-provided embedding model designed for text embedding tasks.",
+      "model_detail": "This embedding model generates 768-dimensional embeddings with a 512 token input limit. It's the larger version compared to slate-30m-english-rtrvr.",
+      "config": {
+        "embedding_dimensions": 768,
+        "max_input_tokens": 512,
+        "supported_languages": [
+          "English"
+        ]
+      }
+    },
+    "sentence-transformers/all-minilm-l12-v2": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "embedding",
+        "text-embedding",
+        "semantic-search",
+        "sentence-similarity",
+        "information-retrieval",
+        "clustering"
+      ],
+      "pipeline_tag": "feature-extraction",
+      "model_card_url": "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2",
+      "model_desc": "The all-minilm-l12-v2 is a sentence and short paragraph encoder provided by the open-source NLP community via Hugging Face.",
+      "model_detail": "This model outputs 384-dimensional vectors capturing semantic information in text. It's fine-tuned on over 1 billion sentence pairs and is suitable for tasks like information retrieval, clustering, and sentence similarity detection.",
+      "config": {
+        "embedding_dimensions": 384,
+        "max_input_tokens": 256,
+        "supported_languages": [
+          "English"
+        ]
+      }
+    },
+    "intfloat/multilingual-e5-large": {
+      "is_online": true,
+      "model_source": "IBM",
+      "model_class": "WatsonModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "embedding",
+        "text-embedding",
+        "multilingual",
+        "semantic-search",
+        "document-comparison",
+        "retrieval-augmented-generation"
+      ],
+      "pipeline_tag": "feature-extraction",
+      "model_card_url": "https://huggingface.co/intfloat/multilingual-e5-large",
+      "model_desc": "The multilingual-e5-large is a multilingual embedding model built by Microsoft and provided via Hugging Face.",
+      "model_detail": "This model has 24 layers and generates 1024-dimensional embeddings with a 512 token input limit. It supports up to 100 languages and is suitable for various multilingual embedding tasks.",
+      "config": {
+        "embedding_dimensions": 1024,
+        "max_input_tokens": 512,
+        "supported_languages": [
+          "Multilingual (up to 100 languages)"
+        ]
+      }
+    },
+    "yolov8n": {
+      "is_online": false,
+      "model_source": "ultralytics",
+      "model_class": "UltralyticsModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov8",
+        "yolov8n",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0",
+        "region:us"
+      ],
+      "pipeline_tag": "object-detection",
+      "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8n is the smallest version of YOLOv8 series with 3.2M params.",
+      "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+      "dataset_format": "yolo",
+      "requirements": {
+        "required_classes": {
+          "model": "YOLO"
+        }
+      }
+    },
+    "yolov8s": {
+      "is_online": false,
+      "model_source": "ultralytics",
+      "model_class": "UltralyticsModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov8",
+        "yolov8s",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "pipeline_tag": "object-detection",
+      "model_desc": "Ultralytics YOLOv8 is a cutting-edge, state-of-the-art (SOTA) model designed for fast, accurate, and easy-to-use object detection. It builds upon the success of previous YOLO versions and introduces new features and improvements to further enhance performance and flexibility. YOLOv8 is suitable for a wide range of tasks including object detection, instance segmentation, and image classification. YOLOv8s has 11.2M params.",
+      "model_detail": "https://docs.ultralytics.com/models/yolov8/",
+      "dataset_format": "yolo",
+      "requirements": {
+        "required_classes": {
+          "model": "YOLO"
+        }
+      }
+    },
+    "yolov10n": {
+      "is_online": false,
+      "model_source": "ultralytics",
+      "model_class": "UltralyticsModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov10",
+        "yolov10n",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "pipeline_tag": "object-detection",
+      "model_desc": "Real-time object detection aims to accurately predict object categories and positions in images with low latency. The YOLO series has been at the forefront of this research due to its balance between performance and efficiency. However, reliance on NMS and architectural inefficiencies have hindered optimal performance. YOLOv10 addresses these issues by introducing consistent dual assignments for NMS-free training and a holistic efficiency-accuracy driven model design strategy.",
+      "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+      "dataset_format": "yolo",
+      "requirements": {
+        "required_classes": {
+          "model": "YOLO"
+        }
+      }
+    },
+    "yolov10s": {
+      "is_online": false,
+      "model_source": "ultralytics",
+      "model_class": "UltralyticsModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "yolo",
+        "object-detection",
+        "pytorch",
+        "yolov10",
+        "yolov10s",
+        "computer-vision",
+        "en",
+        "license:agpl-3.0"
+      ],
+      "pipeline_tag": "object-detection",
+      "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+      "dataset_format": "yolo",
+      "requirements": {
+        "required_classes": {
+          "model": "YOLO"
+        }
+      }
+    },
+    "facebook/detr-resnet-50-panoptic": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "vision",
+        "object-detection",
+        "instance-segmentation",
+        "panoptic-segmentation",
+        "detr",
+        "en",
+        "license:apache-2.0"
+      ],
+      "pipeline_tag": "image-segmentation",
+      "model_card_url": "https://huggingface.co/facebook/detr-resnet-50-panoptic",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForImageSegmentation",
+          "image_processor": "AutoImageProcessor"
+        },
+        "required_packages": [
+          "timm",
+          "pillow"
+        ]
+      },
+      "config": {},
+      "model_desc": "DETR (DEtection TRansformer) is an object detection model that uses a transformer-based architecture. This specific model is trained for panoptic segmentation, which combines both instance segmentation and semantic segmentation.",
+      "model_detail": "https://github.com/facebookresearch/detr"
+    },
+    "microsoft/beit-large-finetuned-ade-640-640": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "vision",
+        "image-segmentation",
+        "beit",
+        "ade20k",
+        "en",
+        "license:apache-2.0"
+      ],
+      "pipeline_tag": "image-segmentation",
+      "model_card_url": "https://huggingface.co/microsoft/beit-large-finetuned-ade-640-640",
+      "requirements": {
+        "required_classes": {
+          "model": "BeitForSemanticSegmentation",
+          "image_processor": "AutoImageProcessor"
+        }
+      },
+      "config": {},
+      "model_desc": "BEiT (Bidirectional Encoder representation from Image Transformers) is a vision transformer model pre-trained on masked image modeling task. This specific model is the large variant fine-tuned on the ADE20K dataset for semantic segmentation.",
+      "model_detail": "https://github.com/microsoft/unilm/tree/master/beit"
+    },
+    "nvidia/segformer-b0-finetuned-ade-512-512": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "image",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "tensorflow",
+        "vision",
+        "image-segmentation",
+        "segformer",
+        "ade20k",
+        "scene_parse_150",
+        "en",
+        "license:other",
+        "arxiv:2105.15203"
+      ],
+      "pipeline_tag": "image-segmentation",
+      "model_card_url": "https://huggingface.co/nvidia/segformer-b0-finetuned-ade-512-512",
+      "requirements": {
+        "required_classes": {
+          "model": "SegformerForSemanticSegmentation",
+          "image_processor": "AutoImageProcessor"
+        }
+      },
+      "model_desc": "SegFormer (b0-sized) model fine-tuned on ADE20k at resolution 512x512. It uses a hierarchical Transformer encoder and a lightweight all-MLP decode head to achieve great results on semantic segmentation benchmarks.",
+      "model_detail": "https://arxiv.org/abs/2105.15203",
+      "config": {}
+    },
+    "google/owlvit-base-patch32": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "image, text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "vision",
+        "zero-shot-object-detection",
+        "owlvit",
+        "en",
+        "license:apache-2.0",
+        "arxiv:2205.06230"
+      ],
+      "pipeline_tag": "zero-shot-object-detection",
+      "model_card_url": "https://huggingface.co/google/owlvit-base-patch32",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForZeroShotObjectDetection",
+          "image_processor": "OwlViTImageProcessor",
+          "tokenizer": "CLIPTokenizerFast"
+        }
+      },
+      "config": {},
+      "model_desc": "OWL-ViT (Vision Transformer for Open-World Localization) is a zero-shot text-conditioned object detection model that can be used to query an image with one or multiple text queries.",
+      "model_detail": "https://arxiv.org/abs/2205.06230"
+    },
+    "IDEA-Research/grounding-dino-tiny": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "image, text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "vision",
+        "object-detection",
+        "zero-shot-object-detection",
+        "grounding-dino",
+        "en",
+        "license:apache-2.0",
+        "arxiv:2303.05499"
+      ],
+      "pipeline_tag": "zero-shot-object-detection",
+      "model_card_url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForZeroShotObjectDetection",
+          "image_processor": "GroundingDinoImageProcessor",
+          "tokenizer": "BertTokenizerFast"
+        }
+      },
+      "config": {},
+      "model_desc": "Grounding DINO is a zero-shot object detection model that extends a closed-set object detection model with a text encoder, enabling open-set object detection. This is the tiny variant of the model.",
+      "model_detail": "https://arxiv.org/abs/2303.05499"
+    },
+    "meta-llama/Meta-Llama-3-8B": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "llama",
+        "meta",
+        "llama-3",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:llama3",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": true
+      },
+      "model_desc": "Meta-Llama-3-8B is part of the Meta Llama 3 family of large language models, optimized for dialogue use cases. It's an 8B parameter model that outperforms many available open-source chat models on common industry benchmarks.",
+      "model_detail": "https://llama.meta.com/get-started/",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "How are you?"
+          },
+          {
+            "role": "assistant",
+            "content": "I'm good, thanks! What can I help you with?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "meta-llama/Meta-Llama-3-8B-Instruct": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "llama",
+        "meta",
+        "llama-3",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:llama3",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct",
+      "model_desc": "Meta-Llama-3-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
+      "model_detail": "https://llama.meta.com/get-started/",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": true
+      },
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "How are you?"
+          },
+          {
+            "role": "assistant",
+            "content": "I'm good, thanks! What can I help you with?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "cardiffnlp/twitter-roberta-base-sentiment-latest": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Text Classification",
+        "Sentiment Analysis"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "labels": [
+        "positive",
+        "neutral",
+        "negative"
+      ],
+      "pipeline_tag": "text-classification",
+      "model_desc": "This is a RoBERTa-base model trained on ~124M tweets from January 2018 to December 2021, and finetuned for sentiment analysis with the TweetEval benchmark. This model is suitable for English. ",
+      "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      }
+    },
+    "distilbert/distilbert-base-uncased-finetuned-sst-2-english": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Text Classification",
+        "Sentiment Analysis"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "labels": [
+        "negative",
+        "positive"
+      ],
+      "pipeline_tag": "text-classification",
+      "model_desc": "This model is a fine-tune checkpoint of DistilBERT-base-uncased, fine-tuned on SST-2. This model reaches an accuracy of 91.3 on the dev set (for comparison, Bert bert-base-uncased version reaches an accuracy of 92.7).",
+      "model_card_url": "https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      }
+    },
+    "nlptown/bert-base-multilingual-uncased-sentiment": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Text Classification",
+        "Product Reviews"
+      ],
+      "languages": {
+        "English": "en",
+        "Dutch": "nl",
+        "German": "de",
+        "French": "fr",
+        "Italian": "it",
+        "Spanish": "es"
+      },
+      "labels": [
+        "5 stars",
+        "4 stars",
+        "3 stars",
+        "2 stars",
+        "1 star"
+      ],
+      "pipeline_tag": "text-classification",
+      "model_desc": "This is a bert-base-multilingual-uncased model finetuned for sentiment analysis on product reviews in six languages: English, Dutch, German, French, Spanish, and Italian. It predicts the sentiment of the review as a number of stars (between 1 and 5). This model is intended for direct use as a sentiment analysis model for product reviews in any of the six languages above or for further finetuning on related sentiment analysis tasks.",
+      "model_card_url": "https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      }
+    },
+    "cross-encoder/nli-roberta-base": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Zero Shot Classification",
+        "Sentiment Analysis",
+        "Custom Labels"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "pipeline_tag": "zero-shot-classification",
+      "model_desc": "This model was trained using SentenceTransformers Cross-Encoder class. This model can classify text into custom labels.",
+      "model_card_url": "https://huggingface.co/cross-encoder/nli-roberta-base",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "candidate_labels": [
+            "technology",
+            "sports",
+            "foods"
+          ]
+        }
+      }
+    },
+    "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Zero Shot Classification",
+        "Sentiment Analysis",
+        "Custom Labels"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "pipeline_tag": "zero-shot-classification",
+      "model_desc": "This model was trained on the MultiNLI, Fever-NLI and Adversarial-NLI (ANLI) datasets, which comprise 763 913 NLI hypothesis-premise pairs. This base model outperforms almost all large models on the ANLI benchmark. The base model is DeBERTa-v3-base from Microsoft. The v3 variant of DeBERTa substantially outperforms previous versions of the model by including a different pre-training objective, see annex 11 of the original DeBERTa paper. This model can classify text into custom labels.",
+      "model_card_url": "https://huggingface.co/facebook/bart-large-mnli",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "candidate_labels": [
+            "technology",
+            "sports",
+            "foods"
+          ]
+        }
+      }
+    },
+    "facebook/bart-large-mnli": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Zero Shot Classification",
+        "Sentiment Analysis",
+        "Custom Labels"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "pipeline_tag": "zero-shot-classification",
+      "model_desc": "Yin et al. proposed a method for using pre-trained NLI models as a ready-made zero-shot sequence classifiers. The method works by posing the sequence to be classified as the NLI premise and to construct a hypothesis from each candidate label. ",
+      "model_card_url": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "candidate_labels": [
+            "technology",
+            "sports",
+            "foods"
+          ]
+        }
+      }
+    },
+    "jinaai/jina-reranker-v2-base-multilingual": {
+      "is_online": false,
+      "is_reranker": true,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Text Classification",
+        "Text Reranker",
+        "Multilingual"
+      ],
+      "languages": {
+        "Arabic": "ar",
+        "Bengali": "bn",
+        "Bulgarian": "bg",
+        "Chinese (Simplified)": "zh-CN",
+        "Chinese (Traditional)": "zh-TW",
+        "Croatian": "hr",
+        "Czech": "cs",
+        "Danish": "da",
+        "Dutch": "nl",
+        "English": "en",
+        "Estonian": "et",
+        "Finnish": "fi",
+        "French": "fr",
+        "German": "de",
+        "Greek": "el",
+        "Gujarati": "gu",
+        "Hebrew": "he",
+        "Hindi": "hi",
+        "Hungarian": "hu",
+        "Indonesian": "id",
+        "Italian": "it",
+        "Japanese": "ja",
+        "Kannada": "kn",
+        "Korean": "ko",
+        "Latvian": "lv",
+        "Lithuanian": "lt",
+        "Malayalam": "ml",
+        "Marathi": "mr",
+        "Norwegian": "no",
+        "Polish": "pl",
+        "Portuguese": "pt",
+        "Punjabi": "pa",
+        "Romanian": "ro",
+        "Russian": "ru",
+        "Slovak": "sk",
+        "Slovenian": "sl",
+        "Spanish": "es",
+        "Swedish": "sv",
+        "Tamil": "ta",
+        "Telugu": "te",
+        "Thai": "th",
+        "Turkish": "tr",
+        "Ukrainian": "uk",
+        "Urdu": "ur",
+        "Vietnamese": "vi"
+      },
+      "pipeline_tag": "text-classification",
+      "model_card_url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        },
+        "required_packages": [
+          "einops"
+        ]
+      },
+      "config": {
+        "model_config": {
+          "trust_remote_code": true
+        },
+        "tokenizer_config": {
+          "trust_remote_code": true
+        },
+        "pipeline_config": {
+          "trust_remote_code": true
+        }
+      },
+      "model_desc": "The Jina Reranker v2 (jina-reranker-v2-base-multilingual) is a transformer-based model that has been fine-tuned for text reranking task, which is a crucial component in many information retrieval systems. It is a cross-encoder model that takes a query and a document pair as input and outputs a score indicating the relevance of the document to the query. The model is trained on a large dataset of query-document pairs and is capable of reranking documents in multiple languages with high accuracy. The jina-reranker-v2-base-multilingual model is capable of handling long texts with a context length of up to 1024 tokens, enabling the processing of extensive inputs. To enable the model to handle long texts that exceed 1024 tokens, the model uses a sliding window approach to chunk the input text into smaller pieces and rerank each chunk separately."
+    },
+    "BAAI/bge-reranker-v2-m3": {
+      "is_online": false,
+      "is_reranker": true,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Text Classification",
+        "Text Reranker",
+        "Multilingual"
+      ],
+      "languages": {
+        "Arabic": "ar",
+        "Bengali": "bn",
+        "English": "en",
+        "Spanish": "es",
+        "Persian (Farsi)": "fa",
+        "Finnish": "fi",
+        "French": "fr",
+        "Hindi": "hi",
+        "Indonesian": "id",
+        "Japanese": "ja",
+        "Korean": "ko",
+        "Russian": "ru",
+        "Swahili": "sw",
+        "Telugu": "te",
+        "Thai": "th",
+        "Chinese": "zh",
+        "German": "de",
+        "Yoruba": "yo"
+      },
+      "pipeline_tag": "text-classification",
+      "model_card_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSequenceClassification",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {},
+      "model_desc": "Different from embedding model, reranker uses question and document as input and directly output similarity instead of embedding. You can get a relevance score by inputting query and passage to the reranker. And the score can be mapped to a float value in [0,1] by sigmoid function."
+    },
+    "google/madlad400-10b-mt": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Translation",
+        "Multilingual"
+      ],
+      "languages": {
+        "Achinese": "ace",
+        "Achinese (Arabic script)": "ace_Arab",
+        "Afrikaans": "af",
+        "Amharic": "am",
+        "Aragonese": "an",
+        "Arabic": "ar",
+        "Moroccan Arabic": "ary",
+        "Egyptian Arabic": "arz",
+        "Assamese": "as",
+        "Azerbaijani": "az",
+        "Bashkir": "ba",
+        "Balinese": "ban",
+        "Bavarian": "bar",
+        "Belarusian": "be",
+        "Bulgarian": "bg",
+        "Bhojpuri": "bho",
+        "Banjarese": "bjn",
+        "Banjarese (Arabic script)": "bjn_Arab",
+        "Bambara": "bm",
+        "Bengali": "bn",
+        "Breton": "br",
+        "Bosnian": "bs",
+        "Buginese": "bug",
+        "Catalan": "ca",
+        "Cebuano": "ceb",
+        "Crimean Tatar (Latin script)": "crh_Latn",
+        "Czech": "cs",
+        "Welsh": "cy",
+        "Danish": "da",
+        "German": "de",
+        "Dinka": "din",
+        "Dhivehi": "dv",
+        "Dzongkha": "dz",
+        "Greek": "el",
+        "English": "en",
+        "Simple English": "simple",
+        "Esperanto": "eo",
+        "Spanish": "es",
+        "Estonian": "et",
+        "Basque": "eu",
+        "Persian": "fa",
+        "Finnish": "fi",
+        "Filipino": "fil",
+        "Faroese": "fo",
+        "French": "fr",
+        "French (Canada)": "fr_ca",
+        "Friulian": "fur",
+        "Nigerian Fulfulde": "fuv",
+        "Western Frisian": "fy",
+        "Irish": "ga",
+        "Scottish Gaelic": "gd",
+        "Galician": "gl",
+        "Guarani": "gn",
+        "Gujarati": "gu",
+        "Hausa": "ha",
+        "Hebrew": "he",
+        "Hindi": "hi",
+        "Chhattisgarhi": "hne",
+        "Croatian": "hr",
+        "Hungarian": "hu",
+        "Armenian": "hy",
+        "Indonesian": "id",
+        "Igbo": "ig",
+        "Ido": "io",
+        "Icelandic": "is",
+        "Italian": "it",
+        "Inuktitut": "iu",
+        "Japanese": "ja",
+        "Javanese": "jv",
+        "Georgian": "ka",
+        "Kazakh": "kk",
+        "Khmer": "km",
+        "Kannada": "kn",
+        "Korean": "ko",
+        "Kanuri": "kr",
+        "Kanuri (Arabic script)": "kr_Arab",
+        "Kashmiri": "ks",
+        "Kashmiri (Devanagari script)": "ks_Deva",
+        "Kurdish": "ku",
+        "Kyrgyz": "ky",
+        "Latin": "la",
+        "Luxembourgish": "lb",
+        "Limburgish": "li",
+        "Ligurian": "lij",
+        "Lombard": "lmo",
+        "Lithuanian": "lt",
+        "Latgalian": "ltg",
+        "Latvian": "lv",
+        "Magahi": "mag",
+        "Malagasy": "mg",
+        "Maori": "mi",
+        "Macedonian": "mk",
+        "Malayalam": "ml",
+        "Mongolian": "mn",
+        "Meitei": "mni",
+        "Marathi": "mr",
+        "Malay": "ms",
+        "Maltese": "mt",
+        "Mirandese": "mwl",
+        "Burmese": "my",
+        "Norwegian Bokml": "nb",
+        "Low German": "nds",
+        "Low Saxon (Netherlands)": "nds_nl",
+        "Nepali": "ne",
+        "Dutch": "nl",
+        "Norwegian Nynorsk": "nn",
+        "Norwegian": "no",
+        "Nuer": "nus",
+        "Occitan": "oc",
+        "Odia": "or",
+        "Punjabi": "pa",
+        "Polish": "pl",
+        "Dari": "prs",
+        "Pashto": "ps",
+        "Portuguese": "pt",
+        "Portuguese (Brazil)": "pt_br",
+        "Romanian": "ro",
+        "Russian": "ru",
+        "Kinyarwanda": "rw",
+        "Sardinian": "sc",
+        "Sicilian": "scn",
+        "Sindhi": "sd",
+        "Northern Sami": "se",
+        "Serbo-Croatian": "sh",
+        "Shan": "shn",
+        "Sinhala": "si",
+        "Slovak": "sk",
+        "Slovenian": "sl",
+        "Somali": "so",
+        "Albanian": "sq",
+        "Serbian": "sr",
+        "Swedish": "sv",
+        "Swahili": "sw",
+        "Silesian": "szl",
+        "Tamil": "ta",
+        "Tamasheq": "taq",
+        "Tamasheq (Tifinagh script)": "taq_Tfng",
+        "Telugu": "te",
+        "Tajik": "tg",
+        "Thai": "th",
+        "Turkmen": "tk",
+        "Tagalog": "tl",
+        "Turkish": "tr",
+        "Tatar": "tt",
+        "Central Atlas Tamazight": "tzm",
+        "Uyghur": "ug",
+        "Ukrainian": "uk",
+        "Urdu": "ur",
+        "Uzbek": "uz",
+        "Venetian": "vec",
+        "Vietnamese": "vi",
+        "Walloon": "wa",
+        "Wu Chinese": "wuu",
+        "Xhosa": "xh",
+        "Yiddish": "yi",
+        "Yoruba": "yo",
+        "Chinese": "zh",
+        "Chinese (Traditional)": "zh_Hant",
+        "Chinese (Simplified)": "zh_cn",
+        "Chinese (Taiwan)": "zh_tw",
+        "Zulu": "zu"
+      },
+      "pipeline_tag": "translation",
+      "model_desc": "MADLAD-400-10B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 250 billion tokens covering over 450 languages using publicly     available data. It is competitive with models that are significantly larger.",
+      "model_card_url": "https://huggingface.co/google/madlad400-10b-mt",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSeq2SeqLM",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "translation_config": {
+          "target_language": "zh_Hant"
+        }
+      }
+    },
+    "google/madlad400-3b-mt": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Translation",
+        "Multilingual"
+      ],
+      "languages": {
+        "Achinese": "ace",
+        "Achinese (Arabic script)": "ace_Arab",
+        "Afrikaans": "af",
+        "Amharic": "am",
+        "Aragonese": "an",
+        "Arabic": "ar",
+        "Moroccan Arabic": "ary",
+        "Egyptian Arabic": "arz",
+        "Assamese": "as",
+        "Azerbaijani": "az",
+        "Bashkir": "ba",
+        "Balinese": "ban",
+        "Bavarian": "bar",
+        "Belarusian": "be",
+        "Bulgarian": "bg",
+        "Bhojpuri": "bho",
+        "Banjarese": "bjn",
+        "Banjarese (Arabic script)": "bjn_Arab",
+        "Bambara": "bm",
+        "Bengali": "bn",
+        "Breton": "br",
+        "Bosnian": "bs",
+        "Buginese": "bug",
+        "Catalan": "ca",
+        "Cebuano": "ceb",
+        "Crimean Tatar (Latin script)": "crh_Latn",
+        "Czech": "cs",
+        "Welsh": "cy",
+        "Danish": "da",
+        "German": "de",
+        "Dinka": "din",
+        "Dhivehi": "dv",
+        "Dzongkha": "dz",
+        "Greek": "el",
+        "English": "en",
+        "Simple English": "simple",
+        "Esperanto": "eo",
+        "Spanish": "es",
+        "Estonian": "et",
+        "Basque": "eu",
+        "Persian": "fa",
+        "Finnish": "fi",
+        "Filipino": "fil",
+        "Faroese": "fo",
+        "French": "fr",
+        "French (Canada)": "fr_ca",
+        "Friulian": "fur",
+        "Nigerian Fulfulde": "fuv",
+        "Western Frisian": "fy",
+        "Irish": "ga",
+        "Scottish Gaelic": "gd",
+        "Galician": "gl",
+        "Guarani": "gn",
+        "Gujarati": "gu",
+        "Hausa": "ha",
+        "Hebrew": "he",
+        "Hindi": "hi",
+        "Chhattisgarhi": "hne",
+        "Croatian": "hr",
+        "Hungarian": "hu",
+        "Armenian": "hy",
+        "Indonesian": "id",
+        "Igbo": "ig",
+        "Ido": "io",
+        "Icelandic": "is",
+        "Italian": "it",
+        "Inuktitut": "iu",
+        "Japanese": "ja",
+        "Javanese": "jv",
+        "Georgian": "ka",
+        "Kazakh": "kk",
+        "Khmer": "km",
+        "Kannada": "kn",
+        "Korean": "ko",
+        "Kanuri": "kr",
+        "Kanuri (Arabic script)": "kr_Arab",
+        "Kashmiri": "ks",
+        "Kashmiri (Devanagari script)": "ks_Deva",
+        "Kurdish": "ku",
+        "Kyrgyz": "ky",
+        "Latin": "la",
+        "Luxembourgish": "lb",
+        "Limburgish": "li",
+        "Ligurian": "lij",
+        "Lombard": "lmo",
+        "Lithuanian": "lt",
+        "Latgalian": "ltg",
+        "Latvian": "lv",
+        "Magahi": "mag",
+        "Malagasy": "mg",
+        "Maori": "mi",
+        "Macedonian": "mk",
+        "Malayalam": "ml",
+        "Mongolian": "mn",
+        "Meitei": "mni",
+        "Marathi": "mr",
+        "Malay": "ms",
+        "Maltese": "mt",
+        "Mirandese": "mwl",
+        "Burmese": "my",
+        "Norwegian Bokml": "nb",
+        "Low German": "nds",
+        "Low Saxon (Netherlands)": "nds_nl",
+        "Nepali": "ne",
+        "Dutch": "nl",
+        "Norwegian Nynorsk": "nn",
+        "Norwegian": "no",
+        "Nuer": "nus",
+        "Occitan": "oc",
+        "Odia": "or",
+        "Punjabi": "pa",
+        "Polish": "pl",
+        "Dari": "prs",
+        "Pashto": "ps",
+        "Portuguese": "pt",
+        "Portuguese (Brazil)": "pt_br",
+        "Romanian": "ro",
+        "Russian": "ru",
+        "Kinyarwanda": "rw",
+        "Sardinian": "sc",
+        "Sicilian": "scn",
+        "Sindhi": "sd",
+        "Northern Sami": "se",
+        "Serbo-Croatian": "sh",
+        "Shan": "shn",
+        "Sinhala": "si",
+        "Slovak": "sk",
+        "Slovenian": "sl",
+        "Somali": "so",
+        "Albanian": "sq",
+        "Serbian": "sr",
+        "Swedish": "sv",
+        "Swahili": "sw",
+        "Silesian": "szl",
+        "Tamil": "ta",
+        "Tamasheq": "taq",
+        "Tamasheq (Tifinagh script)": "taq_Tfng",
+        "Telugu": "te",
+        "Tajik": "tg",
+        "Thai": "th",
+        "Turkmen": "tk",
+        "Tagalog": "tl",
+        "Turkish": "tr",
+        "Tatar": "tt",
+        "Central Atlas Tamazight": "tzm",
+        "Uyghur": "ug",
+        "Ukrainian": "uk",
+        "Urdu": "ur",
+        "Uzbek": "uz",
+        "Venetian": "vec",
+        "Vietnamese": "vi",
+        "Walloon": "wa",
+        "Wu Chinese": "wuu",
+        "Xhosa": "xh",
+        "Yiddish": "yi",
+        "Yoruba": "yo",
+        "Chinese": "zh",
+        "Chinese (Traditional)": "zh_Hant",
+        "Chinese (Simplified)": "zh_cn",
+        "Chinese (Taiwan)": "zh_tw",
+        "Zulu": "zu"
+      },
+      "pipeline_tag": "translation",
+      "model_desc": "MADLAD-400-3B-MT is a multilingual machine translation model based on the T5 architecture that was trained on 1 trillion tokens covering over 450 languages using publicly available data. It is competitive with models that are significantly larger.",
+      "model_card_url": "https://huggingface.co/google/madlad400-3b-mt",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSeq2SeqLM",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "translation_config": {
+          "target_language": "zh_Hant"
+        }
+      }
+    },
+    "facebook/nllb-200-distilled-600M": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "Translation",
+        "Multilingual"
+      ],
+      "languages": {
+        "Achinese Arabic": "ace_Arab",
+        "Achinese Latin": "ace_Latn",
+        "Mesopotamian Arabic": "acm_Arab",
+        "Ta'izzi-Adeni Arabic": "acq_Arab",
+        "Tunisian Arabic": "aeb_Arab",
+        "Afrikaans": "afr_Latn",
+        "South Levantine Arabic": "ajp_Arab",
+        "Akan": "aka_Latn",
+        "Amharic": "amh_Ethi",
+        "North Levantine Arabic": "apc_Arab",
+        "Standard Arabic": "arb_Arab",
+        "Najdi Arabic": "ars_Arab",
+        "Moroccan Arabic": "ary_Arab",
+        "Egyptian Arabic": "arz_Arab",
+        "Assamese": "asm_Beng",
+        "Asturian": "ast_Latn",
+        "Awadhi": "awa_Deva",
+        "Central Aymara": "ayr_Latn",
+        "South Azerbaijani": "azb_Arab",
+        "North Azerbaijani": "azj_Latn",
+        "Bashkir": "bak_Cyrl",
+        "Bambara": "bam_Latn",
+        "Balinese": "ban_Latn",
+        "Belarusian": "bel_Cyrl",
+        "Bemba": "bem_Latn",
+        "Bengali": "ben_Beng",
+        "Bhojpuri": "bho_Deva",
+        "Banjar Arabic": "bjn_Arab",
+        "Banjar Latin": "bjn_Latn",
+        "Standard Tibetan": "bod_Tibt",
+        "Bosnian": "bos_Latn",
+        "Buginese": "bug_Latn",
+        "Bulgarian": "bul_Cyrl",
+        "Catalan": "cat_Latn",
+        "Cebuano": "ceb_Latn",
+        "Czech": "ces_Latn",
+        "Chokwe": "cjk_Latn",
+        "Central Kurdish": "ckb_Arab",
+        "Crimean Tatar": "crh_Latn",
+        "Welsh": "cym_Latn",
+        "Danish": "dan_Latn",
+        "German": "deu_Latn",
+        "Southwestern Dinka": "dik_Latn",
+        "Dyula": "dyu_Latn",
+        "Dzongkha": "dzo_Tibt",
+        "Modern Greek": "ell_Grek",
+        "English": "eng_Latn",
+        "Esperanto": "epo_Latn",
+        "Estonian": "est_Latn",
+        "Basque": "eus_Latn",
+        "Ewe": "ewe_Latn",
+        "Faroese": "fao_Latn",
+        "Western Persian": "pes_Arab",
+        "Fijian": "fij_Latn",
+        "Finnish": "fin_Latn",
+        "Fon": "fon_Latn",
+        "French": "fra_Latn",
+        "Friulian": "fur_Latn",
+        "Nigerian Fulfulde": "fuv_Latn",
+        "Scottish Gaelic": "gla_Latn",
+        "Irish": "gle_Latn",
+        "Galician": "glg_Latn",
+        "Guarani": "grn_Latn",
+        "Gujarati": "guj_Gujr",
+        "Haitian Creole": "hat_Latn",
+        "Hausa": "hau_Latn",
+        "Hebrew": "heb_Hebr",
+        "Hindi": "hin_Deva",
+        "Chhattisgarhi": "hne_Deva",
+        "Croatian": "hrv_Latn",
+        "Hungarian": "hun_Latn",
+        "Armenian": "hye_Armn",
+        "Igbo": "ibo_Latn",
+        "Ilocano": "ilo_Latn",
+        "Indonesian": "ind_Latn",
+        "Icelandic": "isl_Latn",
+        "Italian": "ita_Latn",
+        "Javanese": "jav_Latn",
+        "Japanese": "jpn_Jpan",
+        "Kabyle": "kab_Latn",
+        "Jingpho": "kac_Latn",
+        "Kamba": "kam_Latn",
+        "Kannada": "kan_Knda",
+        "Kashmiri Arabic": "kas_Arab",
+        "Kashmiri Devanagari": "kas_Deva",
+        "Georgian": "kat_Geor",
+        "Central Kanuri Arabic": "knc_Arab",
+        "Central Kanuri Latin": "knc_Latn",
+        "Kazakh": "kaz_Cyrl",
+        "Kabiye": "kbp_Latn",
+        "Kabuverdianu": "kea_Latn",
+        "Khmer": "khm_Khmr",
+        "Kikuyu": "kik_Latn",
+        "Kinyarwanda": "kin_Latn",
+        "Kyrgyz": "kir_Cyrl",
+        "Kimbundu": "kmb_Latn",
+        "Kikongo": "kon_Latn",
+        "Korean": "kor_Hang",
+        "Northern Kurdish": "kmr_Latn",
+        "Lao": "lao_Laoo",
+        "Standard Latvian": "lvs_Latn",
+        "Ligurian": "lij_Latn",
+        "Limburgish": "lim_Latn",
+        "Lingala": "lin_Latn",
+        "Lithuanian": "lit_Latn",
+        "Lombard": "lmo_Latn",
+        "Latgalian": "ltg_Latn",
+        "Luxembourgish": "ltz_Latn",
+        "Luba-Kasai": "lua_Latn",
+        "Ganda": "lug_Latn",
+        "Luo": "luo_Latn",
+        "Mizo": "lus_Latn",
+        "Magahi": "mag_Deva",
+        "Maithili": "mai_Deva",
+        "Malayalam": "mal_Mlym",
+        "Marathi": "mar_Deva",
+        "Minangkabau": "min_Latn",
+        "Macedonian": "mkd_Cyrl",
+        "Plateau Malagasy": "plt_Latn",
+        "Maltese": "mlt_Latn",
+        "Meitei": "mni_Beng",
+        "Halh Mongolian": "khk_Cyrl",
+        "Mossi": "mos_Latn",
+        "Maori": "mri_Latn",
+        "Standard Malay": "zsm_Latn",
+        "Burmese": "mya_Mymr",
+        "Dutch": "nld_Latn",
+        "Norwegian Nynorsk": "nno_Latn",
+        "Norwegian Bokmal": "nob_Latn",
+        "Nepali": "npi_Deva",
+        "Northern Sotho": "nso_Latn",
+        "Nuer": "nus_Latn",
+        "Nyanja": "nya_Latn",
+        "Occitan": "oci_Latn",
+        "West Central Oromo": "gaz_Latn",
+        "Odia": "ory_Orya",
+        "Pangasinan": "pag_Latn",
+        "Eastern Panjabi": "pan_Guru",
+        "Papiamento": "pap_Latn",
+        "Polish": "pol_Latn",
+        "Portuguese": "por_Latn",
+        "Dari": "prs_Arab",
+        "Southern Pashto": "pbt_Arab",
+        "Ayacucho Quechua": "quy_Latn",
+        "Romanian": "ron_Latn",
+        "Rundi": "run_Latn",
+        "Russian": "rus_Cyrl",
+        "Sango": "sag_Latn",
+        "Sanskrit": "san_Deva",
+        "Santali": "sat_Beng",
+        "Sicilian": "scn_Latn",
+        "Shan": "shn_Mymr",
+        "Sinhala": "sin_Sinh",
+        "Slovak": "slk_Latn",
+        "Slovenian": "slv_Latn",
+        "Samoan": "smo_Latn",
+        "Shona": "sna_Latn",
+        "Sindhi": "snd_Arab",
+        "Somali": "som_Latn",
+        "Southern Sotho": "sot_Latn",
+        "Spanish": "spa_Latn",
+        "Tosk Albanian": "als_Latn",
+        "Sardinian": "srd_Latn",
+        "Serbian": "srp_Cyrl",
+        "Swati": "ssw_Latn",
+        "Sundanese": "sun_Latn",
+        "Swedish": "swe_Latn",
+        "Swahili": "swh_Latn",
+        "Silesian": "szl_Latn",
+        "Tamil": "tam_Taml",
+        "Tatar": "tat_Cyrl",
+        "Telugu": "tel_Telu",
+        "Tajik": "tgk_Cyrl",
+        "Tagalog": "tgl_Latn",
+        "Thai": "tha_Thai",
+        "Tigrinya": "tir_Ethi",
+        "Tamasheq Latin": "taq_Latn",
+        "Tamasheq Tifinagh": "taq_Tfng",
+        "Tok Pisin": "tpi_Latn",
+        "Tswana": "tsn_Latn",
+        "Tsonga": "tso_Latn",
+        "Turkmen": "tuk_Latn",
+        "Tumbuka": "tum_Latn",
+        "Turkish": "tur_Latn",
+        "Twi": "twi_Latn",
+        "Central Atlas Tamazight": "tzm_Tfng",
+        "Uyghur": "uig_Arab",
+        "Ukrainian": "ukr_Cyrl",
+        "Umbundu": "umb_Latn",
+        "Urdu": "urd_Arab",
+        "Northern Uzbek": "uzn_Latn",
+        "Venetian": "vec_Latn",
+        "Vietnamese": "vie_Latn",
+        "Waray": "war_Latn",
+        "Wolof": "wol_Latn",
+        "Xhosa": "xho_Latn",
+        "Eastern Yiddish": "ydd_Hebr",
+        "Yoruba": "yor_Latn",
+        "Yue Chinese": "yue_Hant",
+        "Chinese Simplified": "zho_Hans",
+        "Chinese Traditional": "zho_Hant",
+        "Zulu": "zul_Latn"
+      },
+      "pipeline_tag": "translation",
+      "model_desc": "NLLB-200 is a machine translation model primarily intended for research in machine translation, - especially for low-resource languages. It allows for single sentence translation among 200 languages. Information on how to - use the model can be found in Fairseq code repository along with the training code and references to evaluation and training data. Primary users are researchers and machine translation research community. NLLB-200 is trained on general domain text data and is not intended to be used with domain specific texts, such as medical domain or legal domain. The model is not intended to be used for document translation. The model was trained with input lengths not exceeding 512 tokens, therefore translating longer sequences might result in quality degradation. NLLB-200 translations can not be used as certified translations.",
+      "model_card_url": "https://huggingface.co/facebook/nllb-200-distilled-600M",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSeq2SeqLM",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "src_lang": "eng_Latn",
+          "tgt_lang": "por_Latn"
+        }
+      }
+    },
+    "openai/whisper-large-v3": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "audio",
+        "output": "text"
+      },
+      "tags": [
+        "Automatic Speech Recognition",
+        "Speech to Text",
+        "Audio",
+        "Multilingual"
+      ],
+      "languages": {
+        "Null": "null",
+        "English": "en",
+        "Chinese": "zh",
+        "German": "de",
+        "Spanish": "es",
+        "Russian": "ru",
+        "Korean": "ko",
+        "French": "fr",
+        "Japanese": "ja",
+        "Portuguese": "pt",
+        "Turkish": "tr",
+        "Polish": "pl",
+        "Catalan": "ca",
+        "Dutch": "nl",
+        "Arabic": "ar",
+        "Swedish": "sv",
+        "Italian": "it",
+        "Indonesian": "id",
+        "Hindi": "hi",
+        "Finnish": "fi",
+        "Vietnamese": "vi",
+        "Hebrew": "he",
+        "Ukrainian": "uk",
+        "Greek": "el",
+        "Malay": "ms",
+        "Czech": "cs",
+        "Romanian": "ro",
+        "Danish": "da",
+        "Hungarian": "hu",
+        "Tamil": "ta",
+        "Norwegian": "no",
+        "Thai": "th",
+        "Urdu": "ur",
+        "Croatian": "hr",
+        "Bulgarian": "bg",
+        "Lithuanian": "lt",
+        "Latin": "la",
+        "Maori": "mi",
+        "Malayalam": "ml",
+        "Welsh": "cy",
+        "Slovak": "sk",
+        "Telugu": "te",
+        "Persian": "fa",
+        "Latvian": "lv",
+        "Bengali": "bn",
+        "Serbian": "sr",
+        "Azerbaijani": "az",
+        "Slovenian": "sl",
+        "Kannada": "kn",
+        "Estonian": "et",
+        "Macedonian": "mk",
+        "Breton": "br",
+        "Basque": "eu",
+        "Icelandic": "is",
+        "Armenian": "hy",
+        "Nepali": "ne",
+        "Mongolian": "mn",
+        "Bosnian": "bs",
+        "Kazakh": "kk",
+        "Albanian": "sq",
+        "Swahili": "sw",
+        "Galician": "gl",
+        "Marathi": "mr",
+        "Punjabi": "pa",
+        "Sinhala": "si",
+        "Khmer": "km",
+        "Shona": "sn",
+        "Yoruba": "yo",
+        "Somali": "so",
+        "Afrikaans": "af",
+        "Occitan": "oc",
+        "Georgian": "ka",
+        "Belarusian": "be",
+        "Tajik": "tg",
+        "Sindhi": "sd",
+        "Gujarati": "gu",
+        "Amharic": "am",
+        "Yiddish": "yi",
+        "Lao": "lo",
+        "Uzbek": "uz",
+        "Faroese": "fo",
+        "Haitian Creole": "ht",
+        "Pashto": "ps",
+        "Turkmen": "tk",
+        "Norwegian Nynorsk": "nn",
+        "Maltese": "mt",
+        "Sanskrit": "sa",
+        "Luxembourgish": "lb",
+        "Burmese": "my",
+        "Tibetan": "bo",
+        "Tagalog": "tl",
+        "Malagasy": "mg",
+        "Assamese": "as",
+        "Tatar": "tt",
+        "Hawaiian": "haw",
+        "Lingala": "ln",
+        "Hausa": "ha",
+        "Bashkir": "ba",
+        "Javanese": "jw",
+        "Sundanese": "su"
+      },
+      "pipeline_tag": "automatic-speech-recognition",
+      "model_desc": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation. Trained on 680k hours of labelled data, Whisper models demonstrate a strong ability to generalise to many datasets and domains without the need for fine-tuning. Whisper was proposed in the paper Robust Speech Recognition via Large-Scale Weak Supervision by Alec Radford et al. from OpenAI. The original code repository can be found here. Whisper large-v3 has the same architecture as the previous large models except the following minor differences: The input uses 128 Mel frequency bins instead of 80 A new language token for Cantonese The Whisper large-v3 model is trained on 1 million hours of weakly labeled audio and 4 million hours of pseudolabeled audio collected using Whisper large-v2. The model was trained for 2.0 epochs over this mixture dataset. The large-v3 model shows improved performance over a wide variety of languages, showing 10% to 20% reduction of errors compared to Whisper large-v2.",
+      "model_card_url": "https://huggingface.co/openai/whisper-large-v3",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForSpeechSeq2Seq",
+          "tokenizer": "AutoTokenizer",
+          "feature_extractor": "AutoFeatureExtractor"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "max_new_tokens": 128,
+          "chunk_length_s": 30,
+          "batch_size": 16,
+          "return_timestamps": false,
+          "generate_kwargs": {
+            "language": null,
+            "task": null
+          }
+        }
+      }
+    },
+    "suno/bark-small": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "audio"
+      },
+      "tags": [
+        "Text to Speech",
+        "Audio",
+        "Multilingual",
+        "nonverbal communications"
+      ],
+      "languages": {
+        "English": "en",
+        "German": "de",
+        "Spanish": "es",
+        "French": "fr",
+        "Hindi": "hi",
+        "Italian": "it",
+        "Japanese": "ja",
+        "Korean": "ko",
+        "Polish": "pl",
+        "Portuguese": "pt",
+        "Russian": "ru",
+        "Turkish": "tr"
+      },
+      "pipeline_tag": "text-to-speech",
+      "model_desc": "Bark is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio - including music, background noise and simple sound effects. The model can also produce nonverbal communications like laughing, sighing and crying. To support the research community, we are providing access to pretrained model checkpoints ready for inference.",
+      "model_card_url": "https://huggingface.co/suno/bark-small",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModel",
+          "tokenizer": "AutoTokenizer",
+          "config": "AutoConfig"
+        }
+      },
+      "config": {
+        "pipeline_config": {
+          "forward_params": {
+            "do_sample": true
+          }
+        }
+      }
+    },
+    "facebook/mms-tts-eng": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "audio"
+      },
+      "tags": [
+        "Text to Speech",
+        "Audio",
+        "English"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "pipeline_tag": "text-to-speech",
+      "model_desc": "VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) is an end-to-end speech synthesis model that predicts a speech waveform conditional on an input text sequence. It is a conditional variational autoencoder (VAE) comprised of a posterior encoder, decoder, and conditional prior. A set of spectrogram-based acoustic features are predicted by the flow-based module, which is formed of a Transformer-based text encoder and multiple coupling layers. The spectrogram is decoded using a stack of transposed convolutional layers, much in the same style as the HiFi-GAN vocoder. Motivated by the one-to-many nature of the TTS problem, where the same text input can be spoken in multiple ways, the model also includes a stochastic duration predictor, which allows the model to synthesise speech with different rhythms from the same input text.The model is trained end-to-end with a combination of losses derived from variational lower bound and adversarial training. To improve the expressiveness of the model, normalizing flows are applied to the conditional prior distribution. During inference, the text encodings are up-sampled based on the duration prediction module, and then mapped into the waveform using a cascade of the flow module and HiFi-GAN decoder. Due to the stochastic nature of the duration predictor, the model is non-deterministic, and thus requires a fixed seed to generate the same speech waveform.",
+      "model_card_url": "https://huggingface.co/facebook/mms-tts-eng",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForTextToWaveform",
+          "tokenizer": "AutoTokenizer"
+        }
+      },
+      "config": {}
+    },
+    "microsoft/speecht5_tts": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "audio"
+      },
+      "tags": [
+        "Text to Speech",
+        "Audio",
+        "English"
+      ],
+      "languages": {
+        "English": "en"
+      },
+      "pipeline_tag": "text-to-speech",
+      "model_desc": "Motivated by the success of T5 (Text-To-Text Transfer Transformer) in pre-trained natural language processing models, we propose a unified-modal SpeechT5 framework that explores the encoder-decoder pre-training for self-supervised speech/text representation learning. The SpeechT5 framework consists of a shared encoder-decoder network and six modal-specific (speech/text) pre/post-nets. After preprocessing the input speech/text through the pre-nets, the shared encoder-decoder network models the sequence-to-sequence transformation, and then the post-nets generate the output in the speech/text modality based on the output of the decoder. Leveraging large-scale unlabeled speech and text data, we pre-train SpeechT5 to learn a unified-modal representation, hoping to improve the modeling capability for both speech and text. To align the textual and speech information into this unified semantic space, we propose a cross-modal vector quantization approach that randomly mixes up speech/text states with latent units as the interface between encoder and decoder.",
+      "model_card_url": "https://huggingface.co/microsoft/speecht5_tts",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForTextToSpectrogram",
+          "tokenizer": "AutoTokenizer",
+          "feature_extractor": "AutoFeatureExtractor"
+        },
+        "required_packages": [
+          "sentencepiece"
+        ]
+      },
+      "config": {
+        "speaker_embedding_config": "default"
+      }
+    },
+    "meta-llama/Meta-Llama-3.1-8B-Instruct": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "llama",
+        "meta",
+        "llama-3",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:llama3",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": true
+      },
+      "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
+      "model_detail": "https://llama.meta.com/get-started/",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "How are you?"
+          },
+          {
+            "role": "assistant",
+            "content": "I'm good, thanks! What can I help you with?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "google/gemma-2-2b-it": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "gemma",
+        "google",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:gemma",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/google/gemma-2-2b-it",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": true
+      },
+      "model_desc": "Gemma 2 2B Instruct is part of the Gemma family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. It's a 2B parameter model fine-tuned for instruction-following tasks, making it well-suited for various text generation tasks including question answering, summarization, and reasoning.",
+      "model_detail": "https://blog.google/technology/developers/gemma-open-models/",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "model",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "Hello, how are you?"
+          },
+          {
+            "role": "model",
+            "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "google/gemma-2-9b-it": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "gemma",
+        "google",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:gemma",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/google/gemma-2-9b-it",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": true
+      },
+      "model_desc": "Gemma 2 9B Instruct is part of the Gemma family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. It's a 9B parameter model fine-tuned for instruction-following tasks, making it well-suited for various text generation tasks including question answering, summarization, and reasoning.",
+      "model_detail": "https://blog.google/technology/developers/gemma-open-models/",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "model",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "Hello, how are you?"
+          },
+          {
+            "role": "model",
+            "content": "Hello! As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "microsoft/Phi-3.5-mini-instruct": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "phi3",
+        "microsoft",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:mit",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": false
+      },
+      "model_desc": "Phi-3-Mini-4K-Instruct is a 3.8B parameter, lightweight, state-of-the-art open model trained with the Phi-3 datasets. It has undergone post-training processes including supervised fine-tuning and direct preference optimization for instruction following and safety measures. The model showcases robust performance among models with less than 13 billion parameters in benchmarks testing common sense, language understanding, math, code, long context, and logical reasoning.",
+      "model_detail": "https://www.microsoft.com/en-us/research/blog/phi-3-mini-the-worlds-most-capable-small-language-model/",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device": "cuda"
+        },
+        "quantization_config": {
+          "current_mode": "4-bit"
+        },
+        "quantization_config_options": {
+          "4-bit": {
+            "load_in_4bit": true,
+            "bnb_4bit_use_double_quant": true,
+            "bnb_4bit_quant_type": "nf4",
+            "bnb_4bit_compute_dtype": "bfloat16"
+          },
+          "8-bit": {
+            "load_in_8bit": true
+          },
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]" 
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "How are you?"
+          },
+          {
+            "role": "assistant",
+            "content": "As an AI language model, I don't have feelings, but I'm functioning well and ready to assist you. How can I help you today?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "Qwen/Qwen2-0.5B-Instruct": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "qwen2",
+        "chat",
+        "conversational",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:apache-2.0",
+        "region:cn"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": false
+      },
+      "model_desc": "Qwen2-0.5B-Instruct is part of the Qwen2 series of large language models. It's a 0.5B parameter model fine-tuned for instruction-following tasks. Qwen2 models have demonstrated competitiveness against proprietary models across various benchmarks, including language understanding, generation, multilingual capability, coding, mathematics, and reasoning.",
+      "model_detail": "https://github.com/QwenLM/Qwen",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "auto"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device_map": "auto"
+        },
+        "quantization_config": {
+          "current_mode": "bfloat16"
+        },
+        "quantization_config_options": {
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "Give me a short introduction to large language model."
+          },
+          {
+            "role": "assistant",
+            "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "Qwen/Qwen2-1.5B-Instruct": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "qwen2",
+        "chat",
+        "conversational",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:apache-2.0",
+        "region:cn"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/Qwen/Qwen2-1.5B-Instruct",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "requires_auth": false
+      },
+      "model_desc": "Qwen2-1.5B-Instruct is part of the Qwen2 series of large language models. It's a 1.5B parameter model fine-tuned for instruction-following tasks. Qwen2 models have demonstrated competitiveness against proprietary models across various benchmarks, including language understanding, generation, multilingual capability, coding, mathematics, and reasoning. This model shows significant improvements over its predecessor, Qwen1.5-1.8B-Chat, in benchmarks such as MMLU, HumanEval, GSM8K, C-Eval, and IFEval.",
+      "model_detail": "https://github.com/QwenLM/Qwen",
+      "config": {
+        "chat_history": false,
+        "model_config": {
+          "torch_dtype": "auto"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device_map": "auto"
+        },
+        "quantization_config": {
+          "current_mode": "bfloat16"
+        },
+        "quantization_config_options": {
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "Give me a short introduction to large language model."
+          },
+          {
+            "role": "assistant",
+            "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    },
+    "mistralai/Mistral-7B-Instruct-v0.3": {
+      "is_online": false,
+      "model_source": "transformers",
+      "model_class": "TransformerModel",
+      "mapping": {
+        "input": "text",
+        "output": "text"
+      },
+      "tags": [
+        "transformers",
+        "pytorch",
+        "safetensors",
+        "mistral",
+        "conversational",
+        "text-generation",
+        "text-generation-inference",
+        "en",
+        "license:apache-2.0",
+        "region:us"
+      ],
+      "pipeline_tag": "text-generation",
+      "model_card_url": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+      "requirements": {
+        "required_classes": {
+          "model": "AutoModelForCausalLM",
+          "tokenizer": "AutoTokenizer"
+        },
+        "required_packages": [
+          "sentencepiece",
+          "protobuf"
+        ],
+        "requires_auth": true
+      },
+      "model_desc": "Mistral-7B-Instruct-v0.3 is an instruct fine-tuned version of the Mistral-7B-v0.3 Large Language Model (LLM). It features an extended vocabulary of 32,768 tokens, supports the v3 Tokenizer, and includes function calling capabilities. This model is designed for various text generation tasks, including chat completions and instruction following.",
+      "model_detail": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+      "config": {
+        "chat_history": true,
+        "model_config": {
+          "torch_dtype": "bfloat16"
+        },
+        "tokenizer_config": {},
+        "processor_config": {},
+        "pipeline_config": {
+          "max_length": 512,
+          "max_new_tokens": 1000,
+          "num_beams": 2,
+          "use_cache": true,
+          "temperature": 0.6,
+          "top_k": 40,
+          "top_p": 0.92,
+          "repetition_penalty": 1.2,
+          "length_penalty": 1.2
+        },
+        "device_config": {
+          "device_map": "auto"
+        },
+        "quantization_config": {
+          "current_mode": "bfloat16"
+        },
+        "quantization_config_options": {
+          "bfloat16": {}
+        },
+        "system_prompt": {
+          "role": "system",
+          "content": "You are a helpful assistant."
+        },
+        "user_prompt": {
+          "role": "user",
+          "content": "[USER]"
+        },
+        "assistant_prompt": {
+          "role": "assistant",
+          "content": "[ASSISTANT]"
+        },
+        "example_conversation": [
+          {
+            "role": "user",
+            "content": "Who are you?"
+          },
+          {
+            "role": "assistant",
+            "content": "Ahoy there, matey! I be a salty sea dog of a chatbot, always ready to spin a yarn in the finest pirate speak ye ever did hear! I'm as clever as a fox and as quick with me words as I am with a cutlass. What be yer pleasure, landlubber? How can this old salt assist ye on this fine day?"
+          }
+        ],
+        "rag_settings": {
+          "use_dataset": false,
+          "dataset_name": null,
+          "similarity_threshold": 0.5,
+          "use_chunking": false
+        }
+      }
+    }
+  }

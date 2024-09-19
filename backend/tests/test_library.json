@@ -1,0 +1,565 @@
+{
+    "ibm/text-to-speech": {
+        "is_online": true,
+        "model_source": "IBM",
+        "model_class": "WatsonService",
+        "mapping": {
+            "input": "text",
+            "output": "audio"
+        },
+        "tags": [
+            "text-to-speech",
+            "audio-synthesis",
+            "voice-generation",
+            "speech-synthesis"
+        ],
+        "pipeline_tag": "text-to-speech",
+        "model_card_url": "https://cloud.ibm.com/docs/text-to-speech",
+        "model_desc": "IBM Watson Text to Speech service provides APIs that use IBM's speech-synthesis capabilities to convert written text to natural-sounding speech.",
+        "model_detail": "This service supports multiple languages and voices, and includes neural voice technology for expressive and natural-sounding speech synthesis.",
+        "config": {
+            "service_name": "text-to-speech",
+            "voice": "en-US_AllisonV3Voice",
+            "pitch": 0,
+            "speed": 0
+        },
+        "auth_token": null,
+        "base_model": "ibm/text-to-speech",
+        "dir": "data\\downloads\\watson\\ibm/text-to-speech",
+        "is_customised": false
+    },
+    "meta-llama/Meta-Llama-3.1-8B-Instruct": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "llama",
+            "meta",
+            "llama-3",
+            "text-generation",
+            "text-generation-inference",
+            "en",
+            "license:llama3",
+            "region:us"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForCausalLM",
+                "tokenizer": "AutoTokenizer"
+            },
+            "requires_auth": true
+        },
+        "model_desc": "Meta-Llama-3.1-8B-Instruct is part of the Meta Llama 3 family of large language models, optimized for instruction-following tasks. It's an 8B parameter model fine-tuned on a high-quality instruction dataset, making it particularly suitable for conversational AI and task-oriented applications.",
+        "model_detail": "https://llama.meta.com/get-started/",
+        "config": {
+            "chat_history": false,
+            "model_config": {
+                "torch_dtype": "bfloat16"
+            },
+            "tokenizer_config": {},
+            "processor_config": {},
+            "pipeline_config": {
+                "max_length": 512,
+                "max_new_tokens": 501,
+                "num_beams": 2,
+                "use_cache": true,
+                "temperature": 0.6,
+                "top_k": 40,
+                "top_p": 0.92,
+                "repetition_penalty": 1.2,
+                "length_penalty": 1.2
+            },
+            "device_config": {
+                "device": "cuda"
+            },
+            "quantization_config": {
+                "current_mode": "4-bit"
+            },
+            "quantization_config_options": {
+                "4-bit": {
+                    "load_in_4bit": true,
+                    "bnb_4bit_use_double_quant": true,
+                    "bnb_4bit_quant_type": "nf4",
+                    "bnb_4bit_compute_dtype": "bfloat16"
+                },
+                "8-bit": {
+                    "load_in_8bit": true
+                },
+                "bfloat16": {}
+            },
+            "system_prompt": {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            "user_prompt": {
+                "role": "user",
+                "content": "[USER]"
+            },
+            "assistant_prompt": {
+                "role": "assistant",
+                "content": "[ASSISTANT]"
+            },
+            "example_conversation": [
+                {
+                    "role": "user",
+                    "content": "How are you?"
+                },
+                {
+                    "role": "assistant",
+                    "content": "I'm good, thanks! What can I help you with?"
+                }
+            ],
+            "rag_settings": {
+                "use_dataset": true,
+                "dataset_name": "Chapter 1 v2",
+                "similarity_threshold": 0.7,
+                "use_chunking": true
+            }
+        },
+        "auth_token": "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",
+        "base_model": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "dir": "data\\downloads\\transformers\\meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "is_customised": true
+    },
+    "ibm/speech-to-text": {
+        "is_online": true,
+        "model_source": "IBM",
+        "model_class": "WatsonService",
+        "mapping": {
+            "input": "audio",
+            "output": "text"
+        },
+        "tags": [
+            "speech-to-text",
+            "audio-transcription",
+            "voice-recognition",
+            "speech-recognition"
+        ],
+        "pipeline_tag": "speech-to-text",
+        "model_card_url": "https://cloud.ibm.com/docs/speech-to-text",
+        "model_desc": "IBM Watson Speech to Text service provides APIs that use IBM's speech-recognition capabilities to convert speech to text.",
+        "model_detail": "This service can transcribe audio to text from various sources and formats. It uses machine intelligence to combine information about grammar and language structure with knowledge of the composition of the audio signal to generate an accurate transcription.",
+        "config": {
+            "service_name": "speech-to-text",
+            "model": "en-US_BroadbandModel",
+            "content_type": "audio/wav"
+        },
+        "auth_token": null,
+        "base_model": "ibm/speech-to-text",
+        "dir": "data\\downloads\\watson\\ibm/speech-to-text",
+        "is_customised": false
+    },
+    "meta-llama/llama-3-70b-instruct": {
+        "is_online": true,
+        "model_source": "IBM",
+        "model_class": "WatsonModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "text-generation",
+            "question-answering",
+            "summarization",
+            "retrieval-augmented-generation",
+            "classification",
+            "generation",
+            "code",
+            "extraction"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+        "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+        "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+        "config": {
+            "prompt": {
+                "system_prompt": "You are an expert in creating detailed verbal descriptions based on object detection ai model outputs. When provided with an object detection model output you will try to describe what the model has identified.",
+                "example_conversation": "Human: {'predictions': [{'class': 'dog', 'confidence': 0.9415310025215149, 'coordinates': [630.7994995117188, 88.75892639160156, 830.4453125, 502.95611572265625]}, {'class': 'cat', 'confidence': 0.9395217299461365, 'coordinates': [119.55860900878906, 143.70208740234375, 390.6753845214844, 503.533935546875]}, {'class': 'dog', 'confidence': 0.9383360743522644, 'coordinates': [377.5955505371094, 77.4882583618164, 617.9998168945312, 505.9398193359375]}]},\rAI: There is a high probability that this image contains a cat and two dogs positioned next to each other."
+            },
+            "parameters": {
+                "temperature": 0.7,
+                "top_p": 1,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "min_new_tokens": 1,
+                "repetition_penalty": 1,
+                "random_seed": 42,
+                "stop_sequences": [
+                    "Human:",
+                    "AI:",
+                    "<|endoftext|>"
+                ]
+            },
+            "rag_settings": {
+                "use_dataset": false,
+                "dataset_name": null,
+                "similarity_threshold": 0.5,
+                "use_chunking": false
+            },
+            "chat_history": false
+        },
+        "auth_token": null,
+        "base_model": "meta-llama/llama-3-70b-instruct",
+        "dir": "data\\downloads\\watson\\meta-llama/llama-3-70b-instruct",
+        "is_customised": true
+    },
+    "suno/bark-small": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "audio"
+        },
+        "tags": [
+            "Text to Speech",
+            "Audio",
+            "Multilingual",
+            "nonverbal communications"
+        ],
+        "languages": {
+            "English": "en",
+            "German": "de",
+            "Spanish": "es",
+            "French": "fr",
+            "Hindi": "hi",
+            "Italian": "it",
+            "Japanese": "ja",
+            "Korean": "ko",
+            "Polish": "pl",
+            "Portuguese": "pt",
+            "Russian": "ru",
+            "Turkish": "tr"
+        },
+        "pipeline_tag": "text-to-speech",
+        "model_desc": "Bark is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio - including music, background noise and simple sound effects. The model can also produce nonverbal communications like laughing, sighing and crying. To support the research community, we are providing access to pretrained model checkpoints ready for inference.",
+        "model_card_url": "https://huggingface.co/suno/bark-small",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModel",
+                "tokenizer": "AutoTokenizer",
+                "config": "AutoConfig"
+            }
+        },
+        "config": {
+            "pipeline_config": {
+                "forward_params": {
+                    "do_sample": true
+                }
+            }
+        },
+        "auth_token": null,
+        "base_model": "suno/bark-small",
+        "dir": "data\\downloads\\transformers\\suno/bark-small",
+        "is_customised": false
+    },
+    "yolov10s": {
+        "is_online": false,
+        "model_source": "ultralytics",
+        "model_class": "UltralyticsModel",
+        "mapping": {
+            "input": "image",
+            "output": "text"
+        },
+        "tags": [
+            "yolo",
+            "object-detection",
+            "pytorch",
+            "yolov10",
+            "yolov10s",
+            "computer-vision",
+            "en",
+            "license:agpl-3.0"
+        ],
+        "pipeline_tag": "object-detection",
+        "model_desc": "Real-time object detection aims to accurately predict object categories and positions in images with low latency. The YOLO series has been at the forefront of this research due to its balance between performance and efficiency. However, reliance on NMS and architectural inefficiencies have hindered optimal performance. YOLOv10 addresses these issues by introducing consistent dual assignments for NMS-free training and a holistic efficiency-accuracy driven model design strategy.",
+        "model_detail": "https://docs.ultralytics.com/models/yolov10/",
+        "dataset_format": "yolo",
+        "requirements": {
+            "required_classes": {
+                "model": "YOLO"
+            }
+        },
+        "auth_token": null,
+        "base_model": "yolov10s",
+        "dir": "data\\downloads\\ultralytics\\yolov10s",
+        "is_customised": false,
+        "config": {}
+    },
+    "error test": {
+        "is_online": true,
+        "model_source": "IBM",
+        "model_class": "WatsonModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "text-generation",
+            "question-answering",
+            "summarization",
+            "retrieval-augmented-generation",
+            "classification",
+            "generation",
+            "code",
+            "extraction"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+        "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+        "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+        "config": {
+            "prompt": {
+                "system_prompt": "You are an expert in creating detailed verbal descriptions based on object detection ai model outputs. When provided with an object detection model output you will try to describe what the model has identified.",
+                "example_conversation": "Human: {'predictions': [{'class': 'dog', 'confidence': 0.9415310025215149, 'coordinates': [630.7994995117188, 88.75892639160156, 830.4453125, 502.95611572265625]}, {'class': 'cat', 'confidence': 0.9395217299461365, 'coordinates': [119.55860900878906, 143.70208740234375, 390.6753845214844, 503.533935546875]}, {'class': 'dog', 'confidence': 0.9383360743522644, 'coordinates': [377.5955505371094, 77.4882583618164, 617.9998168945312, 505.9398193359375]}]},\rAI: There is a high probability that this image contains a cat and two dogs positioned next to each other."
+            },
+            "parameters": {
+                "temperature": 0.7,
+                "top_p": 1,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "min_new_tokens": 1,
+                "repetition_penalty": 1,
+                "random_seed": 42,
+                "stop_sequences": [
+                    "Human:",
+                    "AI:",
+                    "<|endoftext|>"
+                ]
+            },
+            "rag_settings": {
+                "use_dataset": false,
+                "dataset_name": null,
+                "similarity_threshold": 0.5,
+                "use_chunking": false
+            },
+            "chat_history": false
+        },
+        "auth_token": null,
+        "base_model": "meta-llama/llama-3-70b-instruct",
+        "dir": "data\\downloads\\watson\\meta-llama/llama-3-70b-instruct",
+        "is_customised": true
+    },
+    "facebook/mms-tts-eng": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "audio"
+        },
+        "tags": [
+            "Text to Speech",
+            "Audio",
+            "English"
+        ],
+        "languages": {
+            "English": "en"
+        },
+        "pipeline_tag": "text-to-speech",
+        "model_desc": "VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) is an end-to-end speech synthesis model that predicts a speech waveform conditional on an input text sequence. It is a conditional variational autoencoder (VAE) comprised of a posterior encoder, decoder, and conditional prior. A set of spectrogram-based acoustic features are predicted by the flow-based module, which is formed of a Transformer-based text encoder and multiple coupling layers. The spectrogram is decoded using a stack of transposed convolutional layers, much in the same style as the HiFi-GAN vocoder. Motivated by the one-to-many nature of the TTS problem, where the same text input can be spoken in multiple ways, the model also includes a stochastic duration predictor, which allows the model to synthesise speech with different rhythms from the same input text.The model is trained end-to-end with a combination of losses derived from variational lower bound and adversarial training. To improve the expressiveness of the model, normalizing flows are applied to the conditional prior distribution. During inference, the text encodings are up-sampled based on the duration prediction module, and then mapped into the waveform using a cascade of the flow module and HiFi-GAN decoder. Due to the stochastic nature of the duration predictor, the model is non-deterministic, and thus requires a fixed seed to generate the same speech waveform.",
+        "model_card_url": "https://huggingface.co/facebook/mms-tts-eng",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForTextToWaveform",
+                "tokenizer": "AutoTokenizer"
+            }
+        },
+        "config": {},
+        "auth_token": null,
+        "base_model": "facebook/mms-tts-eng",
+        "dir": "data\\downloads\\transformers\\facebook/mms-tts-eng",
+        "is_customised": false
+    },
+    "base 70b": {
+        "is_online": true,
+        "model_source": "IBM",
+        "model_class": "WatsonModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "text-generation",
+            "question-answering",
+            "summarization",
+            "retrieval-augmented-generation",
+            "classification",
+            "generation",
+            "code",
+            "extraction"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+        "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+        "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+        "config": {
+            "prompt": {
+                "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+                "example_conversation": ""
+            },
+            "parameters": {
+                "temperature": 0.7,
+                "top_p": 1.0,
+                "top_k": 50,
+                "max_new_tokens": 1000,
+                "min_new_tokens": 1,
+                "repetition_penalty": 1.0,
+                "random_seed": 42,
+                "stop_sequences": [
+                    "Human:",
+                    "AI:",
+                    "<|endoftext|>"
+                ]
+            },
+            "rag_settings": {
+                "use_dataset": false,
+                "dataset_name": null,
+                "similarity_threshold": 0.5,
+                "use_chunking": false
+            },
+            "chat_history": false
+        },
+        "auth_token": null,
+        "base_model": "meta-llama/llama-3-70b-instruct",
+        "dir": "data\\downloads\\watson\\meta-llama/llama-3-70b-instruct",
+        "is_customised": false
+    },
+    "cardiffnlp/twitter-roberta-base-sentiment-latest": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "Text Classification",
+            "Sentiment Analysis"
+        ],
+        "languages": {
+            "English": "en"
+        },
+        "labels": [
+            "positive",
+            "neutral",
+            "negative"
+        ],
+        "pipeline_tag": "text-classification",
+        "model_desc": "This is a RoBERTa-base model trained on ~124M tweets from January 2018 to December 2021, and finetuned for sentiment analysis with the TweetEval benchmark. This model is suitable for English. ",
+        "model_card_url": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForSequenceClassification",
+                "tokenizer": "AutoTokenizer"
+            }
+        },
+        "auth_token": null,
+        "base_model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "dir": "data\\downloads\\transformers\\cardiffnlp/twitter-roberta-base-sentiment-latest",
+        "is_customised": false,
+        "config": {}
+    },
+    "Qwen/Qwen2-0.5B-Instruct": {
+        "is_online": false,
+        "model_source": "transformers",
+        "model_class": "TransformerModel",
+        "mapping": {
+            "input": "text",
+            "output": "text"
+        },
+        "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "qwen2",
+            "chat",
+            "conversational",
+            "text-generation",
+            "text-generation-inference",
+            "en",
+            "license:apache-2.0",
+            "region:cn"
+        ],
+        "pipeline_tag": "text-generation",
+        "model_card_url": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct",
+        "requirements": {
+            "required_classes": {
+                "model": "AutoModelForCausalLM",
+                "tokenizer": "AutoTokenizer"
+            },
+            "requires_auth": false
+        },
+        "model_desc": "Qwen2-0.5B-Instruct is part of the Qwen2 series of large language models. It's a 0.5B parameter model fine-tuned for instruction-following tasks. Qwen2 models have demonstrated competitiveness against proprietary models across various benchmarks, including language understanding, generation, multilingual capability, coding, mathematics, and reasoning.",
+        "model_detail": "https://github.com/QwenLM/Qwen",
+        "config": {
+            "chat_history": false,
+            "model_config": {
+                "torch_dtype": "auto"
+            },
+            "tokenizer_config": {},
+            "processor_config": {},
+            "pipeline_config": {
+                "max_length": 512,
+                "max_new_tokens": 1000,
+                "num_beams": 2,
+                "use_cache": true,
+                "temperature": 0.6,
+                "top_k": 40,
+                "top_p": 0.92,
+                "repetition_penalty": 1.2,
+                "length_penalty": 1.2
+            },
+            "device_config": {
+                "device_map": "auto"
+            },
+            "quantization_config": {
+                "current_mode": "bfloat16"
+            },
+            "quantization_config_options": {
+                "bfloat16": {}
+            },
+            "system_prompt": {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            "user_prompt": {
+                "role": "user",
+                "content": "[USER]"
+            },
+            "assistant_prompt": {
+                "role": "assistant",
+                "content": "[ASSISTANT]"
+            },
+            "example_conversation": [
+                {
+                    "role": "user",
+                    "content": "Give me a short introduction to large language model."
+                },
+                {
+                    "role": "assistant",
+                    "content": "A large language model (LLM) is an advanced artificial intelligence system designed to understand, generate, and manipulate human-like text. These models are trained on vast amounts of textual data, allowing them to learn patterns, context, and relationships within language.\n\nKey features of LLMs include:\n\n1. Size: They typically have billions of parameters, enabling them to capture complex language nuances.\n\n2. Versatility: LLMs can perform various tasks such as translation, summarization, question-answering, and creative writing.\n\n3. Contextual understanding: They can interpret and generate text based on given context.\n\n4. Transfer learning: LLMs can be fine-tuned for specific tasks or domains.\n\n5. Continuous improvement: As more data becomes available, these models can be updated to enhance their performance.\n\nLLMs have revolutionized natural language processing and have applications in various fields, including customer service, content creation, and research assistance. However, they also raise ethical concerns regarding bias, misinformation, and privacy."
+                }
+            ],
+            "rag_settings": {
+                "use_dataset": false,
+                "dataset_name": null,
+                "similarity_threshold": 0.5,
+                "use_chunking": false
+            }
+        },
+        "auth_token": null,
+        "base_model": "Qwen/Qwen2-0.5B-Instruct",
+        "dir": "data\\downloads\\transformers\\Qwen/Qwen2-0.5B-Instruct",
+        "is_customised": false
+    }
+}
