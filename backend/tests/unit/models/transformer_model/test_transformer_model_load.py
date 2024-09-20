@@ -57,7 +57,7 @@ def test_load_success(model_info_library):
         mock_model.assert_called_once_with(
             "Qwen/Qwen2-0.5B-Instruct",
             cache_dir=expected_model_dir,
-            torch_dtype='auto',
+            torch_dtype=torch.bfloat16,  # Change this from 'auto' to torch.bfloat16
             local_files_only=True
         )
 

@@ -47,8 +47,7 @@ class MockModelControl(ModelControl):
         mock_class = MagicMock()
         mock_from_pretrained = MagicMock()
         mock_class.from_pretrained = mock_from_pretrained
-        test_data.update({"Just before patches": True})
-        RuntimeControl.update_runtime_data("test_data", test_data)
+
         with patch('backend.models.transformer_model.getattr', return_value=mock_class) as mock_getattr, \
              patch('backend.models.transformer_model.os.path.exists', return_value=False) as mock_exists, \
              patch('backend.models.transformer_model.os.makedirs') as mock_makedirs:

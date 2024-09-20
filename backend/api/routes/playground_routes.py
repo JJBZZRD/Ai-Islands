@@ -6,6 +6,7 @@ from backend.utils.api_response import success_response, error_response
 import logging
 from fastapi.encoders import jsonable_encoder
 from backend.core.exceptions import FileReadError, FileWriteError, PlaygroundError, PlaygroundAlreadyExistsError, ChainNotCompatibleError
+from backend.controlers.runtime_control import RuntimeControl
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +134,10 @@ class PlaygroundRouter:
             return error_response(message=str(e), status_code=404)
         except (FileReadError, FileWriteError) as e:
             return error_response(message=str(e), status_code=500)
+        except PlaygroundError as e:
+            return error_response(message=str(e), status_code=409)
+        except Exception as e:
+            return error_response(message=str(e), status_code=500)
 
     async def stop_playground_chain(self, playground_id: Annotated[str, Body(embed=True)] = ...):
         try:
@@ -141,6 +146,8 @@ class PlaygroundRouter:
                 return success_response(status_code=204)
         except KeyError as e:
             return error_response(message=str(e), status_code=404)
+        except PlaygroundError as e:
+            return error_response(message=str(e), status_code=409)
         except (FileReadError, FileWriteError) as e:
             return error_response(message=str(e), status_code=500)
         except Exception as e:

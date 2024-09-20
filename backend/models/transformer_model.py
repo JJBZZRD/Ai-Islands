@@ -17,7 +17,7 @@ from backend.data_utils.speaker_embedding_manager import SpeakerEmbeddingManager
 from backend.utils.process_vis_out import _ensure_json_serializable
 from backend.core.exceptions import ModelError
 from backend.utils.dataset_utility import DatasetManagement
-
+from backend.controlers.runtime_control import RuntimeControl
 
 logger = logging.getLogger(__name__)
 

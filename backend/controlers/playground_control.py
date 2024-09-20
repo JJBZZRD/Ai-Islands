@@ -357,6 +357,10 @@ class PlaygroundControl:
             raise KeyError(f"Playground {playground_id} not found")
         playground = self.playgrounds[playground_id]
         logger.info(f"Loading chain for playground {playground_id}")
+
+        # Check if the chain is already active
+        if playground.active_chain:
+            raise PlaygroundError(f"Playground {playground_id} is already running a chain, please stop it before loading.")
         
         # Load the models in the chain
         for model_id in playground.chain:
@@ -403,6 +407,10 @@ class PlaygroundControl:
             logger.error(f"Playground {playground_id} not found")
             raise KeyError(f"Playground {playground_id} not found")
         playground = self.playgrounds[playground_id]
+
+        # Check if the playground is not running a chain
+        if not playground.active_chain:
+            raise PlaygroundError(f"Playground {playground_id} is not running a chain, please load it before stopping.")
 
         # Get the runtime data
         try:
