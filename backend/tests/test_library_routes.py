@@ -20,10 +20,10 @@ def test_get_full_library():
 def test_get_model_info_library():
     response = client.get("/library/get-model-info-library", params={"model_id": "ibm/granite-20b-multilingual"})
     response_json = response.json()
-    print("Get Model Info Library Response JSON:", response_json)  # Debug print
+    print("Get Model Info Library Response JSON:", response_json)
     assert response.status_code == 200
-    assert "base_model" in response_json  # Check if 'base_model' is in the response JSON
-    assert response_json["base_model"] == "ibm/granite-20b-multilingual"  # Validate the value of 'base_model'
+    assert "base_model" in response_json
+    assert response_json["base_model"] == "ibm/granite-20b-multilingual"
 
 @pytest.mark.order5
 def test_update_model_config():
@@ -32,7 +32,7 @@ def test_update_model_config():
         "new_config": {"parameters": {"temperature": "0.1"}}
     }
     response = client.post("/library/update-model-config", json=update_request)
-    print("Update Model Config Response JSON:", response.json())  # Debug print
+    print("Update Model Config Response JSON:", response.json())
     assert response.status_code == 200
     assert response.json()["message"] == "Configuration updated for model ibm/granite-20b-multilingual"
 
@@ -41,34 +41,34 @@ def test_save_new_model():
     save_request = {
         "model_id": "ibm/granite-20b-multilingual",
         "new_model_id": "ibm/granite-20b-multilingual",
-        "new_config": {"parameters": {"temperature": "0.1"}}  # Added new_config field
+        "new_config": {"parameters": {"temperature": "0.1"}}
     }
     response = client.post("/library/save-new-model", json=save_request)
-    print("Save New Model Response JSON:", response.json())  # Debug print
+    print("Save New Model Response JSON:", response.json())
     assert response.status_code == 200
-    assert response.json() == {"message": "New model ibm/granite-20b-multilingual saved successfully"}  # Updated expected message
+    assert response.json() == {"message": "New model ibm/granite-20b-multilingual saved successfully"}
 
 @pytest.mark.order7
 def test_update_model_id():
     update_request = {
-        "model_id": "ibm/granite-20b-multilingual",  # Corrected model_id
+        "model_id": "ibm/granite-20b-multilingual",
         "new_model_id": "updated_ibm/granite-20b-multilingual",
         "new_config": {}
     }
     response = client.post("/library/update-model-id", json=update_request)
-    print("Update Model ID Response JSON:", response.json())  # Debug print
+    print("Update Model ID Response JSON:", response.json())
     assert response.status_code == 200
-    assert response.json() == {"message": "Model ID updated from ibm/granite-20b-multilingual to updated_ibm/granite-20b-multilingual"}  # Updated expected message
+    assert response.json() == {"message": "Model ID updated from ibm/granite-20b-multilingual to updated_ibm/granite-20b-multilingual"}
 
 @pytest.mark.order8
 def test_restore_model_id():
     update_request = {
-        "model_id": "updated_ibm/granite-20b-multilingual",  # Corrected model_id
+        "model_id": "updated_ibm/granite-20b-multilingual",
         "new_model_id": "ibm/granite-20b-multilingual",
         "new_config": {}
     }
     response = client.post("/library/update-model-id", json=update_request)
-    print("Update Model ID Response JSON:", response.json())  # Debug print
+    print("Update Model ID Response JSON:", response.json())
     assert response.status_code == 200
     assert response.json() == {"message": "Model ID updated from updated_ibm/granite-20b-multilingual to ibm/granite-20b-multilingual"}
 

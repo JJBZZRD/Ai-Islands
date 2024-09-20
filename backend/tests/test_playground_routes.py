@@ -73,14 +73,13 @@ def test_playground_inference_with_multiple_models():
     })
     print_response("Playground Inference", response)
     assert response.status_code == 200
-    # Add more specific assertions about the inference result if needed
 
 @pytest.mark.order7
 def test_configure_chain_before_removing_model():
     # Ensure the chain is stopped before configuring
     stop_response = client.post("/playground/stop-chain", json={"playground_id": PLAYGROUND_ID})
     print_response("Stop Playground Chain Before Configuring", stop_response)
-    assert stop_response.status_code in [200, 204]  # Allow both 200 and 204 (No Content)
+    assert stop_response.status_code in [200, 204]
     
     response = client.post("/playground/configure-chain", json={
         "playground_id": PLAYGROUND_ID,
@@ -107,36 +106,7 @@ def test_remove_nlu_model():
         "model_id": "ibm/natural-language-understanding"
     })
     print_response("Remove NLU Model from Playground", response)
-    assert response.status_code in [200, 204]  # Allow both 200 and 204 (No Content)
-
-# @pytest.mark.order9
-# def test_update_playground_information():
-#     # Stop the chain before updating the playground
-#     stop_response = client.post("/playground/stop-chain", json={"playground_id": PLAYGROUND_ID})
-#     print_response("Stop Playground Chain Before Update", stop_response)
-#     if stop_response.status_code == 404:
-#         # If the chain is not found, it might already be stopped
-#         print("Chain not found, assuming it is already stopped.")
-#     else:
-#         assert stop_response.status_code in [200, 204]  # Allow both 200 and 204 (No Content)
-
-#     # Fetch playground info to ensure the chain is stopped
-#     info_response = client.get("/playground/info", params={"playground_id": PLAYGROUND_ID})
-#     print_response("Get Playground Info Before Update", info_response)
-#     assert info_response.status_code == 200
-#     assert "data" in info_response.json()
-#     data = info_response.json()["data"]
-#     assert "description" in data
-#     assert "models" in data
-#     assert "chain" in data
-#     assert "active_chain" in data
-
-#     response = client.put("/playground/update", json={
-#         "playground_id": PLAYGROUND_ID,
-#         "description": "Updated playground with only Granite model"
-#     })
-#     print_response("Update Playground", response)
-#     assert response.status_code in [200, 204] 
+    assert response.status_code in [200, 204]
 
 @pytest.mark.order10
 def test_get_playground_info():
@@ -168,19 +138,18 @@ def test_playground_inference_after_reload_with_single_model():
     })
     print_response("Playground Inference After Reload", response)
     assert response.status_code == 200
-    # Add more specific assertions about the inference result if needed
 
 @pytest.mark.order14
 def test_stop_playground_chain_with_single_model():
     response = client.post("/playground/stop-chain", json={"playground_id": PLAYGROUND_ID})
     print_response("Stop Playground Chain", response)
-    assert response.status_code in [200, 204]  # Allow both 200 and 204 (No Content)
+    assert response.status_code in [200, 204]
 
 @pytest.mark.order15
 def test_delete_playground():
     response = client.delete("/playground/delete", params={"playground_id": PLAYGROUND_ID})
     print_response("Delete Playground", response)
-    assert response.status_code in [200, 204]  # Allow both 200 and 204 (No Content)
+    assert response.status_code in [200, 204]
 
 @pytest.mark.order16
 def test_unload_and_delete_models():
@@ -194,4 +163,4 @@ def test_unload_and_delete_models():
         
         response = client.delete(f"/model/delete-model?model_id={model}")
         print_response(f"Delete Model {model}", response)
-        assert response.status_code in [200, 204, 409]  # Allow 409 if model is still in use
+        assert response.status_code in [200, 204, 409]
