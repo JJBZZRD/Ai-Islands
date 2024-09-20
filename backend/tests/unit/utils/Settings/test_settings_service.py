@@ -15,6 +15,7 @@ def mock_watson_settings():
         'USER_PROJECT_ID': 'fake_project_id'
     }
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.watson_settings')
 async def test_update_watson_settings(mock_settings, settings_service):
     mock_settings.set = MagicMock()
@@ -28,6 +29,7 @@ async def test_update_watson_settings(mock_settings, settings_service):
     mock_settings.set.assert_any_call("USER_PROJECT_ID", "new_project_id")
     mock_settings.update_location.assert_called_once_with("us-south")
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.watson_settings')
 async def test_get_watson_settings(mock_settings, settings_service, mock_watson_settings):
     mock_settings.get_all_settings.return_value = mock_watson_settings
@@ -40,6 +42,7 @@ async def test_get_watson_settings(mock_settings, settings_service, mock_watson_
         "project": "fake_project_id"
     }
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.SettingsService._read_config')
 @patch('backend.settings.settings_service.SettingsService._write_config')
 async def test_update_chunking_settings(mock_write_config, mock_read_config, settings_service):
@@ -51,6 +54,7 @@ async def test_update_chunking_settings(mock_write_config, mock_read_config, set
     assert result == "Chunking settings updated successfully"
     mock_write_config.assert_called_once_with({"chunking": {"chunk_size": 1000, "overlap": 200}})
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.SettingsService._read_config')
 async def test_get_chunking_settings(mock_read_config, settings_service):
     mock_read_config.return_value = {"chunking": {"chunk_size": 1000, "overlap": 200}}
@@ -59,6 +63,7 @@ async def test_get_chunking_settings(mock_read_config, settings_service):
 
     assert result == {"chunk_size": 1000, "overlap": 200}
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.SettingsService._read_config')
 @patch('backend.settings.settings_service.SettingsService._write_config')
 @patch('backend.settings.settings_service.torch.cuda.is_available')
@@ -71,6 +76,7 @@ async def test_set_hardware_preference(mock_cuda_available, mock_write_config, m
     assert result == "Successfully set hardware to gpu"
     mock_write_config.assert_called_once_with({"hardware": "gpu"})
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.SettingsService._read_config')
 async def test_get_hardware_preference(mock_read_config, settings_service):
     mock_read_config.return_value = {"hardware": "gpu"}
@@ -79,12 +85,13 @@ async def test_get_hardware_preference(mock_read_config, settings_service):
 
     assert result == "gpu"
 
+@pytest.mark.asyncio
 @patch('backend.settings.settings_service.torch.cuda.is_available')
-@patch('backend.settings.settings_service.torch.version.cuda')
+@patch('backend.settings.settings_service.torch.version')
 @patch('backend.settings.settings_service.torch.backends.cudnn.version')
-async def test_check_gpu(mock_cudnn_version, mock_cuda_version, mock_cuda_available, settings_service):
+async def test_check_gpu(mock_cudnn_version, mock_torch_version, mock_cuda_available, settings_service):
     mock_cuda_available.return_value = True
-    mock_cuda_version.return_value = "11.3"
+    mock_torch_version.cuda = "11.3"
     mock_cudnn_version.return_value = 8200
 
     result = await settings_service.check_gpu()
