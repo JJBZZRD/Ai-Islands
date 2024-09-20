@@ -17,6 +17,14 @@ def test_get_full_library():
     assert isinstance(response.json(), dict)
 
 @pytest.mark.order3
+def test_download_model():
+    endpoint = "/model/download-model"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.post(f"{endpoint}?model_id=ibm/granite-20b-multilingual")
+    # print_response("Download Model", response)
+    assert response.status_code == 200
+
+@pytest.mark.order4
 def test_get_model_info_library():
     response = client.get("/library/get-model-info-library", params={"model_id": "ibm/granite-20b-multilingual"})
     response_json = response.json()
@@ -71,6 +79,15 @@ def test_restore_model_id():
     print("Update Model ID Response JSON:", response.json())
     assert response.status_code == 200
     assert response.json() == {"message": "Model ID updated from updated_ibm/granite-20b-multilingual to ibm/granite-20b-multilingual"}
+
+@pytest.mark.order9
+def test_delete_model():
+    endpoint = "/model/delete-model"
+    print(f"\nTesting endpoint: {endpoint}")
+    response = client.delete(f"{endpoint}?model_id=ibm/granite-20b-multilingual")
+    # print_response("Delete Model", response)
+    assert response.status_code == 200
+
 
 # @pytest.mark.order8
 # def test_delete_model():
