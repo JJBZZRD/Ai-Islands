@@ -9,7 +9,7 @@ client = TestClient(app)
 @pytest.mark.order1
 def test_upload_dataset():
     endpoint = "/data/upload-dataset"
-    local_dataset_path = r"C:\Users\costa\OneDrive\Desktop\DataTest_AI_Islands\fictional_space_colonies.csv"
+    local_dataset_path = r"backend\tests\fictional_space_colonies.csv"
     print(f"\nTesting endpoint: {endpoint}")
     
     # Create the request payload
@@ -59,14 +59,14 @@ def test_dataset_processing_status():
 def test_dataset_processing_info():
     endpoint = "/data/dataset-processing-info"
     dataset_name = "fictional_space_colonies"
-    processing_type = "default"  # Adjust this based on your actual processing types
+    processing_type = "default"
     print(f"\nTesting endpoint: {endpoint}")
     response = client.get(f"{endpoint}?dataset_name={dataset_name}&processing_type={processing_type}")
     
     # print("Dataset Processing Info Response:")
     # print(json.dumps(response.json(), indent=2))
     
-    assert response.status_code in [200, 404]  # Accept either 200 or 404
+    assert response.status_code in [200, 404]
     if response.status_code == 200:
         assert "model_type" in response.json()
     else:
