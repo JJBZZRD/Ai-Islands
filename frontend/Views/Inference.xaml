@@ -202,7 +202,8 @@
                                     IsTextPredictionEnabled="False"
                                     IsSpellCheckEnabled="False"
                                     IsVisible="{Binding IsOutputTextVisible}"
-                                    BackgroundColor="Transparent"/>
+                                    BackgroundColor="Transparent"
+                                    AutoSize="TextChanges"/>
                             <Image Source="{Binding ProcessedImageSource}"
                                    Aspect="AspectFit"
                                    IsVisible="{Binding IsProcessedImageVisible}"/>
