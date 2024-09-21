@@ -345,7 +345,20 @@ namespace frontend.Views
 
                 // Text Generation Models (LLMs)
                 case "text-generation":
-                    FormattedOutputText = dataValue.ToString();
+                    // FormattedOutputText = dataValue.ToString();
+                    // break;
+                    if (dataValue is JsonElement jsonData && jsonData.TryGetProperty("result", out JsonElement resultElement))
+                    {
+                        FormattedOutputText = resultElement.GetString() ?? "No result found";
+                    }
+                    else if (dataValue is Dictionary<string, object> dict && dict.TryGetValue("result", out var resultObj))
+                    {
+                        FormattedOutputText = resultObj?.ToString() ?? "No result found";
+                    }
+                    else
+                    {
+                        FormattedOutputText = "Unexpected response format for text generation";
+                    }
                     break;
 
                 default:

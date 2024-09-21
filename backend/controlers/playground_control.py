@@ -463,9 +463,18 @@ class PlaygroundControl:
             }
             inference_result = self.model_control.inference(model_inference_request)
             print("inference_result", inference_result)
-            data = {
-                "payload": str(inference_result)
-            }
+            
+            # Extract the relevant part of the result
+            if isinstance(inference_result, dict):
+                if "data" in inference_result and "result" in inference_result["data"]:
+                    data = {"payload": inference_result["data"]["result"]}
+                elif "result" in inference_result:
+                    data = {"payload": inference_result["result"]}
+                else:
+                    # If we can't find a 'result' key, use the whole inference_result
+                    data = {"payload": str(inference_result)}
+            else:
+                data = {"payload": str(inference_result)}
             
         return inference_result
 
