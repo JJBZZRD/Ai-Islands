@@ -21,10 +21,18 @@
             </Grid.RowDefinitions>
 
             <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-                <Label Text="AI Island creation" 
+                <!-- <Label Text="AI Island creation" 
                        FontSize="24" 
                        FontAttributes="Bold" 
-                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                       TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/> -->
+                <Label FontSize="24" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding Playground.PlaygroundId}" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#007AFF, Dark=#4DA3FF}"/>
+                            <Span Text=" Chain Order Configuration" FontAttributes="None"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
                 <Label Text="Build and customise your own AI model chain. Utilise various AI models, such as NLP, CV, GenAI chatbot models to construct a model chain tailored to your unique needs."
                        FontSize="17"
                        TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}"/>

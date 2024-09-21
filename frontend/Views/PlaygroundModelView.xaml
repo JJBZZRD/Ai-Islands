@@ -20,7 +20,15 @@
             </Grid.RowDefinitions>
 
             <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
-                <Label Text="{Binding Playground.PlaygroundId, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/>
+                <Label FontSize="26" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding Playground.PlaygroundId}" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#007AFF, Dark=#4DA3FF}"/>
+                            <Span Text=" Models" FontAttributes="None"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <!-- <Label Text="{Binding Playground.PlaygroundId, StringFormat='{0} Models'}" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"/> -->
                 <Label Text="Explore the models available in this playground" FontSize="17" TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
             </VerticalStackLayout>
 
