@@ -205,7 +205,7 @@ namespace frontend.Views
             {
                 Text = buttonText,
                 BackgroundColor = Colors.LightGray,
-                TextColor = Colors.Black,
+                // TextColor = Colors.Black,
                 CornerRadius = 5,
                 Margin = new Thickness(0, 20, 0, 10)
             };
@@ -240,6 +240,22 @@ namespace frontend.Views
             };
         }
 
+        // private View CreateTextInputUI()
+        // {
+        //     var editor = new Editor
+        //     {
+        //         Placeholder = "Enter your input here...",
+        //         PlaceholderColor = Colors.Gray,
+        //         HeightRequest = 150,
+        //         Text = _viewModel.InputText
+        //     };
+        //     editor.TextChanged += (sender, e) =>
+        //     {
+        //         _viewModel.InputText = ((Editor)sender)?.Text ?? string.Empty;
+        //         System.Diagnostics.Debug.WriteLine($"Text input changed. New value: '{_viewModel.InputText}'");
+        //     };
+        //     return editor;
+        // }
         private View CreateTextInputUI()
         {
             var editor = new Editor
@@ -247,14 +263,25 @@ namespace frontend.Views
                 Placeholder = "Enter your input here...",
                 PlaceholderColor = Colors.Gray,
                 HeightRequest = 150,
-                Text = _viewModel.InputText
+                Text = _viewModel.InputText,
+                // BackgroundColor = Color.FromArgb("#F2F2F2"),  // Light gray background
+                // TextColor = Colors.Black,
+                Margin = new Thickness(0, 0, 0, 0)  // Add top margin to align with output frame
             };
             editor.TextChanged += (sender, e) =>
             {
                 _viewModel.InputText = ((Editor)sender)?.Text ?? string.Empty;
                 System.Diagnostics.Debug.WriteLine($"Text input changed. New value: '{_viewModel.InputText}'");
             };
-            return editor;
+
+            return new Frame
+            {
+                Padding = new Thickness(10),
+                // BackgroundColor = Color.FromArgb("#F2F2F2"),
+                // BorderColor = Color.FromArgb("#CCCCCC"),
+                CornerRadius = 5,
+                Content = editor
+            };
         }
 
         private async void OnSendMessageClicked(object sender, EventArgs e)
