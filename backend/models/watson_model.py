@@ -34,6 +34,8 @@ class WatsonModel(BaseModel):
         self.api_key = None
         self.project_id = None
         self.chat_history = []
+        self.relevant_entries_count = 0
+        self.total_entries_count = 0
         
         logger.info(f"Initialized WatsonModel with ID: {self.model_id}")
 
@@ -279,7 +281,7 @@ class WatsonModel(BaseModel):
                     if dataset_name:
                         logger.info(f"Using dataset: {dataset_name}")
                         dataset_management = DatasetManagement()
-                        relevant_entries = dataset_management.find_relevant_entries(
+                        relevant_entries, self.relevant_entries_count, self.total_entries_count = dataset_management.find_relevant_entries(
                             payload, 
                             dataset_name, 
                             use_chunking=use_chunking,
@@ -298,6 +300,8 @@ class WatsonModel(BaseModel):
                         logger.warning("RAG is enabled but no dataset name provided")
                 else:
                     logger.info("RAG is not enabled")
+                    self.relevant_entries_count = 0
+                    self.total_entries_count = 0
                 
                 if use_chat_history:
                     for message in self.chat_history:
@@ -348,7 +352,11 @@ class WatsonModel(BaseModel):
                     self.chat_history.append({"role": "human", "content": payload})
                     self.chat_history.append({"role": "ai", "content": final_result})
 
-                return final_result
+                return {
+                    "result": final_result,
+                    "relevant_entries_count": self.relevant_entries_count,
+                    "total_entries_count": self.total_entries_count
+                }
             else:
                 raise ValueError("Neither embeddings nor model_inference is initialized.")
         except ModelError as e:

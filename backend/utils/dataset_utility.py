@@ -677,13 +677,13 @@ class DatasetManagement:
             dataset_dir = Path("Datasets") / dataset_name
             if not dataset_dir.exists():
                 logger.error(f"Dataset not found: {dataset_name}")
-                return []
+                return [], 0, 0
 
             method_folder = "chunked" if use_chunking else "default"
             processing_dir = dataset_dir / method_folder
             if not processing_dir.exists():
                 logger.error(f"Dataset {dataset_name} has not been processed with {'chunked' if use_chunking else 'default'} method.")
-                return []
+                return [], 0, 0
 
             embedding_pickle_path = processing_dir / "embeddings.pkl"
             data_pickle_path = processing_dir / "data.pkl"
@@ -694,7 +694,7 @@ class DatasetManagement:
             for file in required_files:
                 if not file.exists():
                     logger.error(f"Required file not found: {file}")
-                    return []
+                    return [], 0, 0
 
             with open(model_info_path, 'r') as f:
                 model_info = json.load(f)
@@ -723,7 +723,7 @@ class DatasetManagement:
 
             if len(relevant_indices) == 0:
                 logger.info("No relevant entries found above the similarity threshold")
-                return []
+                return [], 0, len(original_data)
 
             if use_chunking:
                 chunks_pickle_path = processing_dir / "chunks.pkl"
@@ -739,16 +739,21 @@ class DatasetManagement:
                 relevant_entries = [original_data.iloc[i] if isinstance(original_data, pd.DataFrame) else original_data[i] for i in relevant_indices]
                 logger.info(f"Using full entries. Relevant entries: {len(relevant_entries)}")
 
+            # Add this line to calculate the total entries
+            total_entries = len(original_data)
+
             # Sort entries by similarity (highest to lowest)
             sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
             relevant_entries = [entry for entry, _ in sorted_entries]
 
             formatted_entries = [self.format_entry(entry) for entry in relevant_entries]
             logger.info(f"Returning {len(formatted_entries)} formatted entries")
-            return formatted_entries
+            
+            # Return the formatted entries along with the counts
+            return formatted_entries, len(relevant_entries), total_entries
         except Exception as e:
             logger.error(f"Error in find_relevant_entries: {str(e)}", exc_info=True)
-            return []
+            return [], 0, 0
 
     def format_entry(self, entry):
         if isinstance(entry, str):  # It's a chunk or a string entry

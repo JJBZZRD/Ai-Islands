@@ -387,7 +387,18 @@ namespace frontend.Models.ViewModels
 
                         // ------------------------- TEXT GENERATION MODELS LLMS -------------------------
                         case "text-generation":
-                            OutputText = dataValue.ToString();
+                            if (dataValue is JsonElement jsonData && jsonData.TryGetProperty("result", out JsonElement resultElement))
+                            {
+                                OutputText = resultElement.GetString() ?? "No result found";
+                            }
+                            else if (dataValue is Dictionary<string, object> dict && dict.TryGetValue("result", out var resultObj))
+                            {
+                                OutputText = resultObj?.ToString() ?? "No result found";
+                            }
+                            else
+                            {
+                                OutputText = "Unexpected response format for text generation";
+                            }
                             break;
 
 
