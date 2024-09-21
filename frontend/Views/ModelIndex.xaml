@@ -32,7 +32,7 @@
 
             <VerticalStackLayout Grid.Row="0" Padding="20,20,20,0" Spacing="10">
                 <Label Text="AI Index" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
-                <Label Text="Explore the pre-selected AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
+                <Label Text="Explore a curated selection of AI models for Natural Language Processing (NLP), Computer Vision (CV), and Generative AI (GenAI)" 
                        FontSize="17" TextColor="{AppThemeBinding Light=Black, Dark=#B0B0B0}" />
             </VerticalStackLayout>
 

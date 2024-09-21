@@ -16,10 +16,10 @@
 
             <Frame CornerRadius="5" Padding="10" Margin="0,0,0,10">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Watson Cloud Account:" 
+                    <Label Text="IBM Cloud Account:" 
                            FontSize="20" 
                            FontAttributes="Bold"/>
-                    <Label Text="Please provide your General Watson Cloud API Key and Location." 
+                    <Label Text="Please provide your general IBM Cloud details for watsonx models" 
                            FontSize="14"/>
 
                     <Label Text="API Key:" FontSize="14"/>
