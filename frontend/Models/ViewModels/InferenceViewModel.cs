@@ -576,34 +576,26 @@ namespace frontend.Models.ViewModels
                 if (result.TryGetValue("data", out var dataValue))
                 {
                     string assistantMessage;
-                    if (dataValue is string stringResponse)
+                    if (dataValue is JsonElement jsonElement)
                     {
-                        assistantMessage = stringResponse;
-                    }
-                    else if (dataValue is JsonElement jsonElement)
-                    {
-                        if (jsonElement.ValueKind == JsonValueKind.String)
+                        if (jsonElement.TryGetProperty("result", out var resultElement))
                         {
-                            assistantMessage = jsonElement.GetString();
-                        }
-                        else if (jsonElement.ValueKind == JsonValueKind.Object && jsonElement.TryGetProperty("response", out var responseProperty))
-                        {
-                            assistantMessage = responseProperty.GetString();
+                            assistantMessage = resultElement.GetString();
                         }
                         else
                         {
-                            assistantMessage = $"Unexpected response format: {jsonElement}";
+                            assistantMessage = jsonElement.ToString();
                         }
                     }
                     else if (dataValue is Dictionary<string, object> responseDict)
                     {
-                        assistantMessage = responseDict.TryGetValue("response", out var responseValue)
-                            ? responseValue?.ToString()
-                            : $"Unexpected response format: {JsonSerializer.Serialize(responseDict)}";
+                        assistantMessage = responseDict.TryGetValue("result", out var resultValue)
+                            ? resultValue?.ToString()
+                            : JsonSerializer.Serialize(responseDict);
                     }
                     else
                     {
-                        assistantMessage = $"Unexpected data type: {dataValue?.GetType().Name}";
+                        assistantMessage = dataValue?.ToString();
                     }
 
                     ChatHistory.Add(new ChatMessage { Role = "assistant", Content = assistantMessage });
