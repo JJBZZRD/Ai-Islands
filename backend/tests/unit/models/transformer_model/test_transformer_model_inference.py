@@ -6,9 +6,9 @@ import copy
 @pytest.fixture
 def transformer_model(model_info_library):
     model = TransformerModel(model_id="Qwen/Qwen2-0.5B-Instruct")
-    model.config = copy.deepcopy(model_info_library['config'])  # Use deep copy here
+    model.config = copy.deepcopy(model_info_library['config']) 
     model.pipeline = MagicMock()
-    model.pipeline.task = model_info_library.get('pipeline_tag')  # Set the task attribute
+    model.pipeline.task = model_info_library.get('pipeline_tag')
     model.model_instance_data = []
     return model
 
@@ -31,20 +31,6 @@ def test_inference_text_generation_without_chat_history(transformer_model):
     expected_input = [{"role": "user", "content": "Hello, how are you?"}]
     transformer_model.pipeline.assert_called_once_with(expected_input, max_length=100)
     assert output == "I'm doing well, thank you for asking!"
-
-import pytest
-from unittest.mock import patch, MagicMock
-from backend.models.transformer_model import TransformerModel
-import copy
-
-@pytest.fixture
-def transformer_model(model_info_library):
-    model = TransformerModel(model_id="Qwen/Qwen2-0.5B-Instruct")
-    model.config = copy.deepcopy(model_info_library['config'])  # Use deep copy here
-    model.pipeline = MagicMock()
-    model.pipeline.task = model_info_library.get('pipeline_tag')  # Set the task attribute
-    model.model_instance_data = []
-    return model
 
 def test_inference_text_generation_with_chat_history(transformer_model):
 

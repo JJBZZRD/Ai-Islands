@@ -33,17 +33,17 @@ class MockTransformerModel(TransformerModel):
 
 # Adjust the fixture to use MockTransformerModel
 @pytest.fixture
-def model_control(model_info):
+def model_control(model_info_library):
     with patch('backend.controlers.model_control.ModelControl._get_model_class', return_value=MockTransformerModel), \
-         patch('backend.controlers.model_control.LibraryControl.get_model_info_library', return_value=model_info), \
-         patch('backend.controlers.model_control.LibraryControl.get_model_info_index', return_value=model_info), \
+         patch('backend.controlers.model_control.LibraryControl.get_model_info_library', return_value=model_info_library), \
+         patch('backend.controlers.model_control.LibraryControl.get_model_info_index', return_value=model_info_library), \
          patch('backend.settings.settings_service.SettingsService.get_hardware_preference', return_value='cpu'):
         model_control = ModelControl()
-        model_control.load_model(model_info['base_model'])
+        model_control.load_model(model_info_library['base_model'])
         return model_control
 
-def test_model_inference(model_control, model_info):
-    model_id = model_info['base_model']
+def test_model_inference(model_control, model_info_library):
+    model_id = model_info_library['base_model']
     inference_request = {
         'model_id': model_id,
         'data': {'payload': 'Test input'}

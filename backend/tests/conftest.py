@@ -3,6 +3,12 @@ import copy
 from backend.data_utils.json_handler import JSONHandler
 from backend.core.config import MODEL_INDEX_PATH, DOWNLOADED_MODELS_PATH, PLAYGROUND_JSON_PATH
 
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if "/unit/" in str(item.fspath):
+            item.add_marker(pytest.mark.unit)
+        elif "/integration/" in str(item.fspath):
+            item.add_marker(pytest.mark.integration)
 
 # Store original data
 original_model_index = JSONHandler.read_json(MODEL_INDEX_PATH)

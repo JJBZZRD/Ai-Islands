@@ -6,7 +6,9 @@ from backend.api.routes.model_routes import ModelRouter
 from backend.core.exceptions import ModelError
 from backend.models.transformer_model import TransformerModel
 from backend.controlers.model_control import ModelControl
+import logging
 
+logger = logging.getLogger(__name__)
 class MockTransformerModel(TransformerModel):
     def __init__(self, model_id: str):
         super().__init__(model_id)
@@ -16,10 +18,16 @@ class MockTransformerModel(TransformerModel):
         self.is_trained = False
         self.pipeline_tag = 'text-generation'
         self.device = 'cpu'
-        
         self.pipeline = MagicMock()
         self.pipeline.task = self.pipeline_tag
-        self.pipeline.return_value = [{"generated_text": [{"content": "I'm an AI assistant. How can I help you today?"}]}]
+        self.pipeline.side_effect = self._pipeline_return_value
+
+    def _pipeline_return_value(self, *args, **kwargs):
+
+        if args[0][0]['content'] == "model error test":
+            raise ModelError("Inference failed")
+        else:
+            return [{"generated_text":[{"role":"assistant","content":"I'm an AI assistant. How can I help you today?"}]}]
 
     def load(self, device, model_info):
         self.config = model_info.get('config', {})
@@ -36,7 +44,11 @@ def model_control(model_info_library):
          patch('backend.settings.settings_service.SettingsService.get_hardware_preference', return_value='cpu'):
         model_control = ModelControl()
         model_control.load_model(model_info_library['base_model'])
-        return model_control
+        yield model_control
+        # Clean up after the test
+        model_control.unload_model(model_info_library['base_model'])
+    
+
 
 @pytest.fixture
 def app(model_control):
@@ -49,34 +61,32 @@ def app(model_control):
 def client(app):
     return TestClient(app)
 
-def test_inference_success(client, model_info_library, model_control):
+def test_inference_success(client, model_info_library):
     model_id = model_info_library['base_model']
-    inference_data = {"input": "Hello, how are you?"}
-    expected_output = "I'm an AI assistant. How can I help you today?"
+    inference_data = "Hello, how are you?"
+    expected_output =  "I'm an AI assistant. How can I help you today?"
 
-    with patch.object(model_control, "inference", return_value=expected_output):
-        response = client.post("/model/inference", json={"model_id": model_id, "data": inference_data})
-
+    response = client.post("/model/inference", json={"model_id": model_id, "data": {"payload":inference_data}})
+    print(response.json())
     assert response.status_code == 200
     assert response.json()["data"] == expected_output
 
 def test_inference_model_not_loaded(client, model_control):
     model_id = "NonLoadedModel"
-    inference_data = {"input": "Hello, how are you?"}
+    inference_data = "Hello, how are you?"
     
-    with patch.object(model_control, "inference", side_effect=KeyError(model_id)):
-        response = client.post("/model/inference", json={"model_id": model_id, "data": inference_data})
+    
+    response = client.post("/model/inference", json={"model_id": model_id, "data": {"payload":inference_data}})
 
     assert response.status_code == 400
     assert f"{model_id}" in response.json()["error"]["message"]
 
-def test_inference_model_error(client, model_control):
-    model_id = "ErrorModel"
-    inference_data = {"input": "Hello, how are you?"}
+def test_inference_model_error(client, model_info_library):
+    model_id = model_info_library['base_model']
+    inference_data = "model error test"
     
-    with patch.object(model_control, "inference", side_effect=ModelError("Inference failed")):
-        response = client.post("/model/inference", json={"model_id": model_id, "data": inference_data})
-
+    response = client.post("/model/inference", json={"model_id": model_id, "data": {"payload":inference_data}})
+    print({"response":response.json()})
     assert response.status_code == 500
     assert "Inference failed" in response.json()["error"]["message"]
 
