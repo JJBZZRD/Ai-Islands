@@ -349,6 +349,47 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
+                                    <Grid Padding="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Frame Grid.Column="0" Grid.ColumnSpan="2"
+                                            CornerRadius="10"
+                                            Padding="10"
+                                            Margin="5">
+                                            <Frame.Triggers>
+                                                <DataTrigger TargetType="Frame"
+                                                            Binding="{Binding Role}"
+                                                            Value="user">
+                                                    <Setter Property="BackgroundColor"
+                                                            Value="{AppThemeBinding Light=#E1F5FE, Dark=#404040}"/>
+                                                    <Setter Property="HorizontalOptions"
+                                                            Value="End"/>
+                                                    <Setter Property="Grid.Column" Value="1"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame"
+                                                            Binding="{Binding Role}"
+                                                            Value="assistant">
+                                                    <Setter Property="BackgroundColor"
+                                                            Value="{AppThemeBinding Light=#F1F8E9, Dark=Black}"/>
+                                                    <Setter Property="HorizontalOptions"
+                                                            Value="Fill"/>
+                                                    <Setter Property="Grid.Column" Value="0"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="2"/>
+                                                </DataTrigger>
+                                            </Frame.Triggers>
+                                            <Label TextType="Html"
+                                                Text="{Binding FormattedContent}"
+                                                LineBreakMode="WordWrap"/>
+                                        </Frame>
+                                    </Grid>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <!-- <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
                                     <Frame CornerRadius="10"
                                            Padding="10"
                                            Margin="5">
@@ -372,7 +413,7 @@
                                     </Frame>
                                 </ViewCell>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
+                        </ListView.ItemTemplate> -->
                     </ListView>
                 </ScrollView>
 
