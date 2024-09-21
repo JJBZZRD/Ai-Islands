@@ -15,6 +15,15 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" FontSize="24" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="{Binding PlaygroundId}" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#007AFF, Dark=#4DA3FF}"/>
+                    <!-- <Span Text=" Inference" FontAttributes="None"/> -->
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+
         <!-- Load/Stop Chain Button -->
         <Button Grid.Row="0" 
                 Grid.Column="1" 

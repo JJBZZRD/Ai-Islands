@@ -13,12 +13,20 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Label Text="Playground API Access"
+            <!-- <Label Text="Playground API Access"
                    FontSize="24"
                    FontAttributes="Bold"
                    Margin="0,0,0,10"
                    TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}"
-                   Grid.Row="0"/>
+                   Grid.Row="0"/> -->
+            <Label FontSize="24" TextColor="{AppThemeBinding Light=Black, Dark=#E0E0E0}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding CurrentPlaygroundId}" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#007AFF, Dark=#4DA3FF}"/>
+                        <Span Text=" API Access" FontAttributes="None"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
 
             <Label Text="This page provides an overview of the available API endpoints for interacting with the Playground. Expand each section to view details about the endpoint and its usage."
                    FontSize="14"

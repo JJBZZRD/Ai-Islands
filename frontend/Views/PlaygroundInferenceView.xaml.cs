@@ -19,6 +19,7 @@ namespace frontend.Views
     public partial class PlaygroundInferenceView : ContentView, INotifyPropertyChanged
     {
         private readonly Playground _playground;
+        public string PlaygroundId => _playground?.PlaygroundId;
         private readonly PlaygroundService _playgroundService;
         private readonly ModelService _modelService;
         private bool _isChainLoaded = false;
@@ -84,6 +85,8 @@ namespace frontend.Views
 
             UpdateButtonState();
             UpdateOutputVisibility();
+            // Notify that PlaygroundId is available
+            OnPropertyChanged(nameof(PlaygroundId));
         }
 
         private async void InitializeChainState()

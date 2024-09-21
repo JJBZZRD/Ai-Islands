@@ -4,6 +4,8 @@ namespace frontend.Models.ViewModels
 {
     public partial class PlaygroundAPIViewModel : ObservableObject
     {
+        private readonly PlaygroundViewModel _playgroundViewModel;
+
         [ObservableProperty]
         private string infoRequest;
         [ObservableProperty]
@@ -30,11 +32,18 @@ namespace frontend.Models.ViewModels
         private string stopChainRequestBody;
         [ObservableProperty]
         private string inferenceRequestBody;
+        [ObservableProperty]
+        private string currentPlaygroundId;
 
         public PlaygroundAPIViewModel(PlaygroundViewModel playgroundViewModel)
         {
-            InitializeApiExamples(playgroundViewModel.Playground.PlaygroundId);
+            _playgroundViewModel = playgroundViewModel;
+            CurrentPlaygroundId = _playgroundViewModel.Playground?.PlaygroundId;
+            InitializeApiExamples(CurrentPlaygroundId);
         }
+
+        // Remove this property to avoid ambiguity
+        // public string PlaygroundId => _playgroundViewModel.Playground?.PlaygroundId;
 
         private void InitializeApiExamples(string playgroundId)
         {
