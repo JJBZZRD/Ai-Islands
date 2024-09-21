@@ -401,5 +401,32 @@ namespace frontend.Views
                 parentGrid.Children.Remove(copyLabel);
             }
         }
+
+        private async void OnCopyJsonOutputClicked(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(JsonOutputEditor.Text))
+            {
+                await Clipboard.SetTextAsync(JsonOutputEditor.Text);
+                
+                // Show a temporary label to indicate successful copy
+                var copyLabel = new Label
+                {
+                    Text = "Copied to clipboard!",
+                    TextColor = Colors.Green,
+                    FontSize = 14,
+                    HorizontalOptions = LayoutOptions.End,
+                    VerticalOptions = LayoutOptions.Center,
+                    Margin = new Thickness(0, 0, 10, 0)
+                };
+
+                var parentGrid = (Grid)((Button)sender).Parent;
+                parentGrid.Children.Add(copyLabel);
+                Grid.SetColumn(copyLabel, 1);
+
+                // Remove the label after 2 seconds
+                await Task.Delay(2000);
+                parentGrid.Children.Remove(copyLabel);
+            }
+        }
     }
 }
