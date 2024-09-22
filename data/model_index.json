@@ -189,55 +189,6 @@
       "chat_history": false
     }
   },
-  "ibm-mistralai/merlinite-7b": {
-    "is_online": true,
-    "model_source": "IBM",
-    "model_class": "WatsonModel",
-    "mapping": {
-      "input": "text",
-      "output": "text"
-    },
-    "tags": [
-      "text-generation",
-      "summarization",
-      "retrieval-augmented-generation",
-      "classification",
-      "generation",
-      "code",
-      "extraction"
-    ],
-    "pipeline_tag": "text-generation",
-    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
-    "model_desc": "Merlinite-7b is a Mistral-7b-derivative model trained with the LAB methodology, using Mixtral-8x7b-Instruct as a teacher model.",
-    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced.",
-    "config": {
-      "prompt": {
-        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
-        "example_conversation": ""
-      },
-      "parameters": {
-        "temperature": 0.7,
-        "top_p": 1.0,
-        "top_k": 50,
-        "max_new_tokens": 1000,
-        "min_new_tokens": 1,
-        "repetition_penalty": 1.0,
-        "random_seed": 42,
-        "stop_sequences": [
-          "Human:",
-          "AI:",
-          "<|endoftext|>"
-        ]
-      },
-      "rag_settings": {
-        "use_dataset": false,
-        "dataset_name": null,
-        "similarity_threshold": 0.5,
-        "use_chunking": false
-      },
-      "chat_history": false
-    }
-  },
   "ibm/granite-13b-chat-v2": {
     "is_online": true,
     "model_source": "IBM",
@@ -482,6 +433,106 @@
       "chat_history": false
     }
   },
+  "meta-llama/llama-3-1-70b-instruct": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+    "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": [
+          "Human:",
+          "AI:",
+          "<|endoftext|>"
+        ]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      },
+      "chat_history": false
+    }
+  },
+  "meta-llama/llama-3-1-8b-instruct": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "text-generation",
+      "question-answering",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "Llama-3-70b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
+    "model_detail": "Llama-3-70b-instruct is a pretrained and fine-tuned generative text model with 70 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": [
+          "Human:",
+          "AI:",
+          "<|endoftext|>"
+        ]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      },
+      "chat_history": false
+    }
+  },
   "meta-llama/llama-3-70b-instruct": {
     "is_online": true,
     "model_source": "IBM",
@@ -554,6 +605,55 @@
     "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
     "model_desc": "Llama-3-8b-instruct is an auto-regressive language model that uses an optimized transformer architecture.",
     "model_detail": "Llama-3-8b-instruct is a pretrained and fine-tuned generative text model with 8 billion parameters, optimized for dialogue use cases.",
+    "config": {
+      "prompt": {
+        "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
+        "example_conversation": ""
+      },
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "top_k": 50,
+        "max_new_tokens": 1000,
+        "min_new_tokens": 1,
+        "repetition_penalty": 1.0,
+        "random_seed": 42,
+        "stop_sequences": [
+          "Human:",
+          "AI:",
+          "<|endoftext|>"
+        ]
+      },
+      "rag_settings": {
+        "use_dataset": false,
+        "dataset_name": null,
+        "similarity_threshold": 0.5,
+        "use_chunking": false
+      },
+      "chat_history": false
+    }
+  },
+  "mistralai/mistral-large": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "text-generation",
+      "summarization",
+      "retrieval-augmented-generation",
+      "classification",
+      "generation",
+      "code",
+      "extraction"
+    ],
+    "pipeline_tag": "text-generation",
+    "model_card_url": "https://www.ibm.com/products/watsonx-ai/foundation-models",
+    "model_desc": "The Mixtral-8x7B Large Language Model (LLM) is a pretrained generative Sparse Mixture of Experts.",
+    "model_detail": "This model is made with AutoGPTQ, which mainly leverages the quantization technique to 'compress' the model weights from FP16 to 4-bit INT and performs 'decompression' on-the-fly before computation (in FP16). As a result, the GPU memory, and the data transferring between GPU memory and GPU compute engine, compared to the original FP16 model, is greatly reduced. The major quantization parameters used in the process are listed below.",
     "config": {
       "prompt": {
         "system_prompt": "You are Granite Chat, created by IBM. You're designed to assist with information and answer questions. You don't have feelings or emotions, so you don't experience happiness or sadness. You're here to help make the user's day more productive or enjoyable. Always respond in a helpful and informative manner. Provide a single, concise response to each query without continuing the conversation. Do not add 'Human:' or any other conversation continuation at the end of your response.",
