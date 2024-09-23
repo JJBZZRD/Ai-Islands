@@ -184,8 +184,15 @@ class WatsonModel(BaseModel):
             logger.info(f"Using project ID: {self.project_id}")
 
             # Check if it's an embedding model
-            if self.model_id in ["ibm/slate-30m-english-rtrvr", "ibm/slate-125m-english-rtrvr", 
-                                 "sentence-transformers/all-minilm-l12-v2", "intfloat/multilingual-e5-large"]:
+            if self.model_id in [
+                "ibm/slate-30m-english-rtrvr",
+                "ibm/slate-30m-english-rtrvr-v2",
+                "ibm/slate-125m-english-rtrvr",
+                "ibm/slate-125m-english-rtrvr-v2",
+                "sentence-transformers/all-minilm-l12-v2",
+                "intfloat/multilingual-e5-large",
+                "cross-encoder/ms-marco-minilm-l-12-v2"
+            ]:
                 embedding_type = self._get_embedding_type(self.model_id)
                 logger.info(f"Initializing embedding model with type: {embedding_type}")
                 
@@ -226,9 +233,12 @@ class WatsonModel(BaseModel):
     def _get_embedding_type(self, model_id):
         embedding_types = {
             "ibm/slate-30m-english-rtrvr": EmbeddingTypes.IBM_SLATE_30M_ENG.value,
+            "ibm/slate-30m-english-rtrvr-v2": "ibm/slate-30m-english-rtrvr-v2",
             "ibm/slate-125m-english-rtrvr": EmbeddingTypes.IBM_SLATE_125M_ENG.value,
+            "ibm/slate-125m-english-rtrvr-v2": "ibm/slate-125m-english-rtrvr-v2",
             "sentence-transformers/all-minilm-l12-v2": "sentence-transformers/all-minilm-l12-v2",
-            "intfloat/multilingual-e5-large": "intfloat/multilingual-e5-large"
+            "intfloat/multilingual-e5-large": "intfloat/multilingual-e5-large",
+            "cross-encoder/ms-marco-minilm-l-12-v2": "cross-encoder/ms-marco-minilm-l-12-v2"
         }
         return embedding_types.get(model_id, EmbeddingTypes.IBM_SLATE_30M_ENG.value)
 

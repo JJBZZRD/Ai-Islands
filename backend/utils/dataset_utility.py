@@ -47,10 +47,13 @@ class DatasetManagement:
     ]
 
     WATSON_MODELS = [
-        'ibm/slate-30m-english-rtrvr',
+        'cross-encoder/ms-marco-minilm-l-12-v2',
         'ibm/slate-125m-english-rtrvr',
-        'sentence-transformers/all-minilm-l12-v2',
-        'intfloat/multilingual-e5-large'
+        'ibm/slate-125m-english-rtrvr-v2',
+        'ibm/slate-30m-english-rtrvr',
+        'ibm/slate-30m-english-rtrvr-v2',
+        'intfloat/multilingual-e5-large',
+        'sentence-transformers/all-minilm-l12-v2'
     ]
 
     def __init__(self, model_name=None):
@@ -133,9 +136,12 @@ class DatasetManagement:
 
         embedding_type_map = {
             "ibm/slate-30m-english-rtrvr": EmbeddingTypes.IBM_SLATE_30M_ENG,
+            "ibm/slate-30m-english-rtrvr-v2": "ibm/slate-30m-english-rtrvr-v2",
             "ibm/slate-125m-english-rtrvr": EmbeddingTypes.IBM_SLATE_125M_ENG,
+            "ibm/slate-125m-english-rtrvr-v2": "ibm/slate-125m-english-rtrvr-v2",
             "sentence-transformers/all-minilm-l12-v2": "sentence-transformers/all-minilm-l12-v2",
-            "intfloat/multilingual-e5-large": "intfloat/multilingual-e5-large"
+            "intfloat/multilingual-e5-large": "intfloat/multilingual-e5-large",
+            "cross-encoder/ms-marco-minilm-l-12-v2": "cross-encoder/ms-marco-minilm-l-12-v2"
         }
 
         embedding_type = embedding_type_map.get(model_name)
