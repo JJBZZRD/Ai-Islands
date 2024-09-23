@@ -6,13 +6,14 @@
 
 1. Open **Visual Studio Code**
 
-2. Create and activate a Python virtual environment (venv) using the terminal:
-   ```shell
-   python -m venv venv
-   source venv/bin/activate  # On macOS/Linux
-   venv\Scripts\activate      # On Windows
+2. Clone and navigate to the root directory of the repository
 
-3. Navigate to the root directory of the repository
+3. Create and activate a Python virtual environment (venv) using the terminal:
+   ```shell
+   python -m venv .venv
+   source .venv/bin/activate  # On macOS/Linux
+   .venv\Scripts\activate      # On Windows
+   ```
 
 4. Install the necessary Python packages:
 

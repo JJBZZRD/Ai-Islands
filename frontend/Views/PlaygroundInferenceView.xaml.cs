@@ -430,10 +430,14 @@ namespace frontend.Views
                     inputData["payload"] = _inputText;
                     break;
                 case "speech-to-text":
-                case "automatic-speech-recognition":
                     if (string.IsNullOrEmpty(_selectedFilePath))
                         throw new InvalidOperationException("Please select an audio file.");
                     inputData["audio_path"] = _selectedFilePath;
+                    break;
+                case "automatic-speech-recognition":
+                    if (string.IsNullOrEmpty(_selectedFilePath))
+                        throw new InvalidOperationException("Please select an audio file.");
+                    inputData["payload"] = _selectedFilePath;
                     break;
                 default:
                     throw new ArgumentException("Unsupported model type for inference.");
@@ -570,7 +574,7 @@ namespace frontend.Views
                     {
                         { DevicePlatform.iOS, new[] { "public.audio" } },
                         { DevicePlatform.Android, new[] { "audio/*" } },
-                        { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a" } }
+                        { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".m4a", ".flac"} }
                     });
 
                 var result = await FilePicker.Default.PickAsync(new PickOptions
