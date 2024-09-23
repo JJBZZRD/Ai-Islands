@@ -817,7 +817,7 @@
       "content_type": "audio/wav"
     }
   },
-  "ibm/slate-30m-english-rtrvr": {
+  "cross-encoder/ms-marco-minilm-l-12-v2": {
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
@@ -828,19 +828,20 @@
     "tags": [
       "embedding",
       "text-embedding",
+      "multilingual",
       "semantic-search",
       "document-comparison",
       "retrieval-augmented-generation"
     ],
     "pipeline_tag": "feature-extraction",
-    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
-    "model_desc": "The slate-30m-english-rtrvr is a distilled version of the slate-125m-english-rtrvr, provided by IBM. It's trained to maximize cosine similarity between two text inputs for later similarity evaluation.",
-    "model_detail": "This embedding model has 6 layers, is faster than slate-125m-english-rtrvr, and is fine-tuned for sentence retrieval-based tasks. It generates 384-dimensional embeddings with a 512 token input limit.",
+    "model_card_url": "https://huggingface.co/intfloat/multilingual-e5-large",
+    "model_desc": "Used for Information Retrieval: Encode and sort a query will all possible passages.",
+    "model_detail": "The model can be used for Information Retrieval: Given a query, encode the query will all possible passages (e.g. retrieved with ElasticSearch). Then sort the passages in a decreasing order.",
     "config": {
-      "embedding_dimensions": 384,
+      "embedding_dimensions": 1024,
       "max_input_tokens": 512,
       "supported_languages": [
-        "English"
+        "Multilingual (up to 100 languages)"
       ]
     }
   },
@@ -871,7 +872,7 @@
       ]
     }
   },
-  "sentence-transformers/all-minilm-l12-v2": {
+  "ibm/slate-125m-english-rtrvr-v2": {
     "is_online": true,
     "model_source": "IBM",
     "model_class": "WatsonModel",
@@ -883,17 +884,70 @@
       "embedding",
       "text-embedding",
       "semantic-search",
-      "sentence-similarity",
-      "information-retrieval",
-      "clustering"
+      "document-comparison",
+      "retrieval-augmented-generation"
     ],
     "pipeline_tag": "feature-extraction",
-    "model_card_url": "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2",
-    "model_desc": "The all-minilm-l12-v2 is a sentence and short paragraph encoder provided by the open-source NLP community via Hugging Face.",
-    "model_detail": "This model outputs 384-dimensional vectors capturing semantic information in text. It's fine-tuned on over 1 billion sentence pairs and is suitable for tasks like information retrieval, clustering, and sentence similarity detection.",
+    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+    "model_desc": "The slate-125m-english-rtrvr is an IBM-provided embedding model designed for text embedding tasks.",
+    "model_detail": "This embedding model generates 768-dimensional embeddings with a 512 token input limit. It's the larger version compared to slate-30m-english-rtrvr.",
+    "config": {
+      "embedding_dimensions": 768,
+      "max_input_tokens": 512,
+      "supported_languages": [
+        "English"
+      ]
+    }
+  },
+  "ibm/slate-30m-english-rtrvr": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "document-comparison",
+      "retrieval-augmented-generation"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+    "model_desc": "The slate-30m-english-rtrvr is a distilled version of the slate-125m-english-rtrvr, provided by IBM. It's trained to maximize cosine similarity between two text inputs for later similarity evaluation.",
+    "model_detail": "This embedding model has 6 layers, is faster than slate-125m-english-rtrvr, and is fine-tuned for sentence retrieval-based tasks. It generates 384-dimensional embeddings with a 512 token input limit.",
     "config": {
       "embedding_dimensions": 384,
-      "max_input_tokens": 256,
+      "max_input_tokens": 512,
+      "supported_languages": [
+        "English"
+      ]
+    }
+  },
+  "ibm/slate-30m-english-rtrvr-v2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "document-comparison",
+      "retrieval-augmented-generation"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-models-embed.html?context=wx",
+    "model_desc": "The slate-30m-english-rtrvr is a distilled version of the slate-125m-english-rtrvr, provided by IBM. It's trained to maximize cosine similarity between two text inputs for later similarity evaluation.",
+    "model_detail": "This embedding model has 6 layers, is faster than slate-125m-english-rtrvr, and is fine-tuned for sentence retrieval-based tasks. It generates 384-dimensional embeddings with a 512 token input limit.",
+    "config": {
+      "embedding_dimensions": 384,
+      "max_input_tokens": 512,
       "supported_languages": [
         "English"
       ]
@@ -924,6 +978,34 @@
       "max_input_tokens": 512,
       "supported_languages": [
         "Multilingual (up to 100 languages)"
+      ]
+    }
+  },
+  "sentence-transformers/all-minilm-l12-v2": {
+    "is_online": true,
+    "model_source": "IBM",
+    "model_class": "WatsonModel",
+    "mapping": {
+      "input": "text",
+      "output": "text"
+    },
+    "tags": [
+      "embedding",
+      "text-embedding",
+      "semantic-search",
+      "sentence-similarity",
+      "information-retrieval",
+      "clustering"
+    ],
+    "pipeline_tag": "feature-extraction",
+    "model_card_url": "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2",
+    "model_desc": "The all-minilm-l12-v2 is a sentence and short paragraph encoder provided by the open-source NLP community via Hugging Face.",
+    "model_detail": "This model outputs 384-dimensional vectors capturing semantic information in text. It's fine-tuned on over 1 billion sentence pairs and is suitable for tasks like information retrieval, clustering, and sentence similarity detection.",
+    "config": {
+      "embedding_dimensions": 384,
+      "max_input_tokens": 256,
+      "supported_languages": [
+        "English"
       ]
     }
   },
