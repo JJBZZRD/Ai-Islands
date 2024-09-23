@@ -432,7 +432,7 @@ namespace frontend.Views
                 case "speech-to-text":
                     if (string.IsNullOrEmpty(_selectedFilePath))
                         throw new InvalidOperationException("Please select an audio file.");
-                    inputData["audio_path"] = _selectedFilePath;
+                    inputData["file_path"] = _selectedFilePath;
                     break;
                 case "automatic-speech-recognition":
                     if (string.IsNullOrEmpty(_selectedFilePath))
@@ -472,6 +472,8 @@ namespace frontend.Views
                     InputContainer.Children.Add(CreateTextInputUI());
                     break;
                 case "speech-to-text":
+                    InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
+                    break;
                 case "automatic-speech-recognition":
                     InputContainer.Children.Add(CreateFileSelectionUI("Select Audio File"));
                     break;
