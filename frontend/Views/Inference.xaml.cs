@@ -27,7 +27,7 @@ namespace frontend.Views
             BindingContext = _viewModel;
             _viewModel.SetImagePopup(_imagePopupView);
             CreateInputUI();
-            // Initialize AudioPlayer
+            // Initialise AudioPlayer
             AudioPlayer.ShouldAutoPlay = false;
             AudioPlayer.ShouldShowPlaybackControls = true;
             // Ensure the secondary output (JSON) toggle is off by default

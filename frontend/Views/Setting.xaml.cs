@@ -425,8 +425,8 @@ public partial class Setting : ContentPage, INotifyPropertyChanged
     {
         string message = param switch
         {
-            "APIKeyInfo" => "Your Watson Cloud API Key is used to authenticate your requests.",
-            "ProjectIDInfo" => "Your Project ID is the environment used for Watson X Foundation Models and Embedders. If no project ID entered, AI Islands will fetch your latest Watson Studio project from your account.",
+            "APIKeyInfo" => "Your IBM Cloud API Key is used to authenticate your watsonx requests.",
+            "ProjectIDInfo" => "Your Project ID is the environment used for watsonx Foundation Models and Embedders. If no project ID entered, AI Islands will fetch your first Watson Studio project from your account.",
             "ChunkSizeInfo" => "Chunk size determines how many tokens are in each text chunk.",
             "ChunkOverlapInfo" => "Chunk overlap specifies how many tokens should overlap between chunks.",
             "ChunkMethodInfo" => "Chunk method determines how the text is split into chunks.",

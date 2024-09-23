@@ -26,7 +26,6 @@ from backend.core.exceptions import ModelError
 
 load_dotenv()
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -377,7 +376,7 @@ class DatasetManagement:
         
         chunks = []
         if chunk_method == 'csv_row':
-            chunks = texts  # For CSV, each row is already a separate item
+            chunks = texts  # For CSV, each row is already a separate item. important!
         else:
             for text in texts:
                 if chunk_method == 'fixed_length':
@@ -393,7 +392,8 @@ class DatasetManagement:
         logger.info(f"Created {len(chunks)} total chunks from {len(texts)} original texts")
         logger.info(f"Sample chunks:")
         for i in range(min(3, len(chunks))):
-            logger.info(f"Chunk {i+1}: {chunks[i][:100]}...")  # Show first 100 chars of each sample chunk
+            # Show first 100 chars of each sample chunk
+            logger.info(f"Chunk {i+1}: {chunks[i][:100]}...")
         return chunks
 
     def _process_csv_rows(self, df):
@@ -424,7 +424,7 @@ class DatasetManagement:
         
         logger.info(f"Created {len(chunks)} chunks from CSV data")
         if chunks:
-            logger.info(f"Sample chunk: {chunks[0][:200]}...")  # Log a sample chunk for verification
+            logger.info(f"Sample chunk: {chunks[0][:200]}...")
         else:
             logger.warning("No chunks were created from the CSV data")
         return chunks
@@ -544,7 +544,7 @@ class DatasetManagement:
             "embedding_type": self.model_type,
         }
 
-        # Generate visualizations
+        # Generate visualisations
         report_data["length_distribution_plot"] = self._generate_length_distribution_plot(texts)
         if chunks:
             report_data["chunk_distribution_plot"] = self._generate_chunk_distribution_plot(texts, chunks)
@@ -569,7 +569,7 @@ class DatasetManagement:
 
     def _get_chunk_distribution(self, texts, chunks):
         chunk_distribution = []
-        for i, text in enumerate(texts[:5]):  # Limit to first 5 entries for brevity
+        for i, text in enumerate(texts[:5]):  # Limit to first 5 entries
             related_chunks = [chunk for chunk in chunks if chunk.startswith(text[:50])]
             chunk_distribution.append({
                 "entry_id": i + 1,
@@ -748,7 +748,7 @@ class DatasetManagement:
             # Add this line to calculate the total entries
             total_entries = len(original_data)
 
-            # Sort entries by similarity (highest to lowest)
+            # Sort entries by similarity threshold high to low
             sorted_entries = sorted(zip(relevant_entries, relevant_similarities), key=lambda x: x[1], reverse=True)
             relevant_entries = [entry for entry, _ in sorted_entries]
 
@@ -771,7 +771,7 @@ class DatasetManagement:
         elif isinstance(entry, pd.Series):
             return ', '.join([f"{key}: {value}" for key, value in entry.items()])
         else:
-            return str(entry)  # Fallback for any other type
+            return str(entry)
 
 # ------------- LOCAL METHODS -------------
 

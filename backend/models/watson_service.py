@@ -54,8 +54,8 @@ class WatsonService(BaseModel):
             with open(resource_list_path, 'w') as f:
                 json.dump(resources, f, indent=4)
             logger.info(f"Resource list saved to {resource_list_path}")
-
-            service_name = model_id.split('/')[-1]  # Extract service name from model_id
+            # Extract service name from model_id
+            service_name = model_id.split('/')[-1]
             service_available = False
 
             for resource in resources:
@@ -94,14 +94,11 @@ class WatsonService(BaseModel):
             return new_entry
 
         except ModelError as e:
-            # Log the error for debugging purposes
             logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            # Re-raise the original ModelError without adding extra context
             raise
 
         except Exception as e:
-            # For unexpected errors, we might want to keep a generic message
             logger.error(f"Unexpected error downloading {model_id}: {str(e)}")
             logger.exception("Full traceback:")
             raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
@@ -126,17 +123,17 @@ class WatsonService(BaseModel):
                 self.nlu = self._init_nlu_service()
                 if self.nlu:
                     self.nlu_config = config.get("features", {})
-                # return self.nlu is not None
+
             elif "text-to-speech" in service_name.lower():
                 self.text_to_speech = self._init_text_to_speech_service()
                 if self.text_to_speech:
                     self.tts_config = config
-                # return self.text_to_speech is not None
+
             elif "speech-to-text" in service_name.lower():
                 self.speech_to_text = self._init_speech_to_text_service()
                 if self.speech_to_text:
                     self.stt_config = config
-                # return self.speech_to_text is not None
+
             else:
                 raise ModelError(f"Unknown service name: {service_name}")
 
@@ -146,7 +143,7 @@ class WatsonService(BaseModel):
         except ModelError as e:
             logger.error(f"Error loading Watson service: {str(e)}")
             self.is_loaded = False
-            raise  # Re-raise the ModelError without wrapping it in another ModelError
+            raise
 
         except Exception as e:
             logger.error(f"Unexpected error loading Watson service: {str(e)}")
@@ -312,11 +309,11 @@ class WatsonService(BaseModel):
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"Audio file not found at path: {file_path}")
 
-            # Use the model from the config, or default to 'en-US_BroadbandModel'
+            # Use the model from the config
             model = self.stt_config.get('model', 'en-US_BroadbandModel')
             content_type = self.stt_config.get('content_type', 'audio/wav')
 
-            # Convert audio to WAV if it's not already
+            # Converts audio to WAV if it's not already
             if not file_path.endswith('.wav'):
                 audio = AudioSegment.from_file(file_path)
                 wav_path = file_path.rsplit('.', 1)[0] + '.wav'

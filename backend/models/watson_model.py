@@ -139,14 +139,11 @@ class WatsonModel(BaseModel):
                 raise ModelError(error_message)
 
         except ModelError as e:
-            # Log the error for debugging purposes
             logger.error(f"Error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
-            # Re-raise the original ModelError without adding extra context
             raise
 
         except Exception as e:
-            # For unexpected errors, we might want to keep a generic message
             logger.error(f"Unexpected error downloading model {model_id}: {str(e)}")
             logger.exception("Full traceback:")
             raise ModelError(f"Unexpected error occurred while downloading {model_id}. Please try again later.")
@@ -249,7 +246,6 @@ class WatsonModel(BaseModel):
 
         try:
             if self.embeddings:
-                # We can change this to accept multiple inputs, and give multiple outputs - for analytics
                 text = data.get('payload', '')
                 if not text:
                     raise ValueError("Text is required for embedding generation")
